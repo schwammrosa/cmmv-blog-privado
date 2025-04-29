@@ -28,15 +28,13 @@ async function main() {
         if ((window as any).__PINIA__)
             pinia.state.value = (window as any).__PINIA__;
 
-        const settingsStore = useSettingsStore();
+        let theme = pinia.state.value.settings.data["blog.theme"] || import.meta.env.VITE_DEFAULT_THEME;
+        console.log(theme);
         const routerModules = import.meta.glob('./theme-*/router.ts');
-        let theme = settingsStore.getSetting('blog.theme', import.meta.env.VITE_DEFAULT_THEME);
         const importFn = routerModules[`./theme-${theme}/router.ts`] || routerModules[`./theme-default/router.ts`];
         //@ts-ignore
         const { createRouter } = await importFn();
         const router = createRouter();
-        app.use(router)
-
         router.isReady().then(() => {
             app.mount('#app', true)
         })
