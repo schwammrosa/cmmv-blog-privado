@@ -18,7 +18,16 @@
                             </a>
                         </div>
 
-                        <img :src="post.featureImage" :alt="post.featureImageAlt || post.title" class="featured-img" />
+                        <img
+                            :src="post.featureImage"
+                            :alt="post.featureImageAlt || post.title"
+                            class="featured-img"
+                            title="Imagem de destaque"
+                            aria-label="Imagem de destaque"
+                            width="1060"
+                            height="400"
+                            loading="lazy"
+                        />
                         <p v-if="post.featureImageCaption" class="image-caption text-neutral-600 text-sm mt-2 text-center">{{
                             post.featureImageCaption }}</p>
                     </div>
@@ -217,7 +226,7 @@
                             <div
                                 class="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0 border-2 border-white shadow">
                                 <img v-if="author.image" :src="author.image" :alt="author.name"
-                                    class="w-full h-full object-cover" />
+                                    class="w-full h-full object-cover" title="Avatar do autor" aria-label="Avatar do autor" width="44" height="44" />
                                 <div v-else
                                     class="w-full h-full flex items-center justify-center bg-[#0a5d28] text-white font-bold text-lg">
                                     {{ authorInitials }}

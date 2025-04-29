@@ -7,7 +7,7 @@
                     <!-- Logo -->
                     <div class="flex-shrink-0">
                         <a href="/" class="block">
-                            <img src="/src/theme-invasaonerd/logo-invert.png" alt="Invasão Nerd" class="h-10" />
+                            <img src="/src/theme-invasaonerd/logo-invert.png" alt="Invasão Nerd" class="h-10" width="77" height="40" />
                         </a>
                     </div>
 
@@ -41,14 +41,22 @@
                         </a>
 
                         <!-- Search Button -->
-                        <button @click="openSearchModal" class="text-white hover:text-[#ff3e3e] transition-colors bg-transparent border-0 p-0">
+                        <button @click="openSearchModal"
+                            class="text-white hover:text-[#ff3e3e] transition-colors bg-transparent border-0 p-0"
+                            title="Pesquisar"
+                            aria-label="Pesquisar"
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </button>
 
                         <!-- Mobile Menu Toggle -->
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-white hover:text-[#ff3e3e] transition-colors bg-transparent border-0 p-0">
+                        <button @click="mobileMenuOpen = !mobileMenuOpen"
+                            class="md:hidden text-white hover:text-[#ff3e3e] transition-colors bg-transparent border-0 p-0"
+                            title="Abrir menu"
+                            aria-label="Abrir menu"
+                        >
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path v-if="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -73,7 +81,9 @@
                         <div class="grid grid-cols-2 gap-1">
                             <a v-for="category in categories.slice(7, 15)" :key="category.id"
                                 :href="`/category/${category.slug}`"
-                                class="block text-white hover:bg-[#d12222] rounded px-3 py-2 text-sm">
+                                class="block text-white hover:bg-[#d12222] rounded px-3 py-2 text-sm"
+                                title="Clique para ver todos os posts da categoria"
+                                aria-label="Clique para ver todos os posts da categoria">
                                 {{ category.name }}
                             </a>
                         </div>
@@ -178,7 +188,7 @@
                                     <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
                                         Pesquisar
                                     </h3>
-                                    <button @click="closeSearchModal" class="text-gray-400 hover:text-gray-500 focus:outline-none bg-transparent border-0 p-0">
+                                    <button @click="closeSearchModal" class="text-gray-400 hover:text-gray-500 focus:outline-none bg-transparent border-0 p-0" title="Close" aria-label="Close">
                                         <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
@@ -287,12 +297,7 @@ useHead({
             href: '/src/theme-invasaonerd/favicon.ico'
         }
     ],
-    script: [
-        {
-            src: '/tailwind.min.js',
-            async: false
-        }
-    ]
+    script: []
 })
 
 const isDarkMode = ref(false);

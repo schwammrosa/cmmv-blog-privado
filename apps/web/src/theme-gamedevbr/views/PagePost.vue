@@ -94,7 +94,17 @@
                             </a>
                         </div>
 
-                        <img :src="post.featureImage" :alt="post.featureImageAlt || post.title" class="featured-img" width="890" height="606" />
+                        <img
+                            :src="post.featureImage"
+                            :alt="post.featureImageAlt || post.title"
+                            class="featured-img"
+                            width="890"
+                            height="606"
+                            loading="lazy"
+                            title="Imagem de destaque"
+                            aria-label="Imagem de destaque"
+                        />
+
                         <p v-if="post.featureImageCaption" class="image-caption text-neutral-600 text-sm mt-2 text-center">{{
                             post.featureImageCaption }}</p>
                     </div>
