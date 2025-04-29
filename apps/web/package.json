@@ -1,0 +1,43 @@
+{
+    "name": "cmmv-blog",
+    "version": "0.0.1",
+    "private": true,
+    "description": "Blog package for CMMV",
+    "type": "module",
+    "scripts": {
+        "dev": "tsx server.ts",
+        "build:client": "vite build --config vite.config.ts",
+        "build:server": "vite build --config vite.config.server.ts",
+        "build": "pnpm run build:client && pnpm run build:server",
+        "start": "NODE_ENV=production node dist/server.js",
+        "lint": "eslint \"src/**/*.ts\""
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "workspace:*",
+        "@repo/typescript-config": "workspace:*",
+        "@types/node": "^22.13.14",
+        "@vitejs/plugin-vue": "^5.2.3",
+        "eslint": "^9.23.0",
+        "tsx": "^4.19.3",
+        "typescript": "^5.8.2",
+        "vite": "^6.2.3",
+        "vite-plugin-compression": "^0.5.1",
+        "vite-plugin-minify": "^2.1.0",
+        "vitest": "^3.0.9"
+    },
+    "dependencies": {
+        "@cmmv/blog": "workspace:*",
+        "@tailwindcss/vite": "^4.1.4",
+        "@unhead/vue": "^2.0.5",
+        "compression-webpack-plugin": "^11.1.0",
+        "finalhandler": "^2.1.0",
+        "pinia": "^3.0.2",
+        "serve-static": "^2.2.0",
+        "tailwindcss": "^4.1.4",
+        "unhead": "^2.0.5",
+        "unplugin-auto-import": "^19.1.2",
+        "vite-plugin-image-optimizer": "^1.1.8",
+        "vue": "^3.5.13",
+        "vue-router": "^4.5.0"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "daemon": false,
+    "globalDependencies": [
+        "packages/plugin/**"
+    ],
+    "tasks": {
+        "build": {
+            "dependsOn": ["^build"],
+            "inputs": ["$TURBO_DEFAULT$", ".env*"],
+            "outputs": ["dist/**"]
+        },
+        "dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "start": {
+            "cache": true,
+            "persistent": true
+        }
+    }
+}

@@ -1,0 +1,51 @@
+{
+    "name": "cmmv-blog-api",
+    "version": "0.0.1",
+    "private": true,
+    "description": "Blog API sample",
+    "dev": {
+        "watch": [
+            "src",
+            "../packages/plugin",
+            "../../packages/plugin/api",
+            "../../packages/plugin/contracts",
+            "../../packages/rss-aggregation/api",
+            "../../packages/rss-aggregation/contracts",
+            "../../packages/yt-aggregation/api",
+            "../../packages/yt-aggregation/contracts"
+
+        ],
+        "ignore": [
+            ".generated",
+            "**/*.spec.ts",
+            "src/app.module.ts",
+            "database.sqlite-journal",
+            "database.sqlite"
+        ]
+    },
+    "scripts": {
+        "dev": "cmmv dev --watch",
+        "build": "cmmv build",
+        "start": "cmmv dev"
+    },
+    "peerDependencies": {
+        "cli-cursor": "^5.0.0",
+        "restore-cursor": "^5.1.0",
+        "signal-exit": "^4.1.0"
+    },
+    "dependencies": {
+        "@cmmv/blog": "workspace:plugin",
+        "@cmmv/access-control": "workspace:access-control",
+        "@cmmv/ai-content": "workspace:ai-content",
+        "@cmmv/rss-aggregation": "workspace:rss-aggregation",
+        "@cmmv/yt-aggregation": "workspace:yt-aggregation",
+        "@cmmv/auth": "latest",
+        "@cmmv/cache": "^0.11.4",
+        "@cmmv/cli": "latest",
+        "@cmmv/http": "latest",
+        "@cmmv/repository": "latest",
+        "cache-manager-fs-binary": "^1.0.4",
+        "sharp": "^0.34.1",
+        "tsx": "^4.19.3"
+    }
+}

@@ -1,0 +1,70 @@
+{
+    "name": "@cmmv/blog",
+    "version": "0.0.2",
+    "description": "Blog plugin for CMMV",
+    "keywords": [
+        "cmmv",
+        "plugin",
+        "blog",
+        "cms",
+        "content",
+        "management",
+        "system"
+    ],
+    "license": "MIT",
+    "author": "Andre Ferreira",
+    "packageManager": "pnpm@10.6.5",
+    "exports": {
+        "./admin": "./dist/admin/index.mjs",
+        "./api": "./dist/api/index.mjs",
+        "./client": "./dist/client/index.mjs",
+        "./contracts": "./dist/contracts/index.mjs"
+    },
+    "typesVersions": {
+        "*": {
+            "client": ["dist/client/index.d.ts" ],
+            "admin": ["dist/admin/index.d.ts"],
+            "api": ["dist/api/index.d.ts"],
+            "contracts": ["dist/contracts/index.d.ts"]
+        }
+    },
+    "files": [
+        "dist",
+        "package.json",
+        "README.md"
+    ],
+    "engines": {
+        "node": ">= 20.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "peerDependencies": {
+        "cli-cursor": "^5.0.0",
+        "restore-cursor": "^5.1.0",
+        "signal-exit": "^4.1.0"
+    },
+    "scripts": {
+        "dev": "turbo run dev",
+        "build:release": "turbo run build --filter=@cmmv/blog",
+        "build": "pnpm build:api && pnpm build:web",
+        "build:api": "cd apps/api && pnpm build",
+        "build:admin": "cd apps/admin && pnpm build",
+        "build:web": "cd apps/web && pnpm build",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "release": "pnpm build:release && pnpm publish --tag latest -r --no-git-checks",
+        "info": "turbo run info",
+        "start": "turbo run start --filter=./apps/*",
+        "start:api": "cd apps/api && pnpm start",
+        "start:admin": "cd apps/admin && pnpm start",
+        "start:web": "cd apps/web && pnpm start",
+        "clean:packages": "find ./packages -name 'node_modules' -prune -o -type f \\( -name '*.d.ts' -o -name '*.js' -o -name '*.js.map' \\) -exec rm -f {} +",
+        "clean": "pnpm run clean:packages > /dev/null 2>&1"
+    },
+    "devDependencies": {
+        "eslint": "^9.25.1",
+        "prettier": "^3.5.3",
+        "turbo": "^2.5.2"
+    }
+}

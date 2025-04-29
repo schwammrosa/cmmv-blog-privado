@@ -1,0 +1,33 @@
+{
+    "name": "@cmmv/blog",
+    "version": "0.0.1",
+    "description": "Blog package for CMMV",
+    "scripts": {
+        "build": "tsup"
+    },
+    "peerDependencies": {
+        "cli-cursor": "^5.0.0",
+        "restore-cursor": "^5.1.0",
+        "signal-exit": "^4.1.0"
+    },
+    "devDependencies": {
+        "@types/busboy": "^1.5.4",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/xml2js": "^0.4.14",
+        "tsup": "^8.4.0",
+        "typescript": "^5.8.2"
+    },
+    "dependencies": {
+        "@cmmv/auth": "latest",
+        "@cmmv/cache": "^0.11.4",
+        "@cmmv/core": "latest",
+        "@cmmv/http": "latest",
+        "busboy": "^1.6.0",
+        "cache-manager-fs-binary": "^1.0.4",
+        "jsonwebtoken": "^9.0.2",
+        "sharp": "^0.34.0",
+        "uuid": "^11.1.0",
+        "vue": "^3.5.13",
+        "xml2js": "^0.6.2"
+    }
+}

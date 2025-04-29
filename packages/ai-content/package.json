@@ -1,0 +1,15 @@
+{
+    "name": "@cmmv/ai-content",
+    "version": "0.0.1",
+    "description": "AI Content package for CMMV",
+    "scripts": {
+        "build": "tsup"
+    },
+    "devDependencies": {
+        "tsup": "^8.4.0",
+        "typescript": "^5.8.2"
+    },
+    "dependencies": {
+        "@cmmv/core": "latest"
+    }
+}

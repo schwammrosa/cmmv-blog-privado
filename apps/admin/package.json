@@ -1,0 +1,51 @@
+{
+    "name": "cmmv-blog-admin",
+    "version": "0.0.1",
+    "private": true,
+    "description": "Blog admin package for CMMV",
+    "type": "module",
+    "scripts": {
+        "dev": "vite --clearScreen false",
+        "build": "echo admin",
+        "start": "vite",
+        "lint": "eslint \"src/**/*.ts\""
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "workspace:*",
+        "@repo/typescript-config": "workspace:*",
+        "@types/node": "^22.13.14",
+        "@vitejs/plugin-vue": "^5.2.3",
+        "eslint": "^9.23.0",
+        "ts-node": "^10.9.2",
+        "tsx": "^4.19.3",
+        "typescript": "^5.8.2",
+        "vite": "^6.2.3",
+        "vitest": "^3.0.9"
+    },
+    "dependencies": {
+        "@cmmv/blog": "workspace:*",
+        "@cmmv/rss-aggregation": "workspace:*",
+        "@cmmv/yt-aggregation": "workspace:*",
+        "@tailwindcss/vite": "^4.0.17",
+        "@tiptap/extension-floating-menu": "^2.11.7",
+        "@tiptap/extension-image": "^2.11.7",
+        "@tiptap/extension-link": "^2.11.7",
+        "@tiptap/extension-placeholder": "^2.11.7",
+        "@tiptap/extension-table": "^2.11.7",
+        "@tiptap/extension-table-cell": "^2.11.7",
+        "@tiptap/extension-table-header": "^2.11.7",
+        "@tiptap/extension-table-row": "^2.11.7",
+        "@tiptap/extension-text-align": "^2.11.7",
+        "@tiptap/extension-underline": "^2.11.7",
+        "@tiptap/extension-youtube": "^2.11.7",
+        "@tiptap/pm": "^2.11.7",
+        "@tiptap/starter-kit": "^2.11.7",
+        "@tiptap/vue-3": "^2.11.7",
+        "chart.js": "^4.4.8",
+        "lightningcss": "^1.29.3",
+        "tailwindcss": "^4.0.17",
+        "tiptap-extension-resize-image": "^1.2.1",
+        "vue": "^3.5.13",
+        "vue-router": "^4.5.0"
+    }
+}

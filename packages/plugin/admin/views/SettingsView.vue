@@ -1,0 +1,4251 @@
+<template>
+    <div>
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-white">Settings</h1>
+            <div class="flex space-x-2">
+                <button
+                    @click="saveSettings"
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                    :disabled="saving"
+                >
+                    <span v-if="saving" class="flex items-center">
+                        <svg
+                            class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                            ></circle>
+                            <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                            ></path>
+                        </svg>
+                        Saving...
+                    </span>
+                    <span v-else>Save Settings</span>
+                </button>
+            </div>
+        </div>
+
+        <div v-if="isLoading" class="loading-container">
+            <span class="spinner"></span>
+        </div>
+
+        <div v-else class="bg-neutral-900 rounded-xl shadow-lg overflow-hidden">
+            <div class="flex flex-col md:flex-row">
+                <!-- Vertical Tabs Navigation -->
+                <div
+                    class="w-full md:w-64 bg-neutral-800 p-3 md:border-r border-neutral-700"
+                >
+                    <div class="flex flex-col space-y-1">
+                        <button
+                            v-for="tab in tabs"
+                            :key="tab.id"
+                            @click="activeTab = tab.id"
+                            :class="[
+                                'flex items-center px-3 py-2 rounded-lg text-left transition-colors',
+                                activeTab === tab.id
+                                    ? 'bg-blue-600 text-white'
+                                    : 'bg-transparent text-neutral-300 hover:bg-neutral-700',
+                            ]"
+                        >
+                            <component
+                                :is="iconComponents[tab.icon]"
+                                v-if="tab.icon"
+                            />
+                            <span>{{ tab.name }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="flex-1 bg-neutral-800">
+                    <!-- General Settings -->
+                    <div class="p-6" v-if="activeTab === 'general'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            General Settings
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Site Title</label
+                                    >
+                                    <input
+                                        v-model="settings.title"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="My Awesome Blog"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Tagline</label
+                                    >
+                                    <input
+                                        v-model="settings.description"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Just another CMMV blog"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        In a few words, explain what this site
+                                        is about.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="grid gap-6 md:grid-cols-2">
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Admin Email</label
+                                    >
+                                    <input
+                                        v-model="settings.adminEmail"
+                                        type="email"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="admin@example.com"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        This address is used for admin purposes.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Site Language</label
+                                    >
+                                    <select
+                                        v-model="settings.language"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                        <option value="en_US">
+                                            English (United States)
+                                        </option>
+                                        <option value="pt_BR">
+                                            Portuguese (Brazil)
+                                        </option>
+                                        <option value="es_ES">
+                                            Spanish (Spain)
+                                        </option>
+                                        <option value="fr_FR">
+                                            French (France)
+                                        </option>
+                                        <option value="de_DE">
+                                            German (Germany)
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Site URL</label
+                                >
+                                <input
+                                    v-model="settings.url"
+                                    type="text"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="https://example.com"
+                                />
+                            </div>
+
+                            <!-- Reading Settings (moved from separate tab) -->
+                            <div class="mt-8 pt-6 border-t border-neutral-700">
+                                <h3
+                                    class="text-lg font-semibold text-white mb-4"
+                                >
+                                    Reading Settings
+                                </h3>
+
+                                <div class="space-y-6">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Homepage displays</label
+                                        >
+                                        <div class="space-y-3">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="latest-posts"
+                                                    type="radio"
+                                                    value="latest_posts"
+                                                    v-model="
+                                                        settings.homepageDisplay
+                                                    "
+                                                    class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="latest-posts"
+                                                    class="text-sm text-neutral-300"
+                                                    >Latest posts</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="static-page"
+                                                    type="radio"
+                                                    value="static_page"
+                                                    v-model="
+                                                        settings.homepageDisplay
+                                                    "
+                                                    class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="static-page"
+                                                    class="text-sm text-neutral-300"
+                                                    >A static page</label
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        v-if="
+                                            settings.homepageDisplay ===
+                                            'static_page'
+                                        "
+                                        class="grid gap-6 md:grid-cols-2"
+                                    >
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >Homepage</label
+                                            >
+                                            <select
+                                                v-model="settings.homepage"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="about">
+                                                    About Us
+                                                </option>
+                                                <option value="home">
+                                                    Home
+                                                </option>
+                                                <option value="welcome">
+                                                    Welcome
+                                                </option>
+                                                <option value="landing">
+                                                    Landing Page
+                                                </option>
+                                            </select>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >Posts page</label
+                                            >
+                                            <select
+                                                v-model="settings.postsPage"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            >
+                                                <option value="blog">
+                                                    Blog
+                                                </option>
+                                                <option value="news">
+                                                    News
+                                                </option>
+                                                <option value="articles">
+                                                    Articles
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid gap-6 md:grid-cols-2">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >Posts per page</label
+                                            >
+                                            <input
+                                                v-model="settings.postsperpage"
+                                                type="number"
+                                                min="1"
+                                                max="50"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >RSS feed shows</label
+                                            >
+                                            <input
+                                                v-model="settings.rssFeedItems"
+                                                type="number"
+                                                min="1"
+                                                max="50"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            <p class="text-xs text-neutral-500">
+                                                Number of items to display in
+                                                RSS feed
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >For each post in a feed,
+                                            show</label
+                                        >
+                                        <div class="space-y-3">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="show-full-text"
+                                                    type="radio"
+                                                    value="full_text"
+                                                    v-model="
+                                                        settings.feedContent
+                                                    "
+                                                    class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="show-full-text"
+                                                    class="text-sm text-neutral-300"
+                                                    >Full text</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="show-excerpt"
+                                                    type="radio"
+                                                    value="excerpt"
+                                                    v-model="
+                                                        settings.feedContent
+                                                    "
+                                                    class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="show-excerpt"
+                                                    class="text-sm text-neutral-300"
+                                                    >Excerpt</label
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Integrations -->
+                    <div class="p-6" v-if="activeTab === 'search-integrations'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Search Integrations
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- Google Search Console -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Google Search Console
+                                </h3>
+                                <div class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Google Site Verification</label
+                                        >
+                                        <input
+                                            v-model="
+                                                settings.googleSiteVerification
+                                            "
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="content value from Google meta tag"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            Enter the content value from your
+                                            Google verification meta tag
+                                        </p>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Google Analytics ID</label
+                                        >
+                                        <input
+                                            v-model="settings.googleAnalyticsId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="G-XXXXXXXXXX or UA-XXXXXXXX-X"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            Your Google Analytics tracking ID
+                                            (e.g., G-XXXXXXXXXX)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bing Webmaster Tools -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Bing Webmaster Tools
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Bing Site Verification</label
+                                    >
+                                    <input
+                                        v-model="settings.bingSiteVerification"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="content value from Bing meta tag"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Enter the content value from your Bing
+                                        verification meta tag
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Yandex Webmaster -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Yandex Webmaster
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Yandex Site Verification</label
+                                    >
+                                    <input
+                                        v-model="
+                                            settings.yandexSiteVerification
+                                        "
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="content value from Yandex meta tag"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Enter the content value from your Yandex
+                                        verification meta tag
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Baidu Webmaster Tools -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Baidu Webmaster Tools
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Baidu Site Verification</label
+                                    >
+                                    <input
+                                        v-model="settings.baiduSiteVerification"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="content value from Baidu meta tag"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Enter the content value from your Baidu
+                                        verification meta tag
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Additional Meta Tags -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Custom Meta Tags
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Additional Meta Tags</label
+                                    >
+                                    <textarea
+                                        v-model="settings.additionalMetaTags"
+                                        rows="5"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                        placeholder="<meta name='example' content='value'>"
+                                    ></textarea>
+                                    <p class="text-xs text-neutral-500">
+                                        Add any additional meta tags to include
+                                        in the head section of your site
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appearance Settings -->
+                    <div class="p-6" v-if="activeTab === 'appearance'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Appearance Settings
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Site Logo</label
+                                >
+                                <div class="flex items-center space-x-4">
+                                    <div
+                                        class="w-16 h-16 bg-neutral-700 rounded-md flex items-center justify-center border border-neutral-600"
+                                    >
+                                        <img
+                                            v-if="settings.logo"
+                                            :src="settings.logo"
+                                            alt="Site logo"
+                                            class="max-w-full max-h-full p-1"
+                                        />
+                                        <svg
+                                            v-else
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-8 w-8 text-neutral-500"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <input
+                                            type="file"
+                                            ref="logoInput"
+                                            accept="image/*"
+                                            class="hidden"
+                                            @change="handleLogoUpload"
+                                        />
+                                        <button
+                                            @click="$refs.logoInput.click()"
+                                            class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-md transition-colors"
+                                        >
+                                            Select Logo
+                                        </button>
+                                        <button
+                                            v-if="settings.logo"
+                                            @click="removeLogo"
+                                            class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-neutral-500">
+                                    Recommended size: 140x79px
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Favicon</label
+                                >
+                                <div class="flex items-center space-x-4">
+                                    <div
+                                        class="w-10 h-10 bg-neutral-700 rounded-md flex items-center justify-center border border-neutral-600"
+                                    >
+                                        <img
+                                            v-if="settings.favicon"
+                                            :src="settings.favicon"
+                                            alt="Favicon"
+                                            class="max-w-full max-h-full p-1"
+                                        />
+                                        <svg
+                                            v-else
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-6 w-6 text-neutral-500"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <input
+                                            type="file"
+                                            ref="faviconInput"
+                                            accept=".ico,.png,image/x-icon,image/png"
+                                            class="hidden"
+                                            @change="handleFaviconUpload"
+                                        />
+                                        <button
+                                            @click="$refs.faviconInput.click()"
+                                            class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-md transition-colors"
+                                        >
+                                            Select Favicon
+                                        </button>
+                                        <button
+                                            v-if="settings.favicon"
+                                            @click="removeFavicon"
+                                            class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-neutral-500">
+                                    Recommended size: 16x16px (PNG, ICO)
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Discussion Settings -->
+                    <div class="p-6" v-if="activeTab === 'discussion'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Discussion Settings
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="space-y-3">
+                                <h3
+                                    class="text-base font-medium text-neutral-300"
+                                >
+                                    Comment System
+                                </h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center">
+                                        <input
+                                            id="native-comments"
+                                            type="radio"
+                                            value="native"
+                                            v-model="settings.commentSystem"
+                                            class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="native-comments"
+                                            class="text-sm text-neutral-300"
+                                            >Native Comments</label
+                                        >
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input
+                                            id="facebook-comments"
+                                            type="radio"
+                                            value="facebook"
+                                            v-model="settings.commentSystem"
+                                            class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="facebook-comments"
+                                            class="text-sm text-neutral-300"
+                                            >Facebook Comments</label
+                                        >
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input
+                                            id="disqus-comments"
+                                            type="radio"
+                                            value="disqus"
+                                            v-model="settings.commentSystem"
+                                            class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="disqus-comments"
+                                            class="text-sm text-neutral-300"
+                                            >Disqus Comments</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Facebook Comments Settings -->
+                            <div
+                                v-if="settings.commentSystem === 'facebook'"
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Facebook Comments Configuration
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Facebook App ID</label
+                                    >
+                                    <input
+                                        v-model="settings.facebookAppId"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="123456789012345"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Enter your Facebook App ID to enable
+                                        Facebook Comments
+                                    </p>
+                                </div>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Number of Comments to Show</label
+                                    >
+                                    <input
+                                        v-model="settings.facebookCommentsNum"
+                                        type="number"
+                                        min="1"
+                                        max="100"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Color Scheme</label
+                                    >
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="fb-light"
+                                                type="radio"
+                                                value="light"
+                                                v-model="
+                                                    settings.facebookColorScheme
+                                                "
+                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="fb-light"
+                                                class="text-sm text-neutral-300"
+                                                >Light</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="fb-dark"
+                                                type="radio"
+                                                value="dark"
+                                                v-model="
+                                                    settings.facebookColorScheme
+                                                "
+                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="fb-dark"
+                                                class="text-sm text-neutral-300"
+                                                >Dark</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Disqus Comments Settings -->
+                            <div
+                                v-if="settings.commentSystem === 'disqus'"
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Disqus Comments Configuration
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Disqus Shortname</label
+                                    >
+                                    <input
+                                        v-model="settings.disqusShortname"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="your-disqus-shortname"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Enter your Disqus shortname to enable
+                                        Disqus Comments
+                                    </p>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input
+                                            id="disqus-lazy-load"
+                                            type="checkbox"
+                                            v-model="settings.disqusLazyLoad"
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="disqus-lazy-load"
+                                            class="text-sm text-neutral-300"
+                                            >Lazy load Disqus (improves page
+                                            load performance)</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Native Comments Settings -->
+                            <div
+                                v-if="settings.commentSystem === 'native'"
+                                class="space-y-6"
+                            >
+                                <div class="space-y-3">
+                                    <h3
+                                        class="text-base font-medium text-neutral-300"
+                                    >
+                                        Default article settings
+                                    </h3>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="allow-comments"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.enablecomments
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="allow-comments"
+                                                class="text-sm text-neutral-300"
+                                                >Allow people to submit comments
+                                                on new posts</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="comment-approval"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.moderatecomments
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="comment-approval"
+                                                class="text-sm text-neutral-300"
+                                                >Comment must be manually
+                                                approved</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="approve-comments"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.approveComments
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="approve-comments"
+                                                class="text-sm text-neutral-300"
+                                                >Enable comment approval
+                                                system</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="require-name-email"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.requireNameEmail
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="require-name-email"
+                                                class="text-sm text-neutral-300"
+                                                >Comment author must fill out
+                                                name and email</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-3">
+                                    <h3
+                                        class="text-base font-medium text-neutral-300"
+                                    >
+                                        Other comment settings
+                                    </h3>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="nested-comments"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.nestedComments
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="nested-comments"
+                                                class="text-sm text-neutral-300"
+                                                >Enable threaded (nested)
+                                                comments</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="comment-pagination"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.commentPagination
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="comment-pagination"
+                                                class="text-sm text-neutral-300"
+                                                >Break comments into
+                                                pages</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Comments per page</label
+                                        >
+                                        <input
+                                            v-model="settings.commentsPerPage"
+                                            type="number"
+                                            min="1"
+                                            max="100"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            Only if comment pagination is
+                                            enabled
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Email notifications</label
+                                        >
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="email-me-comments"
+                                                    type="checkbox"
+                                                    v-model="
+                                                        settings.emailOnComment
+                                                    "
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="email-me-comments"
+                                                    class="text-sm text-neutral-300"
+                                                    >Email me whenever anyone
+                                                    posts a comment</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="email-me-moderation"
+                                                    type="checkbox"
+                                                    v-model="
+                                                        settings.emailOnModeration
+                                                    "
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="email-me-moderation"
+                                                    class="text-sm text-neutral-300"
+                                                    >Email me whenever a comment
+                                                    is held for
+                                                    moderation</label
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Settings -->
+                    <div class="p-6" v-if="activeTab === 'social'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Social Media Settings
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Facebook</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://facebook.com/</span
+                                    >
+                                    <input
+                                        v-model="settings.facebook"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="yourusername"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Twitter</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://twitter.com/</span
+                                    >
+                                    <input
+                                        v-model="settings.twitter"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="yourusername"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Instagram</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://instagram.com/</span
+                                    >
+                                    <input
+                                        v-model="settings.instagram"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="yourusername"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >LinkedIn</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://linkedin.com/company/</span
+                                    >
+                                    <input
+                                        v-model="settings.linkedin"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="yourusername"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >YouTube</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://youtube.com/</span
+                                    >
+                                    <input
+                                        v-model="settings.youtube"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="@yourchannel"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >GitHub</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://github.com/</span
+                                    >
+                                    <input
+                                        v-model="settings.github"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="yourusername"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >WhatsApp</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://chat.whatsapp.com/</span
+                                    >
+                                    <input
+                                        v-model="settings.whatsapp"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="GHcB3w00dtzDiVc9ugrT7S"
+                                    />
+                                </div>
+                                <p class="text-xs text-neutral-500">
+                                    Enter the invite code from your WhatsApp
+                                    community invite link
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Telegram</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://t.me/</span
+                                    >
+                                    <input
+                                        v-model="settings.telegram"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="yourusername"
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Discord</label
+                                >
+                                <div class="flex items-center">
+                                    <span
+                                        class="bg-neutral-700 rounded-l-md border border-neutral-600 px-3 py-2 text-neutral-400"
+                                        >https://discord.gg/</span
+                                    >
+                                    <input
+                                        v-model="settings.discord"
+                                        type="text"
+                                        class="flex-1 rounded-none rounded-r-md bg-neutral-700 border border-l-0 border-neutral-600 px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="MhrTM3cg"
+                                    />
+                                </div>
+                                <p class="text-xs text-neutral-500">
+                                    Enter the invite code from your Discord
+                                    server
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Social Auto-Posting Settings -->
+                    <div class="p-6" v-if="activeTab === 'social-auto-posting'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Auto-Posting Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- Global Settings -->
+                            <div class="space-y-4">
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Global Settings
+                                </h3>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input
+                                            id="auto-post-new"
+                                            type="checkbox"
+                                            v-model="
+                                                settings.autoPostOnNewContent
+                                            "
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="auto-post-new"
+                                            class="text-sm text-neutral-300"
+                                            >Auto-post when new content is
+                                            published</label
+                                        >
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input
+                                            id="auto-post-update"
+                                            type="checkbox"
+                                            v-model="
+                                                settings.autoPostOnContentUpdate
+                                            "
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="auto-post-update"
+                                            class="text-sm text-neutral-300"
+                                            >Auto-post when content is
+                                            updated</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Default Post Format</label
+                                    >
+                                    <textarea
+                                        v-model="settings.autoPostDefaultFormat"
+                                        rows="2"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="New post: {title} - {excerpt} {url}"
+                                    ></textarea>
+                                    <p class="text-xs text-neutral-500">
+                                        Available variables: {title}, {excerpt},
+                                        {url}, {tags}, {categories}, {author}
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Post Types to Share</label
+                                    >
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="share-posts"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.autoPostSharePosts
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="share-posts"
+                                                class="text-sm text-neutral-300"
+                                                >Posts</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="share-pages"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.autoPostSharePages
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="share-pages"
+                                                class="text-sm text-neutral-300"
+                                                >Pages</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Facebook -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        Facebook
+                                    </h3>
+                                    <div>
+                                        <label
+                                            class="relative inline-flex items-center cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.autoPostFacebook
+                                                "
+                                                class="sr-only peer"
+                                            />
+                                            <div
+                                                class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                                            ></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="settings.autoPostFacebook"
+                                    class="space-y-4"
+                                >
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Facebook Page ID</label
+                                        >
+                                        <input
+                                            v-model="settings.facebookPageId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="123456789012345"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Access Token</label
+                                        >
+                                        <input
+                                            v-model="
+                                                settings.facebookAccessToken
+                                            "
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            Page access token with publish_pages
+                                            permission
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <a
+                                            href="https://developers.facebook.com/tools/explorer/"
+                                            target="_blank"
+                                            class="text-blue-500 hover:text-blue-400 text-sm flex items-center"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            Generate Facebook Access Token
+                                        </a>
+                                        <p
+                                            class="text-xs text-neutral-500 mt-1"
+                                        >
+                                            Request 'pages_read_engagement' and
+                                            'pages_manage_posts' permissions
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Post Format</label
+                                        >
+                                        <textarea
+                                            v-model="
+                                                settings.facebookPostFormat
+                                            "
+                                            rows="2"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="New post: {title} - {excerpt} {url}"
+                                        ></textarea>
+                                        <p class="text-xs text-neutral-500">
+                                            Leave empty to use default format
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="fb-image"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.facebookIncludeImage
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="fb-image"
+                                                class="text-sm text-neutral-300"
+                                                >Include featured image</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Twitter -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        Twitter (X)
+                                    </h3>
+                                    <div>
+                                        <label
+                                            class="relative inline-flex items-center cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.autoPostTwitter
+                                                "
+                                                class="sr-only peer"
+                                            />
+                                            <div
+                                                class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                                            ></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="settings.autoPostTwitter"
+                                    class="space-y-4"
+                                >
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >API Key</label
+                                        >
+                                        <input
+                                            v-model="settings.twitterApiKey"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="API Key"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >API Secret</label
+                                        >
+                                        <input
+                                            v-model="settings.twitterApiSecret"
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Access Token</label
+                                        >
+                                        <input
+                                            v-model="
+                                                settings.twitterAccessToken
+                                            "
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="Access Token"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Access Token Secret</label
+                                        >
+                                        <input
+                                            v-model="
+                                                settings.twitterAccessTokenSecret
+                                            "
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <a
+                                            href="https://developer.twitter.com/en/portal/dashboard"
+                                            target="_blank"
+                                            class="text-blue-500 hover:text-blue-400 text-sm flex items-center"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            Twitter Developer Portal
+                                        </a>
+                                        <p
+                                            class="text-xs text-neutral-500 mt-1"
+                                        >
+                                            Create an app and generate your
+                                            credentials with read/write
+                                            permissions
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Post Format</label
+                                        >
+                                        <textarea
+                                            v-model="settings.twitterPostFormat"
+                                            rows="2"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="New post: {title} {url}"
+                                        ></textarea>
+                                        <p class="text-xs text-neutral-500">
+                                            Leave empty to use default format.
+                                            Remember Twitter has character
+                                            limits.
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="tw-image"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.twitterIncludeImage
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="tw-image"
+                                                class="text-sm text-neutral-300"
+                                                >Include featured image</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- LinkedIn -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        LinkedIn
+                                    </h3>
+                                    <div>
+                                        <label
+                                            class="relative inline-flex items-center cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.autoPostLinkedIn
+                                                "
+                                                class="sr-only peer"
+                                            />
+                                            <div
+                                                class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                                            ></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="settings.autoPostLinkedIn"
+                                    class="space-y-4"
+                                >
+                                    <div class="space-y-2">
+                                        <div
+                                            class="flex justify-between items-center"
+                                        >
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >Access Token</label
+                                            >
+                                            <button
+                                                @click="startLinkedInOAuth"
+                                                class="px-3 py-1 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded inline-flex items-center"
+                                                :disabled="
+                                                    linkedInOAuthInProgress
+                                                "
+                                            >
+                                                <span
+                                                    v-if="
+                                                        linkedInOAuthInProgress
+                                                    "
+                                                    >Authorizing...</span
+                                                >
+                                                <span v-else
+                                                    >Authorize LinkedIn</span
+                                                >
+                                            </button>
+                                        </div>
+                                        <input
+                                            v-model="
+                                                settings.linkedInAccessToken
+                                            "
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            Generate a token using the Authorize
+                                            button above or enter manually
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <a
+                                            href="https://www.linkedin.com/developers/apps"
+                                            target="_blank"
+                                            class="text-blue-500 hover:text-blue-400 text-sm flex items-center"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            LinkedIn Developer Portal
+                                        </a>
+                                        <p
+                                            class="text-xs text-neutral-500 mt-1"
+                                        >
+                                            Create an app with r_liteprofile and
+                                            w_member_social permissions
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Post Format</label
+                                        >
+                                        <textarea
+                                            v-model="
+                                                settings.linkedInPostFormat
+                                            "
+                                            rows="2"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="New post: {title} - {excerpt} {url}"
+                                        ></textarea>
+                                        <p class="text-xs text-neutral-500">
+                                            Leave empty to use default format
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="li-image"
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.linkedInIncludeImage
+                                                "
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="li-image"
+                                                class="text-sm text-neutral-300"
+                                                >Include featured image</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Scheduling -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Scheduling Options
+                                </h3>
+
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input
+                                            id="delay-posting"
+                                            type="checkbox"
+                                            v-model="settings.delayAutoPosting"
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="delay-posting"
+                                            class="text-sm text-neutral-300"
+                                            >Delay auto-posting</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="settings.delayAutoPosting"
+                                    class="space-y-4"
+                                >
+                                    <div class="grid gap-6 md:grid-cols-2">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >Delay Time (minutes)</label
+                                            >
+                                            <input
+                                                v-model="
+                                                    settings.autoPostDelayMinutes
+                                                "
+                                                type="number"
+                                                min="0"
+                                                max="10080"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            <p class="text-xs text-neutral-500">
+                                                How long to wait before
+                                                auto-posting (0-10080 minutes)
+                                            </p>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >Time Between Posts
+                                                (minutes)</label
+                                            >
+                                            <input
+                                                v-model="
+                                                    settings.timeBetweenPosts
+                                                "
+                                                type="number"
+                                                min="0"
+                                                max="1440"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            <p class="text-xs text-neutral-500">
+                                                Minimum time between posts to
+                                                different networks
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Preferred Posting Time</label
+                                        >
+                                        <input
+                                            v-model="
+                                                settings.preferredPostingTime
+                                            "
+                                            type="time"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            If set, posts will be scheduled for
+                                            this time on the next available day
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Analytics -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Link Tracking
+                                </h3>
+
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input
+                                            id="track-links"
+                                            type="checkbox"
+                                            v-model="
+                                                settings.enableLinkTracking
+                                            "
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="track-links"
+                                            class="text-sm text-neutral-300"
+                                            >Enable link tracking for social
+                                            media posts</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="settings.enableLinkTracking"
+                                    class="space-y-2"
+                                >
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >UTM Parameters</label
+                                    >
+                                    <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >UTM Source</label
+                                            >
+                                            <input
+                                                v-model="settings.utmSource"
+                                                type="text"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="{network}"
+                                            />
+                                            <p class="text-xs text-neutral-500">
+                                                Use {network} to automatically
+                                                use the network name
+                                            </p>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >UTM Medium</label
+                                            >
+                                            <input
+                                                v-model="settings.utmMedium"
+                                                type="text"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="social"
+                                            />
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >UTM Campaign</label
+                                            >
+                                            <input
+                                                v-model="settings.utmCampaign"
+                                                type="text"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="auto-post"
+                                            />
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label
+                                                class="block text-sm font-medium text-neutral-300"
+                                                >UTM Content</label
+                                            >
+                                            <input
+                                                v-model="settings.utmContent"
+                                                type="text"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="{post_id}"
+                                            />
+                                            <p class="text-xs text-neutral-500">
+                                                Use {post_id} to add the post ID
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Integrations Settings -->
+                    <div class="p-6" v-if="activeTab === 'integrations'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Service Integrations
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- YouTube API Integration -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    YouTube API
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >YouTube API Key</label
+                                    >
+                                    <input
+                                        v-model="settings.youtubeApiKey"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your YouTube API key"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Required for YouTube channel integration
+                                        and video feeds.
+                                    </p>
+
+                                    <div class="mt-4">
+                                        <h4
+                                            class="text-sm font-medium text-neutral-300 mb-2"
+                                        >
+                                            How to get a YouTube API Key:
+                                        </h4>
+                                        <ol
+                                            class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
+                                        >
+                                            <li>
+                                                Go to the
+                                                <a
+                                                    href="https://console.cloud.google.com/"
+                                                    target="_blank"
+                                                    class="text-blue-400 hover:underline"
+                                                    >Google Cloud Console</a
+                                                >
+                                            </li>
+                                            <li>
+                                                Create a new project or select
+                                                an existing one
+                                            </li>
+                                            <li>
+                                                Enable the "YouTube Data API v3"
+                                                from the API Library
+                                            </li>
+                                            <li>
+                                                Go to Credentials and create an
+                                                API key
+                                            </li>
+                                            <li>
+                                                Copy the API key and paste it
+                                                above
+                                            </li>
+                                        </ol>
+                                        <a
+                                            href="https://developers.google.com/youtube/v3/getting-started"
+                                            target="_blank"
+                                            class="inline-flex items-center mt-2 text-blue-400 hover:underline"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            YouTube API Documentation
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Twitter API Integration -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Twitter (X) API
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Twitter Bearer Token</label
+                                    >
+                                    <input
+                                        v-model="settings.twitterBearerToken"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Twitter Bearer Token"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Required for Twitter feeds and social
+                                        integration.
+                                    </p>
+
+                                    <div class="mt-4">
+                                        <h4
+                                            class="text-sm font-medium text-neutral-300 mb-2"
+                                        >
+                                            How to get a Twitter Bearer Token:
+                                        </h4>
+                                        <ol
+                                            class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
+                                        >
+                                            <li>
+                                                Sign up for a
+                                                <a
+                                                    href="https://developer.twitter.com/en/portal/dashboard"
+                                                    target="_blank"
+                                                    class="text-blue-400 hover:underline"
+                                                    >Twitter Developer
+                                                    Account</a
+                                                >
+                                            </li>
+                                            <li>
+                                                Create a project and an app
+                                                within that project
+                                            </li>
+                                            <li>
+                                                Navigate to the "Keys and
+                                                Tokens" tab
+                                            </li>
+                                            <li>
+                                                Generate or regenerate your
+                                                Bearer Token
+                                            </li>
+                                            <li>
+                                                Copy the Bearer Token and paste
+                                                it above
+                                            </li>
+                                        </ol>
+                                        <a
+                                            href="https://developer.twitter.com/en/docs/authentication/oauth-2-0/bearer-tokens"
+                                            target="_blank"
+                                            class="inline-flex items-center mt-2 text-blue-400 hover:underline"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            Twitter API Documentation
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Reddit API Integration -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Reddit API
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Reddit Client ID</label
+                                    >
+                                    <input
+                                        v-model="settings.redditClientId"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Reddit Client ID"
+                                    />
+
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300 mt-4"
+                                        >Reddit Client Secret</label
+                                    >
+                                    <input
+                                        v-model="settings.redditClientSecret"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Reddit Client Secret"
+                                    />
+
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300 mt-4"
+                                        >Reddit Username</label
+                                    >
+                                    <input
+                                        v-model="settings.redditUsername"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Reddit Username"
+                                    />
+
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300 mt-4"
+                                        >Reddit Password</label
+                                    >
+                                    <input
+                                        v-model="settings.redditPassword"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Reddit Password"
+                                    />
+
+                                    <p class="text-xs text-neutral-500 mt-2">
+                                        Used for Reddit subreddit integration
+                                        and content feeds.
+                                    </p>
+
+                                    <div class="mt-4">
+                                        <h4
+                                            class="text-sm font-medium text-neutral-300 mb-2"
+                                        >
+                                            How to get Reddit API credentials:
+                                        </h4>
+                                        <ol
+                                            class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
+                                        >
+                                            <li>
+                                                Go to
+                                                <a
+                                                    href="https://www.reddit.com/prefs/apps"
+                                                    target="_blank"
+                                                    class="text-blue-400 hover:underline"
+                                                    >Reddit's App Preferences</a
+                                                >
+                                            </li>
+                                            <li>
+                                                Scroll down and click "create
+                                                app" or "create another app"
+                                            </li>
+                                            <li>
+                                                Fill out the form (select
+                                                "script" as the app type)
+                                            </li>
+                                            <li>
+                                                The Client ID is displayed under
+                                                your app name after creation
+                                            </li>
+                                            <li>
+                                                The Client Secret is shown as
+                                                "secret"
+                                            </li>
+                                        </ol>
+                                        <a
+                                            href="https://www.reddit.com/dev/api/"
+                                            target="_blank"
+                                            class="inline-flex items-center mt-2 text-blue-400 hover:underline"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            Reddit API Documentation
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings -->
+                    <div class="p-6" v-if="activeTab === 'seo'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            SEO Settings
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Default Meta Description</label
+                                >
+                                <textarea
+                                    v-model="settings.metaDescription"
+                                    rows="3"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Brief description of your site for search engines"
+                                ></textarea>
+                                <p class="text-xs text-neutral-500">
+                                    Used when no specific description is
+                                    provided for a page or post. Aim for 150-160
+                                    characters.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Default Keywords</label
+                                >
+                                <input
+                                    v-model="settings.metaKeywords"
+                                    type="text"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="keyword1, keyword2, keyword3"
+                                />
+                                <p class="text-xs text-neutral-500">
+                                    Comma-separated keywords used when no
+                                    specific keywords are provided.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Default Featured Image</label
+                                >
+                                <div class="flex items-center space-x-4">
+                                    <div
+                                        class="w-32 h-20 bg-neutral-700 rounded-md flex items-center justify-center border border-neutral-600 overflow-hidden"
+                                    >
+                                        <img
+                                            v-if="settings.defaultFeaturedImage"
+                                            :src="settings.defaultFeaturedImage"
+                                            alt="Default featured image"
+                                            class="object-cover w-full h-full"
+                                        />
+                                        <svg
+                                            v-else
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-10 w-10 text-neutral-500"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <input
+                                            type="file"
+                                            ref="featuredImageInput"
+                                            accept="image/*"
+                                            class="hidden"
+                                            @change="
+                                                handleDefaultFeaturedImageUpload
+                                            "
+                                        />
+                                        <button
+                                            @click="
+                                                $refs.featuredImageInput.click()
+                                            "
+                                            class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-md transition-colors"
+                                        >
+                                            Select Image
+                                        </button>
+                                        <button
+                                            v-if="settings.defaultFeaturedImage"
+                                            @click="removeDefaultFeaturedImage"
+                                            class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md transition-colors"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-neutral-500">
+                                    Used when a post or page doesn't have a
+                                    featured image. Recommended size: 1200x630px
+                                    for social sharing.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Settings -->
+                    <div class="p-6" v-if="activeTab === 'ai'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            AI Settings
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Default AI Service</label
+                                >
+                                <select
+                                    v-model="settings.aiService"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                >
+                                    <option value="gemini">
+                                        Google Gemini
+                                    </option>
+                                    <option value="chatgpt">
+                                        OpenAI ChatGPT
+                                    </option>
+                                    <option value="grok">Grok</option>
+                                    <option value="deepseek">DeepSeek</option>
+                                </select>
+                                <p class="text-xs text-neutral-500">
+                                    Select which AI service will be used for
+                                    content generation by default.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Classify Prompt</label
+                                >
+                                <textarea
+                                    v-model="settings.classifyPrompt"
+                                    rows="6"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                    placeholder="Enter a prompt for classifying content..."
+                                ></textarea>
+                                <p class="text-xs text-neutral-500">
+                                    This prompt will be used to classify content
+                                    when auto-categorization is enabled.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Google Gemini API Key</label
+                                >
+                                <input
+                                    v-model="settings.geminiApiKey"
+                                    type="password"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Enter your Gemini API key"
+                                />
+                                <p class="text-xs text-neutral-500">
+                                    Used for content generation and translation
+                                    services.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >OpenAI API Key (ChatGPT)</label
+                                >
+                                <input
+                                    v-model="settings.openaiApiKey"
+                                    type="password"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Enter your OpenAI API key"
+                                />
+                                <p class="text-xs text-neutral-500">
+                                    Used for ChatGPT and other OpenAI services.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Grok API Key</label
+                                >
+                                <input
+                                    v-model="settings.grokApiKey"
+                                    type="password"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Enter your Grok API key"
+                                />
+                                <p class="text-xs text-neutral-500">
+                                    Used for Grok AI services.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >DeepSeek API Key</label
+                                >
+                                <input
+                                    v-model="settings.deepseekApiKey"
+                                    type="password"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Enter your DeepSeek API key"
+                                />
+                                <p class="text-xs text-neutral-500">
+                                    Used for DeepSeek AI services.
+                                </p>
+                            </div>
+
+                            <div class="p-4 bg-neutral-700 rounded-md mt-6">
+                                <div class="flex items-start">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-6 w-6 text-blue-400 mr-2 flex-shrink-0"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        />
+                                    </svg>
+                                    <p class="text-sm text-neutral-300">
+                                        API keys are stored securely and used
+                                        only for authorized AI services. These
+                                        services may incur usage costs from
+                                        their respective providers. Please
+                                        ensure you understand the pricing model
+                                        of each service before enabling them.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Settings -->
+                    <div class="p-6" v-if="activeTab === 'advanced'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Advanced Settings
+                        </h2>
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Analytics Code</label
+                                >
+                                <textarea
+                                    v-model="settings.analyticsCode"
+                                    rows="4"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                    placeholder="<!-- Google Analytics or other tracking code -->"
+                                ></textarea>
+                                <p class="text-xs text-neutral-500">
+                                    Paste your Google Analytics, Tag Manager or
+                                    other tracking code.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Custom Head Scripts</label
+                                >
+                                <textarea
+                                    v-model="settings.customCss"
+                                    rows="4"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                    placeholder="/* Add your custom CSS here */"
+                                ></textarea>
+                                <p class="text-xs text-neutral-500">
+                                    Add custom CSS to your site. This will be
+                                    included in the header.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Custom Body Scripts</label
+                                >
+                                <textarea
+                                    v-model="settings.customJs"
+                                    rows="4"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                    placeholder="/* Add your custom JavaScript here */"
+                                ></textarea>
+                                <p class="text-xs text-neutral-500">
+                                    Add custom JavaScript to your site. This
+                                    will be included in the footer.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Robots.txt</label
+                                >
+                                <textarea
+                                    v-model="settings.robotsTxt"
+                                    rows="4"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                    placeholder="User-agent: *&#10;Allow: /"
+                                ></textarea>
+                                <p class="text-xs text-neutral-500">
+                                    Customize your robots.txt file to control
+                                    search engine indexing.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email Settings -->
+                    <div class="p-6" v-if="activeTab === 'email'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Email Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- Email Provider Selection -->
+                            <div class="space-y-4">
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Email Provider</label
+                                    >
+                                    <select
+                                        v-model="settings.emailProvider"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                        <option value="smtp">SMTP</option>
+                                        <option value="aws">AWS SES</option>
+                                        <option value="none">
+                                            None (System Default)
+                                        </option>
+                                    </select>
+                                    <p class="text-xs text-neutral-500">
+                                        Select which email provider to use for
+                                        sending system emails.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- SMTP Settings -->
+                            <div
+                                v-if="settings.emailProvider === 'smtp'"
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    SMTP Configuration
+                                </h3>
+
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >SMTP Host</label
+                                        >
+                                        <input
+                                            v-model="settings.smtpHost"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="smtp.example.com"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >SMTP Port</label
+                                        >
+                                        <input
+                                            v-model="settings.smtpPort"
+                                            type="number"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="587"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >SMTP Username</label
+                                        >
+                                        <input
+                                            v-model="settings.smtpUsername"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="username@example.com"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >SMTP Password</label
+                                        >
+                                        <input
+                                            v-model="settings.smtpPassword"
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Encryption</label
+                                    >
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="encryption-none"
+                                                type="radio"
+                                                value="none"
+                                                v-model="
+                                                    settings.smtpEncryption
+                                                "
+                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="encryption-none"
+                                                class="text-sm text-neutral-300"
+                                                >None</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="encryption-tls"
+                                                type="radio"
+                                                value="tls"
+                                                v-model="
+                                                    settings.smtpEncryption
+                                                "
+                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="encryption-tls"
+                                                class="text-sm text-neutral-300"
+                                                >TLS</label
+                                            >
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input
+                                                id="encryption-ssl"
+                                                type="radio"
+                                                value="ssl"
+                                                v-model="
+                                                    settings.smtpEncryption
+                                                "
+                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="encryption-ssl"
+                                                class="text-sm text-neutral-300"
+                                                >SSL</label
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >From Email</label
+                                    >
+                                    <input
+                                        v-model="settings.smtpFromEmail"
+                                        type="email"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="noreply@example.com"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >From Name</label
+                                    >
+                                    <input
+                                        v-model="settings.smtpFromName"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Your Site Name"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- AWS SES Settings -->
+                            <div
+                                v-if="settings.emailProvider === 'aws'"
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    AWS SES Configuration
+                                </h3>
+
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >AWS Access Key</label
+                                        >
+                                        <input
+                                            v-model="settings.awsAccessKey"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="AKIAIOSFODNN7EXAMPLE"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >AWS Secret Key</label
+                                        >
+                                        <input
+                                            v-model="settings.awsSecretKey"
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-6 md:grid-cols-2">
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >AWS Region</label
+                                        >
+                                        <select
+                                            v-model="settings.awsRegion"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        >
+                                            <option value="us-east-1">
+                                                US East (N. Virginia)
+                                            </option>
+                                            <option value="us-east-2">
+                                                US East (Ohio)
+                                            </option>
+                                            <option value="us-west-1">
+                                                US West (N. California)
+                                            </option>
+                                            <option value="us-west-2">
+                                                US West (Oregon)
+                                            </option>
+                                            <option value="af-south-1">
+                                                Africa (Cape Town)
+                                            </option>
+                                            <option value="ap-east-1">
+                                                Asia Pacific (Hong Kong)
+                                            </option>
+                                            <option value="ap-south-1">
+                                                Asia Pacific (Mumbai)
+                                            </option>
+                                            <option value="ap-northeast-3">
+                                                Asia Pacific (Osaka)
+                                            </option>
+                                            <option value="ap-northeast-2">
+                                                Asia Pacific (Seoul)
+                                            </option>
+                                            <option value="ap-southeast-1">
+                                                Asia Pacific (Singapore)
+                                            </option>
+                                            <option value="ap-southeast-2">
+                                                Asia Pacific (Sydney)
+                                            </option>
+                                            <option value="ap-northeast-1">
+                                                Asia Pacific (Tokyo)
+                                            </option>
+                                            <option value="ca-central-1">
+                                                Canada (Central)
+                                            </option>
+                                            <option value="eu-central-1">
+                                                Europe (Frankfurt)
+                                            </option>
+                                            <option value="eu-west-1">
+                                                Europe (Ireland)
+                                            </option>
+                                            <option value="eu-west-2">
+                                                Europe (London)
+                                            </option>
+                                            <option value="eu-south-1">
+                                                Europe (Milan)
+                                            </option>
+                                            <option value="eu-west-3">
+                                                Europe (Paris)
+                                            </option>
+                                            <option value="eu-north-1">
+                                                Europe (Stockholm)
+                                            </option>
+                                            <option value="me-south-1">
+                                                Middle East (Bahrain)
+                                            </option>
+                                            <option value="sa-east-1">
+                                                South America (São Paulo)
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >From Email</label
+                                    >
+                                    <input
+                                        v-model="settings.awsFromEmail"
+                                        type="email"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="noreply@example.com"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Must be a verified sender in your AWS
+                                        SES account.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >From Name</label
+                                    >
+                                    <input
+                                        v-model="settings.awsFromName"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Your Site Name"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Test Email Section -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Test Email Configuration
+                                </h3>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Test Email Address</label
+                                    >
+                                    <div class="flex">
+                                        <input
+                                            v-model="testEmailAddress"
+                                            type="email"
+                                            class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-l-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="you@example.com"
+                                        />
+                                        <button
+                                            @click="sendTestEmail"
+                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md transition-colors"
+                                            :disabled="testEmailSending"
+                                        >
+                                            <span v-if="testEmailSending"
+                                                >Sending...</span
+                                            >
+                                            <span v-else>Send Test</span>
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-neutral-500">
+                                        Send a test email to verify your
+                                        configuration.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Settings -->
+                    <div class="p-6" v-if="activeTab === 'notifications'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Notifications Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- OneSignal Integration -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        OneSignal Push Notifications
+                                    </h3>
+                                    <div>
+                                        <label
+                                            class="relative inline-flex items-center cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                v-model="
+                                                    settings.oneSignalEnabled
+                                                "
+                                                class="sr-only peer"
+                                            />
+                                            <div
+                                                class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                                            ></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="settings.oneSignalEnabled"
+                                    class="space-y-4"
+                                >
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >OneSignal App ID</label
+                                        >
+                                        <input
+                                            v-model="settings.oneSignalAppId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >REST API Key</label
+                                        >
+                                        <input
+                                            v-model="settings.oneSignalApiKey"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Safari Web ID</label
+                                        >
+                                        <input
+                                            v-model="
+                                                settings.oneSignalSafariWebId
+                                            "
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="web.onesignal.auto.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Notification Events</label
+                                        >
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="notify-new-post"
+                                                    type="checkbox"
+                                                    v-model="
+                                                        settings.notifyOnNewPost
+                                                    "
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="notify-new-post"
+                                                    class="text-sm text-neutral-300"
+                                                    >Send notification on new
+                                                    post</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="notify-new-comment"
+                                                    type="checkbox"
+                                                    v-model="
+                                                        settings.notifyOnNewComment
+                                                    "
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="notify-new-comment"
+                                                    class="text-sm text-neutral-300"
+                                                    >Send notification on new
+                                                    comment</label
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Twilio Integration -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        Twilio SMS Notifications
+                                    </h3>
+                                    <div>
+                                        <label
+                                            class="relative inline-flex items-center cursor-pointer"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                v-model="settings.twilioEnabled"
+                                                class="sr-only peer"
+                                            />
+                                            <div
+                                                class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                                            ></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div
+                                    v-if="settings.twilioEnabled"
+                                    class="space-y-4"
+                                >
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Twilio Account SID</label
+                                        >
+                                        <input
+                                            v-model="settings.twilioAccountSid"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Twilio Auth Token</label
+                                        >
+                                        <input
+                                            v-model="settings.twilioAuthToken"
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >From Number</label
+                                        >
+                                        <input
+                                            v-model="settings.twilioFromNumber"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="+15551234567"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Admin Number (for
+                                            notifications)</label
+                                        >
+                                        <input
+                                            v-model="settings.twilioAdminNumber"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="+15551234567"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Notification Events</label
+                                        >
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="sms-new-comment"
+                                                    type="checkbox"
+                                                    v-model="
+                                                        settings.smsOnNewComment
+                                                    "
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="sms-new-comment"
+                                                    class="text-sm text-neutral-300"
+                                                    >Send SMS on new
+                                                    comment</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="sms-new-user"
+                                                    type="checkbox"
+                                                    v-model="
+                                                        settings.smsOnNewUser
+                                                    "
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="sms-new-user"
+                                                    class="text-sm text-neutral-300"
+                                                    >Send SMS on new user
+                                                    registration</label
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
+                                            >Test SMS</label
+                                        >
+                                        <div class="flex">
+                                            <input
+                                                v-model="testSmsNumber"
+                                                type="text"
+                                                class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-l-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="+15551234567"
+                                            />
+                                            <button
+                                                @click="sendTestSMS"
+                                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md transition-colors"
+                                                :disabled="testSmsSending"
+                                            >
+                                                <span v-if="testSmsSending"
+                                                    >Sending...</span
+                                                >
+                                                <span v-else>Send Test</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div
+        v-if="notification.show"
+        class="fixed bottom-4 right-4 px-6 py-3 rounded-md shadow-lg flex items-center z-50"
+        :class="
+            notification.type === 'success'
+                ? 'bg-green-600 text-white'
+                : 'bg-red-600 text-white'
+        "
+    >
+        <span v-if="notification.type === 'success'" class="mr-2">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+            >
+                <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                />
+            </svg>
+        </span>
+        <span v-else class="mr-2">
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+            >
+                <path
+                    fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"
+                />
+            </svg>
+        </span>
+        <span>{{ notification.message }}</span>
+        <button
+            @click="notification.show = false"
+            class="ml-4 text-white hover:text-neutral-200"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+            >
+                <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                />
+            </svg>
+        </button>
+    </div>
+</template>
+
+<script setup>
+import { ref, onMounted, h } from "vue";
+import { useAdminClient } from "@cmmv/blog/admin/client";
+
+const adminClient = useAdminClient();
+const saving = ref(false);
+
+const iconComponents = {
+    "svg-icon-general": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
+                    }),
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-appearance": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-reading": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-discussion": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-social": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-share": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-seo": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-ai": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-advanced": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-email": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
+                    }),
+                ],
+            );
+        },
+    },
+    "svg-icon-notifications": {
+        render() {
+            return h(
+                "svg",
+                {
+                    class: "w-5 h-5 mr-2",
+                    xmlns: "http://www.w3.org/2000/svg",
+                    fill: "none",
+                    viewBox: "0 0 24 24",
+                    stroke: "currentColor",
+                },
+                [
+                    h("path", {
+                        "stroke-linecap": "round",
+                        "stroke-linejoin": "round",
+                        "stroke-width": "2",
+                        d: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
+                    }),
+                ],
+            );
+        },
+    },
+};
+
+const tabs = [
+    { id: "general", name: "General", icon: "svg-icon-general" },
+    { id: "appearance", name: "Appearance", icon: "svg-icon-appearance" },
+    { id: "discussion", name: "Discussion", icon: "svg-icon-discussion" },
+    { id: "social", name: "Social Media", icon: "svg-icon-social" },
+    { id: "social-auto-posting", name: "Auto-Posting", icon: "svg-icon-share" },
+    { id: "integrations", name: "Integrations", icon: "svg-icon-advanced" },
+    { id: "seo", name: "SEO", icon: "svg-icon-seo" },
+    {
+        id: "search-integrations",
+        name: "Search Integrations",
+        icon: "svg-icon-seo",
+    },
+    { id: "email", name: "Email", icon: "svg-icon-email" },
+    {
+        id: "notifications",
+        name: "Notifications",
+        icon: "svg-icon-notifications",
+    },
+    { id: "ai", name: "AI Tools", icon: "svg-icon-ai" },
+    { id: "advanced", name: "Advanced", icon: "svg-icon-advanced" },
+];
+
+const activeTab = ref("general");
+const isLoading = ref(true);
+const originalSettings = ref([]);
+
+const settings = ref({
+    // General
+    title: "",
+    description: "",
+    url: "",
+    language: "en",
+    timezone: "UTC",
+    adminEmail: "",
+
+    // Appearance
+    logo: "",
+    favicon: "",
+    primaryColor: "#3490dc",
+    secondaryColor: "#38c172",
+    fontFamily: "sans-serif",
+
+    // Reading
+    homepageDisplay: "latest_posts",
+    homepage: "home",
+    postsPage: "blog",
+    postsperpage: 10,
+    rssFeedItems: 10,
+    feedContent: "full_text",
+
+    // Discussion
+    commentSystem: "native",
+    facebookAppId: "",
+    facebookCommentsNum: 5,
+    facebookColorScheme: "light",
+
+    disqusShortname: "",
+    disqusLazyLoad: true,
+    // Native Comments
+    enablecomments: true,
+    moderatecomments: true,
+    approveComments: true,
+    requireNameEmail: true,
+    nestedComments: true,
+    commentPagination: false,
+    commentsPerPage: 50,
+    emailOnComment: true,
+    emailOnModeration: true,
+
+    // Social
+    facebook: "",
+    twitter: "",
+    instagram: "",
+    linkedin: "",
+    youtube: "",
+    github: "",
+    whatsapp: "",
+    telegram: "",
+    discord: "",
+
+    // Integrations
+    youtubeApiKey: "",
+    twitterBearerToken: "",
+    redditClientId: "",
+    redditClientSecret: "",
+    redditUsername: "",
+    redditPassword: "",
+
+    // SEO
+    metaDescription: "",
+    metaKeywords: "",
+    defaultFeaturedImage: "",
+
+    // AI Integration
+    aiService: "gemini",
+    geminiApiKey: "",
+    openaiApiKey: "",
+    grokApiKey: "",
+    deepseekApiKey: "",
+    classifyPrompt: "",
+
+    // Advanced
+    analyticsCode: "",
+    customCss: "",
+    customJs: "",
+    robotsTxt: "User-agent: *\nAllow: /",
+    searchMetadata: "",
+
+    // Search Integrations
+    googleSiteVerification: "",
+    googleAnalyticsId: "",
+    bingSiteVerification: "",
+    yandexSiteVerification: "",
+    baiduSiteVerification: "",
+    additionalMetaTags: "",
+
+    // Email Settings
+    emailProvider: "none",
+    // SMTP Settings
+    smtpHost: "",
+    smtpPort: "587",
+    smtpUsername: "",
+    smtpPassword: "",
+    smtpEncryption: "tls",
+    smtpFromEmail: "",
+    smtpFromName: "",
+    // AWS SES Settings
+    awsAccessKey: "",
+    awsSecretKey: "",
+    awsRegion: "us-east-1",
+    awsFromEmail: "",
+    awsFromName: "",
+
+    // OneSignal
+    oneSignalEnabled: false,
+    oneSignalAppId: "",
+    oneSignalApiKey: "",
+    oneSignalSafariWebId: "",
+    notifyOnNewPost: true,
+    notifyOnNewComment: false,
+    // Twilio
+    twilioEnabled: false,
+    twilioAccountSid: "",
+    twilioAuthToken: "",
+    twilioFromNumber: "",
+    twilioAdminNumber: "",
+    smsOnNewComment: false,
+    smsOnNewUser: false,
+
+    autoPostOnNewContent: true,
+    autoPostOnContentUpdate: false,
+    autoPostFacebook: false,
+    autoPostTwitter: false,
+    autoPostLinkedIn: false,
+    autoPostDefaultFormat: "New post: {title} - {excerpt} {url}",
+    autoPostSharePosts: true,
+    autoPostSharePages: true,
+    delayAutoPosting: false,
+    autoPostDelayMinutes: 0,
+    timeBetweenPosts: 0,
+    preferredPostingTime: "",
+    enableLinkTracking: false,
+    utmSource: "{network}",
+    utmMedium: "social",
+    utmCampaign: "auto-post",
+    utmContent: "{post_id}",
+    facebookPageId: "",
+    facebookAccessToken: "",
+    facebookPostFormat: "New post: {title} - {excerpt} {url}",
+    facebookIncludeImage: false,
+    twitterApiKey: "",
+    twitterApiSecret: "",
+    twitterAccessToken: "",
+    twitterAccessTokenSecret: "",
+    twitterPostFormat: "New post: {title} {url}",
+    twitterIncludeImage: false,
+    linkedInAccessToken: "",
+    linkedInPostFormat: "New post: {title} - {excerpt} {url}",
+    linkedInIncludeImage: false,
+});
+
+const tabFieldMap = {
+    general: [
+        "title",
+        "description",
+        "url",
+        "language",
+        "timezone",
+        "adminEmail",
+        "homepageDisplay",
+        "homepage",
+        "postsPage",
+        "postsperpage",
+        "rssFeedItems",
+        "feedContent",
+    ],
+    appearance: [
+        "logo",
+        "favicon",
+        "primaryColor",
+        "secondaryColor",
+        "fontFamily",
+    ],
+    discussion: [
+        "commentSystem",
+        "facebookAppId",
+        "facebookCommentsNum",
+        "facebookColorScheme",
+        "disqusShortname",
+        "disqusLazyLoad",
+        "enablecomments",
+        "moderatecomments",
+        "approveComments",
+        "requireNameEmail",
+        "nestedComments",
+        "commentPagination",
+        "commentsPerPage",
+        "emailOnComment",
+        "emailOnModeration",
+    ],
+    social: [
+        "facebook",
+        "twitter",
+        "instagram",
+        "linkedin",
+        "youtube",
+        "github",
+        "whatsapp",
+        "telegram",
+        "discord",
+    ],
+    "social-auto-posting": [
+        "autoPostOnNewContent",
+        "autoPostOnContentUpdate",
+        "autoPostDefaultFormat",
+        "autoPostSharePosts",
+        "autoPostSharePages",
+        "delayAutoPosting",
+        "autoPostDelayMinutes",
+        "timeBetweenPosts",
+        "preferredPostingTime",
+        "enableLinkTracking",
+        "utmSource",
+        "utmMedium",
+        "utmCampaign",
+        "utmContent",
+        "autoPostFacebook",
+        "facebookPageId",
+        "facebookAccessToken",
+        "facebookPostFormat",
+        "facebookIncludeImage",
+        "autoPostTwitter",
+        "twitterApiKey",
+        "twitterApiSecret",
+        "twitterAccessToken",
+        "twitterAccessTokenSecret",
+        "twitterPostFormat",
+        "twitterIncludeImage",
+        "autoPostLinkedIn",
+        "linkedInAccessToken",
+        "linkedInPostFormat",
+        "linkedInIncludeImage",
+    ],
+    integrations: [
+        "youtubeApiKey",
+        "twitterBearerToken",
+        "redditClientId",
+        "redditClientSecret",
+        "redditUsername",
+        "redditPassword",
+    ],
+    seo: ["metaDescription", "metaKeywords", "defaultFeaturedImage"],
+    ai: [
+        "aiService",
+        "geminiApiKey",
+        "openaiApiKey",
+        "grokApiKey",
+        "deepseekApiKey",
+        "classifyPrompt",
+    ],
+    advanced: [
+        "analyticsCode",
+        "customCss",
+        "customJs",
+        "robotsTxt",
+        "searchMetadata",
+    ],
+    "search-integrations": [
+        "googleSiteVerification",
+        "googleAnalyticsId",
+        "bingSiteVerification",
+        "yandexSiteVerification",
+        "baiduSiteVerification",
+        "additionalMetaTags",
+    ],
+    email: [
+        "emailProvider",
+        "smtpHost",
+        "smtpPort",
+        "smtpUsername",
+        "smtpPassword",
+        "smtpEncryption",
+        "smtpFromEmail",
+        "smtpFromName",
+        "awsAccessKey",
+        "awsSecretKey",
+        "awsRegion",
+        "awsFromEmail",
+        "awsFromName",
+    ],
+    notifications: [
+        "oneSignalEnabled",
+        "oneSignalAppId",
+        "oneSignalApiKey",
+        "oneSignalSafariWebId",
+        "notifyOnNewPost",
+        "notifyOnNewComment",
+        "twilioEnabled",
+        "twilioAccountSid",
+        "twilioAuthToken",
+        "twilioFromNumber",
+        "twilioAdminNumber",
+        "smsOnNewComment",
+        "smsOnNewUser",
+    ],
+};
+
+const mapApiSettingsToForm = (apiSettings) => {
+    originalSettings.value = apiSettings;
+
+    apiSettings.forEach((setting) => {
+        const { key, value, type } = setting;
+
+        if (!key.startsWith("blog.")) return;
+
+        const fieldName = key.replace("blog.", "");
+
+        if (fieldName in settings.value) {
+            let convertedValue = value;
+
+            if (type === "boolean") {
+                convertedValue = value === "1" || value === "true";
+            } else if (type === "number") {
+                convertedValue = parseInt(value, 10);
+            }
+
+            settings.value[fieldName] = convertedValue;
+        }
+    });
+};
+
+const mapFormToApiSettings = () => {
+    const apiSettings = [...originalSettings.value];
+
+    const settingsMap = new Map();
+    apiSettings.forEach((setting, index) => {
+        settingsMap.set(setting.key, { value: setting.value, index });
+    });
+
+    for (const field in settings.value) {
+        const key = `blog.${field}`;
+        const value = settings.value[field];
+
+        let type = typeof value;
+        if (type === "number") {
+            type = "number";
+        } else if (type === "boolean") {
+            type = "boolean";
+        } else {
+            type = "string";
+        }
+
+        let apiValue = value;
+        if (type === "boolean") {
+            apiValue = value ? "1" : "0";
+        } else if (value !== null && value !== undefined) {
+            apiValue = String(value);
+        }
+
+        if (settingsMap.has(key)) {
+            const { index } = settingsMap.get(key);
+            apiSettings[index].value = apiValue;
+        } else if (value !== null && value !== undefined && value !== "") {
+            apiSettings.push({
+                group: "blog",
+                key,
+                value: apiValue,
+                type,
+                flags: ["PUBLIC"],
+            });
+        }
+    }
+
+    return apiSettings;
+};
+
+const loadSettings = async () => {
+    try {
+        isLoading.value = true;
+        const apiSettings = await adminClient.settings.getRoot();
+        mapApiSettingsToForm(apiSettings);
+    } catch (error) {
+        console.error("Failed to load settings:", error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const notification = ref({
+    show: false,
+    type: "success",
+    message: "",
+    duration: 3000,
+});
+
+const showNotification = (type, message) => {
+    notification.value = {
+        show: true,
+        type,
+        message,
+        duration: 3000,
+    };
+
+    setTimeout(() => {
+        notification.value.show = false;
+    }, notification.value.duration);
+};
+
+const saveSettings = async () => {
+    try {
+        const apiSettings = mapFormToApiSettings();
+        await adminClient.settings.update(apiSettings);
+        showNotification("success", "Settings saved successfully!");
+    } catch (error) {
+        console.error("Failed to save settings:", error);
+        showNotification(
+            "error",
+            "Failed to save settings: " + (error.message || "Unknown error"),
+        );
+    }
+};
+
+const logoInput = ref(null);
+const faviconInput = ref(null);
+const imageLoading = ref(false);
+
+const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                canvas.width = maxWidth;
+                canvas.height = maxHeight;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, maxWidth, maxHeight);
+
+                const dataUrl = canvas.toDataURL(file.type);
+                resolve(dataUrl);
+            };
+        };
+    });
+};
+
+const uploadImage = async (base64Image) => {
+    try {
+        const response = await adminClient.medias.processImage({
+            image: base64Image,
+        });
+
+        return response.url;
+    } catch (error) {
+        console.error("Failed to upload image:", error);
+        showNotification(
+            "error",
+            "Failed to upload image: " + (error.message || "Unknown error"),
+        );
+        return null;
+    }
+};
+
+const handleLogoUpload = async (event) => {
+    if (!event.target.files || !event.target.files[0]) return;
+
+    try {
+        imageLoading.value = true;
+        const file = event.target.files[0];
+        const resizedImage = await resizeImage(file, 140, 79);
+        const imageUrl = await uploadImage(resizedImage);
+
+        if (imageUrl) {
+            settings.value.logo = imageUrl;
+            showNotification("success", "Logo uploaded successfully!");
+        }
+    } catch (error) {
+        console.error("Error processing logo:", error);
+        showNotification(
+            "error",
+            "Failed to process logo: " + (error.message || "Unknown error"),
+        );
+    } finally {
+        imageLoading.value = false;
+        event.target.value = "";
+    }
+};
+
+const handleFaviconUpload = async (event) => {
+    if (!event.target.files || !event.target.files[0]) return;
+
+    try {
+        imageLoading.value = true;
+        const file = event.target.files[0];
+
+        if (
+            !file.type.match(/image\/(png|x-icon)/) &&
+            !file.name.endsWith(".ico")
+        ) {
+            showNotification(
+                "error",
+                "Invalid file type. Please select a PNG or ICO file.",
+            );
+            return;
+        }
+
+        const resizedImage = await resizeImage(file, 16, 16);
+        const imageUrl = await uploadImage(resizedImage);
+
+        if (imageUrl) {
+            settings.value.favicon = imageUrl;
+            showNotification("success", "Favicon uploaded successfully!");
+        }
+    } catch (error) {
+        console.error("Error processing favicon:", error);
+        showNotification(
+            "error",
+            "Failed to process favicon: " + (error.message || "Unknown error"),
+        );
+    } finally {
+        imageLoading.value = false;
+        event.target.value = "";
+    }
+};
+
+const removeLogo = () => {
+    settings.value.logo = "";
+    showNotification("success", "Logo removed");
+};
+
+const removeFavicon = () => {
+    settings.value.favicon = "";
+    showNotification("success", "Favicon removed");
+};
+
+const featuredImageInput = ref(null);
+
+const handleDefaultFeaturedImageUpload = async (event) => {
+    if (!event.target.files || !event.target.files[0]) return;
+
+    try {
+        imageLoading.value = true;
+        const file = event.target.files[0];
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+
+        await new Promise((resolve) => {
+            img.onload = resolve;
+        });
+
+        const aspectRatio = img.height / img.width;
+        const targetWidth = 1200;
+        const targetHeight = Math.round(targetWidth * aspectRatio);
+        const resizedImage = await resizeImage(file, targetWidth, targetHeight);
+        const imageUrl = await uploadImage(resizedImage);
+
+        if (imageUrl) {
+            settings.value.defaultFeaturedImage = imageUrl;
+            showNotification(
+                "success",
+                "Default featured image uploaded successfully!",
+            );
+        }
+    } catch (error) {
+        console.error("Error processing default featured image:", error);
+        showNotification(
+            "error",
+            "Failed to process image: " + (error.message || "Unknown error"),
+        );
+    } finally {
+        imageLoading.value = false;
+        // Clear the input
+        event.target.value = "";
+    }
+};
+
+const removeDefaultFeaturedImage = () => {
+    settings.value.defaultFeaturedImage = "";
+    showNotification("success", "Default featured image removed");
+};
+
+const testEmailAddress = ref("");
+const testEmailSending = ref(false);
+const testSmsNumber = ref("");
+const testSmsSending = ref(false);
+
+const sendTestEmail = async () => {
+    if (!testEmailAddress.value || testEmailSending.value) return;
+
+    testEmailSending.value = true;
+    try {
+        await adminClient.email.sendTest({
+            to: testEmailAddress.value,
+            provider: settings.value.emailProvider,
+            settings: {
+                ...(settings.value.emailProvider === "smtp"
+                    ? {
+                          host: settings.value.smtpHost,
+                          port: settings.value.smtpPort,
+                          username: settings.value.smtpUsername,
+                          password: settings.value.smtpPassword,
+                          encryption: settings.value.smtpEncryption,
+                          fromEmail: settings.value.smtpFromEmail,
+                          fromName: settings.value.smtpFromName,
+                      }
+                    : {}),
+                ...(settings.value.emailProvider === "aws"
+                    ? {
+                          accessKey: settings.value.awsAccessKey,
+                          secretKey: settings.value.awsSecretKey,
+                          region: settings.value.awsRegion,
+                          fromEmail: settings.value.awsFromEmail,
+                          fromName: settings.value.awsFromName,
+                      }
+                    : {}),
+            },
+        });
+        showNotification("success", "Test email sent successfully!");
+    } catch (error) {
+        console.error("Failed to send test email:", error);
+        showNotification(
+            "error",
+            "Failed to send test email: " + (error.message || "Unknown error"),
+        );
+    } finally {
+        testEmailSending.value = false;
+    }
+};
+
+const sendTestSMS = async () => {
+    if (!testSmsNumber.value || testSmsSending.value) return;
+
+    testSmsSending.value = true;
+    try {
+        await adminClient.sms.sendTest({
+            to: testSmsNumber.value,
+            settings: {
+                accountSid: settings.value.twilioAccountSid,
+                authToken: settings.value.twilioAuthToken,
+                fromNumber: settings.value.twilioFromNumber,
+            },
+        });
+        showNotification("success", "Test SMS sent successfully!");
+    } catch (error) {
+        console.error("Failed to send test SMS:", error);
+        showNotification(
+            "error",
+            "Failed to send test SMS: " + (error.message || "Unknown error"),
+        );
+    } finally {
+        testSmsSending.value = false;
+    }
+};
+
+onMounted(() => {
+    loadSettings();
+});
+
+// LinkedIn OAuth in-progress state
+const linkedInOAuthInProgress = ref(false);
+const linkedInOAuthWindow = ref(null);
+
+// LinkedIn OAuth configuration - replace with your actual values in production
+const LINKEDIN_CLIENT_ID = "your-linkedin-client-id";
+const LINKEDIN_REDIRECT_URI = window.location.origin + "/linkedin-callback";
+
+/**
+ * Start the LinkedIn OAuth flow
+ */
+const startLinkedInOAuth = () => {
+    linkedInOAuthInProgress.value = true;
+
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${LINKEDIN_CLIENT_ID}&redirect_uri=${encodeURIComponent(LINKEDIN_REDIRECT_URI)}&scope=r_liteprofile%20w_member_social`;
+    linkedInOAuthWindow.value = window.open(
+        authUrl,
+        "LinkedIn Authorization",
+        "width=600,height=600",
+    );
+    window.addEventListener("message", handleLinkedInCallback);
+
+    const checkClosed = setInterval(() => {
+        if (linkedInOAuthWindow.value && linkedInOAuthWindow.value.closed) {
+            clearInterval(checkClosed);
+            linkedInOAuthInProgress.value = false;
+            window.removeEventListener("message", handleLinkedInCallback);
+        }
+    }, 1000);
+};
+
+/**
+ * Handle callback from LinkedIn OAuth
+ */
+const handleLinkedInCallback = async (event) => {
+    if (event.origin !== window.location.origin) return;
+
+    if (
+        event.data &&
+        event.data.type === "linkedin-oauth-callback" &&
+        event.data.code
+    ) {
+        if (linkedInOAuthWindow.value) {
+            linkedInOAuthWindow.value.close();
+            linkedInOAuthWindow.value = null;
+        }
+
+        try {
+            const response = await adminClient.oauth.exchangeLinkedInCode({
+                code: event.data.code,
+                redirectUri: LINKEDIN_REDIRECT_URI,
+            });
+
+            if (response && response.accessToken) {
+                settings.value.linkedInAccessToken = response.accessToken;
+                showNotification(
+                    "success",
+                    "LinkedIn authentication successful!",
+                );
+            } else {
+                throw new Error("Failed to get LinkedIn access token");
+            }
+        } catch (error) {
+            console.error("LinkedIn OAuth error:", error);
+            showNotification(
+                "error",
+                "LinkedIn authentication failed: " +
+                    (error.message || "Unknown error"),
+            );
+        } finally {
+            linkedInOAuthInProgress.value = false;
+            window.removeEventListener("message", handleLinkedInCallback);
+        }
+    }
+};
+</script>

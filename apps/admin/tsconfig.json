@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "useDefineForClassFields": true,
+        "module": "ESNext",
+        "lib": ["ESNext", "DOM"],
+        "sourceMap": true,
+        "resolveJsonModule": true,
+        "noEmit": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noImplicitReturns": true,
+        "composite": false,
+        "declaration": true,
+        "declarationMap": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitAny": false,
+        "inlineSources": false,
+        "isolatedModules": true,
+        "moduleResolution": "Bundler",
+        "preserveWatchOutput": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "paths": {
+            "@cmmv/blog": ["../../packages/plugin"],
+            "@cmmv/blog/*": ["../../packages/plugin/*"],
+            "@cmmv/access-control": ["../../packages/access-control"],
+            "@cmmv/access-control/*": ["../../packages/access-control/*"],
+            "@cmmv/rss-aggregation": ["../../packages/rss-aggregation"],
+            "@cmmv/rss-aggregation/*": ["../../packages/rss-aggregation/*"],
+            "@cmmv/yt-aggregation": ["../../packages/yt-aggregation"],
+            "@cmmv/yt-aggregation/*": ["../../packages/yt-aggregation/*"]
+        }
+    },
+    "include": ["src"],
+    "exclude": ["node_modules"]
+}

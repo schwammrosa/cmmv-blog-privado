@@ -1,0 +1,15 @@
+{
+    "name": "@cmmv/access-control",
+    "version": "0.0.1",
+    "description": "Access Control package for CMMV",
+    "scripts": {
+        "build": "tsup"
+    },
+    "devDependencies": {
+        "tsup": "^8.4.0",
+        "typescript": "^5.8.2"
+    },
+    "dependencies": {
+        "@cmmv/core": "latest"
+    }
+}
