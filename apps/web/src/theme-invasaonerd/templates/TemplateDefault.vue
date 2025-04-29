@@ -286,10 +286,8 @@ const settings = ref<any>(settingsStore.getSettings);
 useHead({
     link: [
         {
-            rel: 'preload',
-            as: 'style',
-            href: '/src/theme-invasaonerd/style.css',
-            onload: 'this.onload=null;this.rel=`stylesheet`'
+            rel: 'stylesheet',
+            href: '/src/theme-invasaonerd/style.css'
         },
         {
             rel: 'icon',
