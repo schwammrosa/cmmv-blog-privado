@@ -77,7 +77,7 @@ export async function render(url: string) {
 
         //Settings
         settingsStore.setSettings(settingsData);
-        let theme = settingsStore.getSetting('blog.theme', 'default');
+        let theme = settingsStore.getSetting('blog.theme', env.VITE_DEFAULT_THEME);
         const routerModules = import.meta.glob('./theme-*/router.ts');
         const importFn = routerModules[`./theme-${theme}/router.ts`];
         //@ts-ignore

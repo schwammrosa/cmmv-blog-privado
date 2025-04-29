@@ -30,7 +30,7 @@ async function main() {
 
         const settingsStore = useSettingsStore();
         const routerModules = import.meta.glob('./theme-*/router.ts');
-        const theme = settingsStore.getSetting('blog.theme', 'default');
+        let theme = settingsStore.getSetting('blog.theme', import.meta.env.VITE_DEFAULT_THEME);
         const importFn = routerModules[`./theme-${theme}/router.ts`] || routerModules[`./theme-default/router.ts`];
         //@ts-ignore
         const { createRouter } = await importFn();
