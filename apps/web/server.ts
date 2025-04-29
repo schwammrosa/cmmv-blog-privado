@@ -71,7 +71,7 @@ async function bootstrap() {
                 const cached = cache.get(url);
                 const now = Date.now();
 
-                if (cached && cached.expires > now) {
+                /*if (cached && cached.expires > now) {
                     res.setHeader('Content-Type', 'text/html');
                     res.setHeader('Cache-Control', `public, max-age=${CACHE_CONTROL_MAX_AGE}`);
 
@@ -81,7 +81,7 @@ async function bootstrap() {
                         res.setHeader('Content-Encoding', compressed.encoding);
 
                     return res.end(compressed.data);
-                }
+                }*/
 
                 template = await vite.transformIndexHtml(url, template);
                 const {
@@ -115,7 +115,7 @@ async function bootstrap() {
                 for(const key in metadata)
                     template = template.replace(`{${key}}`, metadata[key]);
 
-                cache.set(url, { html: template, expires: now + CACHE_TTL_MS });
+                //cache.set(url, { html: template, expires: now + CACHE_TTL_MS });
 
                 res.setHeader('Content-Type', 'text/html');
                 res.setHeader('Cache-Control', `public, max-age=${CACHE_CONTROL_MAX_AGE}`);
