@@ -28,4 +28,16 @@ export class UserBlogController {
     async create(@Body() body: any) {
         return this.userService.createUser(body);
     }
+
+    @Put(':id')
+    @Auth({ rootOnly: true })
+    async update(@Param('id') id: string, @Body() body: any) {
+        return this.userService.updateUser(id, body);
+    }
+
+    @Delete(':id')
+    @Auth({ rootOnly: true })
+    async delete(@Param('id') id: string) {
+        return this.userService.deleteUser(id);
+    }
 }

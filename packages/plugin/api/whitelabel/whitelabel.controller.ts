@@ -17,7 +17,7 @@ export class WhitelabelController {
     constructor(private readonly whitelabelService: WhitelabelService){}
 
     @Get()
-    @Auth({ rootOnly: true })
+    @Auth()
     async getWhitelabel(@Queries() queries: any) {
         return await this.whitelabelService.getWhitelabel(queries);
     }

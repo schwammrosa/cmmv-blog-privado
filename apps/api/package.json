@@ -12,7 +12,8 @@
             "../../packages/rss-aggregation/api",
             "../../packages/rss-aggregation/contracts",
             "../../packages/yt-aggregation/api",
-            "../../packages/yt-aggregation/contracts"
+            "../../packages/yt-aggregation/contracts",
+            "../../packages/access-control/api"
 
         ],
         "ignore": [

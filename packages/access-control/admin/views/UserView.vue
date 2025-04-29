@@ -333,17 +333,6 @@
                                     Email Validated
                                 </label>
                             </div>
-                            <div class="flex items-center">
-                                <input
-                                    id="userBlocked"
-                                    v-model="userForm.blocked"
-                                    type="checkbox"
-                                    class="h-4 w-4 rounded border-neutral-600 text-blue-600 focus:ring-blue-500 bg-neutral-700"
-                                />
-                                <label for="userBlocked" class="ml-2 block text-sm text-neutral-300">
-                                    Blocked
-                                </label>
-                            </div>
                         </div>
 
                         <div class="flex justify-end space-x-3 mt-6">
@@ -551,17 +540,11 @@ const loadGroups = async () => {
         const response = await client.groups.get();
         console.log('Groups response:', response);
 
-        if (response && response.result && Array.isArray(response.result.data)) {
-            // Handle standard API response format with data in result.data
-            availableGroups.value = response.result.data;
-        } else if (response && Array.isArray(response.data)) {
-            // Handle response with data directly in the data property
+        if (response && Array.isArray(response.data)) {
             availableGroups.value = response.data;
         } else if (response && Array.isArray(response)) {
-            // Handle direct array response
             availableGroups.value = response;
         } else {
-            // Fallback if no valid data is found
             availableGroups.value = [];
             console.error('Unexpected groups response format:', response);
         }
@@ -640,74 +623,71 @@ const closeDialog = () => {
 // Save user
 const saveUser = async () => {
     try {
-        formLoading.value = true
-        formErrors.value = {}
+        formLoading.value = true;
+        formErrors.value = {};
 
         // Validate
         if (!userForm.value.username.trim()) {
-            formErrors.value.username = 'Username is required'
-            formLoading.value = false
-            return
+            formErrors.value.username = 'Username is required';
+            formLoading.value = false;
+            return;
         }
 
         if (!userForm.value.email.trim()) {
-            formErrors.value.email = 'Email is required'
-            formLoading.value = false
-            return
+            formErrors.value.email = 'Email is required';
+            formLoading.value = false;
+            return;
         }
 
         if (!isEditing.value && !userForm.value.password.trim()) {
-            formErrors.value.password = 'Password is required'
-            formLoading.value = false
-            return
+            formErrors.value.password = 'Password is required';
+            formLoading.value = false;
+            return;
         }
 
+        // Prepare complete user data including groups
         const userData = {
             username: userForm.value.username.trim(),
             email: userForm.value.email.trim(),
             validated: userForm.value.validated,
-            blocked: userForm.value.blocked
-        }
+            blocked: userForm.value.blocked,
+            // Include groups directly in the user data
+            groups: userForm.value.groups || []
+        };
 
         if (!isEditing.value) {
-            userData.password = userForm.value.password.trim()
+            userData.password = userForm.value.password.trim();
         }
+
+        console.log('Saving user with data:', userData);
 
         if (isEditing.value) {
-            // Update user
-            await client.users.update(userToEdit.value.id, userData)
+            // Update user with groups included
+            const updateResponse = await client.users.update(userToEdit.value.id, userData);
+            console.log('User update response:', updateResponse);
 
-            // Update groups if changed
-            if (userForm.value.groups.length > 0) {
-                await client.users.assignGroups(userToEdit.value.id, { groups: userForm.value.groups })
-            }
-
-            showNotification('success', 'User updated successfully')
+            showNotification('success', 'User updated successfully');
         } else {
-            // Create user
-            const response = await client.users.create(userData)
+            // Create user with groups included
+            const createResponse = await client.users.create(userData);
+            console.log('User create response:', createResponse);
 
-            // Assign groups if selected
-            if (userForm.value.groups.length > 0 && response.id) {
-                await client.users.assignGroups(response.id, { groups: userForm.value.groups })
-            }
-
-            showNotification('success', 'User created successfully')
+            showNotification('success', 'User created successfully');
         }
 
-        formLoading.value = false
-        closeDialog()
-        refreshData()
+        formLoading.value = false;
+        closeDialog();
+        refreshData();
     } catch (err) {
-        formLoading.value = false
+        formLoading.value = false;
 
         if (err.response?.data?.errors) {
-            formErrors.value = err.response.data.errors
+            formErrors.value = err.response.data.errors;
         } else {
-            showNotification('error', err.message || 'Failed to save user')
+            showNotification('error', err.message || 'Failed to save user');
         }
     }
-}
+};
 
 const blockUser = async (user) => {
     try {
@@ -819,6 +799,7 @@ const toggleAllGroups = (event) => {
 };
 
 onMounted(() => {
+    loadGroups();
     loadUsers()
 })
 </script>

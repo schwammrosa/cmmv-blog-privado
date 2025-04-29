@@ -5,15 +5,15 @@ export const useAccessControlClient = () => {
     const api = useApi();
 
     const users = {
-        get: () => api.authRequest('user-blog', 'GET'),
-        getById: (id: string) => api.authRequest(`user-blog/${id}`, 'GET'),
-        create: (data: any) => api.authRequest('user-blog', 'POST', data),
-        update: (id: string, data: any) => api.authRequest(`user-blog/${id}`, 'PUT', data),
-        delete: (id: string) => api.authRequest(`user-blog/${id}`, 'DELETE'),
-        block: (id: string) => api.authRequest(`user-block/${id}`, 'PUT'),
-        unblock: (id: string) => api.authRequest(`user-unblock/${id}`, 'PUT'),
-        assignGroups: (id: string, data: any) => api.authRequest(`user-assign-to-groups/${id}`, 'PUT', data),
-        removeGroups: (id: string, data: any) => api.authRequest(`user-remove-groups/${id}`, 'DELETE', data),
+        get: () => api.authRootRequest('user-blog', 'GET'),
+        getById: (id: string) => api.authRootRequest(`user-blog/${id}`, 'GET'),
+        create: (data: any) => api.authRootRequest('user-blog', 'POST', data),
+        update: (id: string, data: any) => api.authRootRequest(`user-blog/${id}`, 'PUT', data),
+        delete: (id: string) => api.authRootRequest(`user-blog/${id}`, 'DELETE'),
+        block: (id: string) => api.authRootRequest(`user-block/${id}`, 'PUT'),
+        unblock: (id: string) => api.authRootRequest(`user-unblock/${id}`, 'PUT'),
+        assignGroups: (id: string, data: any) => api.authRootRequest(`user-assign-to-groups/${id}`, 'PUT', data),
+        removeGroups: (id: string, data: any) => api.authRootRequest(`user-remove-groups/${id}`, 'DELETE', data),
     };
 
     const groups = {
@@ -27,11 +27,11 @@ export const useAccessControlClient = () => {
     };
 
     const roles = {
-        get: () => api.authRequest('auth/roles', 'GET'),
-        getById: (id: string) => api.authRequest(`auth/roles/${id}`, 'GET'),
-        create: (data: any) => api.authRequest('auth/roles', 'POST', data),
-        update: (id: string, data: any) => api.authRequest(`auth/roles/${id}`, 'PUT', data),
-        delete: (id: string) => api.authRequest(`auth/roles/${id}`, 'DELETE'),
+        get: () => api.authRootRequest('auth/roles', 'GET'),
+        getById: (id: string) => api.authRootRequest(`auth/roles/${id}`, 'GET'),
+        create: (data: any) => api.authRootRequest('auth/roles', 'POST', data),
+        update: (id: string, data: any) => api.authRootRequest(`auth/roles/${id}`, 'PUT', data),
+        delete: (id: string) => api.authRootRequest(`auth/roles/${id}`, 'DELETE'),
     };
 
     return {

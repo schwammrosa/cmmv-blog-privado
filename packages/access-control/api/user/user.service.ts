@@ -18,11 +18,19 @@ export class UserBlogService {
     async getAll(queries?: any) {
         const UserEntity = Repository.getEntity("UserEntity");
 
-        const users = await Repository.findAll(UserEntity, queries, [], {
+        let users = await Repository.findAll(UserEntity, queries, [], {
             select: [
-                'id', 'username', 'email', 'password', 'root', 'validated'
+                'id', 'username', 'email', 'password', 'root', 'validated',
+                'groups', 'roles'
             ]
         });
+
+        if(users) {
+            users.data.forEach((user: any) => {
+                user.groups = user.groups?.split(',');
+                user.roles = user.roles?.split(',');
+            });
+        }
 
         return users;
     }
@@ -55,7 +63,7 @@ export class UserBlogService {
             username: usernameHashed,
             email: data.email,
             password: passwordHashed,
-            root: true,
+            root: false,
             validated: true
         };
 
@@ -82,8 +90,29 @@ export class UserBlogService {
      */
     async updateUser(id: string, data: any) {
         const UserEntity = Repository.getEntity("UserEntity");
+        delete data.username;
+        data.groups = data.groups.join(',')
         const user = await Repository.update(UserEntity, id, data);
-        return user;
+        return { affectedRows: user };
+    }
+
+    /**
+     * Delete an user
+     * @param id - User id
+     * @returns - User
+     */
+    async deleteUser(id: string) {
+        const ProfilesEntity = Repository.getEntity("ProfilesEntity");
+        const UserEntity = Repository.getEntity("UserEntity");
+
+        const profile = await Repository.findOne(ProfilesEntity, Repository.queryBuilder({ user: id }));
+
+        if(profile)
+            await Repository.delete(ProfilesEntity, Repository.queryBuilder({ user: id }));
+
+        const user = await Repository.delete(UserEntity, Repository.queryBuilder({ id }));
+
+        return { affectedRows: user };
     }
 }
 
