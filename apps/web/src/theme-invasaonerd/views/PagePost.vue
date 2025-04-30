@@ -1,6 +1,6 @@
 <template>
     <div class="w-full relative bg-neutral-100">
-        <div class="lg:max-w-4xl md:max-w-3xl px-4 sm:px-6 mx-auto py-8">
+        <div class="lg:max-w-4xl md:max-w-3xl mx-auto pt-0">
             <div v-if="!post" class="bg-white rounded-lg p-6">
                 <div class="text-center">
                     <h1 class="text-2xl font-bold text-neutral-800 mb-4">Post não encontrado</h1>
@@ -8,7 +8,7 @@
                 </div>
             </div>
 
-            <div v-else class="article-container w-full max-w-[1060px] m-auto bg-white rounded-lg p-6">
+            <div v-else class="article-container w-full max-w-[1060px] m-auto bg-white rounded-lg lg:p-6 lg:pt-[40px]">
                 <div class="w-full mx-auto overflow-hidden">
                     <div v-if="post.featureImage" class="post-featured-image relative overflow-hidden rounded-lg max-h-[400px]">
                         <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
@@ -96,7 +96,7 @@
                     </div>
 
                     <!-- Post Header -->
-                    <header class="post-header my-6">
+                    <header class="post-header my-6 px-2">
                         <h1 class="post-title text-neutral-900 text-3xl md:text-4xl font-bold break-words mb-4">{{ post.title }}</h1>
 
                         <div class="post-meta flex items-center mb-8">
@@ -116,12 +116,12 @@
                     </header>
 
                     <!-- Post Content -->
-                    <div class="post-content text-neutral-800 prose prose-sm sm:prose prose-neutral max-w-none overflow-hidden">
+                    <div class="post-content text-neutral-800 prose prose-sm sm:prose prose-neutral max-w-none overflow-hidden px-2">
                         <div v-html="post.content"></div>
                     </div>
 
                     <!-- Tags & Categories -->
-                    <div class="post-taxonomy mt-2">
+                    <div class="post-taxonomy mt-2 px-2">
                         <div v-if="post.tags && post.tags.length > 0" class="post-tags">
                             <div class="tags-list flex flex-wrap gap-2">
                                 <a v-for="tag in post.tags" :key="tag" :href="`/tag/${tag.slug}`"
@@ -133,7 +133,7 @@
                     </div>
 
                     <!-- Share box -->
-                    <div class="py-8 border-t border-neutral-200 mt-8">
+                    <div class="py-8 border-t border-neutral-200 mt-8 px-2">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
                             <!-- Share text and icons -->
                             <div class="flex items-center gap-2">
@@ -220,7 +220,7 @@
 
                     <!-- Author Box -->
                     <div v-if="author"
-                        class="mb-10 p-6 bg-neutral-50 rounded-lg border border-neutral-200">
+                        class="mb-10 p-6 bg-neutral-50 rounded-lg border border-neutral-200 px-2">
                         <div class="flex items-center mb-4">
                             <!-- Author Avatar -->
                             <div
@@ -323,7 +323,7 @@
                         </div>
                     </div>
 
-                    <div id="comments-container" class="mt-10"></div>
+                    <div id="comments-container" class="mt-10 px-2"></div>
                 </div>
             </div>
         </div>
