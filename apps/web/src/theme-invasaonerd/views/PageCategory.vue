@@ -1,6 +1,6 @@
 <template>
     <div class="w-full relative bg-neutral-100">
-        <div class="lg:max-w-4xl md:max-w-3xl px-4 sm:px-6 mx-auto py-8">
+        <div class="lg:max-w-4xl md:max-w-3xl mx-auto">
             <div v-if="!category" class="bg-white rounded-lg p-6">
                 <div class="text-center">
                     <h1 class="text-2xl font-bold text-neutral-800 mb-4">Categoria não encontrada</h1>
