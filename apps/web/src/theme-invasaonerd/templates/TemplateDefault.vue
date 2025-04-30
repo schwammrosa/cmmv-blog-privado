@@ -381,15 +381,19 @@ const footerCategories = computed(() => {
     return categories.value.slice(0, 12);
 });
 
-// Add mainNavCategories computed property to organize categories for navigation
 const mainNavCategories = computed(() => {
     const navCategories = categories.value || [];
 
+    // Get all root categories (without parent)
     const rootCategories = navCategories.filter((cat: any) => !cat.parentCategory);
+
+    // Get all subcategories (with parent)
     const childCategories = navCategories.filter((cat: any) => cat.parentCategory);
 
     return {
+        // Limit to first 7 categories for main nav
         rootCategories: rootCategories.slice(0, 7),
+        // Build a map of parent -> children
         childrenMap: childCategories.reduce((map: Record<string, any[]>, child: any) => {
             if (!map[child.parentCategory]) {
                 map[child.parentCategory] = [];
@@ -400,19 +404,21 @@ const mainNavCategories = computed(() => {
     };
 });
 
-// Add toggle dropdown function
 const toggleDropdown = (categoryId: string, event: Event) => {
     event.stopPropagation();
+
     if (openDropdowns.value[categoryId]) {
         openDropdowns.value = {
             ...openDropdowns.value,
             [categoryId]: false
         };
     } else {
+        // Close all other dropdowns first
         const newDropdownState: Record<string, boolean> = {};
         Object.keys(openDropdowns.value).forEach(key => {
             newDropdownState[key] = false;
         });
+        // Open the clicked one
         newDropdownState[categoryId] = true;
         openDropdowns.value = newDropdownState;
     }
@@ -507,7 +513,6 @@ const subscribeNewsletter = async () => {
     }
 };
 
-// Function to close dropdowns when clicking outside
 const closeDropdownsOnClickOutside = (event: Event) => {
     const dropdownElements = document.querySelectorAll('.dropdown-menu');
     const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
@@ -571,13 +576,13 @@ watch(isDarkMode, () => {
 
 /* Dropdown menu styles */
 .dropdown-menu {
-    overflow: hidden;
-    max-height: 0;
-    transition: max-height 0.3s ease-in-out;
+    display: block;
+    z-index: 50;
 }
 
-.dropdown-menu[style*="display: block"] {
-    max-height: 400px;
+/* Make sure dropdowns appear on top */
+.relative {
+    position: relative;
 }
 
 /* Enhance mobile menu styles */

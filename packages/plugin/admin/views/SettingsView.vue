@@ -3198,7 +3198,7 @@
                                     <p class="text-xs text-neutral-500">
                                         Required for Cloudflare cache purging functionality.
                                     </p>
-                                </div>
+                </div>
 
                                 <div class="space-y-2">
                                     <label
@@ -3214,7 +3214,7 @@
                                     <p class="text-xs text-neutral-500">
                                         The Zone ID for your domain in Cloudflare.
                                     </p>
-                                </div>
+            </div>
 
                                 <div class="mt-4">
                                     <h4
@@ -4217,23 +4217,23 @@ const sendTestEmail = async () => {
             settings: {
                 ...(settings.value.emailProvider === "smtp"
                     ? {
-                          host: settings.value.smtpHost,
-                          port: settings.value.smtpPort,
-                          username: settings.value.smtpUsername,
-                          password: settings.value.smtpPassword,
-                          encryption: settings.value.smtpEncryption,
-                          fromEmail: settings.value.smtpFromEmail,
+                    host: settings.value.smtpHost,
+                    port: settings.value.smtpPort,
+                    username: settings.value.smtpUsername,
+                    password: settings.value.smtpPassword,
+                    encryption: settings.value.smtpEncryption,
+                    fromEmail: settings.value.smtpFromEmail,
                           fromName: settings.value.smtpFromName,
                       }
                     : {}),
                 ...(settings.value.emailProvider === "aws"
                     ? {
-                          accessKey: settings.value.awsAccessKey,
-                          secretKey: settings.value.awsSecretKey,
-                          region: settings.value.awsRegion,
-                          fromEmail: settings.value.awsFromEmail,
+                    accessKey: settings.value.awsAccessKey,
+                    secretKey: settings.value.awsSecretKey,
+                    region: settings.value.awsRegion,
+                    fromEmail: settings.value.awsFromEmail,
                           fromName: settings.value.awsFromName,
-                      }
+            }
                     : {}),
             },
         });
