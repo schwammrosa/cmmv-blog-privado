@@ -2007,9 +2007,10 @@ function publishPost() {
 function savePost() {
     fullPageLoading.value = true;
 
-    // Set appropriate loading message based on post status
     if (post.value.status === 'cron') {
         loadingMessage.value = 'Saving scheduled post...';
+    } else if (post.value.status === 'published') {
+        loadingMessage.value = 'Publishing post...';
     } else {
         loadingMessage.value = 'Saving draft...';
         post.value.status = 'draft';
