@@ -11,7 +11,7 @@
             <div v-else class="article-container w-full max-w-[1060px] m-auto bg-white rounded-lg lg:p-6 lg:pt-[40px]">
                 <div class="w-full mx-auto overflow-hidden">
                     <div v-if="post.featureImage" class="post-featured-image relative overflow-hidden rounded-lg max-h-[400px]">
-                        <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
+                        <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2 px-4">
                             <a v-for="category in post.categories" :key="category.id" :href="`/category/${category.slug}`"
                                 class="px-3 py-1 bg-[#0a5d28] text-white text-sm font-medium rounded-full shadow-sm hover:bg-[#064019] transition-all">
                                 {{ category.name }}
