@@ -39,9 +39,8 @@ export class PostsPublicService {
 
         if (posts) {
             for (const post of posts.data) {
-                if (post.autoPublishAt && post.autoPublishAt < new Date()) {
+                if (post.autoPublishAt && post.autoPublishAt < new Date().getTime())
                     await this.publishPost(post.id);
-                }
             }
         }
     }
