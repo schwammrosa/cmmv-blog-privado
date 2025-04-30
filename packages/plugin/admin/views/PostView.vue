@@ -1989,18 +1989,29 @@ function publishPost() {
     post.value.status = 'published';
     post.value.publishedAt = new Date().toISOString();
 
-    savePost()
-        .then(() => {
-            showPublishDialog.value = false;
-            publishLoading.value = false;
-        })
-        .catch(error => {
-            console.error('Failed to publish post:', error);
-            publishLoading.value = false;
-        })
-        .finally(() => {
-            fullPageLoading.value = false;
-        });
+    adminClient.posts.save({
+        post: post.value,
+        meta: postMeta.value
+    })
+    .then(response => {
+        if (response && response.id) {
+            post.value.id = response.id;
+            showNotification('success', 'Post published successfully');
+        }
+        else if(response.result){
+            showNotification('success', 'Post published successfully');
+        }
+    })
+    .catch(error => {
+        console.error('Failed to publish post:', error);
+        showNotification('error', error.message || 'Failed to publish post');
+    })
+    .finally(() => {
+        // Always close the dialog and reset loading states, regardless of success or failure
+        showPublishDialog.value = false;
+        publishLoading.value = false;
+        fullPageLoading.value = false;
+    });
 }
 
 // Add the new savePost function before the publishPost function
