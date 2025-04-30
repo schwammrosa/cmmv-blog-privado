@@ -8,7 +8,9 @@
         "module": "NodeNext",
         "paths": {
             "@generated": ["../../apps/api/.generated"],
-            "@generated/*": ["../../apps/api/.generated/*"]
+            "@generated/*": ["../../apps/api/.generated/*"],
+            "@cmmv/ai-content": ["../../packages/ai-content/src"],
+            "@cmmv/ai-content/*": ["../../packages/ai-content/src/*"]
         }
     }
 }

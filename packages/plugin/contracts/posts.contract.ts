@@ -175,7 +175,8 @@ export class PostsContract extends AbstractContract {
 
     @ContractField({
         protoType: 'int64',
-        nullable: true
+        nullable: true,
+        index: true
     })
     autoPublishAt?: number;
 

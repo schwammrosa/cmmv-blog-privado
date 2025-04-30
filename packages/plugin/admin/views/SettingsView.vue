@@ -58,10 +58,7 @@
                                     : 'bg-transparent text-neutral-300 hover:bg-neutral-700',
                             ]"
                         >
-                            <component
-                                :is="iconComponents[tab.icon]"
-                                v-if="tab.icon"
-                            />
+                            <i v-if="tab.icon" :class="[tab.icon, 'mr-2 w-5 h-5 text-center']"></i>
                             <span>{{ tab.name }}</span>
                         </button>
                     </div>
@@ -3171,6 +3168,346 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- CDN Settings -->
+                    <div class="p-6" v-if="activeTab === 'cdn'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            CDN Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- Cloudflare Settings -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Cloudflare Configuration
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >API Token</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudflareToken"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Cloudflare API token"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Required for Cloudflare cache purging functionality.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Zone ID</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudflareZoneId"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Cloudflare Zone ID"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        The Zone ID for your domain in Cloudflare.
+                                    </p>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h4
+                                        class="text-sm font-medium text-neutral-300 mb-2"
+                                    >
+                                        How to find your Cloudflare credentials:
+                                    </h4>
+                                    <ol
+                                        class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
+                                    >
+                                        <li>
+                                            Log in to your
+                                            <a
+                                                href="https://dash.cloudflare.com/"
+                                                target="_blank"
+                                                class="text-blue-400 hover:underline"
+                                                >Cloudflare Dashboard</a
+                                            >
+                                        </li>
+                                        <li>
+                                            Select your domain to get the Zone ID
+                                        </li>
+                                        <li>
+                                            Go to "My Profile" > "API Tokens" to create a token
+                                        </li>
+                                        <li>
+                                            Create a token with "Zone.Cache Purge" permissions
+                                        </li>
+                                    </ol>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button
+                                        @click="purgeCloudflareCacheTest"
+                                        class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                                        :disabled="cachePurgeInProgress"
+                                    >
+                                        <span v-if="cachePurgeInProgress" class="flex items-center">
+                                            <svg
+                                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    class="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    stroke-width="4"
+                                                ></circle>
+                                                <path
+                                                    class="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            Purging...
+                                        </span>
+                                        <span v-else>Test Cloudflare Cache Purge</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- CloudFront Settings -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    AWS CloudFront Configuration
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >AWS Access Key</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudfrontAccessKey"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your AWS Access Key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >AWS Secret Key</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudfrontSecretKey"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your AWS Secret Key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Distribution ID</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudfrontDistributionId"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your CloudFront Distribution ID"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Region</label
+                                    >
+                                    <select
+                                        v-model="settings.cloudfrontRegion"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                        <option value="us-east-1">US East (N. Virginia)</option>
+                                        <option value="us-east-2">US East (Ohio)</option>
+                                        <option value="us-west-1">US West (N. California)</option>
+                                        <option value="us-west-2">US West (Oregon)</option>
+                                        <option value="af-south-1">Africa (Cape Town)</option>
+                                        <option value="ap-east-1">Asia Pacific (Hong Kong)</option>
+                                        <option value="ap-south-1">Asia Pacific (Mumbai)</option>
+                                        <option value="ap-northeast-3">Asia Pacific (Osaka)</option>
+                                        <option value="ap-northeast-2">Asia Pacific (Seoul)</option>
+                                        <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                                        <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
+                                        <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+                                        <option value="ca-central-1">Canada (Central)</option>
+                                        <option value="eu-central-1">Europe (Frankfurt)</option>
+                                        <option value="eu-west-1">Europe (Ireland)</option>
+                                        <option value="eu-west-2">Europe (London)</option>
+                                        <option value="eu-south-1">Europe (Milan)</option>
+                                        <option value="eu-west-3">Europe (Paris)</option>
+                                        <option value="eu-north-1">Europe (Stockholm)</option>
+                                        <option value="me-south-1">Middle East (Bahrain)</option>
+                                        <option value="sa-east-1">South America (São Paulo)</option>
+                                    </select>
+                                    <p class="text-xs text-neutral-500">
+                                        The AWS region where your CloudFront distribution is located. Default is us-east-1.
+                                    </p>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h4
+                                        class="text-sm font-medium text-neutral-300 mb-2"
+                                    >
+                                        How to set up AWS CloudFront access:
+                                    </h4>
+                                    <ol
+                                        class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
+                                    >
+                                        <li>
+                                            Create an IAM user with permissions for CloudFront invalidations
+                                        </li>
+                                        <li>
+                                            Generate an Access Key and Secret Key for this user
+                                        </li>
+                                        <li>
+                                            Find your Distribution ID in the CloudFront console
+                                        </li>
+                                        <li>
+                                            Enter the details above to enable cache invalidation
+                                        </li>
+                                    </ol>
+                                    <a
+                                        href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessingCloudFront.html"
+                                        target="_blank"
+                                        class="inline-flex items-center mt-2 text-blue-400 hover:underline"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 mr-1"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                            />
+                                        </svg>
+                                        CloudFront Documentation
+                                    </a>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button
+                                        @click="purgeCloudFrontCacheTest"
+                                        class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                                        :disabled="cfCachePurgeInProgress"
+                                    >
+                                        <span v-if="cfCachePurgeInProgress" class="flex items-center">
+                                            <svg
+                                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    class="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    stroke-width="4"
+                                                ></circle>
+                                                <path
+                                                    class="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            Purging...
+                                        </span>
+                                        <span v-else>Test CloudFront Cache Purge</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Global Cache Settings -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Global Cache Settings
+                                </h3>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Auto-Purge Cache</label
+                                    >
+                                    <div class="flex items-center">
+                                        <input
+                                            id="auto-purge-cache"
+                                            type="checkbox"
+                                            v-model="settings.autoPurgeCache"
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="auto-purge-cache"
+                                            class="text-sm text-neutral-300"
+                                            >Automatically purge CDN cache when content is updated</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button
+                                        @click="purgeAllCaches"
+                                        class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                                        :disabled="allCachePurgeInProgress"
+                                    >
+                                        <span v-if="allCachePurgeInProgress" class="flex items-center">
+                                            <svg
+                                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    class="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    stroke-width="4"
+                                                ></circle>
+                                                <path
+                                                    class="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            Purging All Caches...
+                                        </span>
+                                        <span v-else>Purge All CDN Caches</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -3236,284 +3573,34 @@
 </template>
 
 <script setup>
-import { ref, onMounted, h } from "vue";
+import { ref, onMounted } from "vue";
 import { useAdminClient } from "@cmmv/blog/admin/client";
 
 const adminClient = useAdminClient();
 const saving = ref(false);
 
-const iconComponents = {
-    "svg-icon-general": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z",
-                    }),
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M15 12a3 3 0 11-6 0 3 3 0 016 0z",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-appearance": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-reading": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-discussion": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-social": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-share": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-seo": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-ai": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-advanced": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-email": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
-                    }),
-                ],
-            );
-        },
-    },
-    "svg-icon-notifications": {
-        render() {
-            return h(
-                "svg",
-                {
-                    class: "w-5 h-5 mr-2",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    fill: "none",
-                    viewBox: "0 0 24 24",
-                    stroke: "currentColor",
-                },
-                [
-                    h("path", {
-                        "stroke-linecap": "round",
-                        "stroke-linejoin": "round",
-                        "stroke-width": "2",
-                        d: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
-                    }),
-                ],
-            );
-        },
-    },
-};
-
 const tabs = [
-    { id: "general", name: "General", icon: "svg-icon-general" },
-    { id: "appearance", name: "Appearance", icon: "svg-icon-appearance" },
-    { id: "discussion", name: "Discussion", icon: "svg-icon-discussion" },
-    { id: "social", name: "Social Media", icon: "svg-icon-social" },
-    { id: "social-auto-posting", name: "Auto-Posting", icon: "svg-icon-share" },
-    { id: "integrations", name: "Integrations", icon: "svg-icon-advanced" },
-    { id: "seo", name: "SEO", icon: "svg-icon-seo" },
+    { id: "general", name: "General", icon: "fas fa-cog" },
+    { id: "appearance", name: "Appearance", icon: "fas fa-palette" },
+    { id: "discussion", name: "Discussion", icon: "fas fa-comments" },
+    { id: "social", name: "Social Media", icon: "fas fa-share-alt" },
+    { id: "social-auto-posting", name: "Auto-Posting", icon: "fas fa-paper-plane" },
+    { id: "integrations", name: "Integrations", icon: "fas fa-plug" },
+    { id: "cdn", name: "CDN", icon: "fas fa-server" },
+    { id: "seo", name: "SEO", icon: "fas fa-search" },
     {
         id: "search-integrations",
         name: "Search Integrations",
-        icon: "svg-icon-seo",
+        icon: "fas fa-search-plus",
     },
-    { id: "email", name: "Email", icon: "svg-icon-email" },
+    { id: "email", name: "Email", icon: "fas fa-envelope" },
     {
         id: "notifications",
         name: "Notifications",
-        icon: "svg-icon-notifications",
+        icon: "fas fa-bell",
     },
-    { id: "ai", name: "AI Tools", icon: "svg-icon-ai" },
-    { id: "advanced", name: "Advanced", icon: "svg-icon-advanced" },
+    { id: "ai", name: "AI Tools", icon: "fas fa-robot" },
+    { id: "advanced", name: "Advanced", icon: "fas fa-code" },
 ];
 
 const activeTab = ref("general");
@@ -3673,6 +3760,15 @@ const settings = ref({
     linkedInAccessToken: "",
     linkedInPostFormat: "New post: {title} - {excerpt} {url}",
     linkedInIncludeImage: false,
+
+    // CDN Settings
+    cloudflareToken: "",
+    cloudflareZoneId: "",
+    cloudfrontAccessKey: "",
+    cloudfrontSecretKey: "",
+    cloudfrontDistributionId: "",
+    cloudfrontRegion: "us-east-1",
+    autoPurgeCache: true,
 });
 
 const tabFieldMap = {
@@ -3818,6 +3914,15 @@ const tabFieldMap = {
         "twilioAdminNumber",
         "smsOnNewComment",
         "smsOnNewUser",
+    ],
+    cdn: [
+        "cloudflareToken",
+        "cloudflareZoneId",
+        "cloudfrontAccessKey",
+        "cloudfrontSecretKey",
+        "cloudfrontDistributionId",
+        "cloudfrontRegion",
+        "autoPurgeCache"
     ],
 };
 
@@ -4246,6 +4351,71 @@ const handleLinkedInCallback = async (event) => {
             linkedInOAuthInProgress.value = false;
             window.removeEventListener("message", handleLinkedInCallback);
         }
+    }
+};
+
+// CDN Cache Purging States and Functions
+const cachePurgeInProgress = ref(false);
+const cfCachePurgeInProgress = ref(false);
+const allCachePurgeInProgress = ref(false);
+
+const purgeCloudflareCacheTest = async () => {
+    if (cachePurgeInProgress.value) return;
+
+    cachePurgeInProgress.value = true;
+    try {
+        const response = await adminClient.cdn.purgeCloudflareCDN();
+        if (response.success) {
+            showNotification("success", "Cloudflare cache purged successfully!");
+        } else {
+            showNotification("error", `Failed to purge Cloudflare cache: ${response.message}`);
+        }
+    } catch (error) {
+        console.error("Error purging Cloudflare cache:", error);
+        showNotification("error", "Error purging Cloudflare cache: " + (error.message || "Unknown error"));
+    } finally {
+        cachePurgeInProgress.value = false;
+    }
+};
+
+const purgeCloudFrontCacheTest = async () => {
+    if (cfCachePurgeInProgress.value) return;
+
+    cfCachePurgeInProgress.value = true;
+    try {
+        const response = await adminClient.cdn.purgeCloudfrontCDN();
+        if (response.success) {
+            showNotification("success", "CloudFront cache purged successfully!");
+        } else {
+            showNotification("error", `Failed to purge CloudFront cache: ${response.message}`);
+        }
+    } catch (error) {
+        console.error("Error purging CloudFront cache:", error);
+        showNotification("error", "Error purging CloudFront cache: " + (error.message || "Unknown error"));
+    } finally {
+        cfCachePurgeInProgress.value = false;
+    }
+};
+
+const purgeAllCaches = async () => {
+    if (allCachePurgeInProgress.value) return;
+
+    allCachePurgeInProgress.value = true;
+    try {
+        const response = await adminClient.cdn.purgeCDN();
+        if (response.cloudflare.success || response.cloudfront.success) {
+            let message = "Cache purged successfully: ";
+            if (response.cloudflare.success) message += "Cloudflare ";
+            if (response.cloudfront.success) message += "CloudFront ";
+            showNotification("success", message);
+        } else {
+            showNotification("error", "Failed to purge CDN caches. Check your settings.");
+        }
+    } catch (error) {
+        console.error("Error purging CDN caches:", error);
+        showNotification("error", "Error purging CDN caches: " + (error.message || "Unknown error"));
+    } finally {
+        allCachePurgeInProgress.value = false;
     }
 };
 </script>

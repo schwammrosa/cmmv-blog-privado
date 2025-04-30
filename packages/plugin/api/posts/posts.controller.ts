@@ -180,4 +180,10 @@ export class PostsController {
     async deletePage(@Param("id") id: string) {
         return this.postsPublicService.deletePost(id);
     }
+
+    @Post("posts/generate", { exclude: true })
+    @Auth("posts:insert")
+    async generatePost(@Body() body: any) {
+        return this.postsPublicService.generatePostFromUrl(body.url);
+    }
 }

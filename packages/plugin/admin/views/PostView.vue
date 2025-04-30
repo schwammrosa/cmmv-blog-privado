@@ -23,7 +23,14 @@
                 <div class="flex items-center space-x-3">
                     <button v-if="postStatus !== 'published'" @click="saveDraft"
                         class="px-3 py-1.5 rounded-md text-sm font-medium border border-neutral-600 hover:border-neutral-500 transition-colors cursor-pointer">
-                        Save Draft
+                        {{ postStatus === 'cron' ? 'Save' : 'Save Draft' }}
+                    </button>
+                    <button
+                        @click="showAIGenerateDialog = true"
+                        class="px-3 py-1.5 rounded-md text-sm font-medium border border-neutral-600 hover:border-neutral-500 transition-colors cursor-pointer flex items-center"
+                        title="Generate content from URL using AI">
+                        <i class="fas fa-robot mr-1.5"></i>
+                        AI Generate
                     </button>
                     <button
                         v-if="post.id"
@@ -39,7 +46,7 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                             </svg>
-                            Publicar (Imagem não processada)
+                            Publicar
                         </template>
                         <template v-else>
                             {{ postStatus === 'published' ? 'Update' : 'Publish' }}
@@ -254,49 +261,6 @@
                                 </div>
 
                                 <div>
-                                    <div class="flex justify-between items-center">
-                                        <label class="text-xs text-neutral-400 mb-1 block">Co-Authors</label>
-                                        <span class="text-xs text-neutral-500">(includes main author)</span>
-                                    </div>
-                                    <div class="p-2 bg-neutral-700 border border-neutral-600 rounded-md min-h-[100px]">
-                                        <div class="flex flex-wrap gap-2 mb-2">
-                                            <div v-for="userId in postAuthorIds" :key="userId" class="flex items-center bg-neutral-600 rounded-md px-2 py-1">
-                                                <span class="text-sm text-neutral-300">{{ getAuthorName(userId) }}</span>
-                                                <button
-                                                    v-if="userId !== post.author"
-                                                    @click="removeCoAuthor(userId)"
-                                                    class="ml-2 text-neutral-400 hover:text-white"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                    </svg>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex items-center">
-                                            <select v-model="selectedCoAuthor" class="w-full bg-neutral-700 border-none outline-none text-sm text-neutral-300">
-                                                <option value="">Add co-author...</option>
-                                                <option
-                                                    v-for="author in availableCoAuthors"
-                                                    :key="author.user"
-                                                    :value="author.user"
-                                                >
-                                                    {{ author.name }}
-                                                </option>
-                                            </select>
-                                            <button
-                                                v-if="selectedCoAuthor"
-                                                @click="addCoAuthor"
-                                                class="ml-2 p-1 bg-blue-600 hover:bg-blue-700 rounded-md"
-                                            >
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-
                                     <label class="block text-sm font-medium text-neutral-400 mb-1 mt-4">Push Notification</label>
                                     <div>
                                         <input id="pushNotification" type="checkbox" :value="post.pushNotification"
@@ -305,6 +269,39 @@
                                         <label for="pushNotification" class="ml-2 text-sm text-neutral-300">
                                             Send push notification
                                         </label>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <label class="block text-sm font-medium text-neutral-400 mb-1">Publishing</label>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" v-model="post.status" value="draft"
+                                                        class="rounded-full bg-neutral-700 border-neutral-600 text-blue-600" />
+                                                    <span class="ml-2 text-sm">Draft</span>
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" v-model="post.status" value="published"
+                                                        class="rounded-full bg-neutral-700 border-neutral-600 text-blue-600" />
+                                                    <span class="ml-2 text-sm">Published</span>
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <label class="inline-flex items-center">
+                                                    <input type="radio" v-model="post.status" value="cron"
+                                                        class="rounded-full bg-neutral-700 border-neutral-600 text-blue-600" />
+                                                    <span class="ml-2 text-sm">Scheduled</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div v-if="post.status === 'cron'">
+                                        <label class="block text-sm font-medium text-neutral-400 mb-1">Schedule for</label>
+                                        <input v-model="scheduleDate" type="datetime-local"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" />
                                     </div>
                                 </div>
                             </div>
@@ -549,38 +546,6 @@
                         </svg>
                     </button>
                     <div v-show="expandedSections.advanced" class="p-4 pt-0 space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-neutral-400 mb-1">Publishing</label>
-                            <div class="space-y-2">
-                                <div class="flex items-center">
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" v-model="post.status" value="draft"
-                                            class="rounded-full bg-neutral-700 border-neutral-600 text-blue-600" />
-                                        <span class="ml-2 text-sm">Draft</span>
-                                    </label>
-                                </div>
-                                <div class="flex items-center">
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" v-model="post.status" value="published"
-                                            class="rounded-full bg-neutral-700 border-neutral-600 text-blue-600" />
-                                        <span class="ml-2 text-sm">Published</span>
-                                    </label>
-                                </div>
-                                <div class="flex items-center">
-                                    <label class="inline-flex items-center">
-                                        <input type="radio" v-model="post.status" value="scheduled"
-                                            class="rounded-full bg-neutral-700 border-neutral-600 text-blue-600" />
-                                        <span class="ml-2 text-sm">Scheduled</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-if="post.status === 'scheduled'">
-                            <label class="block text-sm font-medium text-neutral-400 mb-1">Schedule for</label>
-                            <input v-model="scheduleDate" type="datetime-local"
-                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                        </div>
 
                         <div>
                             <label class="block text-sm font-medium text-neutral-400 mb-1">Code Injection -
@@ -597,7 +562,52 @@
                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                 placeholder=""></textarea>
                         </div>
+
+                        <div class="flex justify-between items-center">
+                            <label class="text-xs text-neutral-400 mb-1 block">Co-Authors</label>
+                            <span class="text-xs text-neutral-500">(includes main author)</span>
+                        </div>
+                        <div class="p-2 bg-neutral-700 border border-neutral-600 rounded-md min-h-[100px]">
+                            <div class="flex flex-wrap gap-2 mb-2">
+                                <div v-for="userId in postAuthorIds" :key="userId" class="flex items-center bg-neutral-600 rounded-md px-2 py-1">
+                                    <span class="text-sm text-neutral-300">{{ getAuthorName(userId) }}</span>
+                                    <button
+                                        v-if="userId !== post.author"
+                                        @click="removeCoAuthor(userId)"
+                                        class="ml-2 text-neutral-400 hover:text-white"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center">
+                                <select v-model="selectedCoAuthor" class="w-full bg-neutral-700 border-none outline-none text-sm text-neutral-300">
+                                    <option value="">Add co-author...</option>
+                                    <option
+                                        v-for="author in availableCoAuthors"
+                                        :key="author.user"
+                                        :value="author.user"
+                                    >
+                                        {{ author.name }}
+                                    </option>
+                                </select>
+                                <button
+                                    v-if="selectedCoAuthor"
+                                    @click="addCoAuthor"
+                                    class="ml-2 p-1 bg-blue-600 hover:bg-blue-700 rounded-md"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
+
+
                 </div>
             </div>
         </div>
@@ -925,7 +935,6 @@
         </div>
     </div>
 
-    <!-- Overlay de loading bloqueante -->
     <div v-if="fullPageLoading" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]" style="backdrop-filter: blur(4px);">
         <div class="bg-neutral-800 rounded-lg p-8 flex flex-col items-center justify-center">
             <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
@@ -933,15 +942,12 @@
         </div>
     </div>
 
-    <!-- Media Library Dialog -->
     <MediaDialog
         v-model="showMediaDialog"
         :type="mediaDialogType"
         @select="handleMediaSelected"
     />
 
-    <!-- Após o DeleteDialog, antes do ToastNotification -->
-    <!-- Adicionar o modal de alerta de imagem não processada -->
     <div v-if="showImageProcessingDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
         style="backdrop-filter: blur(4px);">
         <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
@@ -982,6 +988,54 @@
                     <button @click="proceedWithPublish"
                         class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-md transition-colors">
                         Publicar Mesmo Assim
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add AI Content Generation Dialog -->
+    <div v-if="showAIGenerateDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
+        style="backdrop-filter: blur(4px);">
+        <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
+            <div class="p-6 border-b border-neutral-700">
+                <h3 class="text-lg font-medium text-white">AI Content Generation</h3>
+            </div>
+            <div class="p-6">
+                <p class="text-neutral-300 mb-4">
+                    Enter a URL to generate blog content using AI. The content will be processed and used to fill the editor.
+                </p>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-neutral-400 mb-1">URL</label>
+                    <input
+                        v-model="aiGenerateUrl"
+                        type="url"
+                        placeholder="https://example.com/article"
+                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    />
+                </div>
+
+                <div class="flex justify-end space-x-3">
+                    <button @click="showAIGenerateDialog = false"
+                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors">
+                        Cancel
+                    </button>
+                    <button @click="generateFromUrl"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                        :disabled="aiGenerateLoading">
+                        <span v-if="aiGenerateLoading" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4">
+                                </circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Generating...
+                        </span>
+                        <span v-else>Generate Content</span>
                     </button>
                 </div>
             </div>
@@ -1457,6 +1511,22 @@ const editor = new Editor({
             openOnClick: false,
         }),
         ImageResize,
+        // Customize TiptapImage to add loading="lazy" by default
+        TiptapImage.extend({
+            addAttributes() {
+                return {
+                    ...this.parent?.(),
+                    loading: {
+                        default: 'lazy',
+                        renderHTML: attributes => {
+                            return {
+                                loading: attributes.loading,
+                            }
+                        },
+                    }
+                }
+            }
+        }),
         TextAlign.configure({
             types: ['heading', 'paragraph'],
             alignments: ['left', 'center', 'right', 'justify'],
@@ -1570,7 +1640,8 @@ function insertImage() {
         editor.chain().focus().setImage({
             src: media.url,
             alt: media.alt || '',
-            title: media.caption || ''
+            title: media.caption || '',
+            loading: 'lazy' // Add lazy loading attribute
         }).run();
     };
 
@@ -1665,7 +1736,7 @@ const postStatusText = computed(() => {
     switch (post.value.status) {
         case 'draft': return 'Draft'
         case 'published': return 'Published'
-        case 'scheduled': return 'Scheduled'
+        case 'cron': return 'Scheduled'
         default: return 'Draft'
     }
 })
@@ -1932,43 +2003,23 @@ function publishPost() {
         });
 }
 
-async function savePost() {
-    try {
-        let cleanContent = editor.getHTML();
+// Add the new savePost function before the publishPost function
+function savePost() {
+    fullPageLoading.value = true;
 
-        cleanContent = cleanContent
-            .replace(/<div class="iframe-actions">.*?<\/div>/g, '')
-            .replace(/<div class="tweet-embed-actions">.*?<\/div>/g, '')
-            .replace(/<div class="reddit-embed-actions">.*?<\/div>/g, '');
+    // Set appropriate loading message based on post status
+    if (post.value.status === 'cron') {
+        loadingMessage.value = 'Saving scheduled post...';
+    } else {
+        loadingMessage.value = 'Saving draft...';
+        post.value.status = 'draft';
+    }
 
-        const postData = {
-            ...post.value,
-            content: cleanContent
-        };
-
-        if (Array.isArray(postData.authors)) {
-            postData.authors = postData.authors.map(author => {
-                if (typeof author === 'object' && author !== null) {
-                    return author.user;
-                } else {
-                    return author;
-                }
-            }).filter(Boolean);
-        } else {
-            if (postData.author)
-                postData.authors = [postData.author];
-        }
-
-        if (post.value.status === 'scheduled' && scheduleDate.value)
-            postData.autoPublishAt = new Date(scheduleDate.value).toISOString();
-
-        const payload = {
-            post: postData,
-            meta: postMeta.value
-        };
-
-        const response = await adminClient.posts.save(payload);
-
+    adminClient.posts.save({
+        post: post.value,
+        meta: postMeta.value
+    })
+    .then(response => {
         if (response && response.id) {
             post.value.id = response.id;
             showNotification('success', 'Post saved successfully');
@@ -1981,19 +2032,79 @@ async function savePost() {
         else if(response.result){
             showNotification('success', 'Post saved successfully');
         }
-    } catch (error) {
+    })
+    .catch(error => {
         console.error('Failed to save post:', error);
         showNotification('error', error.message || 'Failed to save post');
-        throw error;
-    }
+    })
+    .finally(() => {
+        fullPageLoading.value = false;
+    });
 }
 
 function saveDraft() {
     fullPageLoading.value = true;
-    loadingMessage.value = 'Saving draft...';
 
-    post.value.status = 'draft';
-    savePost()
+    // Set appropriate loading message based on post status
+    if (post.value.status === 'cron') {
+        loadingMessage.value = 'Saving scheduled post...';
+        // Preserve scheduled status
+    } else {
+        loadingMessage.value = 'Saving draft...';
+        // Set to draft for other statuses
+        post.value.status = 'draft';
+    }
+
+    let cleanContent = editor.getHTML();
+
+    cleanContent = cleanContent
+        .replace(/<div class="iframe-actions">.*?<\/div>/g, '')
+        .replace(/<div class="tweet-embed-actions">.*?<\/div>/g, '')
+        .replace(/<div class="reddit-embed-actions">.*?<\/div>/g, '');
+
+    const postData = {
+        ...post.value,
+        content: cleanContent
+    };
+
+    if (Array.isArray(postData.authors)) {
+        postData.authors = postData.authors.map(author => {
+            if (typeof author === 'object' && author !== null) {
+                return author.user;
+            } else {
+                return author;
+            }
+        }).filter(Boolean);
+    } else {
+        if (postData.author)
+            postData.authors = [postData.author];
+    }
+
+    if (post.value.status === 'cron' && scheduleDate.value)
+        postData.autoPublishAt = new Date(scheduleDate.value).getTime();
+
+    const payload = {
+        post: postData,
+        meta: postMeta.value
+    };
+
+    adminClient.posts.save(payload)
+        .then(response => {
+            if (response && response.id) {
+                post.value.id = response.id;
+                showNotification('success', 'Post saved successfully');
+
+                if (!route.params.id)
+                    router.push(`/post/${response.id}`);
+            }
+            else if(response.result){
+                showNotification('success', 'Post saved successfully');
+            }
+        })
+        .catch(error => {
+            console.error('Failed to save post:', error);
+            showNotification('error', error.message || 'Failed to save post');
+        })
         .finally(() => {
             fullPageLoading.value = false;
         });
@@ -2063,7 +2174,7 @@ async function loadPost(postId) {
             if (post.value.content)
                 editor.commands.setContent(post.value.content)
 
-            if (post.value.status === 'scheduled' && post.value.autoPublishAt) {
+            if (post.value.status === 'cron' && post.value.autoPublishAt) {
                 const date = new Date(post.value.autoPublishAt)
                 scheduleDate.value = date.toISOString().slice(0, 16)
             }
@@ -2556,6 +2667,67 @@ function insertReddit() {
         }).run()
     } else {
         alert('Invalid Reddit URL. Please enter a valid Reddit post URL (e.g., https://www.reddit.com/r/subreddit/comments/postid/title).')
+    }
+}
+
+// Add these variables to the data section
+const showAIGenerateDialog = ref(false)
+const aiGenerateUrl = ref('')
+const aiGenerateLoading = ref(false)
+
+// Add the function to generate content from URL
+async function generateFromUrl() {
+    if (!aiGenerateUrl.value) {
+        showNotification('error', 'Please enter a valid URL')
+        return
+    }
+
+    try {
+        aiGenerateLoading.value = true
+
+        const response = await adminClient.posts.generate({
+            url: aiGenerateUrl.value
+        })
+
+        if (response) {
+            // Update post data
+            post.value.title = response.title || post.value.title
+            post.value.excerpt = response.excerpt || post.value.excerpt
+
+            if (response.suggestedTags && Array.isArray(response.suggestedTags)) {
+                post.value.tags = response.suggestedTags
+            }
+
+            if (response.slug) {
+                post.value.slug = response.slug
+                slugManuallyEdited.value = true
+            }
+
+            if (response.featureImage) {
+                post.value.featureImage = response.featureImage
+            }
+
+            // Update editor content
+            if (response.content) {
+                editor.commands.setContent(response.content)
+            }
+
+            showNotification('success', 'Content generated successfully')
+            showAIGenerateDialog.value = false
+            aiGenerateUrl.value = ''
+
+            // Resize title textarea after updating the title
+            nextTick(() => {
+                autoResizeTitle()
+            })
+        } else {
+            throw new Error('No content was generated')
+        }
+    } catch (error) {
+        console.error('Failed to generate content:', error)
+        showNotification('error', error.message || 'Failed to generate content')
+    } finally {
+        aiGenerateLoading.value = false
     }
 }
 </script>

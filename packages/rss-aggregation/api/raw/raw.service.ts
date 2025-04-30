@@ -80,12 +80,14 @@ export class RawService {
             3. Removing all references to images, videos, or any content that connects directly to the original source
             4. Adding complementary information to enrich the news item, including background context, analysis, and relevant details
             5. Maintaining the general topic but rephrasing completely
-            6. Organizing content with proper HTML formatting for the TipTap editor:
+            6. Preserving important links to authors, sources, and reference pages, but adding rel="noindex nofollow" attributes to all links
+            7. Organizing content with proper HTML formatting for the TipTap editor:
                - Use <h2> tags for section headings (2-4 sections recommended)
                - Use <p> tags for paragraphs
                - Use <ul> and <li> tags for lists where appropriate
                - Include a concluding paragraph
-            7. Suggesting 3-8 relevant tags in Portuguese for categorizing this content
+               - For links, use: <a href="https://example.com" rel="noindex nofollow">text</a>
+            8. Suggesting 3-8 relevant tags in Portuguese for categorizing this content
 
             IMPORTANT: The title MUST be 100 characters or less. Keep it concise but descriptive and engaging.
 

@@ -1,5 +1,5 @@
 import {
-    Service,Logger
+    Service, Logger, Config
 } from "@cmmv/core";
 
 import {
@@ -47,6 +47,7 @@ export class YTVideosServiceAdmin {
      */
     async getAIVideo(id: string, customData?: any) {
         try {
+            const language = Config.get("blog.language");
             const YTVideosEntity = Repository.getEntity("YTVideosEntity");
             const video = await Repository.findOne(YTVideosEntity, {
                 id: id
@@ -78,16 +79,19 @@ export class YTVideosServiceAdmin {
 
             Please transform the following YouTube video information into a well-structured blog post by:
 
-            1. Translating it to Brazilian Portuguese (pt-br)
+            1. Translating it to ${language}
             2. Creating an engaging title that captures the essence of the video (keep it under 100 characters)
             3. Writing a comprehensive article that summarizes the key points and insights from the video
             4. Adding context, background information, and your own analysis to enhance the content
-            5. Creating a well-structured HTML article using proper formatting:
+            5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
+            6. Creating a well-structured HTML article using proper formatting:
                - Use <h2> tags for main sections (2-4 sections recommended)
                - Use <p> tags for paragraphs
                - Use <ul> and <li> tags for lists where appropriate
                - Include a concluding paragraph
-            6. Suggesting 3-8 relevant tags for categorizing this content
+               - For links, use: <a href="https://example.com" rel="noindex nofollow" target="_blank">text</a>
+            7. Start with a strong introductory paragraph before any video embed (the video will be automatically inserted after the first paragraph)
+            8. Suggesting 3-8 relevant tags for categorizing this content
 
             DO NOT include instructions to watch the video or subscribe to the channel. The post should stand alone as valuable content.
 
@@ -139,6 +143,7 @@ export class YTVideosServiceAdmin {
     width="100%"
     height="100%"
     src="https://www.youtube.com/embed/${video.videoId}"
+    loading="lazy"
     frameborder="0"
     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
     allowfullscreen
@@ -147,11 +152,23 @@ export class YTVideosServiceAdmin {
 
                 const videoAttribution = `
 <p class="text-sm text-gray-500 mt-4">
-  <em>Originally published on <a href="${video.url}" target="_blank" rel="noopener noreferrer">YouTube</a>
+  <em>Originally published on <a href="${video.url}" target="_blank" rel="noindex nofollow noopener">YouTube</a>
   by ${channelName} on ${new Date(video.publishedAt).toDateString()}</em>
 </p>`;
 
-                parsedContent.content = `${videoEmbed}\n\n${parsedContent.content}\n\n${videoAttribution}`;
+                let contentWithVideo = parsedContent.content;
+                const firstParagraphEnd = contentWithVideo.indexOf('</p>') + 4;
+                if (firstParagraphEnd > 4) {
+                    contentWithVideo =
+                        contentWithVideo.substring(0, firstParagraphEnd) +
+                        '\n\n' + videoEmbed + '\n\n' +
+                        contentWithVideo.substring(firstParagraphEnd);
+                } else {
+                    // Fallback if no paragraph tag found
+                    contentWithVideo = videoEmbed + '\n\n' + contentWithVideo;
+                }
+
+                parsedContent.content = contentWithVideo + '\n\n' + videoAttribution;
 
                 if (parsedContent.excerpt && parsedContent.excerpt.length > 160)
                     parsedContent.excerpt = parsedContent.excerpt.substring(0, 157) + '...';

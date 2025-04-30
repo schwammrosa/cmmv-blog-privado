@@ -33,7 +33,7 @@
                             <option value="">All</option>
                             <option value="published">Published</option>
                             <option value="draft">Draft</option>
-                            <option value="scheduled">Scheduled</option>
+                            <option value="cron">Scheduled</option>
                         </select>
                     </div>
 
@@ -75,10 +75,18 @@
                             <div class="flex items-center space-x-2 mt-1">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                                     :class="getStatusClass(post.status)">
-                                    {{ post.status.charAt(0).toUpperCase() + post.status.slice(1) }}
+                                    {{ post.status === 'cron' ? 'Scheduled' : post.status.charAt(0).toUpperCase() + post.status.slice(1) }}
                                 </span>
-                                <span class="text-xs text-neutral-400">{{ formatDate(post.publishedAt || post.createdAt)
-                                    }}</span>
+                                <span class="text-xs text-neutral-400">
+                                    <template v-if="post.status === 'cron' && post.scheduledPublishDate">
+                                        <span class="ml-2 text-blue-400 font-medium">
+                                            <i class="far fa-clock mr-1"></i> Será publicado em: {{ post.scheduledPublishDate }}
+                                        </span>
+                                    </template>
+                                    <template v-else>
+                                        {{ formatDate(post.publishedAt || post.createdAt) }}
+                                    </template>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -151,6 +159,12 @@
                             </svg>
                         </button>
                     </div>
+                    <div v-if="post.status === 'cron' && post.scheduledPublishDate" class="px-4 py-2 bg-blue-900/20 text-xs border-t border-blue-800/30">
+                        <div class="flex items-center">
+                            <i class="far fa-calendar-alt mr-1.5 text-blue-400"></i>
+                            <span class="text-blue-300 font-medium">Agendado para publicação em: {{ post.scheduledPublishDate }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -193,7 +207,19 @@
                                             </div>
                                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
                                                 :class="getStatusClass(post.status)">
-                                                {{ post.status.charAt(0).toUpperCase() + post.status.slice(1) }}
+                                                {{ post.status === 'cron' ? 'Scheduled' : post.status.charAt(0).toUpperCase() + post.status.slice(1) }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span class="text-xs text-neutral-400">
+                                                <template v-if="post.status === 'cron' && post.autoPublishAt">
+                                                    <span class="text-blue-400 font-medium">
+                                                        <i class="far fa-clock mr-1"></i> {{ formatDate(post.autoPublishAt) }} {{ formatTime(post.autoPublishAt) }}
+                                                    </span>
+                                                </template>
+                                                <template v-else>
+                                                    {{ formatDate(post.publishedAt || post.createdAt) }}
+                                                </template>
                                             </span>
                                         </div>
                                     </div>
@@ -222,7 +248,18 @@
                                     </div>
                                 </td>
                                 <td class="p-4 hidden xl:table-cell text-xs text-neutral-400">
-                                    {{ formatDate(post.publishedAt || post.createdAt) }}
+                                    <template v-if="post.status === 'cron' && post.scheduledPublishDate">
+                                        <div class="flex items-center bg-blue-900/20 px-2 py-1.5 rounded">
+                                            <i class="far fa-calendar-alt mr-1.5 text-blue-400"></i>
+                                            <div class="flex flex-col">
+                                                <span class="text-blue-300 font-medium">Agendado para:</span>
+                                                <span class="text-white">{{ post.scheduledPublishDate }}</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                    <template v-else>
+                                        {{ formatDate(post.publishedAt || post.createdAt) }}
+                                    </template>
                                 </td>
                                 <td class="p-4 text-right">
                                     <div class="flex items-center justify-end space-x-2">
@@ -606,7 +643,8 @@ function getStatusClass(status) {
     switch (status) {
         case 'published': return 'bg-green-900 text-green-200'
         case 'draft': return 'bg-yellow-900 text-yellow-200'
-        case 'scheduled': return 'bg-blue-900 text-blue-200'
+        case 'scheduled':
+        case 'cron': return 'bg-blue-900 text-blue-200'
         default: return 'bg-neutral-700 text-neutral-200'
     }
 }

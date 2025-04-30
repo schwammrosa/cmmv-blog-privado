@@ -18,6 +18,7 @@ import { ThemesModule } from './themes/themes.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AutopostModule } from './autopost/autopost.module';
 import { WhitelabelModule } from './whitelabel/whitelabel.modules';
+import { CDNModule } from './cdn/cdn.module';
 
 export const BlogModule = new Module('blog', {
     submodules: [
@@ -38,6 +39,7 @@ export const BlogModule = new Module('blog', {
         ThemesModule,
         NotificationsModule,
         AutopostModule,
-        WhitelabelModule
+        WhitelabelModule,
+        CDNModule
     ]
 });

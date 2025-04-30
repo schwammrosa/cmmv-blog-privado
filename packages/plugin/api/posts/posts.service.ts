@@ -1,5 +1,7 @@
 import {
-    Service, EventsService
+    Service, EventsService,
+    Logger, Config, Cron,
+    CronExpression
 } from "@cmmv/core";
 
 import {
@@ -11,20 +13,38 @@ import {
     IDraftPost
 } from "./posts.interface";
 
-import {
-    slugify
-} from "../utils/extra.utils";
-
-import {
-    MediasService
-} from "../medias/medias.service";
+import { slugify } from "../utils/extra.utils";
+import { MediasService } from "../medias/medias.service";
+//@ts-ignore
+import { AIContentService } from "@cmmv/ai-content";
+import { CDNService } from "../cdn/cdn.service";
 
 @Service('blog_posts_public')
 export class PostsPublicService {
+    private readonly logger = new Logger("PostsPublicService");
+
     constructor(
         private readonly mediasService: MediasService,
-        private readonly eventsService: EventsService
+        private readonly eventsService: EventsService,
+        private readonly aiContentService: AIContentService,
+        private readonly cdnService: CDNService
     ){}
+
+    @Cron(CronExpression.EVERY_30_MINUTES)
+    async handleCronJobs() {
+        const PostsEntity = Repository.getEntity("PostsEntity");
+        const posts = await Repository.findAll(PostsEntity, {
+            status: "cron"
+        });
+
+        if (posts) {
+            for (const post of posts.data) {
+                if (post.autoPublishAt && post.autoPublishAt < new Date()) {
+                    await this.publishPost(post.id);
+                }
+            }
+        }
+    }
 
     /**
      * Get all posts
@@ -68,8 +88,7 @@ export class PostsPublicService {
         const posts = await Repository.findAll(PostsEntity, {
             ...queries,
             type: "post",
-            status: queries.status,
-            ...sortOptions
+            status: queries.status
         }, [], {
             select: [
                 "id", "title", "slug", "content", "status", "autoPublishAt",
@@ -89,7 +108,10 @@ export class PostsPublicService {
             let userIdsIn: string[] = [];
             let categoryIdsIn: string[] = [];
 
-            for(const post of posts.data){
+            for (const post of posts.data) {
+                if (post.status === 'cron' && post.autoPublishAt)
+                    post.scheduledPublishDate = new Date(post.autoPublishAt).toLocaleString();
+
                 userIdsIn = [...userIdsIn, ...post.authors];
                 userIdsIn.push(post.author);
 
@@ -330,6 +352,17 @@ export class PostsPublicService {
             if(data.post.status === "published" && data.post.pushNotification === true)
                 await this.eventsService.emit("posts.published", data.post);
 
+            if(data.post.status === "published") {
+                const siteUrl = Config.get("blog.url") || "";
+                this.logger.log(`Clearing CDN cache for homepage after publishing post ${data.post.id}`);
+
+                try {
+                    await this.cdnService.clearCDNCache([siteUrl, `${siteUrl}/`]);
+                } catch (error) {
+                    this.logger.error(`Error clearing CDN cache: ${error}`);
+                }
+            }
+
             await this.upsertTags(data.post.tags);
             await this.recalculateCategories();
             return { result: true };
@@ -346,6 +379,17 @@ export class PostsPublicService {
             if(post){
                 data.meta.post = post.data.id;
                 await Repository.insert(MetaEntity, data.meta);
+
+                // Clear CDN cache for homepage when new post is published
+                if(data.post.status === "published") {
+                    const siteUrl = Config.get("blog.url") || "";
+                    this.logger.log(`Clearing CDN cache for homepage after publishing new post ${post.data.id}`);
+                    try {
+                        await this.cdnService.clearCDNCache([siteUrl, `${siteUrl}/`]);
+                    } catch (error) {
+                        this.logger.error(`Error clearing CDN cache: ${error}`);
+                    }
+                }
             }
 
             await this.upsertTags(data.post.tags);
@@ -962,5 +1006,224 @@ export class PostsPublicService {
             views: postsAccess[post.id],
             publishedAt: post.publishedAt
         }));
+    }
+
+    /**
+     * Generate a post from a URL by fetching content and processing with AI
+     * @param url The URL to fetch content from
+     * @returns Processed post content ready for frontend
+     */
+    async generatePostFromUrl(url: string) {
+        try {
+            this.logger.log(`Generating post from URL: ${url}`);
+
+            const response = await fetch(url, {
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+            });
+
+            if (!response.ok)
+                throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
+
+            const html = await response.text();
+            const language = Config.get("blog.language");
+            const titleMatch = html.match(/<title[^>]*>(.*?)<\/title>/i);
+            const title = titleMatch ? titleMatch[1].trim() : "";
+            const descriptionMatch = html.match(/<meta[^>]*name=['"]description['"][^>]*content=['"]([^'"]*)['"]/i);
+            const description = descriptionMatch ? descriptionMatch[1].trim() : "";
+            const ogImageMatch = html.match(/<meta[^>]*property=['"]og:image['"][^>]*content=['"]([^'"]*)['"]/i) ||
+                                html.match(/<meta[^>]*content=['"]([^'"]*)['"'][^>]*property=['"]og:image['"][^>]*/i);
+            const twitterImageMatch = html.match(/<meta[^>]*name=['"]twitter:image['"][^>]*content=['"]([^'"]*)['"]/i) ||
+                                    html.match(/<meta[^>]*content=['"]([^'"]*)['"'][^>]*name=['"]twitter:image['"][^>]*/i);
+
+            let content = html;
+            content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, " ");
+            content = content.replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, " ");
+            content = content.replace(/<nav\b[^<]*(?:(?!<\/nav>)<[^<]*)*<\/nav>/gi, " ");
+            content = content.replace(/<header\b[^<]*(?:(?!<\/header>)<[^<]*)*<\/header>/gi, " ");
+            content = content.replace(/<footer\b[^<]*(?:(?!<\/footer>)<[^<]*)*<\/footer>/gi, " ");
+
+            const articleMatch = content.match(/<article[^>]*>([\s\S]*?)<\/article>/i);
+            const mainMatch = content.match(/<main[^>]*>([\s\S]*?)<\/main>/i);
+
+            if (articleMatch) {
+                content = articleMatch[1];
+            } else if (mainMatch) {
+                content = mainMatch[1];
+            }
+
+            content = content.replace(/<[^>]*>/g, " ");
+            content = content.replace(/\s+/g, " ").trim();
+            const MAX_CONTENT_LENGTH = 20000;
+
+            if (content.length > MAX_CONTENT_LENGTH)
+                content = content.substring(0, MAX_CONTENT_LENGTH) + "...";
+
+            const imgUrlRegex = /<img[^>]*src=["']([^"']+)["'][^>]*>/gi;
+            const potentialImages: string[] = [];
+            let match;
+
+            if (ogImageMatch && ogImageMatch[1])
+                potentialImages.push(ogImageMatch[1]);
+
+            if (twitterImageMatch && twitterImageMatch[1])
+                potentialImages.push(twitterImageMatch[1]);
+
+            while ((match = imgUrlRegex.exec(html)) !== null) {
+                if (match[1].startsWith('http')) {
+                    potentialImages.push(match[1]);
+                } else if (match[1].startsWith('/')) {
+                    try {
+                        const urlObj = new URL(url);
+                        potentialImages.push(`${urlObj.origin}${match[1]}`);
+                    } catch (e) {
+                    }
+                }
+            }
+
+            let featureImage = potentialImages.length > 0 ? potentialImages[0] : null;
+
+            const prompt = `
+            You are a content creator who specializes in creating high-quality blog posts based on online articles.
+
+            I will provide details from a web page, and your task is to create an engaging blog post based on this content by:
+
+            1. Translating it to ${language} if needed
+            2. Creating an engaging title that captures the essence of the content (keep it under 100 characters)
+            3. Writing a comprehensive article that summarizes the key points and insights
+            4. Adding context, background information, and your own analysis to enhance the content
+            5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
+            6. Creating a well-structured HTML article using proper formatting:
+               - Use <h2> tags for main sections (2-4 sections recommended)
+               - Use <p> tags for paragraphs
+               - Use <ul> and <li> tags for lists where appropriate
+               - Include a concluding paragraph
+               - For links, use: <a href="https://example.com" rel="noindex nofollow" target="_blank">text</a>
+            7. Start with a strong introductory paragraph
+            8. Suggesting 3-8 relevant tags for categorizing this content
+
+            Here is the web page information:
+
+            URL: ${url}
+
+            Title: ${title}
+
+            Description: ${description}
+
+            Content: ${content}
+
+            Return the blog post in JSON format with the following fields:
+            {
+              "title": "your engaging blog post title",
+              "content": "HTML-formatted blog post content with proper tags",
+              "excerpt": "a brief 1-2 sentence summary for meta description (max 160 characters)",
+              "suggestedTags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
+            }
+            `;
+
+            this.logger.log("Sending content to AI for processing");
+            const generatedText = await this.aiContentService.generateContent(prompt);
+
+            if (!generatedText)
+                throw new Error('No content generated by AI');
+
+            try {
+                const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+                const jsonContent = jsonMatch ? jsonMatch[0] : null;
+
+                if (!jsonContent)
+                    throw new Error('No JSON content found in AI response');
+
+                const parsedContent = JSON.parse(jsonContent);
+
+                if (parsedContent.title && parsedContent.title.length > 100)
+                    parsedContent.title = parsedContent.title.substring(0, 97) + '...';
+
+                if (parsedContent.excerpt && parsedContent.excerpt.length > 160)
+                    parsedContent.excerpt = parsedContent.excerpt.substring(0, 157) + '...';
+
+                const sourceAttribution = `
+<p class="source-attribution mt-4 text-sm text-gray-500 italic">
+    <strong>Fonte original:</strong> <a href="${url}" target="_blank" rel="noindex nofollow noopener">${new URL(url).hostname}</a>
+</p>`;
+
+                parsedContent.content = parsedContent.content + sourceAttribution;
+
+                return {
+                    originalUrl: url,
+                    title: parsedContent.title,
+                    content: parsedContent.content,
+                    excerpt: parsedContent.excerpt || '',
+                    suggestedTags: parsedContent.suggestedTags || [],
+                    featureImage: featureImage,
+                    slug: slugify(parsedContent.title),
+                    aiProcessed: true,
+                    processedAt: new Date()
+                };
+
+            } catch (parseError) {
+                this.logger.error(`Failed to parse AI generated content: ${parseError}`);
+                throw new Error('Failed to parse AI generated content');
+            }
+
+        } catch (error) {
+            this.logger.error(`Error in generatePostFromUrl: ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+        }
+    }
+
+    /**
+     * Publish a post that was scheduled for publication
+     * @param {string} id - The id of the post to publish
+     * @returns {Promise<any>}
+     */
+    async publishPost(id: string) {
+        try {
+            this.logger.log(`Publishing scheduled post with ID: ${id}`);
+            const PostsEntity = Repository.getEntity("PostsEntity");
+            const post = await Repository.findOne(PostsEntity, { id });
+
+            if (!post) {
+                this.logger.error(`Post with ID ${id} not found for publishing`);
+                throw new Error(`Post with ID ${id} not found`);
+            }
+
+            if (post.status !== 'cron') {
+                this.logger.log(`Post with ID ${id} is not in 'cron' status, current status: ${post.status}`);
+                return { result: false, message: "Post is not scheduled for publication" };
+            }
+
+            const updateData = {
+                status: 'published',
+                publishedAt: new Date()
+            };
+
+            await Repository.updateOne(PostsEntity, { id }, updateData);
+
+            if (post.pushNotification === true) {
+                await this.eventsService.emit("posts.published", post);
+                this.logger.log(`Push notification event emitted for post ${id}`);
+            }
+
+            const siteUrl = Config.get("blog.url") || "";
+            this.logger.log(`Clearing CDN cache for homepage after publishing scheduled post ${id}`);
+
+            try {
+                await this.cdnService.clearCDNCache([siteUrl, `${siteUrl}/`]);
+            } catch (error) {
+                this.logger.error(`Error clearing CDN cache: ${error instanceof Error ? error.message : String(error)}`);
+            }
+
+            this.logger.log(`Successfully published post with ID: ${id}`);
+
+            return {
+                result: true,
+                message: "Post published successfully"
+            };
+        } catch (error) {
+            this.logger.error(`Error publishing post with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
+            throw error;
+        }
     }
 }

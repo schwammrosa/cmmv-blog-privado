@@ -52,6 +52,7 @@ export const useAdminClient = () => {
         save: (data: any) => api.authRequest('blog/posts', 'POST', data),
         update: (id: string, data: any) => api.authRequest(`blog/posts/${id}`, 'PUT', data),
         delete: (id: string) => api.authRequest(`blog/posts/${id}`, 'DELETE'),
+        generate: (data: any) => api.authRequest('blog/posts/generate', 'POST', data),
     };
 
     const pages = {
