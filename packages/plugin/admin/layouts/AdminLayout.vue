@@ -164,7 +164,7 @@ import { useAdminClient } from '../client';
 import { useNavbar } from '../composable/useNavbar';
 
 const api = useAdminClient()
-//api.session.check();
+api.session.check();
 
 const route = useRoute()
 const isCollapsed = ref(false)
