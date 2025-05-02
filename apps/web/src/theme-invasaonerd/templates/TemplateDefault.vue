@@ -383,17 +383,11 @@ const footerCategories = computed(() => {
 
 const mainNavCategories = computed(() => {
     const navCategories = categories.value || [];
-
-    // Get all root categories (without parent)
     const rootCategories = navCategories.filter((cat: any) => !cat.parentCategory);
-
-    // Get all subcategories (with parent)
     const childCategories = navCategories.filter((cat: any) => cat.parentCategory);
 
     return {
-        // Limit to first 7 categories for main nav
         rootCategories: rootCategories.slice(0, 7),
-        // Build a map of parent -> children
         childrenMap: childCategories.reduce((map: Record<string, any[]>, child: any) => {
             if (!map[child.parentCategory]) {
                 map[child.parentCategory] = [];
@@ -413,12 +407,10 @@ const toggleDropdown = (categoryId: string, event: Event) => {
             [categoryId]: false
         };
     } else {
-        // Close all other dropdowns first
         const newDropdownState: Record<string, boolean> = {};
         Object.keys(openDropdowns.value).forEach(key => {
             newDropdownState[key] = false;
         });
-        // Open the clicked one
         newDropdownState[categoryId] = true;
         openDropdowns.value = newDropdownState;
     }
@@ -502,8 +494,6 @@ const subscribeNewsletter = async () => {
     if (!newsletterEmail.value) return;
 
     try {
-        // Here you would implement the actual newsletter subscription
-        // For example: await blogAPI.newsletter.subscribe(newsletterEmail.value);
         console.log('Newsletter subscription for:', newsletterEmail.value);
         alert('Obrigado por se inscrever na nossa newsletter!');
         newsletterEmail.value = '';
@@ -536,7 +526,6 @@ const closeDropdownsOnClickOutside = (event: Event) => {
 };
 
 onMounted(async () => {
-    // Load categories if needed
     if (!categories.value.length) {
         try {
             const categoriesResponse = await blogAPI.categories.getAll();
@@ -548,12 +537,9 @@ onMounted(async () => {
         }
     }
 
-    // Set light theme by default
     isDarkMode.value = false;
     document.documentElement.classList.remove('dark');
     localStorage.setItem('theme', 'light');
-
-    // Add click outside event listener for dropdowns
     document.addEventListener('click', closeDropdownsOnClickOutside);
 });
 

@@ -4,6 +4,7 @@ import { createPiniaInstance } from './store/index.js';
 import { useSettingsStore } from './store/settings.js';
 import ClientOnly from './components/ClientOnly.vue'
 import App from './App.vue';
+import './style.css';
 
 declare global {
     interface Window {

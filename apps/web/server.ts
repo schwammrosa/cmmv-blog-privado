@@ -9,6 +9,7 @@ import finalhandler from 'finalhandler';
 
 const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), 'VITE');
 const cache = new Map<string, { html: string, expires: number }>();
+let themeStyle = ""
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CACHE_CONTROL_MAX_AGE = 900;
 
@@ -65,6 +66,8 @@ async function bootstrap() {
             render = devRender;
         }
 
+
+
         vite.middlewares(req, res, async () => {
             try {
                 if (/\.\w+$/.test(url)) {
@@ -88,6 +91,7 @@ async function bootstrap() {
                 }*/
 
                 template = await vite.transformIndexHtml(url, template);
+
                 const {
                     html: appHtml, head, metadata, redirect,
                     piniaState, settings, posts, prefetchCache
@@ -112,6 +116,20 @@ async function bootstrap() {
                     ${dataScript}
                 `));
 
+
+                if(!themeStyle) {
+                    const { useSettingsStore } = await import('./src/store/settings.js');
+                    const settingsStore = useSettingsStore();
+                    let theme = settingsStore.getSetting('blog.theme', env.VITE_DEFAULT_THEME);
+                    const routerModules = path.resolve(`./src/theme-${theme}/style.css`);
+
+                    if(fs.existsSync(routerModules))
+                        themeStyle = fs.readFileSync(routerModules, 'utf-8');
+                }
+
+                //if(themeStyle)
+                //    template = template.replace("</head>", `<style>${themeStyle}</style>` + "</head>");
+
                 template = template.replace(/<script type="module" src="\/@vite\/client"><\/script>\s*/g, '');
                 template = template.replace("<analytics />", settings["blog.analyticsCode"] || "").replace("<analytics>", settings["blog.analyticsCode"] || "");
                 template = template.replace("<custom-js />", settings["blog.customJs"] || "").replace("<custom-js>", settings["blog.customJs"] || "");
@@ -126,6 +144,7 @@ async function bootstrap() {
                 res.setHeader('Cache-Control', `public, max-age=${CACHE_CONTROL_MAX_AGE}`);
 
                 const compressed = compressHtml(template, acceptEncoding as string);
+
                 if (compressed.encoding)
                     res.setHeader('Content-Encoding', compressed.encoding);
 
