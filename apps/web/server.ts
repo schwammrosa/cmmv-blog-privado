@@ -108,8 +108,8 @@ async function bootstrap() {
 
                 const ssrData = { ...globalThis.__SSR_DATA__, prefetchCache };
                 const serializedData = JSON.stringify(ssrData).replace(/</g, '\\u003c');
-                const dataScript = `${piniaScript}`;
-                //const dataScript = `<script>window.__CMMV_DATA__ = ${serializedData};</script>${piniaScript}`;
+                //const dataScript = `${piniaScript}`;
+                const dataScript = `<script>window.__CMMV_DATA__ = ${serializedData};</script>${piniaScript}`;
 
                 template = await transformHtmlTemplate(head, template.replace(`<div id="app"></div>`, `
                     <div id="app">${appHtml}</div>
