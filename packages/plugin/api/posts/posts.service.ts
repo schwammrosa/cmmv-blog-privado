@@ -6,7 +6,7 @@ import {
 
 import {
     Repository, In,
-    LessThanOrEqual
+    MoreThanOrEqual
 } from "@cmmv/repository";
 
 import {
@@ -980,7 +980,7 @@ export class PostsPublicService {
             sortBy: "views",
             sort: "desc",
             limit: 10,
-            publishedAt: LessThanOrEqual(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+            publishedAt: MoreThanOrEqual(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
         }, [], {
             select: [
                 "id", "title", "slug", "views", "createdAt",
