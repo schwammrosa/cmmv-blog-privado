@@ -3,13 +3,18 @@
         <!-- Cover Section -->
         <div class="mx-auto px-4 py-8 pb-0 hidden md:hidden lg:block">
             <div class="bg-white dark:bg-neutral-900 rounded-lg max-w-[1200px] m-auto overflow-hidden shadow-lg">
-                <!-- Full width cover layout -->
                 <div v-if="coverType === 'full' && coverPost" class="relative aspect-[21/9] overflow-hidden">
                     <img
                         v-if="coverPost.featureImage"
                         :src="coverPost.featureImage"
                         :alt="coverPost.title"
-                        class="w-full h-full object-cover"
+                        class="w-full h-full object-cover !hidden"
+                        loading="lazy"
+                        width="890"
+                        height="606"
+                        :title="coverPost.title"
+                        aria-label="Cover Image"
+                        fetchpriority="high"
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -40,6 +45,12 @@
                             :src="post.featureImage"
                             :alt="post.title"
                             class="w-full h-full object-cover"
+                            loading="lazy"
+                            width="890"
+                            height="606"
+                            :title="post.title"
+                            aria-label="Cover Image"
+                            fetchpriority="high"
                         />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                         <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -70,16 +81,25 @@
                             @click="carouselIndex = index"
                             class="w-3 h-3 rounded-full transition-colors"
                             :class="carouselIndex === index ? 'bg-blue-500' : 'bg-gray-400 bg-opacity-50'"
+                            aria-label="Carousel Indicator"
                         ></button>
                     </div>
 
                     <!-- Carousel Navigation Arrows -->
-                    <button @click="prevSlide" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-30 hover:bg-black/70">
+                    <button
+                        @click="prevSlide"
+                        class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-30 hover:bg-black/70"
+                        aria-label="Previous Slide"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </button>
-                    <button @click="nextSlide" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-30 hover:bg-black/70">
+                    <button
+                        @click="nextSlide"
+                        class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full z-30 hover:bg-black/70"
+                        aria-label="Next Slide"
+                    >
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
@@ -94,6 +114,12 @@
                             :src="splitMainPost.featureImage"
                             :alt="splitMainPost.title"
                             class="w-full h-full object-cover"
+                            loading="lazy"
+                            width="890"
+                            height="606"
+                            :title="splitMainPost.title"
+                            aria-label="Cover Image"
+                            fetchpriority="high"
                         />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                         <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -119,6 +145,12 @@
                                 :src="post.featureImage"
                                 :alt="post.title"
                                 class="w-full h-full object-cover"
+                                loading="lazy"
+                                width="890"
+                                height="606"
+                                :title="post.title"
+                                aria-label="Cover Image"
+                                fetchpriority="high"
                             />
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                             <div class="absolute bottom-0 left-0 right-0 p-3 text-white">
@@ -146,6 +178,12 @@
                             :src="post.featureImage"
                             :alt="post.title"
                             class="w-full h-full object-cover"
+                            loading="lazy"
+                            width="890"
+                            height="606"
+                            :title="post.title"
+                            aria-label="Cover Image"
+                            fetchpriority="high"
                         />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                         <div class="absolute bottom-0 left-0 right-0 p-4 text-white">
@@ -172,6 +210,12 @@
                         :src="posts[0].featureImage"
                         :alt="posts[0].title"
                         class="w-full h-full object-cover"
+                        loading="lazy"
+                        width="890"
+                        height="606"
+                        :title="posts[0].title"
+                        aria-label="Cover Image"
+                        fetchpriority="high"
                     />
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                     <div class="absolute bottom-0 left-0 right-0 p-6 text-white">

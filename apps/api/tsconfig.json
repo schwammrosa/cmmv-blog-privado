@@ -59,7 +59,9 @@
             "@cmmv/ai-content": ["../../packages/ai-content"],
             "@cmmv/ai-content/*": ["../../packages/ai-content/*"],
             "@cmmv/yt-aggregation": ["../../packages/yt-aggregation/api"],
-            "@cmmv/yt-aggregation/*": ["../../packages/yt-aggregation/api/*"]
+            "@cmmv/yt-aggregation/*": ["../../packages/yt-aggregation/api/*"],
+            "@cmmv/affiliate": ["../../packages/affiliate/api"],
+            "@cmmv/affiliate/*": ["../../packages/affiliate/api/*"]
         }
     },
     "include": ["src/*.ts"],

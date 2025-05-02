@@ -17,7 +17,17 @@
                         </a>
                     </div>
 
-                    <img :src="post.featureImage" :alt="post.featureImageAlt || post.title" class="featured-img " />
+                    <img
+                        :src="post.featureImage"
+                        :alt="post.featureImageAlt || post.title"
+                        class="featured-img"
+                        loading="lazy"
+                        width="1060"
+                        height="400"
+                        :title="post.title"
+                        aria-label="Cover Image"
+                        fetchpriority="high"
+                    />
                     <p v-if="post.featureImageCaption" class="image-caption text-neutral-600 dark:text-neutral-400">{{
                         post.featureImageCaption }}</p>
                 </div>

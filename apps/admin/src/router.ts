@@ -15,6 +15,7 @@ import { blogAdminRoutes } from '@cmmv/blog/admin/router'
 import { accessControlRoutes } from '@cmmv/access-control/admin/router';
 import { rssFeedRoutes } from '@cmmv/rss-aggregation/admin/router';
 import { ytFeedRoutes } from '@cmmv/yt-aggregation/admin/router';
+import { affiliateRoutes } from '@cmmv/affiliate/admin/router';
 
 const mergedRoutes = mergePluginRoutes(
     adminRoutes,
@@ -22,7 +23,8 @@ const mergedRoutes = mergePluginRoutes(
         blogAdminRoutes,
         accessControlRoutes,
         rssFeedRoutes,
-        ytFeedRoutes
+        ytFeedRoutes,
+        affiliateRoutes
     ]
 );
 

@@ -9,6 +9,7 @@ import { AccessControlModule } from "@cmmv/access-control";
 import { RSSAggregationModule } from "@cmmv/rss-aggregation";
 import { YTAggregationModule } from "@cmmv/yt-aggregation";
 import { AIContentModule } from "@cmmv/ai-content";
+import { AffiliateModule } from "@cmmv/affiliate";
 
 Application.create({
     httpAdapter: DefaultAdapter,
@@ -20,7 +21,8 @@ Application.create({
         AccessControlModule,
         RSSAggregationModule,
         YTAggregationModule,
-        AIContentModule
+        AIContentModule,
+        AffiliateModule
     ],
     providers: [
         Repository,

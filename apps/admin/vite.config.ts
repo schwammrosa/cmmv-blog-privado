@@ -15,11 +15,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
             return true;
 
         try {
-            const nodeFetch = await import('node-fetch').catch(() => null);
-            const fetchFunc = typeof fetch !== 'undefined' ? fetch :
-                             nodeFetch ? nodeFetch.default : null;
-
-            if (!fetchFunc) {
+            if (typeof fetch === 'undefined') {
                 console.warn('Fetch API not available, skipping whitelabel data fetch');
                 return false;
             }
@@ -27,10 +23,10 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-            const response = await fetchFunc(`${apiUrl}/whitelabel/admin`, {
+            const response = await fetch(`${apiUrl}/whitelabel/admin`, {
                 signal: controller.signal
-            }).catch(err => {
-                console.warn(`Fetch request failed: ${err.message}`);
+            }).catch(error => {
+                console.warn(`Fetch request failed: ${error.message}`);
                 return null;
             });
 
@@ -164,7 +160,9 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
                 '@cmmv/rss-aggregation': path.resolve(__dirname, '../../packages/rss-aggregation/'),
                 '@cmmv/rss-aggregation/*': path.resolve(__dirname, '../../packages/rss-aggregation/*'),
                 '@cmmv/yt-aggregation': path.resolve(__dirname, '../../packages/yt-aggregation/'),
-                '@cmmv/yt-aggregation/*': path.resolve(__dirname, '../../packages/yt-aggregation/*')
+                '@cmmv/yt-aggregation/*': path.resolve(__dirname, '../../packages/yt-aggregation/*'),
+                '@cmmv/affiliate': path.resolve(__dirname, '../../packages/affiliate/'),
+                '@cmmv/affiliate/*': path.resolve(__dirname, '../../packages/affiliate/*')
             }
         },
         server: {

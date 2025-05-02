@@ -13,8 +13,9 @@
             "../../packages/rss-aggregation/contracts",
             "../../packages/yt-aggregation/api",
             "../../packages/yt-aggregation/contracts",
-            "../../packages/access-control/api"
-
+            "../../packages/access-control/api",
+            "../../packages/affiliate/api",
+            "../../packages/affiliate/contracts"
         ],
         "ignore": [
             ".generated",
@@ -40,6 +41,7 @@
         "@cmmv/ai-content": "workspace:ai-content",
         "@cmmv/rss-aggregation": "workspace:rss-aggregation",
         "@cmmv/yt-aggregation": "workspace:yt-aggregation",
+        "@cmmv/affiliate": "workspace:affiliate",
         "@cmmv/auth": "latest",
         "@cmmv/cache": "^0.11.4",
         "@cmmv/cli": "latest",

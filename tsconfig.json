@@ -17,7 +17,7 @@
             "@cmmv/rss-aggregation": ["packages/rss-aggregation"],
             "@cmmv/ai-content": ["packages/ai-content"],
             "@cmmv/yt-aggregation": ["packages/yt-aggregation"],
-            "@cmmv/theme-default": ["packages/themeDefault"]
+            "@cmmv/affiliate": ["packages/affiliate"]
         }
     },
     "include": ["**/*.ts"],

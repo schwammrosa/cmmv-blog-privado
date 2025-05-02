@@ -33,7 +33,9 @@ useHead({
     link: [
         {
             rel: 'stylesheet',
-            href: '/src/theme-default/style.css'
+            href: '/src/theme-default/style.css',
+            media: 'print',
+            onload: 'this.media="all"'
         },
         {
             rel: 'icon',

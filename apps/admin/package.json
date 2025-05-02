@@ -23,9 +23,10 @@
         "vitest": "^3.0.9"
     },
     "dependencies": {
-        "@cmmv/blog": "workspace:*",
-        "@cmmv/rss-aggregation": "workspace:*",
-        "@cmmv/yt-aggregation": "workspace:*",
+        "@cmmv/blog": "workspace:plugin",
+        "@cmmv/rss-aggregation": "workspace:rss-aggregation",
+        "@cmmv/yt-aggregation": "workspace:yt-aggregation",
+        "@cmmv/affiliate": "workspace:affiliate",
         "@tailwindcss/vite": "^4.0.17",
         "@tiptap/extension-floating-menu": "^2.11.7",
         "@tiptap/extension-image": "^2.11.7",

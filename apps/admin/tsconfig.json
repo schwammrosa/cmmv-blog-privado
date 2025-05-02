@@ -30,7 +30,9 @@
             "@cmmv/rss-aggregation": ["../../packages/rss-aggregation"],
             "@cmmv/rss-aggregation/*": ["../../packages/rss-aggregation/*"],
             "@cmmv/yt-aggregation": ["../../packages/yt-aggregation"],
-            "@cmmv/yt-aggregation/*": ["../../packages/yt-aggregation/*"]
+            "@cmmv/yt-aggregation/*": ["../../packages/yt-aggregation/*"],
+            "@cmmv/affiliate": ["../../packages/affiliate"],
+            "@cmmv/affiliate/*": ["../../packages/affiliate/*"]
         }
     },
     "include": ["src"],
