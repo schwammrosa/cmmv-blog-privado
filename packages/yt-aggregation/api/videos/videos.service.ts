@@ -33,7 +33,7 @@ export class YTVideosServiceAdmin {
             sort: queries.sort|| "DESC",
             rejected: false,
             blogPostId: IsNull(),
-            publishedAt: MoreThanOrEqual(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7))
+            publishedAt: MoreThanOrEqual(new Date(Date.now() - 1000 * 60 * 60 * 24 * 2))
         });
 
         return videos;
@@ -80,18 +80,28 @@ export class YTVideosServiceAdmin {
             Please transform the following YouTube video information into a well-structured blog post by:
 
             1. Translating it to ${language}
-            2. Creating an engaging title that captures the essence of the video (keep it under 100 characters)
-            3. Writing a comprehensive article that summarizes the key points and insights from the video
-            4. Adding context, background information, and your own analysis to enhance the content
-            5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
-            6. Creating a well-structured HTML article using proper formatting:
+            2. Writing a comprehensive article that summarizes the key points and insights from the video
+            3. Adding context, background information, and your own analysis to enhance the content
+            4. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
+            5. Creating a well-structured HTML article using proper formatting:
                - Use <h2> tags for main sections (2-4 sections recommended)
                - Use <p> tags for paragraphs
                - Use <ul> and <li> tags for lists where appropriate
                - Include a concluding paragraph
                - For links, use: <a href="https://example.com" rel="noindex nofollow" target="_blank">text</a>
-            7. Start with a strong introductory paragraph before any video embed (the video will be automatically inserted after the first paragraph)
-            8. Suggesting 3-8 relevant tags for categorizing this content
+            6. Start with a strong introductory paragraph before any video embed (the video will be automatically inserted after the first paragraph)
+            7. Suggesting 3-8 relevant tags for categorizing this content
+
+            IMPORTANT: For the title, DO NOT use sensationalist or clickbait headlines. Instead, follow the "Discover Headline Formula":
+
+            [Number] + [Adjective] + [Product Type/Topic] + for [Target Intent] – [Urgency/Result]
+
+            Examples:
+            - "7 Powerful Bluetooth Speakers for Outdoor Parties – Up to 40% OFF Today"
+            - "5 Best Budget Gaming Chairs for Small Spaces – Perfect Deals in July 2025"
+            - "Top 10 Noise-Canceling Headphones for Work-from-Home – Tested & Reviewed"
+
+            The title MUST be 100 characters or less, using this formula when applicable to the topic. If the formula doesn't fit the content's nature, create a clear, factual, non-sensationalist title that accurately represents the content.
 
             DO NOT include instructions to watch the video or subscribe to the channel. The post should stand alone as valuable content.
 

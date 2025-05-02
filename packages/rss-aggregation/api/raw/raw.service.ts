@@ -33,7 +33,7 @@ export class RawService {
         const FeedRawEntity = Repository.getEntity("FeedRawEntity");
 
         queries.rejected = false;
-        queries.pubDate = MoreThanOrEqual(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7));
+        queries.pubDate = MoreThanOrEqual(new Date(Date.now() - 1000 * 60 * 60 * 24 * 2));
         queries.postRef = IsNull();
         delete queries.sortBy;
         delete queries.sort;
@@ -89,7 +89,16 @@ export class RawService {
                - For links, use: <a href="https://example.com" rel="noindex nofollow">text</a>
             8. Suggesting 3-8 relevant tags in Portuguese for categorizing this content
 
-            IMPORTANT: The title MUST be 100 characters or less. Keep it concise but descriptive and engaging.
+            IMPORTANT: For the title, DO NOT use sensationalist or clickbait headlines. Instead, follow the "Discover Headline Formula":
+
+            [Number] + [Adjective] + [Product Type/Topic] + for [Target Intent] – [Urgency/Result]
+
+            Examples:
+            - "7 Powerful Bluetooth Speakers for Outdoor Parties – Up to 40% OFF Today"
+            - "5 Best Budget Gaming Chairs for Small Spaces – Perfect Deals in July 2025"
+            - "Top 10 Noise-Canceling Headphones for Work-from-Home – Tested & Reviewed"
+
+            The title MUST be 100 characters or less, using this formula when applicable to the topic. If the formula doesn't fit the content's nature, create a clear, factual, non-sensationalist title that accurately represents the content.
 
             Here is the content to transform:
 
