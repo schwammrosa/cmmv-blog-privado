@@ -5,7 +5,8 @@ import {
 } from "@cmmv/core";
 
 import {
-    Repository, In
+    Repository, In,
+    LessThanOrEqual
 } from "@cmmv/repository";
 
 import {
@@ -953,7 +954,7 @@ export class PostsPublicService {
      * @returns {Promise<any>}
      */
     async getPostsMostAccessedWeek(){
-        const AnalyticsAccessEntity = Repository.getEntity("AnalyticsAccessEntity");
+        /*const AnalyticsAccessEntity = Repository.getEntity("AnalyticsAccessEntity");
 
         const analyticsAccess = await Repository.findAll(AnalyticsAccessEntity, {
             summarized: true,
@@ -971,17 +972,20 @@ export class PostsPublicService {
 
                 postsAccess[record.postId]++;
             }
-        }
+        }*/
 
         const PostsEntity = Repository.getEntity("PostsEntity");
 
         const posts = await Repository.findAll(PostsEntity, {
-            id: In(Object.keys(postsAccess)),
             sortBy: "views",
             sort: "desc",
-            limit: 10
+            limit: 10,
+            publishedAt: LessThanOrEqual(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
         }, [], {
-            select: ["id", "title", "slug", "views", "createdAt", "comments", "featureImage", "publishedAt"]
+            select: [
+                "id", "title", "slug", "views", "createdAt",
+                "comments", "featureImage", "publishedAt"
+            ]
         });
 
         if(!posts)
@@ -1002,7 +1006,7 @@ export class PostsPublicService {
             image: post.featureImage,
             createdAt: post.createdAt,
             comments: post.comments,
-            views: postsAccess[post.id],
+            views: post.views,
             publishedAt: post.publishedAt
         }));
     }
