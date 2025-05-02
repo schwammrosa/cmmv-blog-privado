@@ -38,7 +38,11 @@ async function bootstrap() {
     });
 
     const serve = serveStatic(path.resolve('dist'), {
-        index: false
+        index: false,
+        etag: true,
+        setHeaders: (res, path) => {
+            res.setHeader('Cache-Control', 'public, max-age=315360000');
+        }
     });
 
     const server = http.createServer(async (req, res) => {
