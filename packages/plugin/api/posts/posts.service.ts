@@ -1109,7 +1109,7 @@ export class PostsPublicService {
             I will provide details from a web page, and your task is to create an engaging blog post based on this content by:
 
             1. Translating it to ${language} if needed
-            2. Creating an engaging title that captures the essence of the content (keep it under 100 characters)
+            2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
             3. Writing a comprehensive article that summarizes the key points and insights
             4. Adding context, background information, and your own analysis to enhance the content
             5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
@@ -1121,6 +1121,15 @@ export class PostsPublicService {
                - For links, use: <a href="https://example.com" rel="noindex nofollow" target="_blank">text</a>
             7. Start with a strong introductory paragraph
             8. Suggesting 3-8 relevant tags for categorizing this content
+
+            IMPORTANT: For the title, DO NOT use sensationalist or clickbait headlines. Instead, follow the "Discover Headline Formula":
+
+            [Number] + [Adjective] + [Product Type/Topic] + for [Target Intent] – [Urgency/Result]
+
+            Examples:
+            - "7 Powerful Bluetooth Speakers for Outdoor Parties – Up to 40% OFF Today"
+            - "5 Best Budget Gaming Chairs for Small Spaces – Perfect Deals in July 2025"
+            - "Top 10 Noise-Canceling Headphones for Work-from-Home – Tested & Reviewed"
 
             Here is the web page information:
 
@@ -1156,8 +1165,8 @@ export class PostsPublicService {
 
                 const parsedContent = JSON.parse(jsonContent);
 
-                if (parsedContent.title && parsedContent.title.length > 100)
-                    parsedContent.title = parsedContent.title.substring(0, 97) + '...';
+                if (parsedContent.title && parsedContent.title.length > 130)
+                    parsedContent.title = parsedContent.title.substring(0, 127) + '...';
 
                 if (parsedContent.excerpt && parsedContent.excerpt.length > 160)
                     parsedContent.excerpt = parsedContent.excerpt.substring(0, 157) + '...';
