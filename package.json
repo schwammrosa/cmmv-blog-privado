@@ -22,10 +22,18 @@
     },
     "typesVersions": {
         "*": {
-            "client": ["dist/client/index.d.ts" ],
-            "admin": ["dist/admin/index.d.ts"],
-            "api": ["dist/api/index.d.ts"],
-            "contracts": ["dist/contracts/index.d.ts"]
+            "client": [
+                "dist/client/index.d.ts"
+            ],
+            "admin": [
+                "dist/admin/index.d.ts"
+            ],
+            "api": [
+                "dist/api/index.d.ts"
+            ],
+            "contracts": [
+                "dist/contracts/index.d.ts"
+            ]
         }
     },
     "files": [
@@ -63,7 +71,7 @@
         "clean": "pnpm run clean:packages > /dev/null 2>&1"
     },
     "devDependencies": {
-        "eslint": "^9.25.1",
+        "eslint": "^9.26.0",
         "prettier": "^3.5.3",
         "turbo": "^2.5.2"
     }

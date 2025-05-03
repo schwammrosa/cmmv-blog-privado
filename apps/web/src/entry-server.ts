@@ -83,6 +83,7 @@ export async function render(url: string) {
         //@ts-ignore
         const { createRouter } = await importFn();
         const router = createRouter();
+        console.log(theme);
 
         categoriesStore.setCategories(categoriesData);
         postsStore.setPosts(postsData.result.posts);

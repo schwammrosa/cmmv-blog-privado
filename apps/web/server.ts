@@ -4,14 +4,16 @@ import * as http from 'node:http';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as zlib from 'node:zlib';
-import serveStatic from 'serve-static';
-import finalhandler from 'finalhandler';
+import * as crypto from 'node:crypto';
+import * as mime from 'mime-types';
 
 const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), 'VITE');
 const cache = new Map<string, { html: string, expires: number }>();
+const fileCache = new Map<string, { buffer: Buffer, etag: string, mtime: number }>();
 let themeStyle = ""
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const CACHE_CONTROL_MAX_AGE = 900;
+const STATIC_MAX_AGE = 315360000; // 10 years in seconds
 
 const compressHtml = (html: string, acceptEncoding: string = ''): { data: Buffer | string, encoding: string | null } => {
     if (acceptEncoding.includes('br')) {
@@ -32,26 +34,133 @@ const compressHtml = (html: string, acceptEncoding: string = ''): { data: Buffer
     };
 };
 
+const compressFile = (buffer: Buffer, acceptEncoding: string = ''): { data: Buffer, encoding: string | null } => {
+    if (acceptEncoding.includes('br')) {
+        return {
+            data: zlib.brotliCompressSync(buffer),
+            encoding: 'br'
+        };
+    } else if (acceptEncoding.includes('gzip')) {
+        return {
+            data: zlib.gzipSync(buffer),
+            encoding: 'gzip'
+        };
+    }
+
+    return {
+        data: buffer,
+        encoding: null
+    };
+};
+
+/**
+ * Serve a static file with proper caching, compression, and ETags
+ */
+const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerResponse, filePath: string): Promise<boolean> => {
+    const acceptEncoding = req.headers['accept-encoding'] || '';
+    const ifNoneMatch = req.headers['if-none-match'] || '';
+
+    try {
+        // Check if file exists
+        if (!fs.existsSync(filePath)) {
+            return false;
+        }
+
+        const stats = fs.statSync(filePath);
+
+        if (!stats.isFile()) {
+            return false;
+        }
+
+        // Get file details
+        const mtime = stats.mtime.getTime();
+
+        // Check cache first
+        let cacheEntry = fileCache.get(filePath);
+
+        // Calculate ETag from file content or use cached one
+        let etag: string;
+        let buffer: Buffer;
+
+        if (cacheEntry && cacheEntry.mtime === mtime) {
+            // Use cached data
+            buffer = cacheEntry.buffer;
+            etag = cacheEntry.etag;
+        } else {
+            // Read file and calculate fresh ETag
+            buffer = fs.readFileSync(filePath);
+            etag = crypto.createHash('md5').update(buffer).digest('hex');
+
+            // Cache for future requests
+            fileCache.set(filePath, { buffer, etag, mtime });
+        }
+
+        // Set content type based on file extension
+        const contentType = mime.lookup(filePath) || 'application/octet-stream';
+
+        // Handle If-None-Match header (conditional GET)
+        if (ifNoneMatch === etag) {
+            res.writeHead(304, {
+                'ETag': etag,
+                'Cache-Control': `public, max-age=${STATIC_MAX_AGE}`,
+            });
+            res.end();
+            return true;
+        }
+
+        // Set headers
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('ETag', etag);
+        res.setHeader('Cache-Control', `public, max-age=${STATIC_MAX_AGE}`);
+
+        // Compress file if it's compressible
+        const compressibleTypes = ['text/', 'application/javascript', 'application/json', 'image/svg+xml', 'application/xml'];
+        const isCompressible = compressibleTypes.some(type => contentType.includes(type));
+
+        if (isCompressible) {
+            const compressed = compressFile(buffer, acceptEncoding as string);
+
+            if (compressed.encoding) {
+                res.setHeader('Content-Encoding', compressed.encoding);
+                res.setHeader('Vary', 'Accept-Encoding');
+            }
+
+            res.end(compressed.data);
+        } else {
+            // Send uncompressed for binary files
+            res.end(buffer);
+        }
+
+        return true;
+    } catch (error) {
+        console.error(`Error serving ${filePath}:`, error);
+        return false;
+    }
+};
+
 async function bootstrap() {
     const vite = await createServer({
         server: { middlewareMode: true },
         appType: 'custom'
     });
 
-    const serve = serveStatic(path.resolve('dist'), {
-        index: false,
-        etag: true,
-        setHeaders: (res, path) => {
-            res.setHeader('Cache-Control', 'public, max-age=315360000');
-        }
-    });
-
     const server = http.createServer(async (req, res) => {
         const url = req.url || '/';
         const acceptEncoding = req.headers['accept-encoding'] || '';
 
-        if (process.env.NODE_ENV === 'production' && url.startsWith('/assets'))
-            return serve(req, res, finalhandler(req, res));
+        // Handle static assets directly
+        if (url.startsWith('/assets/')) {
+            const assetPath = path.resolve('dist', '.' + url);
+            const served = await serveStaticFile(req, res, assetPath);
+            if (served) return;
+        }
+
+        // Try to serve other static files from dist directory
+        if (url !== '/' && !url.includes('?') && /\.\w+$/.test(url)) {
+            const staticPath = path.resolve('dist', '.' + url);
+            const served = await serveStaticFile(req, res, staticPath);
+            if (served) return;
+        }
 
         let template = '';
         let render: (url: string) => Promise<any>;
@@ -66,10 +175,9 @@ async function bootstrap() {
             render = devRender;
         }
 
-
-
         vite.middlewares(req, res, async () => {
             try {
+                // Check if this is a non-HTML file that wasn't handled by static file serving
                 if (/\.\w+$/.test(url)) {
                     res.statusCode = 404;
                     return res.end(`Not found: ${url}`);

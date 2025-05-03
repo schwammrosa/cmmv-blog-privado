@@ -5,6 +5,7 @@ import type { IncomingMessage } from 'http';
 import { unheadVueComposablesImports } from '@unhead/vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+//@ts-ignore
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
