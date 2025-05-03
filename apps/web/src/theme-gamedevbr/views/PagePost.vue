@@ -8,7 +8,7 @@
                 </div>
             </div>
 
-            <div v-else class="article-container w-full max-w-[1060px] m-auto bg-white rounded-lg p-6 relative">
+            <div v-else class="article-container w-full max-w-[1060px] m-auto bg-white rounded-lg p-2 relative">
                 <!-- Floating share box for desktop -->
                 <div class="hidden md:block relative">
                     <div class="absolute top-20 left-0 -ml-20 z-10 flex flex-col gap-2 p-2 bg-white/90 rounded-lg backdrop-blur-sm shadow-md" :class="{ 'fixed': isScrolled }">
@@ -97,7 +97,7 @@
                         <img
                             :src="post.featureImage"
                             :alt="post.featureImageAlt || post.title"
-                            class="featured-img"
+                            class="featured-img md:block hidden"
                             width="890"
                             height="606"
                             loading="lazy"
@@ -176,7 +176,7 @@
 
                     <!-- Post Header -->
                     <header class="post-header my-6">
-                        <div class="post-meta flex items-center mb-8">
+                        <div class="post-meta flex items-center">
                             <div class="flex items-center text-neutral-600 text-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">

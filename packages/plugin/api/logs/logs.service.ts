@@ -10,7 +10,7 @@ import {
 @Service('logs')
 export class LogsService {
     @Cron(CronExpression.EVERY_5_MINUTES)
-    async handleCron() {
+    async handleCronLogs() {
         this.deleteOldLogs.call(this);
     }
 

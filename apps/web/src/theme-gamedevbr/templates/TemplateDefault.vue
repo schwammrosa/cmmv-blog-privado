@@ -172,7 +172,7 @@
         </header>
 
         <!-- Main content -->
-        <main class="flex-grow container mx-auto px-4 py-6">
+        <main class="flex-grow container mx-auto">
             <div class="flex flex-col lg:flex-row gap-6">
                 <router-view />
             </div>

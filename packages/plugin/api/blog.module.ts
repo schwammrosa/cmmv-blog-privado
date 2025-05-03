@@ -20,6 +20,7 @@ import { AutopostModule } from './autopost/autopost.module';
 import { WhitelabelModule } from './whitelabel/whitelabel.modules';
 import { CDNModule } from './cdn/cdn.module';
 import { LogsModule } from './logs/logs.module';
+import { BackupModule } from './backup/backup.module';
 
 export const BlogModule = new Module('blog', {
     submodules: [
@@ -42,6 +43,7 @@ export const BlogModule = new Module('blog', {
         AutopostModule,
         WhitelabelModule,
         CDNModule,
-        LogsModule
+        LogsModule,
+        BackupModule
     ]
 });
