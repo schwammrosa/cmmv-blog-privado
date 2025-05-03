@@ -148,14 +148,12 @@ async function bootstrap() {
         const url = req.url || '/';
         const acceptEncoding = req.headers['accept-encoding'] || '';
 
-        // Handle static assets directly
         if (url.startsWith('/assets/')) {
             const assetPath = path.resolve('dist', '.' + url);
             const served = await serveStaticFile(req, res, assetPath);
             if (served) return;
         }
 
-        // Try to serve other static files from dist directory
         if (url !== '/' && !url.includes('?') && /\.\w+$/.test(url)) {
             const staticPath = path.resolve('dist', '.' + url);
             const served = await serveStaticFile(req, res, staticPath);

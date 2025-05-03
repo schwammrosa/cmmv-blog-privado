@@ -937,10 +937,11 @@ export class PostsPublicService {
      * @returns {Promise<any>}
      */
     async deletePost(id: string) {
+        console.log("Deleting post with ID: " + id);
         const PostsEntity = Repository.getEntity("PostsEntity");
         const MetaEntity = Repository.getEntity("MetaEntity");
         await Repository.delete(MetaEntity, { post: id });
-        const resultDelete = await Repository.delete(PostsEntity, id);
+        const resultDelete = await Repository.delete(PostsEntity, Repository.queryBuilder({ id }));
 
         if(resultDelete){
             await this.recalculateTags();
