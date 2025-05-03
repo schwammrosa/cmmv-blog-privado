@@ -159,12 +159,6 @@
                             </svg>
                         </button>
                     </div>
-                    <div v-if="post.status === 'cron' && post.scheduledPublishDate" class="px-4 py-2 bg-blue-900/20 text-xs border-t border-blue-800/30">
-                        <div class="flex items-center">
-                            <i class="far fa-calendar-alt mr-1.5 text-blue-400"></i>
-                            <span class="text-blue-300 font-medium">Agendado para publicação em: {{ post.scheduledPublishDate }}</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 

@@ -2267,7 +2267,6 @@ function insertYouTubeVideo() {
     }
 
     if (videoId) {
-        // Envolver o embed em um contêiner
         const videoEmbed = `<div class="video-embed-container">
             <iframe
                 src="https://www.youtube.com/embed/${videoId}"
@@ -2390,14 +2389,12 @@ watch(() => post.value.author, (newAuthorId) => {
 
     const currentAuthorIds = postAuthorIds.value
     if (!currentAuthorIds.includes(newAuthorId)) {
-        // Find the full author object for the new author ID
         const authorToAdd = authors.value.find(a => a.user === newAuthorId)
 
-        // If we found the author object, add it to the authors array
         if (authorToAdd) {
-            if (!post.value.authors || !Array.isArray(post.value.authors)) {
+            if (!post.value.authors || !Array.isArray(post.value.authors))
                 post.value.authors = []
-            }
+
             post.value.authors.push(authorToAdd)
         }
     }
@@ -2418,11 +2415,8 @@ function handleMediaSelected(media) {
 function handleImageClick(e) {
     const target = e.target;
 
-    // Handle image selection and deletion
     if (target.nodeName === 'IMG' && target.closest('.ProseMirror')) {
         const img = target;
-
-        // Verificar a posição do clique para determinar se foi no botão de excluir
         const rect = img.getBoundingClientRect();
         const deleteButtonArea = {
             top: rect.top - 22,
@@ -2433,12 +2427,10 @@ function handleImageClick(e) {
 
         if (e.clientX >= deleteButtonArea.left && e.clientX <= deleteButtonArea.right &&
             e.clientY >= deleteButtonArea.top && e.clientY <= deleteButtonArea.bottom) {
-            // Se clicou no botão de excluir
             editor.chain().focus().deleteSelection().run();
             e.preventDefault();
             e.stopPropagation();
         } else {
-            // Selecionar a imagem para destacá-la
             const { state } = editor;
             let foundPos = -1;
 
@@ -2457,13 +2449,11 @@ function handleImageClick(e) {
         }
     }
 
-    // Handle tweet deletion
     if (target.classList.contains('tweet-delete-button') || target.closest('.tweet-delete-button')) {
         editor.chain().focus().deleteSelection().run();
         e.preventDefault();
         e.stopPropagation();
     } else if (target.closest('.tweet-embed') && !target.closest('iframe')) {
-        // Select the tweet node when clicking on it (not on the iframe)
         const tweetElement = target.closest('.tweet-embed');
         const tweetId = tweetElement.getAttribute('data-tweet');
 
@@ -2487,13 +2477,11 @@ function handleImageClick(e) {
         }
     }
 
-    // Handle Reddit deletion
     if (target.classList.contains('reddit-delete-button') || target.closest('.reddit-delete-button')) {
         editor.chain().focus().deleteSelection().run();
         e.preventDefault();
         e.stopPropagation();
     } else if (target.closest('.reddit-embed') && !target.closest('iframe')) {
-        // Select the Reddit node when clicking on it (not on the iframe)
         const redditElement = target.closest('.reddit-embed');
         const postId = redditElement.getAttribute('data-reddit');
 
@@ -2517,13 +2505,11 @@ function handleImageClick(e) {
         }
     }
 
-    // Handle iframe deletion
     if (target.classList.contains('iframe-delete-button') || target.closest('.iframe-delete-button')) {
         editor.chain().focus().deleteSelection().run();
         e.preventDefault();
         e.stopPropagation();
     } else if (target.closest('.iframe-wrapper') && !target.closest('iframe')) {
-        // Select the iframe node when clicking on its wrapper
         const iframeElement = target.closest('.iframe-wrapper');
 
         if (iframeElement) {
@@ -2533,8 +2519,6 @@ function handleImageClick(e) {
             state.doc.nodesBetween(0, state.doc.content.size, (node, pos) => {
                 if (foundPos > -1) return false;
                 if (node.type.name === 'iframe') {
-                    // We can't easily match a specific iframe, so we'll just select the first one we find
-                    // that's close to where the user clicked
                     const iframePos = editor.view.posAtDOM(iframeElement, 0);
                     if (Math.abs(pos - iframePos) < 10) {
                         foundPos = pos;
@@ -2626,20 +2610,15 @@ function proceedWithPublish() {
     showPublishDialog.value = true;
 }
 
-// Add insertTweet function
 function insertTweet() {
     const tweetUrl = prompt('Enter Twitter/X tweet URL:')
     if (!tweetUrl) return
 
-    // Extract tweet ID from URL
     const tweetIdRegex = /\/status\/(\d+)/
     const match = tweetUrl.match(tweetIdRegex)
 
     if (match && match[1]) {
         const tweetId = match[1]
-
-        // Log for debugging
-        console.log('Inserting tweet with ID:', tweetId)
 
         editor.chain().focus().insertContent({
             type: 'tweet',
@@ -2653,12 +2632,10 @@ function insertTweet() {
     }
 }
 
-// Add insertReddit function
 function insertReddit() {
     const redditUrl = prompt('Enter Reddit post URL:')
     if (!redditUrl) return
 
-    // Extract Reddit post ID from URL
     const redditRegex = /reddit\.com\/r\/([^\/]+)\/comments\/([^\/]+)/
     const match = redditUrl.match(redditRegex)
 
@@ -2666,9 +2643,6 @@ function insertReddit() {
         const subreddit = match[1]
         const postId = match[2]
         const embedId = `${subreddit}/comments/${postId}`
-
-        // Log for debugging
-        console.log('Inserting Reddit post with ID:', embedId)
 
         editor.chain().focus().insertContent({
             type: 'reddit',
@@ -2682,12 +2656,10 @@ function insertReddit() {
     }
 }
 
-// Add these variables to the data section
 const showAIGenerateDialog = ref(false)
 const aiGenerateUrl = ref('')
 const aiGenerateLoading = ref(false)
 
-// Add the function to generate content from URL
 async function generateFromUrl() {
     if (!aiGenerateUrl.value) {
         showNotification('error', 'Please enter a valid URL')
@@ -2702,7 +2674,6 @@ async function generateFromUrl() {
         })
 
         if (response) {
-            // Update post data
             post.value.title = response.title || post.value.title
             post.value.excerpt = response.excerpt || post.value.excerpt
 
@@ -2719,16 +2690,15 @@ async function generateFromUrl() {
                 post.value.featureImage = response.featureImage
             }
 
-            // Update editor content
             if (response.content) {
                 editor.commands.setContent(response.content)
+                post.value.content = response.content
             }
 
             showNotification('success', 'Content generated successfully')
             showAIGenerateDialog.value = false
             aiGenerateUrl.value = ''
 
-            // Resize title textarea after updating the title
             nextTick(() => {
                 autoResizeTitle()
             })

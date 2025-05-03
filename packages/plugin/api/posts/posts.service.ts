@@ -285,6 +285,9 @@ export class PostsPublicService {
         const PostsEntity = Repository.getEntity("PostsEntity");
         const MetaEntity = Repository.getEntity("MetaEntity");
 
+        if(data.post.content.length < 100)
+            throw new Error("The content must be at least 100 characters");
+
         if(data.post.title.length < 3)
             throw new Error("The title must be at least 3 characters");
 
@@ -402,6 +405,9 @@ export class PostsPublicService {
     }, user: any) {
         const PostsEntity = Repository.getEntity("PostsEntity");
         const MetaEntity = Repository.getEntity("MetaEntity");
+
+        if(data.post.content.length < 100)
+            throw new Error("The content must be at least 100 characters");
 
         if(data.post.title.length < 3)
             throw new Error("The title must be at least 3 characters");
@@ -869,6 +875,8 @@ export class PostsPublicService {
 
         const tags = await Repository.findAll(TagsEntity, {
             limit: 1000
+        }, [], {
+            select: [ "id", "postCount" ]
         });
 
         if(tags){
@@ -900,6 +908,8 @@ export class PostsPublicService {
 
         const categories = await Repository.findAll(CategoriesEntity, {
             limit: 1000
+        }, [], {
+            select: [ "id" ]
         });
 
         if(categories){
