@@ -33,7 +33,6 @@ export class CommentsContract extends AbstractContract {
         objectType: 'object',
         entityType: 'PostsEntity',
         protoRepeated: false,
-        exclude: false,
         readOnly: true,
         link: [
             {

@@ -940,7 +940,13 @@ export class PostsPublicService {
         console.log("Deleting post with ID: " + id);
         const PostsEntity = Repository.getEntity("PostsEntity");
         const MetaEntity = Repository.getEntity("MetaEntity");
+        const PostsHistoryEntity = Repository.getEntity("PostsHistoryEntity");
+        const CommentsEntity = Repository.getEntity("CommentsEntity");
+
         await Repository.delete(MetaEntity, { post: id });
+        await Repository.delete(PostsHistoryEntity, { post: id });
+        await Repository.delete(CommentsEntity, { post: id });
+
         const resultDelete = await Repository.delete(PostsEntity, Repository.queryBuilder({ id }));
 
         if(resultDelete){

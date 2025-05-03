@@ -27,7 +27,6 @@ export class PostsHistoryContract extends AbstractContract {
         protoRepeated: false,
         nullable: false,
         index: true,
-        exclude: true,
         readOnly: true,
         link: [
             {
