@@ -1,7 +1,8 @@
 import {
     Service, EventsService,
     Logger, Config, Cron,
-    CronExpression
+    CronExpression,
+    Application
 } from "@cmmv/core";
 
 import {
@@ -1191,17 +1192,18 @@ export class PostsPublicService {
      */
     async publishPost(id: string) {
         try {
-            this.logger.log(`Publishing scheduled post with ID: ${id}`);
+            console.log("Publishing scheduled post with ID: " + id);
+            console.log(`Publishing scheduled post with ID: ${id}`);
             const PostsEntity = Repository.getEntity("PostsEntity");
             const post = await Repository.findOne(PostsEntity, { id });
 
             if (!post) {
-                this.logger.error(`Post with ID ${id} not found for publishing`);
+                console.error(`Post with ID ${id} not found for publishing`);
                 throw new Error(`Post with ID ${id} not found`);
             }
 
             if (post.status !== 'cron') {
-                this.logger.log(`Post with ID ${id} is not in 'cron' status, current status: ${post.status}`);
+                console.log(`Post with ID ${id} is not in 'cron' status, current status: ${post.status}`);
                 return { result: false, message: "Post is not scheduled for publication" };
             }
 
@@ -1214,26 +1216,27 @@ export class PostsPublicService {
 
             if (post.pushNotification === true) {
                 await this.eventsService.emit("posts.published", post);
-                this.logger.log(`Push notification event emitted for post ${id}`);
+                console.log(`Push notification event emitted for post ${id}`);
             }
 
             const siteUrl = Config.get("blog.url") || "";
-            this.logger.log(`Clearing CDN cache for homepage after publishing scheduled post ${id}`);
+            //console.log(`Clearing CDN cache for homepage after publishing scheduled post ${id}`);
 
             try {
-                await this.cdnService.clearCDNCache([siteUrl, `${siteUrl}/`]);
+                const cdnService = Application.resolveProvider(CDNService);
+                await cdnService.clearCDNCache([siteUrl, `${siteUrl}/`]);
             } catch (error) {
-                this.logger.error(`Error clearing CDN cache: ${error instanceof Error ? error.message : String(error)}`);
+                console.error(`Error clearing CDN cache: ${error instanceof Error ? error.message : String(error)}`);
             }
 
-            this.logger.log(`Successfully published post with ID: ${id}`);
+            //console.log(`Successfully published post with ID: ${id}`);
 
             return {
                 result: true,
                 message: "Post published successfully"
             };
         } catch (error) {
-            this.logger.error(`Error publishing post with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
+            console.error(`Error publishing post with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
     }
