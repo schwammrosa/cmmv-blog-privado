@@ -62,8 +62,8 @@ export function useApi() {
             if (token.value && token.value !== 'null') {
                 if (!headers) headers = {}
 
-                path += `#t=${new Date().getTime()}`
-                const apiPath = isRoot ? `/api/${path}` : getApiPath(path);
+                let apiPath = isRoot ? `/api/${path}` : getApiPath(path);
+                apiPath += (apiPath.includes("?")) ? `&t=${new Date().getTime()}` : `?t=${new Date().getTime()}`
 
                 const response = await fetch(
                     apiPath,
