@@ -33,17 +33,7 @@ export class PostsPublicService {
 
     @Cron(CronExpression.EVERY_30_MINUTES)
     async handleCronJobs() {
-        const PostsEntity = Repository.getEntity("PostsEntity");
-        const posts = await Repository.findAll(PostsEntity, {
-            status: "cron"
-        });
-
-        if (posts) {
-            for (const post of posts.data) {
-                if (post.autoPublishAt && post.autoPublishAt < new Date().getTime())
-                    await this.publishPost(post.id);
-            }
-        }
+        return await this.processCrons.call(this);
     }
 
     /**
@@ -1173,6 +1163,24 @@ export class PostsPublicService {
         } catch (error) {
             this.logger.error(`Error in generatePostFromUrl: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
+        }
+    }
+
+    /**
+     * Process the crons for the posts
+     * @returns {Promise<any>}
+     */
+    async processCrons(){
+        const PostsEntity = Repository.getEntity("PostsEntity");
+        const posts = await Repository.findAll(PostsEntity, {
+            status: "cron"
+        });
+
+        if (posts) {
+            for (const post of posts.data) {
+                if (post.autoPublishAt && post.autoPublishAt < new Date().getTime())
+                    await this.publishPost(post.id);
+            }
         }
     }
 
