@@ -8,7 +8,7 @@
                 </div>
             </div>
 
-            <div v-else class="article-container w-full max-w-[1060px] m-auto bg-white rounded-lg p-2 relative">
+            <div v-else class="article-container w-full max-w-[1060px] m-auto bg-white rounded-lg p-2 md:p-4 relative">
                 <!-- Floating share box for desktop -->
                 <div class="hidden md:block relative">
                     <div class="absolute top-20 left-0 -ml-20 z-10 flex flex-col gap-2 p-2 bg-white/90 rounded-lg backdrop-blur-sm shadow-md" :class="{ 'fixed': isScrolled }">

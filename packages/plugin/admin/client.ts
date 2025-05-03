@@ -6,6 +6,7 @@ export const useAdminClient = () => {
     const settings = {
         get: (root: boolean = false) => api.getSettings(root),
         getRoot: (root: boolean = false) => api.getRootSettings(root),
+        getWhitelabel: () => api.getSettings(false),
         set: (key: string, value: any) => api.setSettings(key, value),
         setWhitelabel: (key: string, value: any) => api.setSettingsWhitelabel(key, value),
         update: (data: any) => api.updateSettings(data),
@@ -245,6 +246,13 @@ export const useAdminClient = () => {
         delete: (id: string) => api.authRootRequest(`user/${id}`, 'DELETE'),
     };
 
+    const backup = {
+        create: () => api.authRequest('blog/backup/create', 'POST'),
+        getBackups: () => api.authRequest('blog/backup', 'GET'),
+        download: (filename: string) => api.authRequest(`blog/backup/download?filename=${filename}`, 'GET'),
+        delete: (filename: string) => api.authRequest(`blog/backup/delete?filename=${filename}`, 'DELETE'),
+    };
+
     return {
         settings,
         profile,
@@ -264,5 +272,6 @@ export const useAdminClient = () => {
         whitelabel,
         whitelabelAccess,
         users,
+        backup,
     };
 };

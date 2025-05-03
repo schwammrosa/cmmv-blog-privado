@@ -1,7 +1,6 @@
 import {
-    Controller, Get, RouterSchema,
-    Queries, Req, Param,
-    CacheControl, ContentType, Raw
+    Controller, Get, Post,
+    Delete, Res, Query
 } from "@cmmv/http";
 
 import {
@@ -20,5 +19,32 @@ export class BackupController {
     @Auth({ rootOnly: true })
     async getBackups() {
         return this.backupService.getBackups();
+    }
+
+    @Post("backup/create")
+    @Auth({ rootOnly: true })
+    async createBackup() {
+        return this.backupService.backupDatabase();
+    }
+
+    @Delete("backup/delete")
+    @Auth({ rootOnly: true })
+    async deleteBackup(@Query("filename") filename: string) {
+        return this.backupService.deleteBackup(filename);
+    }
+
+    @Get("backup/download")
+    async downloadBackup(@Query("filename") filename: string, @Res() response) {
+        response.res.writeHead(200, {
+            'Content-Type': 'application/gzip',
+            'Content-Disposition': `attachment; filename="${filename}"`,
+        });
+
+        const stream: any = await this.backupService.downloadBackup(filename);
+
+        if(stream)
+            stream.pipe(response.res);
+        else
+            response.res.end();
     }
 }

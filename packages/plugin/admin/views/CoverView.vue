@@ -511,7 +511,7 @@ async function loadCoverSettings() {
     try {
         loading.value = true;
 
-        const settings = await adminClient.settings.get();
+        const settings = await adminClient.settings.getWhitelabel();
 
         if (settings) {
             const savedSettings = JSON.parse(settings['blog.cover']);
@@ -532,7 +532,7 @@ async function loadCoverSettings() {
 async function saveCoverSettings() {
     try {
         saving.value = true;
-        await adminClient.settings.set('blog.cover', JSON.stringify(coverSettings.value));
+        await adminClient.settings.setWhitelabel('blog.cover', JSON.stringify(coverSettings.value));
         showNotification('success', 'Cover settings saved successfully');
     } catch (error) {
         console.error('Failed to save cover settings:', error);

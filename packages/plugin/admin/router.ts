@@ -20,6 +20,7 @@ import ThemesView from './views/ThemesView.vue';
 import CoverView from './views/CoverView.vue';
 import WhitelabelView from './views/WhitelabelView.vue';
 import WhitelabelAccessView from './views/WhitelabelAccessView.vue';
+import BackupView from './views/BackupView.vue';
 
 import SetupView from './views/SetupView.vue';
 import PostView from './views/PostView.vue';
@@ -45,7 +46,8 @@ export const blogAdminRoutes: RouteRecordRaw[] = [
             { path: '/themes', component: ThemesView },
             { path: '/cover', component: CoverView },
             { path: '/whitelabel', component: WhitelabelView },
-            { path: '/whitelabel-access', component: WhitelabelAccessView }
+            { path: '/whitelabel-access', component: WhitelabelAccessView },
+            { path: '/backup', component: BackupView }
         ]
     },
     {
@@ -85,85 +87,91 @@ useNavbar().addItems([
         label: 'Posts',
         icon: 'fas fa-file-alt',
         to: '/posts',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Pages',
         icon: 'fas fa-copy',
         to: '/pages',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Comments',
         icon: 'fas fa-comments',
         to: '/comments',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Medias',
         icon: 'fas fa-images',
         to: '/medias',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Categories',
         icon: 'fas fa-folder',
         to: '/categories',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Tags',
         icon: 'fas fa-tags',
         to: '/tags',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Authors',
         icon: 'fas fa-user-edit',
         to: '/authors',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Members',
         icon: 'fas fa-users',
         to: '/members',
-        group: 'Blog'
-    },
-    {
-        label: 'Settings',
-        icon: 'fas fa-cog',
-        to: '/settings',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Imports',
         icon: 'fas fa-file-import',
         to: '/imports',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Themes',
         icon: 'fas fa-palette',
         to: '/themes',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Cover',
         icon: 'fas fa-image',
         to: '/cover',
-        group: 'Blog'
+        group: 'CMS'
     },
     {
         label: 'Whitelabels',
         icon: 'fas fa-globe',
         to: '/whitelabel',
-        group: 'Whitelabel'
+        group: 'CMS'
     },
     {
         label: 'Access',
         icon: 'fas fa-key',
         to: '/whitelabel-access',
-        group: 'Whitelabel'
+        group: 'CMS'
+    },
+    {
+        label: 'Backup',
+        icon: 'fas fa-database',
+        to: '/backup',
+        group: 'CMS'
+    },
+    {
+        label: 'Settings',
+        icon: 'fas fa-cog',
+        to: '/settings',
+        group: 'CMS'
     },
 ])
 

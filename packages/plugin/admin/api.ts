@@ -150,13 +150,13 @@ export function useApi() {
         return data ? data : null;
     }
 
-    const setSettings = async (key: string, value: any) => {
-        const response = await authRequest(`settings/set`, 'PUT', { key, value }, {}, true);
+    const setSettings = async (key: string, value: any, root: boolean = true) => {
+        const response = await authRequest(`settings/set`, 'PUT', { key, value }, {}, root);
         return response.data ? response.data : null;
     }
 
     const setSettingsWhitelabel = async (key: string, value: any) => {
-        const response = await authRequest(`settings/set`, 'PUT', { key, value });
+        const response = await authRequest(`settings/set`, 'PUT', { key, value }, {}, false);
         return response.data ? response.data : null;
     }
 
