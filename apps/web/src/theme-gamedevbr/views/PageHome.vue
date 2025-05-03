@@ -22,7 +22,7 @@
 
         <div v-else>
             <!-- Cover Section -->
-            <section v-if="posts.length > 0" class="mb-8">
+            <section v-if="posts.length > 0" class="mb-8 md:block hidden">
                 <!-- Full Layout (default) -->
                 <div v-if="coverSettings.layoutType === 'full' || !coverSettings.layoutType" class="bg-white rounded-lg overflow-hidden shadow-md">
                     <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
@@ -32,6 +32,12 @@
                                 :src="coverPosts.full.featureImage"
                                 :alt="coverPosts.full.title"
                                 class="w-full h-full object-cover"
+                                loading="lazy"
+                                width="890"
+                                height="606"
+                                :title="coverPosts.full.title"
+                                aria-label="Cover Image"
+                                fetchpriority="high"
                             />
                             <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -68,6 +74,12 @@
                                     :src="post.featureImage"
                                     :alt="post.title"
                                     class="w-full h-full object-cover"
+                                    loading="lazy"
+                                    width="890"
+                                    height="606"
+                                    :title="post.title"
+                                    aria-label="Cover Image"
+                                    fetchpriority="high"
                                 />
                                 <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,6 +142,12 @@
                                     :src="coverPosts.splitMain.featureImage"
                                     :alt="coverPosts.splitMain.title"
                                     class="w-full h-full object-cover"
+                                    loading="lazy"
+                                    width="890"
+                                    height="606"
+                                    :title="coverPosts.splitMain.title"
+                                    aria-label="Cover Image"
+                                    fetchpriority="high"
                                 />
                                 <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -195,6 +213,12 @@
                                     :src="post.featureImage"
                                     :alt="post.title"
                                     class="w-full h-full object-cover"
+                                    loading="lazy"
+                                    width="890"
+                                    height="606"
+                                    :title="post.title"
+                                    aria-label="Cover Image"
+                                    fetchpriority="high"
                                 />
                                 <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">

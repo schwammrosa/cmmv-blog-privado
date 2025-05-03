@@ -20,7 +20,18 @@
                     </a>
                 </div>
 
-                <img :src="page.featureImage" :alt="page.featureImageAlt || page.title" class="featured-img" />
+                <img
+                    :src="page.featureImage"
+                    :alt="page.featureImageAlt || page.title"
+                    class="featured-img md:block hidden"
+                    loading="lazy"
+                    width="890"
+                    height="606"
+                    :title="page.title"
+                    aria-label="Cover Image"
+                    fetchpriority="high"
+                />
+
                 <p v-if="page.featureImageCaption" class="image-caption dark:text-neutral-300">{{ page.featureImageCaption }}</p>
             </div>
 
