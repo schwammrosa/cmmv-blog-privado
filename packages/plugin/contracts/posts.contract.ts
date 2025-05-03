@@ -34,10 +34,10 @@ export class PostsContract extends AbstractContract {
         protoRepeated: false,
         nullable: false,
         index: true,
-        exclude: true,
         readOnly: true,
         link: [
             {
+                createRelationship: true,
                 contract: UserContract,
                 contractName: 'UserContract',
                 entityName: 'user',
@@ -121,7 +121,6 @@ export class PostsContract extends AbstractContract {
         objectType: 'string',
         entityType: 'CategoriesEntity',
         protoRepeated: true,
-        exclude: true,
         link: [
             {
                 createRelationship: false,

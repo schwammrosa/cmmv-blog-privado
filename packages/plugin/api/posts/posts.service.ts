@@ -79,7 +79,8 @@ export class PostsPublicService {
         const posts = await Repository.findAll(PostsEntity, {
             ...queries,
             type: "post",
-            status: queries.status
+            status: queries.status,
+            deleted: false
         }, [], {
             select: [
                 "id", "title", "slug", "content", "status", "autoPublishAt",
@@ -209,7 +210,8 @@ export class PostsPublicService {
 
         const posts = await Repository.findAll(PostsEntity, {
             ...queries,
-            type: "page"
+            type: "page",
+            deleted: false
         }, [], {
             select: [
                 "id", "title", "slug", "content", "status", "autoPublishAt",
@@ -374,7 +376,6 @@ export class PostsPublicService {
                 data.meta.post = post.data.id;
                 await Repository.insert(MetaEntity, data.meta);
 
-                // Clear CDN cache for homepage when new post is published
                 if(data.post.status === "published") {
                     const siteUrl = Config.get("blog.url") || "";
                     this.logger.log(`Clearing CDN cache for homepage after publishing new post ${post.data.id}`);
@@ -884,7 +885,9 @@ export class PostsPublicService {
                 const postCount = await Repository.findAll(PostsEntity, {
                     limit: 10000,
                     searchField: 'tags',
-                    search: tag.name
+                    search: tag.name,
+                    status: "published",
+                    deleted: false
                 }, [], {
                     select: [ "id" ]
                 });
@@ -917,7 +920,9 @@ export class PostsPublicService {
                 const postCount = await Repository.findAll(PostsEntity, {
                     limit: 10000,
                     searchField: 'categories',
-                    search: category.id
+                    search: category.id,
+                    status: "published",
+                    deleted: false
                 }, [], {
                     select: [ "id" ]
                 });
@@ -947,7 +952,10 @@ export class PostsPublicService {
         await Repository.delete(PostsHistoryEntity, { post: id });
         await Repository.delete(CommentsEntity, { post: id });
 
-        const resultDelete = await Repository.delete(PostsEntity, Repository.queryBuilder({ id }));
+        const resultDelete = await Repository.updateOne(PostsEntity, Repository.queryBuilder({ id }), {
+            deleted: true,
+            deletedAt: new Date()
+        });
 
         if(resultDelete){
             await this.recalculateTags();
