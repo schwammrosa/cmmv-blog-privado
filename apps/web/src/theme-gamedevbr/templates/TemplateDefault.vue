@@ -420,7 +420,7 @@ useHead({
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-gamedevbr/favicon.ico'
+            href: '/src/theme-gamedevbr/favicon.ico?v=2'
         }
     ],
 

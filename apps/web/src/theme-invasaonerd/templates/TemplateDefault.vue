@@ -358,7 +358,7 @@ useHead({
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-invasaonerd/favicon.ico'
+            href: '/src/theme-invasaonerd/favicon.ico?v=2'
         }
     ],
     script: []
