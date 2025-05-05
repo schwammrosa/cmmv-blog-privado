@@ -448,10 +448,10 @@ const handleFileUpload = (type) => {
     if (!fileInput || !fileInput.files || !fileInput.files[0]) return;
 
     const file = fileInput.files[0];
-    const maxSize = 10 * 1024 * 1024; // 10MB
+    const maxSize = 100 * 1024 * 1024; // 10MB
 
     if (file.size > maxSize) {
-        showNotification('error', `File is too large. Maximum size is 10MB.`);
+        showNotification('error', `File is too large. Maximum size is 100MB.`);
         fileInput.value = '';
         return;
     }

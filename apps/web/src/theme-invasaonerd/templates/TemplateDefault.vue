@@ -349,7 +349,14 @@ const settingsStore = useSettingsStore();
 
 const settings = ref<any>(settingsStore.getSettings);
 
+const scripts = computed(() => {
+    const baseScripts = [];
+    return [...baseScripts, ...settingsStore.googleAnalyticsScripts];
+});
+
 useHead({
+    meta: computed(() => settingsStore.allMetaTags),
+
     link: [
         {
             rel: 'stylesheet',
@@ -361,7 +368,8 @@ useHead({
             href: '/src/theme-invasaonerd/favicon.ico?v=2'
         }
     ],
-    script: []
+
+    script: scripts
 })
 
 const isDarkMode = ref(false);
