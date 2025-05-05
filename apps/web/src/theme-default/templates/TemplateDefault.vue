@@ -34,14 +34,22 @@ useHead({
         {
             rel: 'stylesheet',
             href: '/src/theme-default/style.css',
-            media: 'print',
-            onload: 'this.media="all"'
+            media: 'all'
         },
         {
             rel: 'icon',
             type: 'image/ico',
             href: computed(() => settingsStore.faviconUrl)
-        }
+        },
+        { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
+        { rel: 'preconnect', href: 'https://www.google-analytics.com/' },
+        { rel: 'preconnect', href: 'https://www.googletag.com/' },
+        { rel: 'preconnect', href: 'https://connect.facebook.net/' },
+        { rel: 'preconnect', href: 'https://securepubads.g.doubleclick.net/' },
+        { rel: 'preconnect', href: 'https://tpc.googlesyndication.com/' },
+        { rel: 'preconnect', href: 'https://www.googletag.com/' },
+        { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
+        { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' }
     ],
 
     script: scripts

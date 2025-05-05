@@ -448,31 +448,6 @@
                                 </div>
                             </div>
 
-                            <!-- Baidu Webmaster Tools -->
-                            <div class="space-y-4">
-                                <h3
-                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
-                                >
-                                    Baidu Webmaster Tools
-                                </h3>
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >Baidu Site Verification</label
-                                    >
-                                    <input
-                                        v-model="settings.baiduSiteVerification"
-                                        type="text"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="content value from Baidu meta tag"
-                                    />
-                                    <p class="text-xs text-neutral-500">
-                                        Enter the content value from your Baidu
-                                        verification meta tag
-                                    </p>
-                                </div>
-                            </div>
-
                             <!-- Additional Meta Tags -->
                             <div class="space-y-4">
                                 <h3

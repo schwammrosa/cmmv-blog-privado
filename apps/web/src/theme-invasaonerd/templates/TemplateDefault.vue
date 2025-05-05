@@ -366,7 +366,16 @@ useHead({
             rel: 'icon',
             type: 'image/ico',
             href: '/src/theme-invasaonerd/favicon.ico?v=2'
-        }
+        },
+        { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
+        { rel: 'preconnect', href: 'https://www.google-analytics.com/' },
+        { rel: 'preconnect', href: 'https://www.googletag.com/' },
+        { rel: 'preconnect', href: 'https://connect.facebook.net/' },
+        { rel: 'preconnect', href: 'https://securepubads.g.doubleclick.net/' },
+        { rel: 'preconnect', href: 'https://tpc.googlesyndication.com/' },
+        { rel: 'preconnect', href: 'https://www.googletag.com/' },
+        { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
+        { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' },
     ],
 
     script: scripts

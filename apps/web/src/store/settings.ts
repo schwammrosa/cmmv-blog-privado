@@ -18,7 +18,6 @@ export const useSettingsStore = defineStore('settings', {
         getSettings: (state): any => state.data,
         getSetting: (state) => (key: string, defaultValue: any) => state.data?.[key] || defaultValue,
 
-        // Search integration metadata getters
         searchMetaTags: (state) => {
             const getSetting = (key: string, defaultValue: any = null) =>
                 state.data?.[`blog.${key}`] || defaultValue;
@@ -64,13 +63,12 @@ export const useSettingsStore = defineStore('settings', {
             return metaTags;
         },
 
-        // Get additional meta tags from custom HTML
         additionalMetaTags: (state) => {
             const customMetaTags = state.data?.['blog.additionalMetaTags'];
             if (!customMetaTags) return [];
 
             try {
-                if (typeof window === 'undefined') return []; // SSR safety check
+                if (typeof window === 'undefined') return [];
 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(`<div>${customMetaTags}</div>`, 'text/html');
@@ -89,9 +87,7 @@ export const useSettingsStore = defineStore('settings', {
             }
         },
 
-        // Combined meta tags for SEO and search integrations
         allMetaTags(state): any[] {
-            // Need to use this instead of getters because of Pinia typing constraints
             const searchMetaTags = this.searchMetaTags;
             const additionalMetaTags = this.additionalMetaTags;
 
@@ -106,7 +102,6 @@ export const useSettingsStore = defineStore('settings', {
             return [...baseTags, ...searchMetaTags, ...additionalMetaTags];
         },
 
-        // Google Analytics scripts
         googleAnalyticsScripts: (state) => {
             const gaId = state.data?.['blog.googleAnalyticsId'];
             if (!gaId) return [];
@@ -128,7 +123,6 @@ export const useSettingsStore = defineStore('settings', {
             ];
         },
 
-        // Favicon URL
         faviconUrl: (state) => {
             return state.data?.['blog.favicon'] || '/src/theme-default/favicon.ico';
         }
