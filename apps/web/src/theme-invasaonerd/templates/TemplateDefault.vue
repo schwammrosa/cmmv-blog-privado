@@ -2,7 +2,7 @@
     <div class="flex flex-col min-h-screen bg-gray-100">
         <!-- Header -->
         <header class="bg-[#1a1a1a] sticky top-0 z-50 shadow-md">
-            <div class="container mx-auto px-4">
+            <div class="container mx-auto px-4 max-w-[1200px]">
                 <div class="flex justify-between items-center py-3">
                     <!-- Logo -->
                     <div class="flex-shrink-0">
@@ -81,7 +81,7 @@
                 </div>
             </div>
             <nav class="bg-[#b4011a]">
-                <div class="container mx-auto px-4">
+                <div class="container mx-auto max-w-[1200px]">
                     <!-- Desktop Navigation -->
                     <ul class="hidden md:flex flex-wrap list-none">
                         <li>
