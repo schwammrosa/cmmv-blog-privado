@@ -375,7 +375,7 @@ useHead({
         { rel: 'preconnect', href: 'https://tpc.googlesyndication.com/' },
         { rel: 'preconnect', href: 'https://www.googletag.com/' },
         { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
-        { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' },
+        { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' }
     ],
 
     script: scripts
