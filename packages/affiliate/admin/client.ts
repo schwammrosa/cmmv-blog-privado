@@ -7,35 +7,35 @@ export const useAffiliateClient = () => {
     const networks = {
         get: async (filters: Record<string, string>) => {
             const query = new URLSearchParams(filters).toString();
-            return api.authRootRequest(`affiliate/networks?${query}`, "GET");
+            return api.authRequest(`affiliate/networks?${query}`, "GET");
         },
         insert: async (data: any) => {
-            return api.authRootRequest("affiliate/networks", "POST", data);
+            return api.authRequest("affiliate/networks", "POST", data);
         },
         update: async (id: string, data: any) => {
-            return api.authRootRequest(`affiliate/networks/${id}`, "PUT", data);
+            return api.authRequest(`affiliate/networks/${id}`, "PUT", data);
         },
         delete: async (id: string) => {
-            return api.authRootRequest(`affiliate/networks/${id}`, "DELETE");
+            return api.authRequest(`affiliate/networks/${id}`, "DELETE");
         }
     }
 
     const campaigns = {
         get: async (filters: Record<string, string>) => {
             const query = new URLSearchParams(filters).toString();
-            return api.authRootRequest(`affiliate/campaigns?${query}`, "GET");
+            return api.authRequest(`affiliate/campaigns?${query}`, "GET");
         },
         insert: async (data: any) => {
-            return api.authRootRequest("affiliate/campaigns", "POST", data);
+            return api.authRequest("affiliate/campaigns", "POST", data);
         },
         update: async (id: string, data: any) => {
-            return api.authRootRequest(`affiliate/campaigns/${id}`, "PUT", data);
+            return api.authRequest(`affiliate/campaigns/${id}`, "PUT", data);
         },
         delete: async (id: string) => {
-            return api.authRootRequest(`affiliate/campaigns/${id}`, "DELETE");
+            return api.authRequest(`affiliate/campaigns/${id}`, "DELETE");
         },
         updateLogo: async (id: string, logoData: string) => {
-            return api.authRootRequest(`affiliate/campaigns/${id}/logo`, "PUT", { logo: logoData });
+            return api.authRequest(`affiliate/campaigns/${id}/logo`, "PUT", { logo: logoData });
         }
     }
 
