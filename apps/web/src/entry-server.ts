@@ -8,6 +8,7 @@ import { createPiniaInstance } from "./store/index.js";
 import { useSettingsStore } from './store/settings.js';
 import { useCategoriesStore } from "./store/categories.js";
 import { usePostsStore } from './store/posts.js';
+import { useMostAccessedPostsStore } from './store/mostaccessed.js';
 
 import ClientOnly from './components/ClientOnly.vue';
 import App from './App.vue';
@@ -17,6 +18,7 @@ const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), 'VITE'
 let settingsData: any;
 let categoriesData: any;
 let postsData: any;
+let mostAccessedPostsData: any;
 
 export async function setup(){
     const urlQueries = new URLSearchParams({
@@ -30,6 +32,7 @@ export async function setup(){
     const settings = await fetch(`${env.VITE_API_URL}/settings`);
     const categories = await fetch(`${env.VITE_API_URL}/blog/categories`);
     const posts = await fetch(`${env.VITE_API_URL}/blog/posts?${urlQueries}`);
+    const mostAccessedPosts = await fetch(`${env.VITE_API_URL}/blog/posts/most-accessed`);
 
     if (!settings.ok)
         throw new Error('Failed to fetch settings');
@@ -53,6 +56,7 @@ export async function setup(){
     settingsData = await settings.json();
     categoriesData = await categories.json();
     postsData = await posts.json();
+    mostAccessedPostsData = await mostAccessedPosts.json();
 }
 
 export async function render(url: string) {
@@ -74,6 +78,7 @@ export async function render(url: string) {
         const settingsStore = useSettingsStore();
         const categoriesStore = useCategoriesStore();
         const postsStore = usePostsStore();
+        const mostAccessedPostsStore = useMostAccessedPostsStore();
 
         //Settings
         settingsStore.setSettings(settingsData);
@@ -86,6 +91,7 @@ export async function render(url: string) {
 
         categoriesStore.setCategories(categoriesData);
         postsStore.setPosts(postsData.result.posts);
+        mostAccessedPostsStore.setMostAccessedPosts(mostAccessedPostsData);
 
         router.push(url);
         await router.isReady();
@@ -123,6 +129,7 @@ export async function render(url: string) {
             settings: settingsData,
             categories: categoriesData,
             posts: postsData.result,
+            mostAccessedPosts: mostAccessedPostsData
         }
     } catch (e: any) {
         console.error('Render error:', e);
