@@ -8,11 +8,8 @@ import * as crypto from 'node:crypto';
 import * as mime from 'mime-types';
 
 const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), 'VITE');
-const cache = new Map<string, { html: string, expires: number }>();
 const fileCache = new Map<string, { buffer: Buffer, etag: string, mtime: number }>();
 let themeStyle = ""
-const CACHE_CONTROL_MAX_AGE = 900;
-
 
 const compressHtml = (html: string, acceptEncoding: string = ''): { data: Buffer | string, encoding: string | null } => {
     if (acceptEncoding.includes('br')) {
@@ -88,8 +85,7 @@ const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerRespon
 
         if (ifNoneMatch === etag) {
             res.writeHead(304, {
-                'ETag': etag,
-                'Cache-Control': (url === '/' || url.startsWith('/api')) ? `public, max-age=900` : `public, max-age=31536000`,
+                'ETag': etag
             });
             res.end();
             return true;
