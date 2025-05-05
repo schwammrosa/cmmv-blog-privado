@@ -23,5 +23,10 @@ export interface ISetup {
         moderateComments: boolean;
         language: string;
         timezone: string;
+        allowedHosts: string[];
+        apiUrl: string;
+        frontendApiUrl: string;
+        websiteUrl: string;
+        basePort: number;
     }
 }

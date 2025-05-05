@@ -87,6 +87,23 @@
                                 </div>
                                 <span class="text-[10px] text-neutral-400 mt-1">Settings</span>
                             </div>
+
+                            <!-- Connecting line 3-4 -->
+                            <div class="w-8 h-0.5 mt-[-12px]" :class="{'bg-blue-600': currentStep > 2, 'bg-neutral-700': currentStep <= 2}"></div>
+
+                            <!-- Step 4 -->
+                            <div class="flex flex-col items-center">
+                                <div
+                                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shadow-md z-10"
+                                    :class="{
+                                        'bg-blue-600 text-white': currentStep >= 3,
+                                        'bg-neutral-700 text-neutral-400': currentStep < 3
+                                    }"
+                                >
+                                    <span>4</span>
+                                </div>
+                                <span class="text-[10px] text-neutral-400 mt-1">Server</span>
+                            </div>
                         </div>
                     </div>
 
@@ -260,6 +277,65 @@
                             </div>
                         </div>
 
+                        <!-- Server Configuration -->
+                        <div v-if="currentStep === 3" class="w-full">
+                            <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Server Configuration</h2>
+
+                            <div class="mb-4">
+                                <label for="allowed-hosts" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Allowed Hosts</label>
+                                <input
+                                    id="allowed-hosts"
+                                    v-model="setupData.allowedHosts"
+                                    type="text"
+                                    placeholder="localhost,example.com,subdomain.example.com"
+                                    :disabled="loading"
+                                    class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white select-text"
+                                />
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Comma-separated list of domains that can access your blog</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="api-url" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">API URL</label>
+                                <input
+                                    id="api-url"
+                                    v-model="setupData.apiUrl"
+                                    type="text"
+                                    placeholder="http://localhost:5000"
+                                    :disabled="loading"
+                                    class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white select-text"
+                                />
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The base URL for your API server</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="frontend-api-url" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Frontend API URL</label>
+                                <input
+                                    id="frontend-api-url"
+                                    v-model="setupData.frontendApiUrl"
+                                    type="text"
+                                    placeholder="http://localhost:5001/api"
+                                    :disabled="loading"
+                                    class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white select-text"
+                                />
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The API endpoint used by the frontend application</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="base-port" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Base Port</label>
+                                <input
+                                    id="base-port"
+                                    v-model="setupData.basePort"
+                                    type="number"
+                                    min="1"
+                                    max="65535"
+                                    placeholder="5000"
+                                    :disabled="loading"
+                                    class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white select-text"
+                                />
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">The base port number (API: base+1, Frontend: base+2)</p>
+                            </div>
+                        </div>
+
                         <!-- Navigation buttons -->
                         <div class="flex justify-between mt-10 pt-4 border-t border-gray-200 dark:border-neutral-700">
                             <button
@@ -402,7 +478,8 @@ const router = useRouter()
 const steps = [
     { id: 'admin', name: 'Admin' },
     { id: 'blog', name: 'Blog Info' },
-    { id: 'settings', name: 'Settings' }
+    { id: 'settings', name: 'Settings' },
+    { id: 'server', name: 'Server' }
 ]
 
 const setupFinish = ref(localStorage.getItem('setupFinish') === 'true');
@@ -427,7 +504,12 @@ const setupData = ref({
     enableComments: true,
     moderateComments: true,
     language: 'en',
-    timezone: 'UTC'
+    timezone: 'UTC',
+
+    allowedHosts: '',
+    apiUrl: 'http://localhost:5000',
+    frontendApiUrl: 'http://localhost:5001/api',
+    basePort: 5000
 })
 
 const notification = ref({
@@ -525,7 +607,12 @@ const finishSetup = async () => {
                 enableComments: setupData.value.enableComments,
                 moderateComments: setupData.value.moderateComments,
                 language: setupData.value.language,
-                timezone: setupData.value.timezone
+                timezone: setupData.value.timezone,
+
+                allowedHosts: setupData.value.allowedHosts.split(',').map(host => host.trim()).filter(host => host),
+                apiUrl: setupData.value.apiUrl,
+                frontendApiUrl: setupData.value.frontendApiUrl,
+                basePort: parseInt(setupData.value.basePort)
             },
             setupFinish: true
         }

@@ -1,4 +1,6 @@
 import * as crypto from "crypto";
+import * as path from "path";
+import * as fs from "fs";
 
 import {
     Service
@@ -52,6 +54,28 @@ export class SettingsService {
      * @returns {Promise<any>}
      */
     public async getSetup(setupData: ISetup) : Promise<any> {
+        const apiEnv = path.join(__dirname, "../../../../apps/api/.env");
+        const webEnv = path.join(__dirname, "../../../../apps/web/.env");
+
+        const signature = crypto
+            .createHash('sha256')
+            .update(new Date().getTime().toString())
+            .digest('hex');
+
+        await fs.writeFileSync(apiEnv, `API_URL="${setupData.settings.apiUrl}"
+API_SIGNATURE="${signature}"
+        `);
+
+        await fs.writeFileSync(webEnv, `VITE_API_URL="${setupData.settings.apiUrl}"
+VITE_WEBSITE_URL="${setupData.blog.url}"
+VITE_API_URL_FRONTEND="${setupData.settings.frontendApiUrl}"
+VITE_SSR="true"
+VITE_SSR_PORT="${setupData.settings.basePort + 1}"
+VITE_ALLOWED_HOSTS="${setupData.settings.allowedHosts.join(",")}"
+VITE_SIGNATURE="${signature}"
+VITE_DEFAULT_THEME="default"
+        `);
+
         const SettingsRepository = Repository.getEntity("SettingsEntity");
 
         const settings = await Repository.findOne(SettingsRepository, { key: "setupFinish" }, {
