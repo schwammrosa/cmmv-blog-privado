@@ -185,26 +185,7 @@
                             Mais Populares
                         </h2>
 
-                        <div v-if="loadingPopularPosts" class="flex justify-center py-6">
-                            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#ff3e3e]"></div>
-                            <span class="ml-3 text-gray-600">Carregando...</span>
-                        </div>
-
-                        <div v-else-if="popularPostsError" class="text-center py-4">
-                            <p class="text-neutral-600 text-sm">Erro ao carregar posts populares.</p>
-                            <button
-                                @click="loadPopularPosts"
-                                class="mt-2 text-sm text-[#ff3e3e] hover:underline"
-                            >
-                                Tentar novamente
-                            </button>
-                        </div>
-
-                        <div v-else-if="popularPosts.length === 0" class="text-center py-4">
-                            <p class="text-neutral-600 text-sm">Nenhum post popular disponível.</p>
-                        </div>
-
-                        <div v-else class="space-y-4">
+                        <div class="space-y-4">
                             <div
                                 v-for="post in popularPosts"
                                 :key="post.id"
@@ -266,11 +247,13 @@ import { vue3 } from '@cmmv/blog/client';
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
 import { usePostsStore } from '../../store/posts';
+import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 
 const settingsStore = useSettingsStore();
 const categoriesStore = useCategoriesStore();
 const postsStore = usePostsStore();
+const mostAccessedPostsStore = useMostAccessedPostsStore();
 const blogAPI = vue3.useBlog();
 
 // State
@@ -280,9 +263,7 @@ const posts = ref<any[]>(postsStore.getPosts || []);
 const loading = ref(true);
 const loadingMore = ref(false);
 const error = ref(null);
-const popularPosts = ref<any[]>([]);
-const loadingPopularPosts = ref(true);
-const popularPostsError = ref(false);
+const popularPosts = ref<any[]>(mostAccessedPostsStore.getMostAccessedPosts || []);
 const currentPage = ref(0);
 const hasMorePosts = ref(true);
 const observerTarget = ref<HTMLElement | null>(null);
@@ -469,28 +450,6 @@ const loadPosts = async () => {
     }
 };
 
-const loadPopularPosts = async () => {
-    loadingPopularPosts.value = true;
-    popularPostsError.value = false;
-
-    try {
-        const response = await blogAPI.posts.getMostAccessed();
-        if (response && Array.isArray(response)) {
-            popularPosts.value = response;
-        } else if (response && typeof response === 'object' && Array.isArray(response.posts)) {
-            popularPosts.value = response.posts;
-        } else {
-            popularPosts.value = [];
-        }
-    } catch (err) {
-        console.error('Failed to load popular posts:', err);
-        popularPostsError.value = true;
-        popularPosts.value = [];
-    } finally {
-        loadingPopularPosts.value = false;
-    }
-};
-
 const loadMorePosts = async () => {
     if (loadingMore.value || !hasMorePosts.value) return;
 
@@ -543,8 +502,7 @@ const getAuthor = (post: any) => {
 
 onMounted(async () => {
     await Promise.all([
-        loadPosts(),
-        loadPopularPosts()
+        loadPosts()
     ]);
     setupIntersectionObserver();
     startCarouselInterval();
