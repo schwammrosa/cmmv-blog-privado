@@ -56,6 +56,13 @@ const compressFile = (buffer: Buffer, acceptEncoding: string = ''): { data: Buff
  * Serve a static file with proper caching, compression, and ETags
  */
 const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerResponse, filePath: string): Promise<boolean> => {
+    const url = req.url || '/';
+
+    // Ignore root path and API paths
+    if (url === '/' || url.startsWith('/api')) {
+        return false;
+    }
+
     const acceptEncoding = req.headers['accept-encoding'] || '';
     const ifNoneMatch = req.headers['if-none-match'] || '';
 
