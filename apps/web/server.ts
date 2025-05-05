@@ -57,12 +57,6 @@ const compressFile = (buffer: Buffer, acceptEncoding: string = ''): { data: Buff
  */
 const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerResponse, filePath: string): Promise<boolean> => {
     const url = req.url || '/';
-
-    // Ignore root path and API paths
-    if (url === '/' || url.startsWith('/api')) {
-        return false;
-    }
-
     const acceptEncoding = req.headers['accept-encoding'] || '';
     const ifNoneMatch = req.headers['if-none-match'] || '';
 
@@ -95,7 +89,7 @@ const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerRespon
         if (ifNoneMatch === etag) {
             res.writeHead(304, {
                 'ETag': etag,
-                'Cache-Control': `public, max-age=31536000`,
+                'Cache-Control': (url === '/' || url.startsWith('/api')) ? `public, max-age=900` : `public, max-age=31536000`,
             });
             res.end();
             return true;
