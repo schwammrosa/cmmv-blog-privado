@@ -71,6 +71,12 @@ export class BackupService {
             const YTChannelsEntity = Repository.getEntity("YTChannelsEntity");
             const YTVideosEntity = Repository.getEntity("YTVideosEntity");
 
+            //Affiliate
+            const AffiliateNetworksEntity = Repository.getEntity("AffiliateNetworksEntity");
+            const AffiliateAccountsEntity = Repository.getEntity("AffiliateAccountsEntity");
+            const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
+            const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
+
             const users = await Repository.findAll(UserEntity, { limit: 10000000000 });
             const groups = await Repository.findAll(GroupsEntity, { limit: 10000000000 });
             const settings = await Repository.findAll(SettingsEntity, { limit: 10000000000 });
@@ -95,6 +101,11 @@ export class BackupService {
             const ytChannels = await Repository.findAll(YTChannelsEntity, { limit: 10000000000 });
             const ytVideos = await Repository.findAll(YTVideosEntity, { limit: 10000000000 });
 
+            const affiliateNetworks = await Repository.findAll(AffiliateNetworksEntity, { limit: 10000000000 });
+            const affiliateAccounts = await Repository.findAll(AffiliateAccountsEntity, { limit: 10000000000 });
+            const affiliateCampaigns = await Repository.findAll(AffiliateCampaignsEntity, { limit: 10000000000 });
+            const affiliateCoupons = await Repository.findAll(AffiliateCouponsEntity, { limit: 10000000000 });
+
             const backupData = [
                 { name: "users.json", data: users },
                 { name: "groups.json", data: groups },
@@ -118,7 +129,11 @@ export class BackupService {
                 { name: "feed_parser.json", data: feedParser },
                 { name: "feed_raw.json", data: feedRaw },
                 { name: "yt_channels.json", data: ytChannels },
-                { name: "yt_videos.json", data: ytVideos }
+                { name: "yt_videos.json", data: ytVideos },
+                { name: "affiliate_networks.json", data: affiliateNetworks },
+                { name: "affiliate_accounts.json", data: affiliateAccounts },
+                { name: "affiliate_campaigns.json", data: affiliateCampaigns },
+                { name: "affiliate_coupons.json", data: affiliateCoupons }
             ];
 
             for (const item of backupData) {

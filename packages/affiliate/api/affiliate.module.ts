@@ -1,18 +1,36 @@
 import { Module } from '@cmmv/core';
 
 import {
-    AffiliateCampainsContract,
+    AffiliateCampaignsContract,
     AffiliateNetworksContract,
-    AffiliateCouponsContract
+    AffiliateCouponsContract,
+    AffiliateAccountsContract,
+    AffiliateCategoriesContract
 } from '../contracts';
+
+import {
+    AffiliateCouponsModule
+} from './coupons/coupons.module';
+
+import {
+    AffiliateCategoriesModule
+} from './categories/categories.module';
+
+import {
+    AffiliateCampaignsModule
+} from './campaigns/campaigns.module';
 
 export const AffiliateModule = new Module('affiliate', {
     contracts: [
         AffiliateNetworksContract,
-        AffiliateCampainsContract,
-        AffiliateCouponsContract
+        AffiliateCampaignsContract,
+        AffiliateCouponsContract,
+        AffiliateAccountsContract,
+        AffiliateCategoriesContract
     ],
     submodules: [
-
+        AffiliateCouponsModule,
+        AffiliateCategoriesModule,
+        AffiliateCampaignsModule
     ]
 });

@@ -54,7 +54,7 @@ export class ChannelsService {
     constructor(private readonly parserService: ParserService){}
 
     @Cron(CronExpression.EVERY_HOUR)
-    async handleCron() {
+    async handleCronChannels() {
         return await this.processFeeds.call(this, false);
     }
 

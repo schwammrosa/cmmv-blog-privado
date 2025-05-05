@@ -11,9 +11,8 @@ const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), 'VITE'
 const cache = new Map<string, { html: string, expires: number }>();
 const fileCache = new Map<string, { buffer: Buffer, etag: string, mtime: number }>();
 let themeStyle = ""
-const CACHE_TTL_MS = 5 * 60 * 1000;
 const CACHE_CONTROL_MAX_AGE = 900;
-const STATIC_MAX_AGE = 315360000; // 10 years in seconds
+
 
 const compressHtml = (html: string, acceptEncoding: string = ''): { data: Buffer | string, encoding: string | null } => {
     if (acceptEncoding.includes('br')) {
@@ -61,59 +60,44 @@ const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerRespon
     const ifNoneMatch = req.headers['if-none-match'] || '';
 
     try {
-        // Check if file exists
-        if (!fs.existsSync(filePath)) {
+        if (!fs.existsSync(filePath))
             return false;
-        }
 
         const stats = fs.statSync(filePath);
 
-        if (!stats.isFile()) {
+        if (!stats.isFile())
             return false;
-        }
 
-        // Get file details
         const mtime = stats.mtime.getTime();
-
-        // Check cache first
         let cacheEntry = fileCache.get(filePath);
 
-        // Calculate ETag from file content or use cached one
         let etag: string;
         let buffer: Buffer;
 
         if (cacheEntry && cacheEntry.mtime === mtime) {
-            // Use cached data
             buffer = cacheEntry.buffer;
             etag = cacheEntry.etag;
         } else {
-            // Read file and calculate fresh ETag
             buffer = fs.readFileSync(filePath);
             etag = crypto.createHash('md5').update(buffer).digest('hex');
-
-            // Cache for future requests
             fileCache.set(filePath, { buffer, etag, mtime });
         }
 
-        // Set content type based on file extension
         const contentType = mime.lookup(filePath) || 'application/octet-stream';
 
-        // Handle If-None-Match header (conditional GET)
         if (ifNoneMatch === etag) {
             res.writeHead(304, {
                 'ETag': etag,
-                'Cache-Control': `public, max-age=${STATIC_MAX_AGE}`,
+                'Cache-Control': `public, max-age=31536000`,
             });
             res.end();
             return true;
         }
 
-        // Set headers
         res.setHeader('Content-Type', contentType);
         res.setHeader('ETag', etag);
-        res.setHeader('Cache-Control', `public, max-age=${STATIC_MAX_AGE}`);
+        res.setHeader('Cache-Control', `public, max-age=900`);
 
-        // Compress file if it's compressible
         const compressibleTypes = ['text/', 'application/javascript', 'application/json', 'image/svg+xml', 'application/xml'];
         const isCompressible = compressibleTypes.some(type => contentType.includes(type));
 
@@ -127,7 +111,6 @@ const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerRespon
 
             res.end(compressed.data);
         } else {
-            // Send uncompressed for binary files
             res.end(buffer);
         }
 
@@ -175,26 +158,10 @@ async function bootstrap() {
 
         vite.middlewares(req, res, async () => {
             try {
-                // Check if this is a non-HTML file that wasn't handled by static file serving
                 if (/\.\w+$/.test(url)) {
                     res.statusCode = 404;
                     return res.end(`Not found: ${url}`);
                 }
-
-                const cached = cache.get(url);
-                const now = Date.now();
-
-                /*if (cached && cached.expires > now) {
-                    res.setHeader('Content-Type', 'text/html');
-                    res.setHeader('Cache-Control', `public, max-age=${CACHE_CONTROL_MAX_AGE}`);
-
-                    const compressed = compressHtml(cached.html, acceptEncoding as string);
-
-                    if (compressed.encoding)
-                        res.setHeader('Content-Encoding', compressed.encoding);
-
-                    return res.end(compressed.data);
-                }*/
 
                 template = await vite.transformIndexHtml(url, template);
 
@@ -244,10 +211,8 @@ async function bootstrap() {
                 for(const key in metadata)
                     template = template.replace(`{${key}}`, metadata[key]);
 
-                //cache.set(url, { html: template, expires: now + CACHE_TTL_MS });
-
                 res.setHeader('Content-Type', 'text/html');
-                res.setHeader('Cache-Control', `public, max-age=${CACHE_CONTROL_MAX_AGE}`);
+                res.setHeader('Cache-Control', `public, max-age=900`);
 
                 const compressed = compressHtml(template, acceptEncoding as string);
 

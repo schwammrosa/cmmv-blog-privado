@@ -5,7 +5,7 @@ import {
 
 @Contract({
     namespace: 'Affiliate',
-    controllerName: 'Coupons',
+    controllerName: 'AffiliateCoupons',
     controllerCustomPath: 'affiliate/coupons',
     protoPackage: 'affiliate',
     subPath: '/affiliate',
@@ -23,6 +23,7 @@ export class AffiliateCouponsContract extends AbstractContract {
         protoType: 'string',
         nullable: false,
         defaultValue: 'Cupom',
+        index: true
     })
     type!: string;
 
@@ -30,12 +31,14 @@ export class AffiliateCouponsContract extends AbstractContract {
         protoType: 'string',
         nullable: false,
         defaultValue: 'fixed',
+        index: true
     })
     typeDiscount!: string;
 
     @ContractField({
         protoType: 'string',
         nullable: false,
+        index: true
     })
     title!: string;
 
@@ -80,7 +83,8 @@ export class AffiliateCouponsContract extends AbstractContract {
 
     @ContractField({
         protoType: 'date',
-        nullable: true
+        nullable: true,
+        index: true
     })
     expiration?: Date;
 
@@ -89,4 +93,10 @@ export class AffiliateCouponsContract extends AbstractContract {
         nullable: true
     })
     link?: string;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true
+    })
+    linkRef?: string;
 }

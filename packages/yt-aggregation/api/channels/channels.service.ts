@@ -95,7 +95,7 @@ export class YTChannelsServiceAdmin {
     private readonly YOUTUBE_API_BASE_URL: string = 'https://www.googleapis.com/youtube/v3';
 
     @Cron(CronExpression.EVERY_HOUR)
-    async handleCron() {
+    async handleCronChannelsYoutube() {
         return await this.processChannels.call(this, false);
     }
 

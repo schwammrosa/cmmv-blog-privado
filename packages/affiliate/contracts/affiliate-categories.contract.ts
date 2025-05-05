@@ -5,8 +5,8 @@ import {
 
 @Contract({
     namespace: 'Affiliate',
-    controllerName: 'AffiliateNetworks',
-    controllerCustomPath: 'affiliate/networks',
+    controllerName: 'AffiliateCategories',
+    controllerCustomPath: 'affiliate/categories',
     protoPackage: 'affiliate',
     subPath: '/affiliate',
     generateController: true,
@@ -14,17 +14,24 @@ import {
     auth: true,
     options: {
         moduleContract: true,
-        databaseSchemaName: "affiliate_networks",
+        databaseSchemaName: "affiliate_categories",
         databaseTimestamps: true
     }
 })
-export class AffiliateNetworksContract extends AbstractContract {
+export class AffiliateCategoriesContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         nullable: false,
-        index: true,
+        index: true
     })
     name!: string;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: false,
+        index: true
+    })
+    slug!: string;
 
     @ContractField({
         protoType: 'boolean',
@@ -33,16 +40,4 @@ export class AffiliateNetworksContract extends AbstractContract {
         index: true
     })
     active!: boolean;
-
-    @ContractField({
-        protoType: 'string',
-        nullable: true
-    })
-    url!: string;
-
-    @ContractField({
-        protoType: 'text',
-        nullable: true,
-    })
-    metadata!: string;
 }

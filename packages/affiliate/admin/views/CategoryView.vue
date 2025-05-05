@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-white">Networks</h1>
+            <h1 class="text-2xl font-bold text-white">Categories</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
                 <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -14,7 +14,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Add Network
+                    Add Category
                 </button>
             </div>
         </div>
@@ -32,7 +32,7 @@
                         <input
                             v-model="filters.search"
                             type="text"
-                            placeholder="Search networks..."
+                            placeholder="Search categories..."
                             class="bg-neutral-700 h-10 border border-neutral-800 text-white pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-0"
                         >
                     </div>
@@ -43,7 +43,7 @@
         <!-- Loading state -->
         <div v-if="loading" class="bg-neutral-800 rounded-lg p-12 flex justify-center items-center">
             <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-            <span class="ml-3 text-neutral-400">Loading networks...</span>
+            <span class="ml-3 text-neutral-400">Loading categories...</span>
         </div>
 
         <!-- Error state -->
@@ -51,7 +51,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p class="text-neutral-300 mb-2">Failed to load networks</p>
+            <p class="text-neutral-300 mb-2">Failed to load categories</p>
             <p class="text-neutral-400 text-sm mb-4">{{ error }}</p>
             <button @click="refreshData" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors">
                 Try Again
@@ -59,18 +59,18 @@
         </div>
 
         <!-- Empty state -->
-        <div v-else-if="networks.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
+        <div v-else-if="categories.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
-            <p class="text-neutral-300 mb-2">No affiliate networks found</p>
-            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first affiliate network</p>
+            <p class="text-neutral-300 mb-2">No categories found</p>
+            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first category</p>
             <button @click="openAddDialog" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">
-                Add Network
+                Add Category
             </button>
         </div>
 
-        <!-- Networks table -->
+        <!-- Categories table -->
         <div v-else class="bg-neutral-800 rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-neutral-700">
@@ -90,7 +90,7 @@
                                 </span>
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
-                                URL
+                                Slug
                             </th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-neutral-300 uppercase tracking-wider">
                                 Active
@@ -101,25 +101,22 @@
                         </tr>
                     </thead>
                     <tbody class="bg-neutral-800 divide-y divide-neutral-700">
-                        <tr v-for="network in networks" :key="network.id" class="hover:bg-neutral-750">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="network.id">
-                                {{ network.id.substring(0, 6) }}...
+                        <tr v-for="category in categories" :key="category.id" class="hover:bg-neutral-750">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="category.id">
+                                {{ category.id.substring(0, 6) }}...
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                {{ network.name }}
+                                {{ category.name }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400 truncate max-w-xs">
-                                <a v-if="network.url" :href="network.url" target="_blank" class="hover:text-blue-400">
-                                    {{ formatUrl(network.url) }}
-                                </a>
-                                <span v-else class="text-neutral-500 italic">No URL provided</span>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                                <span class="font-mono">{{ category.slug }}</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
                                 <button
-                                    @click="toggleActive(network)"
+                                    @click="toggleActive(category)"
                                     :class="[
                                         'rounded-full p-1 w-12 h-6 flex items-center transition-colors',
-                                        network.active ? 'bg-green-600 justify-end' : 'bg-neutral-600 justify-start'
+                                        category.active ? 'bg-green-600 justify-end' : 'bg-neutral-600 justify-start'
                                     ]"
                                 >
                                     <span class="bg-white rounded-full w-4 h-4"></span>
@@ -128,7 +125,7 @@
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
                                     <button
-                                        @click="openEditDialog(network)"
+                                        @click="openEditDialog(category)"
                                         title="Edit"
                                         class="text-neutral-400 hover:text-white transition-colors"
                                     >
@@ -137,7 +134,7 @@
                                         </svg>
                                     </button>
                                     <button
-                                        @click="confirmDelete(network)"
+                                        @click="confirmDelete(category)"
                                         title="Delete"
                                         class="text-neutral-400 hover:text-red-500 transition-colors"
                                     >
@@ -156,15 +153,15 @@
         <!-- Pagination -->
         <Pagination
             :pagination="pagination"
-            itemName="networks"
+            itemName="categories"
             @pageChange="handlePageChange"
         />
 
-        <!-- Add/Edit Network Dialog -->
+        <!-- Add/Edit Category Dialog -->
         <div v-if="showDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
             <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
                 <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
-                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Network' : 'Add Network' }}</h3>
+                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Category' : 'Add Category' }}</h3>
                     <button @click="closeDialog" class="text-neutral-400 hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -172,103 +169,48 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <form @submit.prevent="saveNetwork">
+                    <form @submit.prevent="saveCategory">
                         <div class="mb-4">
-                            <label for="networkName" class="block text-sm font-medium text-neutral-300 mb-1">Network Name</label>
+                            <label for="categoryName" class="block text-sm font-medium text-neutral-300 mb-1">Category Name</label>
                             <input
-                                id="networkName"
-                                v-model="networkForm.name"
+                                id="categoryName"
+                                v-model="categoryForm.name"
                                 type="text"
                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Network name"
+                                placeholder="Category name"
                                 required
+                                @input="generateSlug"
                             />
                             <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
                         </div>
 
                         <div class="mb-4">
-                            <label for="networkUrl" class="block text-sm font-medium text-neutral-300 mb-1">Network URL</label>
+                            <label for="categorySlug" class="block text-sm font-medium text-neutral-300 mb-1">Slug</label>
                             <input
-                                id="networkUrl"
-                                v-model="networkForm.url"
-                                type="url"
-                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="https://example.com"
+                                id="categorySlug"
+                                v-model="categoryForm.slug"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
+                                placeholder="category-slug"
+                                required
                             />
-                            <p class="mt-1 text-sm text-neutral-500">The affiliate network's website URL</p>
-                            <p v-if="formErrors.url" class="mt-1 text-sm text-red-500">{{ formErrors.url }}</p>
+                            <p class="mt-1 text-sm text-neutral-500">The slug is used in URLs and should be unique</p>
+                            <p v-if="formErrors.slug" class="mt-1 text-sm text-red-500">{{ formErrors.slug }}</p>
                         </div>
 
                         <div class="mb-4">
                             <div class="flex items-center">
                                 <input
-                                    id="networkActive"
-                                    v-model="networkForm.active"
+                                    id="categoryActive"
+                                    v-model="categoryForm.active"
                                     type="checkbox"
                                     class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 bg-neutral-700 border-neutral-600"
                                 />
-                                <label for="networkActive" class="ml-2 block text-sm font-medium text-neutral-300">
+                                <label for="categoryActive" class="ml-2 block text-sm font-medium text-neutral-300">
                                     Active
                                 </label>
                             </div>
-                            <p class="mt-1 text-sm text-neutral-500">Only active networks will be available for affiliate campaigns</p>
-                        </div>
-
-                        <!-- Metadata Section -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-neutral-300 mb-2">Metadata</label>
-                            <div class="bg-neutral-750 p-3 rounded-md mb-2">
-                                <div class="max-h-[250px] overflow-y-auto pr-1">
-                                    <div v-for="(item, index) in networkForm.metadata" :key="index" class="mb-3 border-b border-neutral-700 pb-3">
-                                        <div class="grid grid-cols-2 gap-2 mb-2">
-                                            <div>
-                                                <label :for="`metadataKey${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Key</label>
-                                                <input
-                                                    :id="`metadataKey${index}`"
-                                                    v-model="item.key"
-                                                    type="text"
-                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                    placeholder="Key"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label :for="`metadataType${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Type</label>
-                                                <select
-                                                    :id="`metadataType${index}`"
-                                                    v-model="item.type"
-                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                >
-                                                    <option value="string">String</option>
-                                                    <option value="text">Text</option>
-                                                    <option value="number">Number</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end">
-                                            <button
-                                                type="button"
-                                                @click="removeMetadataItem(index)"
-                                                class="text-xs text-red-400 hover:text-red-300"
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div v-if="networkForm.metadata.length === 0" class="text-center py-3 text-sm text-neutral-500">
-                                        No metadata added yet
-                                    </div>
-                                </div>
-                                <button
-                                    type="button"
-                                    @click="addMetadataItem"
-                                    class="mt-2 w-full px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md flex items-center justify-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Add Metadata
-                                </button>
-                            </div>
+                            <p class="mt-1 text-sm text-neutral-500">Only active categories will be visible to users</p>
                         </div>
 
                         <div class="flex justify-end space-x-3 mt-6">
@@ -304,12 +246,12 @@
         <!-- Delete Confirmation Dialog -->
         <DeleteDialog
             :show="showDeleteDialog"
-            :item-name="networkToDelete?.name"
+            :item-name="categoryToDelete?.name"
             :loading="deleteLoading"
-            message="Are you sure you want to delete the network"
-            warning-text="This action cannot be undone. All affiliate campaigns associated with this network may be affected."
+            message="Are you sure you want to delete the category"
+            warning-text="This action cannot be undone. This may affect associated data."
             loading-text="Deleting..."
-            @confirm="deleteNetwork"
+            @confirm="deleteCategory"
             @cancel="closeDeleteDialog"
         />
 
@@ -333,24 +275,23 @@ import ToastNotification from '@cmmv/blog/admin/components/ToastNotification.vue
 
 const affiliateClient = useAffiliateClient()
 
-const networks = ref([])
+const categories = ref([])
 const loading = ref(true)
 const error = ref(null)
 
 const showDialog = ref(false)
 const isEditing = ref(false)
-const networkForm = ref({
+const categoryForm = ref({
     name: '',
-    url: '',
-    active: true,
-    metadata: []
+    slug: '',
+    active: true
 })
-const networkToEdit = ref(null)
+const categoryToEdit = ref(null)
 const formErrors = ref({})
 const formLoading = ref(false)
 
 const showDeleteDialog = ref(false)
-const networkToDelete = ref(null)
+const categoryToDelete = ref(null)
 const deleteLoading = ref(false)
 
 const notification = ref({
@@ -376,7 +317,7 @@ const filters = ref({
     page: 1
 })
 
-const loadNetworks = async () => {
+const loadCategories = async () => {
     try {
         loading.value = true
         error.value = null
@@ -393,10 +334,10 @@ const loadNetworks = async () => {
             apiFilters.searchField = 'name'
         }
 
-        const response = await affiliateClient.networks.get(apiFilters)
+        const response = await affiliateClient.categories.get(apiFilters)
 
         if (response && response.data) {
-            networks.value = response.data || []
+            categories.value = response.data || []
 
             const paginationData = response.pagination || {}
             const totalCount = response.count || 0
@@ -416,7 +357,7 @@ const loadNetworks = async () => {
                 to: Math.min(currentOffset + currentLimit, totalCount)
             }
         } else {
-            networks.value = []
+            categories.value = []
             // Reset pagination if data format is unexpected
             pagination.value = {
                 current: 1,
@@ -430,16 +371,16 @@ const loadNetworks = async () => {
 
         loading.value = false
     } catch (err) {
-        console.error('Failed to load networks:', err)
+        console.error('Failed to load categories:', err)
         loading.value = false
-        error.value = err.message || 'Failed to load networks'
-        showNotification('error', 'Failed to load networks')
+        error.value = err.message || 'Failed to load categories'
+        showNotification('error', 'Failed to load categories')
     }
 }
 
 // Refresh data
 const refreshData = () => {
-    loadNetworks()
+    loadCategories()
 }
 
 // Pagination methods
@@ -447,36 +388,46 @@ const handlePageChange = (newPage) => {
     filters.value.page = newPage;
 }
 
+// Generate a slug from the category name
+const generateSlug = () => {
+    if (!categoryForm.value.name) return;
+
+    // Only auto-generate the slug if it's a new category or if the slug is empty
+    if (!isEditing.value || !categoryForm.value.slug) {
+        categoryForm.value.slug = categoryForm.value.name
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '-')     // Replace spaces with hyphens
+            .replace(/-+/g, '-')      // Replace multiple hyphens with a single one
+            .trim();
+    }
+}
+
 // Watch for filter changes
 watch(filters, () => {
-    loadNetworks()
+    loadCategories()
 }, { deep: true })
 
 // Dialog methods
 const openAddDialog = () => {
     isEditing.value = false
-    networkForm.value = {
+    categoryForm.value = {
         name: '',
-        url: '',
-        active: true,
-        metadata: []
+        slug: '',
+        active: true
     }
     formErrors.value = {}
     showDialog.value = true
 }
 
-const openEditDialog = (network) => {
+const openEditDialog = (category) => {
     isEditing.value = true
-    networkToEdit.value = network
+    categoryToEdit.value = category
 
-    // Parse metadata if exists
-    const parsedMetadata = parseMetadata(network.metadata);
-
-    networkForm.value = {
-        name: network.name,
-        url: network.url || '',
-        active: network.active === undefined ? true : network.active,
-        metadata: parsedMetadata
+    categoryForm.value = {
+        name: category.name,
+        slug: category.slug,
+        active: category.active === undefined ? true : category.active
     }
     formErrors.value = {}
     showDialog.value = true
@@ -484,65 +435,46 @@ const openEditDialog = (network) => {
 
 const closeDialog = () => {
     showDialog.value = false
-    networkForm.value = {
+    categoryForm.value = {
         name: '',
-        url: '',
-        active: true,
-        metadata: []
+        slug: '',
+        active: true
     }
     formErrors.value = {}
-    networkToEdit.value = null
+    categoryToEdit.value = null
 }
 
-// Save network
-const saveNetwork = async () => {
+// Save category
+const saveCategory = async () => {
     try {
         formLoading.value = true
         formErrors.value = {}
 
         // Validate
-        if (!networkForm.value.name.trim()) {
-            formErrors.value.name = 'Network name is required'
+        if (!categoryForm.value.name.trim()) {
+            formErrors.value.name = 'Category name is required'
             formLoading.value = false
             return
         }
 
-        if (networkForm.value.url && !isValidUrl(networkForm.value.url)) {
-            formErrors.value.url = 'Please enter a valid URL'
+        if (!categoryForm.value.slug.trim()) {
+            formErrors.value.slug = 'Slug is required'
             formLoading.value = false
             return
         }
 
-        // Process metadata
-        const metadataObject = {};
-        networkForm.value.metadata.forEach(item => {
-            if (item.key.trim()) {
-                // For each key, store a default value based on type
-                let defaultValue = '';
-                if (item.type === 'number') {
-                    defaultValue = 0;
-                } else if (item.type === 'text') {
-                    defaultValue = '';
-                } else {
-                    defaultValue = '';
-                }
-                metadataObject[item.key.trim()] = defaultValue;
-            }
-        });
-
-        const networkData = {
-            name: networkForm.value.name.trim(),
-            url: networkForm.value.url.trim(),
-            active: networkForm.value.active,
-            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null
+        const categoryData = {
+            name: categoryForm.value.name.trim(),
+            slug: categoryForm.value.slug.trim(),
+            active: categoryForm.value.active
         }
 
         if (isEditing.value) {
-            await affiliateClient.networks.update(networkToEdit.value.id, networkData)
-            showNotification('success', 'Network updated successfully')
+            await affiliateClient.categories.update(categoryToEdit.value.id, categoryData)
+            showNotification('success', 'Category updated successfully')
         } else {
-            await affiliateClient.networks.insert(networkData)
-            showNotification('success', 'Network created successfully')
+            await affiliateClient.categories.insert(categoryData)
+            showNotification('success', 'Category created successfully')
         }
 
         formLoading.value = false
@@ -554,34 +486,56 @@ const saveNetwork = async () => {
         if (err.response?.data?.errors)
             formErrors.value = err.response.data.errors
         else
-            showNotification('error', err.message || 'Failed to save network')
+            showNotification('error', err.message || 'Failed to save category')
     }
 }
 
-const confirmDelete = (network) => {
-    networkToDelete.value = network
+const toggleActive = async (category) => {
+    try {
+        const updatedCategory = {
+            ...category,
+            active: !category.active
+        };
+
+        await affiliateClient.categories.update(category.id, updatedCategory);
+
+        // Update the local state
+        const index = categories.value.findIndex(c => c.id === category.id);
+        if (index !== -1) {
+            categories.value[index].active = !category.active;
+        }
+
+        showNotification('success', `Category ${updatedCategory.active ? 'activated' : 'deactivated'} successfully`);
+    } catch (err) {
+        console.error('Failed to toggle category active state:', err);
+        showNotification('error', err.message || 'Failed to update category status');
+    }
+}
+
+const confirmDelete = (category) => {
+    categoryToDelete.value = category
     showDeleteDialog.value = true
 }
 
 const closeDeleteDialog = () => {
     showDeleteDialog.value = false
-    networkToDelete.value = null
+    categoryToDelete.value = null
 }
 
-const deleteNetwork = async () => {
-    if (!networkToDelete.value) return
+const deleteCategory = async () => {
+    if (!categoryToDelete.value) return
 
     try {
         deleteLoading.value = true
-        await affiliateClient.networks.delete(networkToDelete.value.id)
+        await affiliateClient.categories.delete(categoryToDelete.value.id)
         deleteLoading.value = false
         closeDeleteDialog()
-        showNotification('success', 'Network deleted successfully')
+        showNotification('success', 'Category deleted successfully')
         refreshData()
     } catch (err) {
         deleteLoading.value = false
-        console.error('Failed to delete network:', err)
-        showNotification('error', err.message || 'Failed to delete network')
+        console.error('Failed to delete category:', err)
+        showNotification('error', err.message || 'Failed to delete category')
     }
 }
 
@@ -607,93 +561,7 @@ const toggleSort = (column) => {
     }
 }
 
-const toggleActive = async (network) => {
-    try {
-        const updatedNetwork = {
-            ...network,
-            active: !network.active
-        };
-
-        await affiliateClient.networks.update(network.id, updatedNetwork);
-
-        // Update the local state
-        const index = networks.value.findIndex(n => n.id === network.id);
-        if (index !== -1) {
-            networks.value[index].active = !network.active;
-        }
-
-        showNotification('success', `Network ${updatedNetwork.active ? 'activated' : 'deactivated'} successfully`);
-    } catch (err) {
-        console.error('Failed to toggle network active state:', err);
-        showNotification('error', err.message || 'Failed to update network status');
-    }
-}
-
-const formatUrl = (url) => {
-    if (!url) return '';
-
-    try {
-        const parsedUrl = new URL(url);
-        return parsedUrl.hostname + (parsedUrl.pathname !== '/' ? parsedUrl.pathname : '');
-    } catch (e) {
-        return url;
-    }
-}
-
-const isValidUrl = (url) => {
-    try {
-        new URL(url);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
-// Add metadata item
-const addMetadataItem = () => {
-    networkForm.value.metadata.push({
-        key: '',
-        type: 'string'
-    });
-};
-
-// Remove metadata item
-const removeMetadataItem = (index) => {
-    networkForm.value.metadata.splice(index, 1);
-};
-
-// Parse metadata JSON when editing
-const parseMetadata = (metadataJson) => {
-    try {
-        if (!metadataJson) return [];
-
-        const metadata = JSON.parse(metadataJson);
-        const result = [];
-
-        // Convert to our format with types
-        for (const key in metadata) {
-            if (Object.prototype.hasOwnProperty.call(metadata, key)) {
-                const value = metadata[key];
-                let type = 'string';
-
-                if (typeof value === 'number') {
-                    type = 'number';
-                } else if (value && typeof value === 'string' && value.length > 50) {
-                    type = 'text';
-                }
-
-                result.push({ key, type });
-            }
-        }
-
-        return result;
-    } catch (e) {
-        console.error('Failed to parse metadata:', e);
-        return [];
-    }
-};
-
 onMounted(() => {
-    loadNetworks()
+    loadCategories()
 })
 </script>

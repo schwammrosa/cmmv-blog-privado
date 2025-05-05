@@ -1,15 +1,16 @@
 import {
     Contract, AbstractContract,
-    ContractField, ContractMessage,
-    ContractService
+    ContractField
 } from "@cmmv/core";
 
-import { AffiliateNetworksContract } from "./affiliate-networks.contract";
+import {
+    AffiliateNetworksContract
+} from "./affiliate-networks.contract";
 
 @Contract({
     namespace: 'Affiliate',
-    controllerName: 'Campains',
-    controllerCustomPath: 'affiliate/campains',
+    controllerName: 'AffiliateCampaigns',
+    controllerCustomPath: 'affiliate/campaigns',
     protoPackage: 'affiliate',
     subPath: '/affiliate',
     generateController: true,
@@ -17,11 +18,11 @@ import { AffiliateNetworksContract } from "./affiliate-networks.contract";
     auth: true,
     options: {
         moduleContract: true,
-        databaseSchemaName: "affiliate_campains",
+        databaseSchemaName: "affiliate_campaigns",
         databaseTimestamps: true
     }
 })
-export class AffiliateCampainsContract extends AbstractContract {
+export class AffiliateCampaignsContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         nullable: false,
@@ -36,24 +37,24 @@ export class AffiliateCampainsContract extends AbstractContract {
     url!: string;
 
     @ContractField({
-        protoType: 'string',
-        nullable: false,
+        protoType: 'text',
+        nullable: true,
     })
     logo!: string;
 
     @ContractField({
         protoType: 'string',
-        nullable: false,
+        nullable: true,
     })
     description!: string;
 
     @ContractField({
         protoType: 'string',
-        objectType: 'object',
-        entityType: 'NetworksEntity',
-        protoRepeated: true,
+        objectType: 'string',
+        entityType: 'AffiliateNetworksEntity',
+        protoRepeated: false,
         nullable: true,
-        modelName: 'Networks',
+        modelName: 'AffiliateNetworks',
         readOnly: true,
         link: [
             {
@@ -65,7 +66,7 @@ export class AffiliateCampainsContract extends AbstractContract {
             },
         ],
     })
-    networks!: Array<string>;
+    network!: string;
 
     @ContractField({
         protoType: 'string',
@@ -77,4 +78,10 @@ export class AffiliateCampainsContract extends AbstractContract {
         readOnly: true,
     })
     domains!: Array<string>;
+
+    @ContractField({
+        protoType: 'text',
+        nullable: true,
+    })
+    metadata!: string;
 }

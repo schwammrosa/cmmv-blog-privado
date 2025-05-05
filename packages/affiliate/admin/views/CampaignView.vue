@@ -1,0 +1,1303 @@
+<template>
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-white">Campaigns</h1>
+            <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+                <button @click="openAddDialog" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Campaign
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-neutral-800 rounded-lg p-4 mb-6">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                <div class="relative flex-1 flex items-center">
+                    <div class="relative flex-grow">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input
+                            v-model="filters.search"
+                            type="text"
+                            placeholder="Search campaigns..."
+                            class="bg-neutral-700 h-10 border border-neutral-800 text-white pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-0"
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading state -->
+        <div v-if="loading" class="bg-neutral-800 rounded-lg p-12 flex justify-center items-center">
+            <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+            <span class="ml-3 text-neutral-400">Loading campaigns...</span>
+        </div>
+
+        <!-- Error state -->
+        <div v-else-if="error" class="bg-neutral-800 rounded-lg p-8 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-neutral-300 mb-2">Failed to load campaigns</p>
+            <p class="text-neutral-400 text-sm mb-4">{{ error }}</p>
+            <button @click="refreshData" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors">
+                Try Again
+            </button>
+        </div>
+
+        <!-- Empty state -->
+        <div v-else-if="campaigns.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+            </svg>
+            <p class="text-neutral-300 mb-2">No affiliate campaigns found</p>
+            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first affiliate campaign</p>
+            <button @click="openAddDialog" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">
+                Add Campaign
+            </button>
+        </div>
+
+        <!-- Campaigns table -->
+        <div v-else class="bg-neutral-800 rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-neutral-700">
+                    <thead class="bg-neutral-700">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider w-16">
+                                ID
+                            </th>
+                            <th
+                                @click="toggleSort('name')"
+                                scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white"
+                            >
+                                Name
+                                <span v-if="filters.sortBy === 'name'" class="ml-1">
+                                    {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
+                                URL
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
+                                Network
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-300 uppercase tracking-wider w-24">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-neutral-800 divide-y divide-neutral-700">
+                        <tr v-for="campaign in campaigns" :key="campaign.id" class="hover:bg-neutral-750">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="campaign.id">
+                                {{ campaign.id.substring(0, 6) }}...
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                <div class="flex items-center">
+                                    <img v-if="campaign.logo" :src="campaign.logo" alt="Campaign logo" class="h-8 w-8 mr-3 rounded-full object-cover" />
+                                    <span>{{ campaign.name }}</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400 truncate max-w-xs">
+                                <a v-if="campaign.url" :href="campaign.url" target="_blank" class="hover:text-blue-400">
+                                    {{ formatUrl(campaign.url) }}
+                                </a>
+                                <span v-else class="text-neutral-500 italic">No URL provided</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-neutral-400">
+                                <!-- Visualización de red única usando el campo network -->
+                                <span
+                                    v-if="campaign.network"
+                                    class="bg-neutral-700 text-xs rounded px-2 py-1"
+                                >
+                                    {{ getNetworkName(campaign.network) }}
+                                </span>
+                                <span v-else class="text-neutral-500 italic">
+                                    No network
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex justify-end space-x-2">
+                                    <button
+                                        @click="collectCouponsWithAI(campaign)"
+                                        title="Collect Coupons via AI"
+                                        class="text-neutral-400 hover:text-blue-500 transition-colors"
+                                        :disabled="aiLoadingMap[campaign.id]"
+                                    >
+                                        <div v-if="aiLoadingMap[campaign.id]" class="animate-spin h-5 w-5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                        </div>
+                                        <i v-else class="fas fa-ticket-alt text-center" style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;"></i>
+                                    </button>
+                                    <button
+                                        @click="openEditDialog(campaign)"
+                                        title="Edit"
+                                        class="text-neutral-400 hover:text-white transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        @click="confirmDelete(campaign)"
+                                        title="Delete"
+                                        class="text-neutral-400 hover:text-red-500 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <Pagination
+            :pagination="pagination"
+            itemName="campaigns"
+            @pageChange="handlePageChange"
+        />
+
+        <!-- Add/Edit Campaign Dialog -->
+        <div v-if="showDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
+            <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-lg mx-auto">
+                <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Campaign' : 'Add Campaign' }}</h3>
+                    <button @click="closeDialog" class="text-neutral-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form @submit.prevent="saveCampaign" class="max-h-[70vh] overflow-y-auto">
+                        <div class="mb-4">
+                            <label for="campaignName" class="block text-sm font-medium text-neutral-300 mb-1">Campaign Name</label>
+                            <input
+                                id="campaignName"
+                                v-model="campaignForm.name"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Campaign name"
+                                required
+                            />
+                            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="campaignUrl" class="block text-sm font-medium text-neutral-300 mb-1">Campaign URL</label>
+                            <input
+                                id="campaignUrl"
+                                v-model="campaignForm.url"
+                                type="url"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="https://example.com"
+                                required
+                            />
+                            <p class="mt-1 text-sm text-neutral-500">The campaign's landing page URL</p>
+                            <p v-if="formErrors.url" class="mt-1 text-sm text-red-500">{{ formErrors.url }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-neutral-300 mb-2">Logo</label>
+                            <div class="flex items-center space-x-4">
+                                <div class="w-40 h-[125px] bg-neutral-700 rounded-md overflow-hidden flex items-center justify-center border border-neutral-600">
+                                    <img v-if="campaignForm.logo" :src="campaignForm.logo" alt="Campaign logo" class="w-full h-full object-contain" />
+                                    <div v-else class="text-neutral-500 flex flex-col items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <span class="text-xs">No logo</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <button
+                                        type="button"
+                                        @click="openLogoUpload"
+                                        class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                    >
+                                        {{ campaignForm.logo ? 'Change Logo' : 'Upload Logo' }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        v-if="campaignForm.logo"
+                                        @click="removeLogo"
+                                        class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs text-neutral-500">Recommended size: 160 × 125 pixels</p>
+                            <p v-if="formErrors.logo" class="mt-1 text-sm text-red-500">{{ formErrors.logo }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="campaignDescription" class="block text-sm font-medium text-neutral-300 mb-1">Description</label>
+                            <textarea
+                                id="campaignDescription"
+                                v-model="campaignForm.description"
+                                rows="3"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Campaign description"
+                            ></textarea>
+                            <p v-if="formErrors.description" class="mt-1 text-sm text-red-500">{{ formErrors.description }}</p>
+                        </div>
+
+                        <!-- Metadata Section -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-neutral-300 mb-2">Metadata</label>
+                            <div class="bg-neutral-750 p-3 rounded-md mb-2">
+                                <div class="max-h-[250px] overflow-y-auto pr-1">
+                                    <div v-for="(item, index) in campaignForm.metadata" :key="index" class="mb-3 border-b border-neutral-700 pb-3">
+                                        <div class="grid grid-cols-2 gap-2 mb-2">
+                                            <div>
+                                                <label :for="`metadataKey${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Key</label>
+                                                <input
+                                                    :id="`metadataKey${index}`"
+                                                    v-model="item.key"
+                                                    type="text"
+                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    placeholder="Key"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label :for="`metadataType${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Type</label>
+                                                <select
+                                                    :id="`metadataType${index}`"
+                                                    v-model="item.type"
+                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                >
+                                                    <option value="string">String</option>
+                                                    <option value="text">Text</option>
+                                                    <option value="number">Number</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label :for="`metadataValue${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Value</label>
+                                            <textarea
+                                                v-if="item.type === 'text'"
+                                                :id="`metadataValue${index}`"
+                                                v-model="item.value"
+                                                rows="2"
+                                                class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="Value"
+                                            ></textarea>
+                                            <input
+                                                v-else-if="item.type === 'string'"
+                                                :id="`metadataValue${index}`"
+                                                v-model="item.value"
+                                                type="text"
+                                                class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="Value"
+                                            />
+                                            <input
+                                                v-else
+                                                :id="`metadataValue${index}`"
+                                                v-model.number="item.value"
+                                                type="number"
+                                                class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="Value"
+                                            />
+                                        </div>
+                                        <div class="flex justify-end">
+                                            <button
+                                                type="button"
+                                                @click="removeMetadataItem(index)"
+                                                class="text-xs text-red-400 hover:text-red-300"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-if="campaignForm.metadata.length === 0" class="text-center py-3 text-sm text-neutral-500">
+                                        No metadata added yet
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="addMetadataItem"
+                                    class="mt-2 w-full px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md flex items-center justify-center"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Add Metadata
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="campaignNetwork" class="block text-sm font-medium text-neutral-300 mb-1">Network</label>
+                            <div v-if="loadingNetworks" class="flex items-center py-2">
+                                <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
+                                <span class="ml-2 text-neutral-400 text-sm">Loading networks...</span>
+                            </div>
+                            <div v-else-if="availableNetworks.length === 0" class="py-2 text-sm text-neutral-400">
+                                No networks available. Please create a network first.
+                            </div>
+                            <div v-else>
+                                <!-- Network dropdown - sin buscador -->
+                                <select
+                                    id="campaignNetwork"
+                                    v-model="campaignForm.networkId"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    required
+                                >
+                                    <option value="" disabled>Select a network</option>
+                                    <option
+                                        v-for="network in availableNetworks"
+                                        :key="network.id"
+                                        :value="network.id"
+                                    >
+                                        {{ network.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <p v-if="formErrors.networkId" class="mt-1 text-sm text-red-500">{{ formErrors.networkId }}</p>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button
+                                type="button"
+                                @click="closeDialog"
+                                class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                                :disabled="formLoading"
+                            >
+                                <span v-if="formLoading" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Saving...
+                                </span>
+                                <span v-else>
+                                    {{ isEditing ? 'Update' : 'Create' }}
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Dialog -->
+        <DeleteDialog
+            :show="showDeleteDialog"
+            :item-name="campaignToDelete?.name"
+            :loading="deleteLoading"
+            message="Are you sure you want to delete the campaign"
+            warning-text="This action cannot be undone. All related data will be permanently deleted."
+            loading-text="Deleting..."
+            @confirm="deleteCampaign"
+            @cancel="closeDeleteDialog"
+        />
+
+        <!-- Toast notifications -->
+        <ToastNotification
+            :show="notification.show"
+            :message="notification.message"
+            :type="notification.type"
+            :duration="notification.duration"
+            @close="notification.show = false"
+        />
+
+        <!-- Add file input for logo image -->
+        <input
+            type="file"
+            ref="logoImageInput"
+            @change="handleLogoImageSelect"
+            accept="image/*"
+            class="hidden"
+        />
+
+        <!-- Logo crop modal -->
+        <div v-if="logoCropModalOpen" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
+            <div class="bg-neutral-800 rounded-lg max-w-md w-full p-6">
+                <h3 class="text-lg font-medium text-white mb-4">Crop Campaign Logo</h3>
+
+                <div class="relative mb-4">
+                    <div class="w-full max-w-md mx-auto bg-neutral-750 relative overflow-hidden rounded-lg border-2 border-neutral-600">
+                        <!-- Canvas for crop preview -->
+                        <canvas
+                            ref="logoCropCanvas"
+                            class="mx-auto"
+                            width="320"
+                            height="250"
+                            @mousedown="startLogoDrag"
+                            @mousemove="onLogoDrag"
+                            @mouseup="stopLogoDrag"
+                            @mouseleave="stopLogoDrag"
+                            @wheel="handleLogoWheel"
+                            @touchstart="startLogoDrag"
+                            @touchmove="onLogoDrag"
+                            @touchend="stopLogoDrag"
+                        ></canvas>
+
+                        <!-- Crop overlay -->
+                        <div class="absolute top-0 left-0 right-0 bottom-0 pointer-events-none">
+                            <div class="absolute left-1/2 top-1/2 w-[160px] h-[125px] -ml-[80px] -mt-[62.5px] border-2 border-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- Zoom controls -->
+                    <div class="flex items-center justify-center mt-4">
+                        <button
+                            @click="adjustLogoZoom(-0.1)"
+                            class="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-l-md"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div class="px-4 py-2 bg-neutral-700 text-white text-sm font-medium">
+                            Zoom: {{ Math.round(logoZoomLevel * 100) }}%
+                        </div>
+                        <button
+                            @click="adjustLogoZoom(0.1)"
+                            class="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-r-md"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex justify-end space-x-2">
+                    <button
+                        @click="logoCropModalOpen = false"
+                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        @click="cropLogo"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                    >
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue'
+import { useAffiliateClient } from '@cmmv/affiliate/admin/client'
+import Pagination from '@cmmv/blog/admin/components/Pagination.vue'
+import DeleteDialog from '@cmmv/blog/admin/components/DeleteDialog.vue'
+import ToastNotification from '@cmmv/blog/admin/components/ToastNotification.vue'
+
+const affiliateClient = useAffiliateClient()
+
+const campaigns = ref([])
+const loading = ref(true)
+const error = ref(null)
+
+const availableNetworks = ref([])
+const loadingNetworks = ref(false)
+
+const showDialog = ref(false)
+const isEditing = ref(false)
+const campaignForm = ref({
+    name: '',
+    url: '',
+    logo: '',
+    description: '',
+    networkId: '',
+    metadata: []
+})
+const campaignToEdit = ref(null)
+const formErrors = ref({})
+const formLoading = ref(false)
+
+const showDeleteDialog = ref(false)
+const campaignToDelete = ref(null)
+const deleteLoading = ref(false)
+
+const notification = ref({
+    show: false,
+    type: 'success',
+    message: '',
+    duration: 3000
+})
+
+const pagination = ref({
+    current: 1,
+    lastPage: 1,
+    perPage: 10,
+    total: 0,
+    from: 1,
+    to: 10
+})
+
+const filters = ref({
+    search: '',
+    sortBy: 'name',
+    sortOrder: 'asc',
+    page: 1
+})
+
+const aiLoadingMap = ref({});
+
+// Logo crop state
+const logoCropModalOpen = ref(false)
+const logoZoomLevel = ref(1)
+const logoCropCanvas = ref(null)
+const logoImageInput = ref(null)
+const selectedLogoImage = ref(null)
+const logoCropContext = ref(null)
+const isLogoDragging = ref(false)
+const logoDragStart = ref({ x: 0, y: 0 })
+const logoImagePosition = ref({ x: 0, y: 0 })
+
+const loadCampaigns = async () => {
+    try {
+        loading.value = true
+        error.value = null
+
+        const apiFilters = {
+            limit: pagination.value.perPage,
+            offset: (filters.value.page - 1) * pagination.value.perPage,
+            sortBy: filters.value.sortBy,
+            sort: filters.value.sortOrder,
+        }
+
+        if (filters.value.search) {
+            apiFilters.search = filters.value.search
+            apiFilters.searchField = 'name'
+        }
+
+        const response = await affiliateClient.campaigns.get(apiFilters)
+
+        if (response && response.data) {
+            campaigns.value = response.data || []
+
+            const paginationData = response.pagination || {}
+            const totalCount = response.count || 0
+            const currentOffset = paginationData.offset || 0
+            const currentLimit = paginationData.limit || 10
+
+            // Calculate current page from offset and limit
+            const currentPage = Math.floor(currentOffset / currentLimit) + 1
+            const lastPage = Math.ceil(totalCount / currentLimit)
+
+            pagination.value = {
+                current: currentPage,
+                lastPage: lastPage,
+                perPage: currentLimit,
+                total: totalCount,
+                from: currentOffset + 1,
+                to: Math.min(currentOffset + currentLimit, totalCount)
+            }
+        } else {
+            campaigns.value = []
+            // Reset pagination if data format is unexpected
+            pagination.value = {
+                current: 1,
+                lastPage: 1,
+                perPage: 10,
+                total: 0,
+                from: 0,
+                to: 0
+            }
+        }
+
+        loading.value = false
+    } catch (err) {
+        console.error('Failed to load campaigns:', err)
+        loading.value = false
+        error.value = err.message || 'Failed to load campaigns'
+        showNotification('error', 'Failed to load campaigns')
+    }
+}
+
+const loadNetworks = async () => {
+    try {
+        loadingNetworks.value = true
+
+        const response = await affiliateClient.networks.get({
+            limit: 100,
+            sortBy: 'name',
+            sort: 'asc'
+        })
+
+        if (response && response.data) {
+            availableNetworks.value = response.data.filter(network => network.active !== false) || []
+        } else {
+            availableNetworks.value = []
+        }
+
+        loadingNetworks.value = false
+    } catch (err) {
+        console.error('Failed to load networks:', err)
+        loadingNetworks.value = false
+        showNotification('error', 'Failed to load available networks')
+    }
+}
+
+// Refresh data
+const refreshData = () => {
+    loadCampaigns()
+}
+
+// Pagination methods
+const handlePageChange = (newPage) => {
+    filters.value.page = newPage;
+}
+
+// Watch for filter changes
+watch(filters, () => {
+    loadCampaigns()
+}, { deep: true })
+
+// Dialog methods
+const openAddDialog = async () => {
+    isEditing.value = false
+    campaignForm.value = {
+        name: '',
+        url: '',
+        logo: '',
+        description: '',
+        networkId: '',
+        metadata: []
+    }
+    formErrors.value = {}
+    showDialog.value = true
+
+    if (availableNetworks.value.length === 0) {
+        await loadNetworks()
+    }
+}
+
+const openEditDialog = async (campaign) => {
+    isEditing.value = true
+    campaignToEdit.value = campaign
+
+    // Parse metadata if exists
+    const parsedMetadata = parseMetadata(campaign.metadata);
+
+    campaignForm.value = {
+        name: campaign.name,
+        url: campaign.url || '',
+        logo: campaign.logo || '',
+        description: campaign.description || '',
+        networkId: campaign.network || '',
+        metadata: parsedMetadata
+    }
+    formErrors.value = {}
+    showDialog.value = true
+
+    if (availableNetworks.value.length === 0) {
+        await loadNetworks()
+    }
+}
+
+const closeDialog = () => {
+    showDialog.value = false
+    campaignForm.value = {
+        name: '',
+        url: '',
+        logo: '',
+        description: '',
+        networkId: '',
+        metadata: []
+    }
+    formErrors.value = {}
+    campaignToEdit.value = null
+}
+
+// Save campaign
+const saveCampaign = async () => {
+    try {
+        formLoading.value = true
+        formErrors.value = {}
+
+        // Validate
+        if (!campaignForm.value.name.trim()) {
+            formErrors.value.name = 'Campaign name is required'
+            formLoading.value = false
+            return
+        }
+
+        if (!campaignForm.value.url.trim()) {
+            formErrors.value.url = 'Campaign URL is required'
+            formLoading.value = false
+            return
+        }
+
+        if (!campaignForm.value.networkId) {
+            formErrors.value.networkId = 'Please select a network'
+            formLoading.value = false
+            return
+        }
+
+        // Process metadata
+        const metadataObject = {};
+        campaignForm.value.metadata.forEach(item => {
+            if (item.key.trim()) {
+                let value = item.value;
+                if (item.type === 'number' && !isNaN(Number(value))) {
+                    value = Number(value);
+                }
+                metadataObject[item.key.trim()] = value;
+            }
+        });
+
+        const campaignData = {
+            name: campaignForm.value.name.trim(),
+            url: campaignForm.value.url.trim(),
+            logo: campaignForm.value.logo,
+            description: campaignForm.value.description?.trim(),
+            network: campaignForm.value.networkId,
+            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null
+        }
+
+        // If the logo is a base64 string that we just processed, we'll
+        // need to handle it differently on the backend
+        if (campaignForm.value.logo && campaignForm.value.logo.startsWith('data:')) {
+            try {
+                // First create or update the campaign without the logo
+                const logoBackup = campaignForm.value.logo;
+
+                // Remove logo from initial save to avoid large payload
+                if (isEditing.value && campaignToEdit.value) {
+                    campaignData.logo = campaignToEdit.value.logo || '';
+                } else {
+                    campaignData.logo = '';
+                }
+
+                let campaign;
+                let campaignId;
+
+                if (isEditing.value && campaignToEdit.value) {
+                    // For existing campaigns, update and use the known ID
+                    campaignId = campaignToEdit.value.id;
+                    campaign = await affiliateClient.campaigns.update(campaignId, campaignData);
+                } else {
+                    // For new campaigns, insert and get the new ID
+                    campaign = await affiliateClient.campaigns.insert(campaignData);
+                    campaignId = campaign.id;
+                }
+
+                // Verify we have a valid campaign ID
+                if (!campaignId) {
+                    console.error('Failed to get campaign ID for logo update', campaign);
+                    throw new Error('Unable to update logo: Missing campaign ID');
+                }
+
+                // Then update the logo separately
+                await affiliateClient.campaigns.updateLogo(campaignId, logoBackup);
+
+                showNotification('success', isEditing.value
+                    ? 'Campaign updated successfully'
+                    : 'Campaign created successfully'
+                );
+
+                formLoading.value = false;
+                closeDialog();
+                refreshData();
+                return;
+            } catch (err) {
+                formLoading.value = false;
+
+                if (err.response?.data?.errors)
+                    formErrors.value = err.response.data.errors;
+                else
+                    showNotification('error', err.message || 'Failed to save campaign');
+
+                return;
+            }
+        } else {
+            // Normal save without custom logo processing
+            try {
+                if (isEditing.value && campaignToEdit.value) {
+                    await affiliateClient.campaigns.update(campaignToEdit.value.id, campaignData);
+                    showNotification('success', 'Campaign updated successfully');
+                } else {
+                    await affiliateClient.campaigns.insert(campaignData);
+                    showNotification('success', 'Campaign created successfully');
+                }
+
+                formLoading.value = false;
+                closeDialog();
+                refreshData();
+            } catch (err) {
+                formLoading.value = false;
+
+                if (err.response?.data?.errors)
+                    formErrors.value = err.response.data.errors;
+                else
+                    showNotification('error', err.message || 'Failed to save campaign');
+            }
+        }
+    } catch (err) {
+        formLoading.value = false
+
+        if (err.response?.data?.errors)
+            formErrors.value = err.response.data.errors
+        else
+            showNotification('error', err.message || 'Failed to save campaign')
+    }
+}
+
+const confirmDelete = (campaign) => {
+    campaignToDelete.value = campaign
+    showDeleteDialog.value = true
+}
+
+const closeDeleteDialog = () => {
+    showDeleteDialog.value = false
+    campaignToDelete.value = null
+}
+
+const deleteCampaign = async () => {
+    if (!campaignToDelete.value) return
+
+    try {
+        deleteLoading.value = true
+        await affiliateClient.campaigns.delete(campaignToDelete.value.id)
+        deleteLoading.value = false
+        closeDeleteDialog()
+        showNotification('success', 'Campaign deleted successfully')
+        refreshData()
+    } catch (err) {
+        deleteLoading.value = false
+        console.error('Failed to delete campaign:', err)
+        showNotification('error', err.message || 'Failed to delete campaign')
+    }
+}
+
+const showNotification = (type, message) => {
+    notification.value = {
+        show: true,
+        type,
+        message,
+        duration: 3000
+    }
+
+    setTimeout(() => {
+        notification.value.show = false
+    }, notification.value.duration)
+}
+
+const toggleSort = (column) => {
+    if (filters.value.sortBy === column) {
+        filters.value.sortOrder = filters.value.sortOrder === 'asc' ? 'desc' : 'asc'
+    } else {
+        filters.value.sortBy = column
+        filters.value.sortOrder = 'asc'
+    }
+}
+
+const getNetworkName = (networkId) => {
+    const network = availableNetworks.value.find(n => n.id === networkId)
+    return network ? network.name : 'Unknown Network'
+}
+
+const formatUrl = (url) => {
+    if (!url) return '';
+
+    try {
+        const parsedUrl = new URL(url);
+        return parsedUrl.hostname + (parsedUrl.pathname !== '/' ? parsedUrl.pathname : '');
+    } catch (e) {
+        return url;
+    }
+}
+
+const isValidUrl = (url) => {
+    try {
+        new URL(url);
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+
+// Add metadata item
+const addMetadataItem = () => {
+    campaignForm.value.metadata.push({
+        key: '',
+        value: '',
+        type: 'string'
+    });
+};
+
+// Remove metadata item
+const removeMetadataItem = (index) => {
+    campaignForm.value.metadata.splice(index, 1);
+};
+
+// Parse metadata JSON when editing
+const parseMetadata = (metadataJson) => {
+    try {
+        if (!metadataJson) return [];
+
+        const metadata = JSON.parse(metadataJson);
+        const result = [];
+
+        // Convert to our format with types
+        for (const key in metadata) {
+            if (Object.prototype.hasOwnProperty.call(metadata, key)) {
+                const value = metadata[key];
+                let type = 'string';
+
+                if (typeof value === 'number') {
+                    type = 'number';
+                } else if (value && value.length > 50) {
+                    type = 'text';
+                }
+
+                result.push({ key, value, type });
+            }
+        }
+
+        return result;
+    } catch (e) {
+        console.error('Failed to parse metadata:', e);
+        return [];
+    }
+};
+
+const collectCouponsWithAI = async (campaign) => {
+    if (aiLoadingMap.value[campaign.id]) return;
+
+    try {
+        // Set loading state for this specific campaign
+        aiLoadingMap.value[campaign.id] = true;
+
+        // Call the API endpoint to collect coupons with AI
+        const response = await affiliateClient.coupons.getCouponsWithAI(campaign.id);
+
+        if (response && response.success) {
+            const couponsCount = response.coupons?.length || 0;
+            showNotification(
+                'success',
+                `Successfully collected ${couponsCount} coupons for "${campaign.name}"`
+            );
+        } else {
+            showNotification(
+                'error',
+                response.message || 'Failed to collect coupons using AI'
+            );
+        }
+    } catch (err) {
+        console.error('Failed to collect coupons with AI:', err);
+        showNotification(
+            'error',
+            err.message || 'Failed to collect coupons using AI'
+        );
+    } finally {
+        // Clear loading state
+        aiLoadingMap.value[campaign.id] = false;
+    }
+}
+
+// Open logo upload dialog
+const openLogoUpload = () => {
+    logoImageInput.value.click()
+}
+
+// Remove the logo
+const removeLogo = () => {
+    campaignForm.value.logo = ''
+    showNotification('info', 'Logo removed')
+}
+
+// Handle logo image file selection
+const handleLogoImageSelect = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    // Only allow image files
+    if (!file.type.startsWith('image/')) {
+        showNotification('error', 'Please select an image file')
+        event.target.value = ''
+        return
+    }
+
+    // Read the selected file
+    const reader = new FileReader()
+    reader.onload = (e) => {
+        // Create an image object to get dimensions
+        const img = new Image()
+        img.crossOrigin = "Anonymous"
+
+        img.onload = () => {
+            console.log('Logo image loaded', { width: img.width, height: img.height })
+            selectedLogoImage.value = img
+            logoCropModalOpen.value = true
+
+            // Initialize canvas after modal is open
+            setTimeout(() => {
+                initLogoCropCanvas()
+            }, 100)
+        }
+
+        img.onerror = (err) => {
+            console.error('Logo image loading error', err)
+            showNotification('error', 'Failed to load logo image')
+        }
+
+        img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+
+    // Reset file input
+    event.target.value = ''
+}
+
+// Initialize logo crop canvas
+const initLogoCropCanvas = () => {
+    if (!logoCropCanvas.value || !selectedLogoImage.value) return
+
+    const canvas = logoCropCanvas.value
+    const ctx = canvas.getContext('2d')
+    logoCropContext.value = ctx
+
+    // Reset zoom and position
+    logoZoomLevel.value = 1
+    logoImagePosition.value = { x: 0, y: 0 }
+
+    // Draw initial image
+    drawLogoImageOnCanvas()
+}
+
+// Draw logo image on canvas
+const drawLogoImageOnCanvas = () => {
+    if (!logoCropCanvas.value || !selectedLogoImage.value || !logoCropContext.value) return
+
+    const canvas = logoCropCanvas.value
+    const ctx = logoCropContext.value
+    const img = selectedLogoImage.value
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Calculate dimensions for centered, zoomed image
+    const scale = Math.max(canvas.width / img.width, canvas.height / img.height) * logoZoomLevel.value
+    const scaledWidth = img.width * scale
+    const scaledHeight = img.height * scale
+
+    // Use position for x,y coordinates (for dragging)
+    const x = logoImagePosition.value.x + (canvas.width - scaledWidth) / 2
+    const y = logoImagePosition.value.y + (canvas.height - scaledHeight) / 2
+
+    // Draw image
+    ctx.drawImage(img, x, y, scaledWidth, scaledHeight)
+
+    // Draw overlay to highlight crop area (160x125)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+
+    // Top overlay
+    ctx.fillRect(0, 0, canvas.width, canvas.height / 2 - 62.5)
+    // Bottom overlay
+    ctx.fillRect(0, canvas.height / 2 + 62.5, canvas.width, canvas.height / 2 - 62.5)
+    // Left overlay
+    ctx.fillRect(0, canvas.height / 2 - 62.5, canvas.width / 2 - 80, 125)
+    // Right overlay
+    ctx.fillRect(canvas.width / 2 + 80, canvas.height / 2 - 62.5, canvas.width / 2 - 80, 125)
+
+    // Draw border around crop area
+    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 2
+    ctx.strokeRect(canvas.width / 2 - 80, canvas.height / 2 - 62.5, 160, 125)
+}
+
+// Logo dragging
+const startLogoDrag = (e) => {
+    isLogoDragging.value = true
+
+    // Get initial position
+    if (e.type.includes('mouse')) {
+        logoDragStart.value = { x: e.clientX, y: e.clientY }
+    } else { // touch event
+        logoDragStart.value = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    }
+}
+
+const onLogoDrag = (e) => {
+    if (!isLogoDragging.value) return
+
+    // Prevent default to avoid scrolling on touch devices
+    e.preventDefault()
+
+    let currentX, currentY
+    if (e.type.includes('mouse')) {
+        currentX = e.clientX
+        currentY = e.clientY
+    } else { // touch event
+        currentX = e.touches[0].clientX
+        currentY = e.touches[0].clientY
+    }
+
+    // Calculate the distance moved
+    const deltaX = currentX - logoDragStart.value.x
+    const deltaY = currentY - logoDragStart.value.y
+
+    // Update image position
+    logoImagePosition.value = {
+        x: logoImagePosition.value.x + deltaX,
+        y: logoImagePosition.value.y + deltaY
+    }
+
+    // Update drag start for next movement
+    logoDragStart.value = { x: currentX, y: currentY }
+
+    // Redraw canvas
+    drawLogoImageOnCanvas()
+}
+
+const stopLogoDrag = () => {
+    isLogoDragging.value = false
+}
+
+// Handle wheel event for zooming
+const handleLogoWheel = (e) => {
+    e.preventDefault()
+
+    // Determine zoom direction and amount
+    const delta = e.deltaY > 0 ? -0.1 : 0.1
+
+    // Apply zoom
+    adjustLogoZoom(delta)
+}
+
+// Adjust zoom level
+const adjustLogoZoom = (delta) => {
+    logoZoomLevel.value = Math.max(0.5, Math.min(3, logoZoomLevel.value + delta))
+    drawLogoImageOnCanvas()
+}
+
+// Crop the logo and save
+const cropLogo = async () => {
+    if (!logoCropCanvas.value || !selectedLogoImage.value || !logoCropContext.value) return
+
+    const canvas = logoCropCanvas.value
+
+    // Create a temporary canvas for the crop
+    const tempCanvas = document.createElement('canvas')
+    const tempCtx = tempCanvas.getContext('2d')
+
+    // Set output dimensions (target size is 160x125)
+    tempCanvas.width = 160
+    tempCanvas.height = 125
+
+    // Calculate the crop area (center of the canvas)
+    const cropArea = {
+        x: canvas.width / 2 - 80,
+        y: canvas.height / 2 - 62.5,
+        width: 160,
+        height: 125
+    }
+
+    // Scale factor of the image
+    const scale = Math.max(canvas.width / selectedLogoImage.value.width, canvas.height / selectedLogoImage.value.height) * logoZoomLevel.value
+    const scaledWidth = selectedLogoImage.value.width * scale
+    const scaledHeight = selectedLogoImage.value.height * scale
+
+    // Position of the image
+    const x = logoImagePosition.value.x + (canvas.width - scaledWidth) / 2
+    const y = logoImagePosition.value.y + (canvas.height - scaledHeight) / 2
+
+    // Calculate the source crop relative to the original image
+    const srcX = (cropArea.x - x) / scale
+    const srcY = (cropArea.y - y) / scale
+    const srcWidth = cropArea.width / scale
+    const srcHeight = cropArea.height / scale
+
+    // Draw only the cropped portion to the temp canvas
+    tempCtx.drawImage(
+        selectedLogoImage.value,
+        srcX, srcY, srcWidth, srcHeight,
+        0, 0, 160, 125
+    )
+
+    try {
+        // Convert to WebP with compression
+        const webpData = await convertToWebP(tempCanvas, 0.8)
+
+        // Update the form
+        campaignForm.value.logo = webpData
+
+        // Close the modal
+        logoCropModalOpen.value = false
+
+        showNotification('success', 'Logo updated')
+    } catch (err) {
+        console.error('Failed to convert image to WebP:', err)
+
+        // Fallback to JPEG if WebP conversion fails
+        const jpegData = tempCanvas.toDataURL('image/jpeg', 0.8)
+        campaignForm.value.logo = jpegData
+
+        logoCropModalOpen.value = false
+        showNotification('success', 'Logo updated (as JPEG)')
+    }
+}
+
+// Convert canvas to WebP format
+const convertToWebP = (canvas, quality = 0.8) => {
+    return new Promise((resolve, reject) => {
+        if (typeof canvas.toBlob === 'function') {
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        const reader = new FileReader()
+                        reader.onloadend = () => resolve(reader.result)
+                        reader.onerror = reject
+                        reader.readAsDataURL(blob)
+                    } else {
+                        reject(new Error('Failed to create WebP blob'))
+                    }
+                },
+                'image/webp',
+                quality
+            )
+        } else {
+            // Fallback if toBlob is not supported
+            try {
+                const dataUrl = canvas.toDataURL('image/webp', quality)
+                resolve(dataUrl)
+            } catch (err) {
+                reject(err)
+            }
+        }
+    })
+}
+
+onMounted(() => {
+    loadCampaigns()
+    loadNetworks()
+})
+</script>

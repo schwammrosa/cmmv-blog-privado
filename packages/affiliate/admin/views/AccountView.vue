@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-white">Networks</h1>
+            <h1 class="text-2xl font-bold text-white">Network Accounts</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
                 <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -14,7 +14,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Add Network
+                    Add Account
                 </button>
             </div>
         </div>
@@ -32,7 +32,7 @@
                         <input
                             v-model="filters.search"
                             type="text"
-                            placeholder="Search networks..."
+                            placeholder="Search accounts..."
                             class="bg-neutral-700 h-10 border border-neutral-800 text-white pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-0"
                         >
                     </div>
@@ -43,7 +43,7 @@
         <!-- Loading state -->
         <div v-if="loading" class="bg-neutral-800 rounded-lg p-12 flex justify-center items-center">
             <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-            <span class="ml-3 text-neutral-400">Loading networks...</span>
+            <span class="ml-3 text-neutral-400">Loading accounts...</span>
         </div>
 
         <!-- Error state -->
@@ -51,7 +51,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p class="text-neutral-300 mb-2">Failed to load networks</p>
+            <p class="text-neutral-300 mb-2">Failed to load accounts</p>
             <p class="text-neutral-400 text-sm mb-4">{{ error }}</p>
             <button @click="refreshData" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors">
                 Try Again
@@ -59,18 +59,18 @@
         </div>
 
         <!-- Empty state -->
-        <div v-else-if="networks.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
+        <div v-else-if="accounts.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p class="text-neutral-300 mb-2">No affiliate networks found</p>
-            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first affiliate network</p>
+            <p class="text-neutral-300 mb-2">No network accounts found</p>
+            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first network account</p>
             <button @click="openAddDialog" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">
-                Add Network
+                Add Account
             </button>
         </div>
 
-        <!-- Networks table -->
+        <!-- Accounts table -->
         <div v-else class="bg-neutral-800 rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-neutral-700">
@@ -80,17 +80,17 @@
                                 ID
                             </th>
                             <th
-                                @click="toggleSort('name')"
+                                @click="toggleSort('label')"
                                 scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white"
                             >
-                                Name
-                                <span v-if="filters.sortBy === 'name'" class="ml-1">
+                                Label
+                                <span v-if="filters.sortBy === 'label'" class="ml-1">
                                     {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
                                 </span>
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
-                                URL
+                                Network
                             </th>
                             <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-neutral-300 uppercase tracking-wider">
                                 Active
@@ -101,34 +101,31 @@
                         </tr>
                     </thead>
                     <tbody class="bg-neutral-800 divide-y divide-neutral-700">
-                        <tr v-for="network in networks" :key="network.id" class="hover:bg-neutral-750">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="network.id">
-                                {{ network.id.substring(0, 6) }}...
+                        <tr v-for="account in accounts" :key="account.id" class="hover:bg-neutral-750">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="account.id">
+                                {{ account.id.substring(0, 6) }}...
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                {{ network.name }}
+                                {{ account.label }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400 truncate max-w-xs">
-                                <a v-if="network.url" :href="network.url" target="_blank" class="hover:text-blue-400">
-                                    {{ formatUrl(network.url) }}
-                                </a>
-                                <span v-else class="text-neutral-500 italic">No URL provided</span>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                                <span
+                                    v-if="account.networkName"
+                                    class="bg-neutral-700 text-xs rounded px-2 py-1"
+                                >
+                                    {{ account.networkName }}
+                                </span>
+                                <span v-else class="text-neutral-500 italic">
+                                    No network
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                                <button
-                                    @click="toggleActive(network)"
-                                    :class="[
-                                        'rounded-full p-1 w-12 h-6 flex items-center transition-colors',
-                                        network.active ? 'bg-green-600 justify-end' : 'bg-neutral-600 justify-start'
-                                    ]"
-                                >
-                                    <span class="bg-white rounded-full w-4 h-4"></span>
-                                </button>
+                                <span class="text-neutral-500">N/A</span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
                                     <button
-                                        @click="openEditDialog(network)"
+                                        @click="openEditDialog(account)"
                                         title="Edit"
                                         class="text-neutral-400 hover:text-white transition-colors"
                                     >
@@ -137,7 +134,7 @@
                                         </svg>
                                     </button>
                                     <button
-                                        @click="confirmDelete(network)"
+                                        @click="confirmDelete(account)"
                                         title="Delete"
                                         class="text-neutral-400 hover:text-red-500 transition-colors"
                                     >
@@ -156,15 +153,15 @@
         <!-- Pagination -->
         <Pagination
             :pagination="pagination"
-            itemName="networks"
+            itemName="accounts"
             @pageChange="handlePageChange"
         />
 
-        <!-- Add/Edit Network Dialog -->
+        <!-- Add/Edit Account Dialog -->
         <div v-if="showDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
-            <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
+            <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-lg mx-auto">
                 <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
-                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Network' : 'Add Network' }}</h3>
+                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Account' : 'Add Account' }}</h3>
                     <button @click="closeDialog" class="text-neutral-400 hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -172,102 +169,85 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <form @submit.prevent="saveNetwork">
+                    <form @submit.prevent="saveAccount" class="max-h-[70vh] overflow-y-auto">
                         <div class="mb-4">
-                            <label for="networkName" class="block text-sm font-medium text-neutral-300 mb-1">Network Name</label>
+                            <label for="accountLabel" class="block text-sm font-medium text-neutral-300 mb-1">Account Label</label>
                             <input
-                                id="networkName"
-                                v-model="networkForm.name"
+                                id="accountLabel"
+                                v-model="accountForm.label"
                                 type="text"
                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Network name"
+                                placeholder="Account label"
                                 required
                             />
-                            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
+                            <p v-if="formErrors.label" class="mt-1 text-sm text-red-500">{{ formErrors.label }}</p>
                         </div>
 
                         <div class="mb-4">
-                            <label for="networkUrl" class="block text-sm font-medium text-neutral-300 mb-1">Network URL</label>
-                            <input
-                                id="networkUrl"
-                                v-model="networkForm.url"
-                                type="url"
-                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="https://example.com"
-                            />
-                            <p class="mt-1 text-sm text-neutral-500">The affiliate network's website URL</p>
-                            <p v-if="formErrors.url" class="mt-1 text-sm text-red-500">{{ formErrors.url }}</p>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="flex items-center">
-                                <input
-                                    id="networkActive"
-                                    v-model="networkForm.active"
-                                    type="checkbox"
-                                    class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 bg-neutral-700 border-neutral-600"
-                                />
-                                <label for="networkActive" class="ml-2 block text-sm font-medium text-neutral-300">
-                                    Active
-                                </label>
+                            <label for="accountNetwork" class="block text-sm font-medium text-neutral-300 mb-1">Network</label>
+                            <div v-if="loadingNetworks" class="flex items-center py-2">
+                                <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
+                                <span class="ml-2 text-neutral-400 text-sm">Loading networks...</span>
                             </div>
-                            <p class="mt-1 text-sm text-neutral-500">Only active networks will be available for affiliate campaigns</p>
+                            <div v-else-if="availableNetworks.length === 0" class="py-2 text-sm text-neutral-400">
+                                No networks available. Please create a network first.
+                            </div>
+                            <div v-else>
+                                <select
+                                    id="accountNetwork"
+                                    v-model="accountForm.network"
+                                    @change="loadNetworkMetadata"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    required
+                                >
+                                    <option value="" disabled>Select a network</option>
+                                    <option
+                                        v-for="network in availableNetworks"
+                                        :key="network.id"
+                                        :value="network.id"
+                                    >
+                                        {{ network.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <p v-if="formErrors.network" class="mt-1 text-sm text-red-500">{{ formErrors.network }}</p>
                         </div>
 
-                        <!-- Metadata Section -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-neutral-300 mb-2">Metadata</label>
-                            <div class="bg-neutral-750 p-3 rounded-md mb-2">
-                                <div class="max-h-[250px] overflow-y-auto pr-1">
-                                    <div v-for="(item, index) in networkForm.metadata" :key="index" class="mb-3 border-b border-neutral-700 pb-3">
-                                        <div class="grid grid-cols-2 gap-2 mb-2">
-                                            <div>
-                                                <label :for="`metadataKey${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Key</label>
-                                                <input
-                                                    :id="`metadataKey${index}`"
-                                                    v-model="item.key"
-                                                    type="text"
-                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                    placeholder="Key"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label :for="`metadataType${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Type</label>
-                                                <select
-                                                    :id="`metadataType${index}`"
-                                                    v-model="item.type"
-                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                >
-                                                    <option value="string">String</option>
-                                                    <option value="text">Text</option>
-                                                    <option value="number">Number</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-end">
-                                            <button
-                                                type="button"
-                                                @click="removeMetadataItem(index)"
-                                                class="text-xs text-red-400 hover:text-red-300"
-                                            >
-                                                Remove
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div v-if="networkForm.metadata.length === 0" class="text-center py-3 text-sm text-neutral-500">
-                                        No metadata added yet
+                        <!-- Dynamic Network Metadata Fields -->
+                        <div v-if="accountForm.network && networkMetadataFields.length > 0" class="mb-6">
+                            <label class="block text-sm font-medium text-neutral-300 mb-2">Network Credentials</label>
+                            <div class="bg-neutral-750 p-4 rounded-md mb-2">
+                                <div class="max-h-[250px] overflow-y-auto pr-1 space-y-4">
+                                    <div v-for="field in networkMetadataFields" :key="field.key" class="mb-3">
+                                        <label :for="`metadata_${field.key}`" class="block text-sm font-medium text-neutral-300 mb-1">
+                                            {{ field.key }}
+                                        </label>
+                                        <textarea
+                                            v-if="field.type === 'text'"
+                                            :id="`metadata_${field.key}`"
+                                            v-model="accountForm.metadata[field.key]"
+                                            rows="3"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            :placeholder="`Enter ${field.key}`"
+                                        ></textarea>
+                                        <input
+                                            v-else-if="field.type === 'number'"
+                                            :id="`metadata_${field.key}`"
+                                            v-model.number="accountForm.metadata[field.key]"
+                                            type="number"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            :placeholder="`Enter ${field.key}`"
+                                        />
+                                        <input
+                                            v-else
+                                            :id="`metadata_${field.key}`"
+                                            v-model="accountForm.metadata[field.key]"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            :placeholder="`Enter ${field.key}`"
+                                        />
                                     </div>
                                 </div>
-                                <button
-                                    type="button"
-                                    @click="addMetadataItem"
-                                    class="mt-2 w-full px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md flex items-center justify-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Add Metadata
-                                </button>
                             </div>
                         </div>
 
@@ -304,12 +284,12 @@
         <!-- Delete Confirmation Dialog -->
         <DeleteDialog
             :show="showDeleteDialog"
-            :item-name="networkToDelete?.name"
+            :item-name="accountToDelete?.label"
             :loading="deleteLoading"
-            message="Are you sure you want to delete the network"
-            warning-text="This action cannot be undone. All affiliate campaigns associated with this network may be affected."
+            message="Are you sure you want to delete the account"
+            warning-text="This action cannot be undone. All data associated with this account will be permanently deleted."
             loading-text="Deleting..."
-            @confirm="deleteNetwork"
+            @confirm="deleteAccount"
             @cancel="closeDeleteDialog"
         />
 
@@ -333,24 +313,29 @@ import ToastNotification from '@cmmv/blog/admin/components/ToastNotification.vue
 
 const affiliateClient = useAffiliateClient()
 
-const networks = ref([])
+const accounts = ref([])
 const loading = ref(true)
 const error = ref(null)
 
+const availableNetworks = ref([])
+const loadingNetworks = ref(false)
+const networkMetadataFields = ref([])
+const loadingNetworkMetadata = ref(false)
+
 const showDialog = ref(false)
 const isEditing = ref(false)
-const networkForm = ref({
-    name: '',
-    url: '',
-    active: true,
-    metadata: []
+const accountForm = ref({
+    label: '',
+    network: '',
+    networkName: '',
+    metadata: {}
 })
-const networkToEdit = ref(null)
+const accountToEdit = ref(null)
 const formErrors = ref({})
 const formLoading = ref(false)
 
 const showDeleteDialog = ref(false)
-const networkToDelete = ref(null)
+const accountToDelete = ref(null)
 const deleteLoading = ref(false)
 
 const notification = ref({
@@ -371,12 +356,12 @@ const pagination = ref({
 
 const filters = ref({
     search: '',
-    sortBy: 'name',
+    sortBy: 'label',
     sortOrder: 'asc',
     page: 1
 })
 
-const loadNetworks = async () => {
+const loadAccounts = async () => {
     try {
         loading.value = true
         error.value = null
@@ -390,13 +375,13 @@ const loadNetworks = async () => {
 
         if (filters.value.search) {
             apiFilters.search = filters.value.search
-            apiFilters.searchField = 'name'
+            apiFilters.searchField = 'label'
         }
 
-        const response = await affiliateClient.networks.get(apiFilters)
+        const response = await affiliateClient.accounts.get(apiFilters)
 
         if (response && response.data) {
-            networks.value = response.data || []
+            accounts.value = response.data || []
 
             const paginationData = response.pagination || {}
             const totalCount = response.count || 0
@@ -416,8 +401,7 @@ const loadNetworks = async () => {
                 to: Math.min(currentOffset + currentLimit, totalCount)
             }
         } else {
-            networks.value = []
-            // Reset pagination if data format is unexpected
+            accounts.value = []
             pagination.value = {
                 current: 1,
                 lastPage: 1,
@@ -430,16 +414,109 @@ const loadNetworks = async () => {
 
         loading.value = false
     } catch (err) {
-        console.error('Failed to load networks:', err)
+        console.error('Failed to load accounts:', err)
         loading.value = false
-        error.value = err.message || 'Failed to load networks'
-        showNotification('error', 'Failed to load networks')
+        error.value = err.message || 'Failed to load accounts'
+        showNotification('error', 'Failed to load accounts')
+    }
+}
+
+const loadNetworks = async () => {
+    try {
+        loadingNetworks.value = true
+
+        const response = await affiliateClient.networks.get({
+            limit: 100,
+            sortBy: 'name',
+            sort: 'asc'
+        })
+
+        if (response && response.data) {
+            availableNetworks.value = response.data.filter(network => network.active !== false) || []
+        } else {
+            availableNetworks.value = []
+        }
+
+        loadingNetworks.value = false
+    } catch (err) {
+        console.error('Failed to load networks:', err)
+        loadingNetworks.value = false
+        showNotification('error', 'Failed to load available networks')
+    }
+}
+
+// Load network metadata fields when a network is selected
+const loadNetworkMetadata = async () => {
+    if (!accountForm.value.network) {
+        networkMetadataFields.value = [];
+        accountForm.value.metadata = {};
+        return;
+    }
+
+    try {
+        loadingNetworkMetadata.value = true;
+
+        // Find the network in the availableNetworks array
+        const selectedNetwork = availableNetworks.value.find(n => n.id === accountForm.value.network);
+
+        if (selectedNetwork) {
+            accountForm.value.networkName = selectedNetwork.name;
+
+            // Parse the network's metadata definition
+            if (selectedNetwork.metadata) {
+                try {
+                    const metadataDefinition = JSON.parse(selectedNetwork.metadata);
+                    networkMetadataFields.value = [];
+
+                    // Convert the network's metadata to form fields
+                    for (const key in metadataDefinition) {
+                        if (Object.prototype.hasOwnProperty.call(metadataDefinition, key)) {
+                            const value = metadataDefinition[key];
+                            let type = 'string';
+
+                            if (typeof value === 'number') {
+                                type = 'number';
+                            } else if (value && value.length > 50) {
+                                type = 'text';
+                            }
+
+                            networkMetadataFields.value.push({
+                                key,
+                                type
+                            });
+
+                            // Initialize the form metadata fields if they don't exist
+                            if (!accountForm.value.metadata[key]) {
+                                accountForm.value.metadata[key] = '';
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to parse network metadata:', e);
+                    networkMetadataFields.value = [];
+                    accountForm.value.metadata = {};
+                }
+            } else {
+                networkMetadataFields.value = [];
+                accountForm.value.metadata = {};
+            }
+        } else {
+            networkMetadataFields.value = [];
+            accountForm.value.metadata = {};
+        }
+
+        loadingNetworkMetadata.value = false;
+    } catch (err) {
+        console.error('Failed to load network metadata:', err);
+        loadingNetworkMetadata.value = false;
+        networkMetadataFields.value = [];
+        accountForm.value.metadata = {};
     }
 }
 
 // Refresh data
 const refreshData = () => {
-    loadNetworks()
+    loadAccounts()
 }
 
 // Pagination methods
@@ -449,100 +526,108 @@ const handlePageChange = (newPage) => {
 
 // Watch for filter changes
 watch(filters, () => {
-    loadNetworks()
+    loadAccounts()
 }, { deep: true })
 
 // Dialog methods
-const openAddDialog = () => {
+const openAddDialog = async () => {
     isEditing.value = false
-    networkForm.value = {
-        name: '',
-        url: '',
-        active: true,
-        metadata: []
+    accountForm.value = {
+        label: '',
+        network: '',
+        networkName: '',
+        metadata: {}
     }
+    networkMetadataFields.value = []
     formErrors.value = {}
     showDialog.value = true
+
+    if (availableNetworks.value.length === 0) {
+        await loadNetworks()
+    }
 }
 
-const openEditDialog = (network) => {
+const openEditDialog = async (account) => {
     isEditing.value = true
-    networkToEdit.value = network
+    accountToEdit.value = account
 
-    // Parse metadata if exists
-    const parsedMetadata = parseMetadata(network.metadata);
+    // Parse existing metadata
+    let parsedMetadata = {};
+    if (account.metadata) {
+        try {
+            parsedMetadata = JSON.parse(account.metadata);
+        } catch (e) {
+            console.error('Failed to parse account metadata:', e);
+            parsedMetadata = {};
+        }
+    }
 
-    networkForm.value = {
-        name: network.name,
-        url: network.url || '',
-        active: network.active === undefined ? true : network.active,
+    accountForm.value = {
+        label: account.label,
+        network: account.network || '',
+        networkName: account.networkName || '',
         metadata: parsedMetadata
     }
+
     formErrors.value = {}
     showDialog.value = true
+
+    if (availableNetworks.value.length === 0) {
+        await loadNetworks()
+    }
+
+    // Load network metadata fields for the selected network
+    if (accountForm.value.network) {
+        await loadNetworkMetadata();
+    }
 }
 
 const closeDialog = () => {
     showDialog.value = false
-    networkForm.value = {
-        name: '',
-        url: '',
-        active: true,
-        metadata: []
+    accountForm.value = {
+        label: '',
+        network: '',
+        networkName: '',
+        metadata: {}
     }
+    networkMetadataFields.value = []
     formErrors.value = {}
-    networkToEdit.value = null
+    accountToEdit.value = null
 }
 
-// Save network
-const saveNetwork = async () => {
+// Save account
+const saveAccount = async () => {
     try {
         formLoading.value = true
         formErrors.value = {}
 
         // Validate
-        if (!networkForm.value.name.trim()) {
-            formErrors.value.name = 'Network name is required'
+        if (!accountForm.value.label.trim()) {
+            formErrors.value.label = 'Account label is required'
             formLoading.value = false
             return
         }
 
-        if (networkForm.value.url && !isValidUrl(networkForm.value.url)) {
-            formErrors.value.url = 'Please enter a valid URL'
+        if (!accountForm.value.network) {
+            formErrors.value.network = 'Please select a network'
             formLoading.value = false
             return
         }
 
-        // Process metadata
-        const metadataObject = {};
-        networkForm.value.metadata.forEach(item => {
-            if (item.key.trim()) {
-                // For each key, store a default value based on type
-                let defaultValue = '';
-                if (item.type === 'number') {
-                    defaultValue = 0;
-                } else if (item.type === 'text') {
-                    defaultValue = '';
-                } else {
-                    defaultValue = '';
-                }
-                metadataObject[item.key.trim()] = defaultValue;
-            }
-        });
-
-        const networkData = {
-            name: networkForm.value.name.trim(),
-            url: networkForm.value.url.trim(),
-            active: networkForm.value.active,
-            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null
+        const accountData = {
+            label: accountForm.value.label.trim(),
+            network: accountForm.value.network,
+            metadata: Object.keys(accountForm.value.metadata).length > 0
+                ? JSON.stringify(accountForm.value.metadata)
+                : null
         }
 
         if (isEditing.value) {
-            await affiliateClient.networks.update(networkToEdit.value.id, networkData)
-            showNotification('success', 'Network updated successfully')
+            await affiliateClient.accounts.update(accountToEdit.value.id, accountData)
+            showNotification('success', 'Account updated successfully')
         } else {
-            await affiliateClient.networks.insert(networkData)
-            showNotification('success', 'Network created successfully')
+            await affiliateClient.accounts.insert(accountData)
+            showNotification('success', 'Account created successfully')
         }
 
         formLoading.value = false
@@ -554,34 +639,34 @@ const saveNetwork = async () => {
         if (err.response?.data?.errors)
             formErrors.value = err.response.data.errors
         else
-            showNotification('error', err.message || 'Failed to save network')
+            showNotification('error', err.message || 'Failed to save account')
     }
 }
 
-const confirmDelete = (network) => {
-    networkToDelete.value = network
+const confirmDelete = (account) => {
+    accountToDelete.value = account
     showDeleteDialog.value = true
 }
 
 const closeDeleteDialog = () => {
     showDeleteDialog.value = false
-    networkToDelete.value = null
+    accountToDelete.value = null
 }
 
-const deleteNetwork = async () => {
-    if (!networkToDelete.value) return
+const deleteAccount = async () => {
+    if (!accountToDelete.value) return
 
     try {
         deleteLoading.value = true
-        await affiliateClient.networks.delete(networkToDelete.value.id)
+        await affiliateClient.accounts.delete(accountToDelete.value.id)
         deleteLoading.value = false
         closeDeleteDialog()
-        showNotification('success', 'Network deleted successfully')
+        showNotification('success', 'Account deleted successfully')
         refreshData()
     } catch (err) {
         deleteLoading.value = false
-        console.error('Failed to delete network:', err)
-        showNotification('error', err.message || 'Failed to delete network')
+        console.error('Failed to delete account:', err)
+        showNotification('error', err.message || 'Failed to delete account')
     }
 }
 
@@ -607,93 +692,8 @@ const toggleSort = (column) => {
     }
 }
 
-const toggleActive = async (network) => {
-    try {
-        const updatedNetwork = {
-            ...network,
-            active: !network.active
-        };
-
-        await affiliateClient.networks.update(network.id, updatedNetwork);
-
-        // Update the local state
-        const index = networks.value.findIndex(n => n.id === network.id);
-        if (index !== -1) {
-            networks.value[index].active = !network.active;
-        }
-
-        showNotification('success', `Network ${updatedNetwork.active ? 'activated' : 'deactivated'} successfully`);
-    } catch (err) {
-        console.error('Failed to toggle network active state:', err);
-        showNotification('error', err.message || 'Failed to update network status');
-    }
-}
-
-const formatUrl = (url) => {
-    if (!url) return '';
-
-    try {
-        const parsedUrl = new URL(url);
-        return parsedUrl.hostname + (parsedUrl.pathname !== '/' ? parsedUrl.pathname : '');
-    } catch (e) {
-        return url;
-    }
-}
-
-const isValidUrl = (url) => {
-    try {
-        new URL(url);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
-// Add metadata item
-const addMetadataItem = () => {
-    networkForm.value.metadata.push({
-        key: '',
-        type: 'string'
-    });
-};
-
-// Remove metadata item
-const removeMetadataItem = (index) => {
-    networkForm.value.metadata.splice(index, 1);
-};
-
-// Parse metadata JSON when editing
-const parseMetadata = (metadataJson) => {
-    try {
-        if (!metadataJson) return [];
-
-        const metadata = JSON.parse(metadataJson);
-        const result = [];
-
-        // Convert to our format with types
-        for (const key in metadata) {
-            if (Object.prototype.hasOwnProperty.call(metadata, key)) {
-                const value = metadata[key];
-                let type = 'string';
-
-                if (typeof value === 'number') {
-                    type = 'number';
-                } else if (value && typeof value === 'string' && value.length > 50) {
-                    type = 'text';
-                }
-
-                result.push({ key, type });
-            }
-        }
-
-        return result;
-    } catch (e) {
-        console.error('Failed to parse metadata:', e);
-        return [];
-    }
-};
-
 onMounted(() => {
+    loadAccounts()
     loadNetworks()
 })
 </script>

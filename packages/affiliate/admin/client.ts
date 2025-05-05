@@ -33,6 +33,9 @@ export const useAffiliateClient = () => {
         },
         delete: async (id: string) => {
             return api.authRootRequest(`affiliate/campaigns/${id}`, "DELETE");
+        },
+        updateLogo: async (id: string, logoData: string) => {
+            return api.authRootRequest(`affiliate/campaigns/${id}/logo`, "PUT", { logo: logoData });
         }
     }
 
@@ -49,12 +52,49 @@ export const useAffiliateClient = () => {
         },
         delete: async (id: string) => {
             return api.authRequest(`affiliate/coupons/${id}`, "DELETE");
+        },
+        getCouponsWithAI: async (campaignId: string) => {
+            return api.authRequest(`affiliate/coupons/ai/${campaignId}`, "GET");
+        }
+    }
+
+    const accounts = {
+        get: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`affiliate/accounts?${query}`, "GET");
+        },
+        insert: async (data: any) => {
+            return api.authRequest("affiliate/accounts", "POST", data);
+        },
+        update: async (id: string, data: any) => {
+            return api.authRequest(`affiliate/accounts/${id}`, "PUT", data);
+        },
+        delete: async (id: string) => {
+            return api.authRequest(`affiliate/accounts/${id}`, "DELETE");
+        }
+    }
+
+    const categories = {
+        get: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`affiliate/categories?${query}`, "GET");
+        },
+        insert: async (data: any) => {
+            return api.authRequest("affiliate/categories", "POST", data);
+        },
+        update: async (id: string, data: any) => {
+            return api.authRequest(`affiliate/categories/${id}`, "PUT", data);
+        },
+        delete: async (id: string) => {
+            return api.authRequest(`affiliate/categories/${id}`, "DELETE");
         }
     }
 
     return {
         networks,
         campaigns,
-        coupons
+        coupons,
+        accounts,
+        categories
     };
 };

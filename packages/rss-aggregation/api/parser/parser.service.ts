@@ -8,9 +8,8 @@ import {
     Repository, Like, In
 } from "@cmmv/repository";
 
-import {
-    AIContentService
-} from "@cmmv/ai-content";
+//@ts-ignore
+import { AIContentService } from "@cmmv/ai-content";
 
 @Service()
 export class ParserService {
