@@ -5,7 +5,8 @@ import {
     AffiliateNetworksContract,
     AffiliateCouponsContract,
     AffiliateAccountsContract,
-    AffiliateCategoriesContract
+    AffiliateCategoriesContract,
+    AffiliateCampaignsNetworksContract
 } from '../contracts';
 
 import {
@@ -20,17 +21,23 @@ import {
     AffiliateCampaignsModule
 } from './campaigns/campaigns.module';
 
+import {
+    AffiliateCampaignsNetworksModule
+} from './campaigns-network/campaigns-nentwork.module';
+
 export const AffiliateModule = new Module('affiliate', {
     contracts: [
         AffiliateNetworksContract,
         AffiliateCampaignsContract,
         AffiliateCouponsContract,
         AffiliateAccountsContract,
-        AffiliateCategoriesContract
+        AffiliateCategoriesContract,
+        AffiliateCampaignsNetworksContract
     ],
     submodules: [
         AffiliateCouponsModule,
         AffiliateCategoriesModule,
-        AffiliateCampaignsModule
+        AffiliateCampaignsModule,
+        AffiliateCampaignsNetworksModule
     ]
 });

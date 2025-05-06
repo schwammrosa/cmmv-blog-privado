@@ -441,15 +441,12 @@ async function loadPosts() {
     try {
         loading.value = true
 
-        // First, get counts for each status type without any other filters
         try {
             const countResponse = await adminClient.posts.get({
-                limit: 9999,
-                fields: 'id,status' // Minimize data returned
+                limit: 100
             })
 
             if (countResponse && countResponse.posts) {
-                // Count posts by status
                 const counts = {
                     draft: 0,
                     cron: 0,
@@ -464,17 +461,15 @@ async function loadPosts() {
 
                 statusCounts.value = counts
 
-                // If current tab has zero posts, select the next one based on priority
                 if (filters.value.status && statusCounts.value[filters.value.status] === 0) {
                     selectNextTab()
-                    return // Will re-run loadPosts with new status
+                    return
                 }
             }
         } catch (err) {
             console.error('Error checking status counts:', err)
         }
 
-        // Get posts with the current filters
         const params = {
             limit: itemsPerPage,
             offset: (currentPage.value - 1) * itemsPerPage,

@@ -404,3 +404,4 @@ pnpm-lock.yaml
 database.sqlite
 ./database.sqlite
 database.sqlite.filepart
+http
