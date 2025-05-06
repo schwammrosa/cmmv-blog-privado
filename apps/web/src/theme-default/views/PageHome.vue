@@ -377,6 +377,19 @@ const loadCoverPosts = async () => {
     if (!coverSettings.value) return;
 
     try {
+        const shouldRespectSelectedPosts = coverSettings.value.respectSelectedPosts !== false; // Default to true if missing
+
+        if (!shouldRespectSelectedPosts) {
+            if (posts.value.length > 0) {
+                coverPost.value = posts.value[0];
+                carouselPosts.value = posts.value.slice(0, 3);
+                splitMainPost.value = posts.value[0];
+                splitSecondaryPosts.value = posts.value.slice(1, 3);
+                dualPosts.value = posts.value.slice(0, 2);
+            }
+            return;
+        }
+
         if (coverType.value === 'full') {
             const postId = coverSettings.value.fullCover?.postId || coverSettings.value.postId;
             if (postId) {
@@ -384,8 +397,16 @@ const loadCoverPosts = async () => {
                 if (post) {
                     coverPost.value = post;
                 } else {
-                    const response = await blogAPI.posts.getById(postId);
-                    if (response) coverPost.value = response;
+                    try {
+                        const response = await blogAPI.posts.getById(postId);
+                        if (response) coverPost.value = response;
+                    } catch (error) {
+                        console.error(`Failed to fetch full cover post ${postId}:`, error);
+                        // Fallback to most recent post
+                        if (posts.value.length > 0) {
+                            coverPost.value = posts.value[0];
+                        }
+                    }
                 }
             } else if (posts.value.length > 0) {
                 coverPost.value = posts.value[0];
@@ -412,7 +433,7 @@ const loadCoverPosts = async () => {
                         }
                     }
                 }
-                carouselPosts.value = fetchedPosts;
+                carouselPosts.value = fetchedPosts.length > 0 ? fetchedPosts : posts.value.slice(0, 3);
             } else if (posts.value.length > 0) {
                 carouselPosts.value = posts.value.slice(0, 3);
             }
@@ -433,6 +454,10 @@ const loadCoverPosts = async () => {
                         if (response) splitMainPost.value = response;
                     } catch (error) {
                         console.error('Failed to fetch split main post:', error);
+                        // Fallback to most recent post
+                        if (posts.value.length > 0) {
+                            splitMainPost.value = posts.value[0];
+                        }
                     }
                 }
             } else if (posts.value.length > 0) {
@@ -459,7 +484,7 @@ const loadCoverPosts = async () => {
                         }
                     }
                 }
-                splitSecondaryPosts.value = fetchedPosts;
+                splitSecondaryPosts.value = fetchedPosts.length > 0 ? fetchedPosts : posts.value.slice(1, 3);
             } else if (posts.value.length > 1) {
                 splitSecondaryPosts.value = posts.value.slice(1, 3);
             }
@@ -485,13 +510,12 @@ const loadCoverPosts = async () => {
                         }
                     }
                 }
-                dualPosts.value = fetchedPosts;
+                dualPosts.value = fetchedPosts.length > 0 ? fetchedPosts : posts.value.slice(0, 2);
             } else if (posts.value.length > 1) {
                 dualPosts.value = posts.value.slice(0, 2);
             }
         }
 
-        // Fallback to default if no configurations are fulfilled
         if (!coverPost.value && carouselPosts.value.length === 0 &&
             !splitMainPost.value && dualPosts.value.length === 0) {
             if (posts.value.length > 0) {

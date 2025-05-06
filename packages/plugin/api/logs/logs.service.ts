@@ -28,12 +28,8 @@ export class LogsService {
         });
 
         if(result){
-            console.log("Deleting " + result.count + " logs");
-
-            for (const log of result.data) {
+            for (const log of result.data)
                 await Repository.delete(LogsEntity, log.id);
-                //console.log("Deleted log " + log.id);
-            }
         }
     }
 }

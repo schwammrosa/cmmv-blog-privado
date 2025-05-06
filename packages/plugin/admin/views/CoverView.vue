@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <!-- Header with save button -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-white">Cover Manager</h1>
+            <h1 class="text-2xl font-bold text-white">Cover</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
                 <button @click="saveCoverSettings"
                     class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors flex items-center"
@@ -29,7 +29,7 @@
         <!-- Main content area with layout selection and preview -->
         <div class="bg-neutral-800 rounded-lg p-6">
             <div class="mb-6">
-                <label for="layout-type" class="block text-white font-medium mb-2">Cover Layout</label>
+                <label for="layout-type" class="block text-white font-medium mb-2">Layout:</label>
                 <select id="layout-type" v-model="coverSettings.layoutType"
                     class="bg-neutral-700 border border-neutral-600 text-white rounded-md px-4 py-2 w-full max-w-md focus:outline-none focus:ring-1 focus:ring-blue-500">
                     <option value="full">Full Width Cover (1 post)</option>
@@ -37,6 +37,22 @@
                     <option value="split">Split (1 large + 2 small)</option>
                     <option value="dual">Dual Columns (2 equal posts)</option>
                 </select>
+            </div>
+
+            <!-- Add respect selected posts option -->
+            <div class="mb-6">
+                <div class="flex items-center">
+                    <input
+                        id="respect-selected-posts"
+                        v-model="coverSettings.respectSelectedPosts"
+                        type="checkbox"
+                        class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 bg-neutral-700 border-neutral-600"
+                    />
+                    <label for="respect-selected-posts" class="ml-2 block text-white font-medium">
+                        Respect selected posts in frontend
+                    </label>
+                </div>
+                <p class="mt-1 text-sm text-neutral-400 ml-6">When enabled, the frontend will display exactly the posts you selected. When disabled, the frontend may display more recent posts instead.</p>
             </div>
 
             <div v-if="loading" class="py-20 flex justify-center items-center">
@@ -381,6 +397,7 @@ const adminClient = useAdminClient();
 
 const coverSettings = ref({
     layoutType: 'full',
+    respectSelectedPosts: true,
 
     fullCover: {
         postId: ''
@@ -546,6 +563,7 @@ function resetCoverSettings() {
     if (confirm('Are you sure you want to reset all cover settings? This cannot be undone.')) {
         coverSettings.value = {
             layoutType: 'full',
+            respectSelectedPosts: true,
             fullCover: { postId: '' },
             carousel: [{ postId: '' }, { postId: '' }, { postId: '' }],
             split: {

@@ -288,48 +288,78 @@ const hasCoverConfig = computed(() => {
 const coverPosts = computed(() => {
     if (!posts.value.length) return {};
 
-    const result: any = {};
-    result.full = posts.value[0];
-    result.carousel = posts.value.slice(0, 3);
-
-    result.splitMain = posts.value[0];
-    result.splitSide = posts.value.slice(1, 3);
-    result.dual = posts.value.slice(0, 2);
+    const result: any = {
+        full: posts.value[0],
+        carousel: posts.value.slice(0, 3),
+        splitMain: posts.value[0],
+        splitSide: posts.value.slice(1, 3),
+        dual: posts.value.slice(0, 2)
+    };
 
     if (hasCoverConfig.value) {
         const config = coverSettings.value;
+        const shouldRespectSelectedPosts = config.respectSelectedPosts !== false; // Default to true if missing
 
-        if (config.type === 'full' && config.postId) {
-            const configPost = posts.value.find(p => p.id === config.postId);
-            if (configPost) result.full = configPost;
-        }
-
-        if (config.type === 'carousel' && Array.isArray(config.postIds) && config.postIds.length) {
-            const configPosts = config.postIds
-                .map((id: string) => posts.value.find(p => p.id === id))
-                .filter(Boolean);
-            if (configPosts.length) result.carousel = configPosts;
-        }
-
-        if (config.type === 'split') {
-            if (config.mainPostId) {
-                const mainPost = posts.value.find(p => p.id === config.mainPostId);
-                if (mainPost) result.splitMain = mainPost;
+        if (shouldRespectSelectedPosts) {
+            // Handle "full" layout
+            if (config.layoutType === 'full' && config.fullCover?.postId) {
+                const configPost = posts.value.find(p => p.id === config.fullCover.postId);
+                if (configPost) result.full = configPost;
             }
 
-            if (Array.isArray(config.sidePostIds) && config.sidePostIds.length) {
-                const sidePosts = config.sidePostIds
-                    .map((id: string) => posts.value.find(p => p.id === id))
-                    .filter(Boolean);
-                if (sidePosts.length) result.splitSide = sidePosts;
-            }
-        }
+            // Handle "carousel" layout
+            if (config.layoutType === 'carousel' && Array.isArray(config.carousel)) {
+                const carouselPostIds = config.carousel
+                    .filter(item => item && item.postId)
+                    .map(item => item.postId);
 
-        if (config.type === 'dual' && Array.isArray(config.postIds) && config.postIds.length) {
-            const configPosts = config.postIds
-                .map((id: string) => posts.value.find(p => p.id === id))
-                .filter(Boolean);
-            if (configPosts.length) result.dual = configPosts;
+                if (carouselPostIds.length) {
+                    const configPosts = carouselPostIds
+                        .map((id: string) => posts.value.find(p => p.id === id))
+                        .filter(Boolean);
+
+                    if (configPosts.length) result.carousel = configPosts;
+                }
+            }
+
+            // Handle "split" layout
+            if (config.layoutType === 'split') {
+                // Main post
+                if (config.split?.main?.postId) {
+                    const mainPost = posts.value.find(p => p.id === config.split.main.postId);
+                    if (mainPost) result.splitMain = mainPost;
+                }
+
+                // Secondary posts
+                if (Array.isArray(config.split?.secondary)) {
+                    const secondaryPostIds = config.split.secondary
+                        .filter(item => item && item.postId)
+                        .map(item => item.postId);
+
+                    if (secondaryPostIds.length) {
+                        const secondaryPosts = secondaryPostIds
+                            .map((id: string) => posts.value.find(p => p.id === id))
+                            .filter(Boolean);
+
+                        if (secondaryPosts.length) result.splitSide = secondaryPosts;
+                    }
+                }
+            }
+
+            // Handle "dual" layout
+            if (config.layoutType === 'dual' && Array.isArray(config.dual)) {
+                const dualPostIds = config.dual
+                    .filter(item => item && item.postId)
+                    .map(item => item.postId);
+
+                if (dualPostIds.length) {
+                    const configPosts = dualPostIds
+                        .map((id: string) => posts.value.find(p => p.id === id))
+                        .filter(Boolean);
+
+                    if (configPosts.length) result.dual = configPosts;
+                }
+            }
         }
     }
 
