@@ -10,40 +10,63 @@
                     </svg>
                     Refresh
                 </button>
+                <!-- Add search button with dropdown -->
+                <div class="relative">
+                    <button @click="toggleSearchDropdown" data-search-toggle
+                        class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Search
+                        <!-- Indicator dot for active search -->
+                        <span
+                            v-if="filters.search.trim()"
+                            class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-blue-500 rounded-full"
+                            title="Search filter active">
+                        </span>
+                    </button>
+                    <!-- Search dropdown -->
+                    <div v-if="showSearchDropdown" class="absolute right-0 mt-2 w-64 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
+                        <div class="p-3 space-y-2">
+                            <div class="relative">
+                                <input
+                                    v-model="filters.search"
+                                    type="text"
+                                    placeholder="Search categories..."
+                                    class="bg-neutral-700 h-9 border border-neutral-600 text-white pl-3 pr-8 py-2 rounded-md w-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    @keydown.esc="showSearchDropdown = false"
+                                    ref="searchInput"
+                                >
+                                <!-- Clear button -->
+                                <button
+                                    v-if="filters.search.trim()"
+                                    @click="clearSearch"
+                                    class="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white"
+                                    title="Clear search">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-neutral-400 mb-1">Search in field:</label>
+                                <select
+                                    v-model="filters.searchField"
+                                    class="bg-neutral-700 w-full h-8 border border-neutral-600 text-white px-3 py-1 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                >
+                                    <option value="name">Name</option>
+                                    <option value="slug">Slug</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button @click="openAddDialog" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     Add Category
                 </button>
-            </div>
-        </div>
-
-        <!-- Filters and Search -->
-        <div class="bg-neutral-800 rounded-lg p-4 mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div class="relative flex-1 flex items-center">
-                    <div class="relative flex-grow">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <input
-                            v-model="filters.search"
-                            type="text"
-                            placeholder="Search categories..."
-                            class="bg-neutral-700 h-10 border border-neutral-800 text-white pl-10 pr-4 py-2 rounded-l-md w-full focus:outline-none focus:ring-0"
-                        >
-                    </div>
-                    <select
-                        v-model="filters.searchField"
-                        class="bg-neutral-700 w-56 h-10 border border-neutral-800 text-white px-3 py-2 rounded-r-md focus:outline-none focus:ring-0 border-l-0"
-                    >
-                        <option value="name">Name</option>
-                        <option value="slug">Slug</option>
-                    </select>
-                </div>
             </div>
         </div>
 
@@ -96,16 +119,6 @@
                                     {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
                                 </span>
                             </th>
-                            <th
-                                @click="toggleSort('slug')"
-                                scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white"
-                            >
-                                Slug
-                                <span v-if="filters.sortBy === 'slug'" class="ml-1">
-                                    {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
-                                </span>
-                            </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                                 Posts
                             </th>
@@ -136,11 +149,6 @@
                                 {{ category.name }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
-                                <a :href="`${blogUrl}/category/${category.slug}`" target="_blank" class="text-blue-400 hover:text-blue-300 hover:underline">
-                                    {{ category.slug }}
-                                </a>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                                 {{ category.postCount || 0 }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400 hidden md:table-cell">
@@ -168,6 +176,17 @@
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <!-- Change copy URL button to view category button -->
+                                    <button
+                                        @click="viewCategory(category)"
+                                        title="View Category"
+                                        class="text-neutral-400 hover:text-blue-500 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                         </svg>
                                     </button>
                                     <button
@@ -363,7 +382,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useAdminClient } from '@cmmv/blog/admin/client'
 import Pagination from '../components/Pagination.vue'
 import DeleteDialog from '../components/DeleteDialog.vue'
@@ -421,6 +440,26 @@ const filters = ref({
 })
 
 const blogUrl = ref('');
+
+const showSearchDropdown = ref(false)
+const searchInput = ref(null)
+
+function toggleSearchDropdown() {
+    showSearchDropdown.value = !showSearchDropdown.value
+
+    if (showSearchDropdown.value) {
+        nextTick(() => {
+            searchInput.value?.focus()
+        })
+    }
+}
+
+function clearSearch() {
+    filters.value.search = ''
+    filters.value.page = 1
+    loadCategories()
+    showSearchDropdown.value = false
+}
 
 const loadBlogUrl = async () => {
     try {
@@ -699,7 +738,6 @@ const showNotification = (type, message) => {
     }, notification.value.duration)
 }
 
-
 const formatDate = (timestamp) => {
     if (!timestamp) return 'N/A'
 
@@ -712,7 +750,6 @@ const formatDate = (timestamp) => {
         return 'N/A'
     }
 }
-
 
 const toggleSort = (column) => {
     if (filters.value.sortBy === column) {
@@ -727,8 +764,15 @@ onMounted(() => {
     loadCategories()
     loadAllCategoriesForDropdown()
     loadBlogUrl()
-})
 
+    // Close search dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (showSearchDropdown.value && !e.target.closest('.relative')
+            && e.target !== document.querySelector('button[data-search-toggle]')) {
+            showSearchDropdown.value = false
+        }
+    })
+})
 
 const updateSlugAndLabel = () => {
     categoryForm.value.slug = generateSlug(categoryForm.value.name)
@@ -753,5 +797,17 @@ const generateSlug = (text) => {
         .replace(/\-\-+/g, '-')      // Replace multiple - with single -
         .replace(/^-+/, '')          // Trim - from start of text
         .replace(/-+$/, '');         // Trim - from end of text
+}
+
+// Add view category function
+const viewCategory = (category) => {
+    if (!blogUrl.value) {
+        showNotification('error', 'Blog URL is not available');
+        return;
+    }
+
+    const url = `${blogUrl.value}/category/${category.slug}`;
+    console.log('Opening category URL:', url); // For debugging
+    window.open(url, '_blank');
 }
 </script>

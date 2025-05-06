@@ -12,6 +12,45 @@
                     </svg>
                     Add New
                 </a>
+                <!-- Add search button with dropdown -->
+                <div class="relative">
+                    <button @click="toggleSearchDropdown" data-search-toggle
+                        class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Search
+                        <!-- Indicator dot for active search -->
+                        <span
+                            v-if="searchQuery.trim()"
+                            class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-blue-500 rounded-full"
+                            title="Search filter active">
+                        </span>
+                    </button>
+                    <!-- Search dropdown -->
+                    <div v-if="showSearchDropdown" class="absolute right-0 mt-2 w-64 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
+                        <div class="p-3 relative">
+                            <input
+                                v-model="searchQuery"
+                                type="text"
+                                placeholder="Search posts..."
+                                class="bg-neutral-700 h-9 border border-neutral-600 text-white pl-3 pr-8 py-2 rounded-md w-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                @keydown.esc="showSearchDropdown = false"
+                                ref="searchInput"
+                            >
+                            <!-- Clear button -->
+                            <button
+                                v-if="searchQuery.trim()"
+                                @click="clearSearch"
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white"
+                                title="Clear search">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <button @click="refreshData"
                     class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -22,36 +61,37 @@
             </div>
         </div>
 
-        <!-- Filters and Search -->
-        <div class="bg-neutral-800 rounded-lg p-4 mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div class="relative flex-1 flex items-center">
-                    <div class="flex items-center mr-4">
-                        <label for="filter-status" class="mr-2 text-sm text-neutral-400">Status:</label>
-                        <select id="filter-status" v-model="filters.status"
-                            class="bg-neutral-700 h-10 border border-neutral-600 text-white rounded-md px-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
-                            <option value="">All</option>
-                            <option value="published">Published</option>
-                            <option value="draft">Draft</option>
-                            <option value="cron">Scheduled</option>
-                        </select>
-                    </div>
-
-                    <div class="relative flex-grow">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <input
-                            v-model="searchQuery"
-                            type="text"
-                            placeholder="Search posts..."
-                            class="bg-neutral-700 h-10 border border-neutral-600 text-white pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        >
-                    </div>
-                </div>
-            </div>
+        <!-- Remove the old search box and just keep the status tabs -->
+        <!-- Status Tabs -->
+        <div class="flex flex-wrap gap-2 mb-4">
+            <button
+                @click="setStatusFilter('')"
+                class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors"
+                :class="filters.status === '' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'"
+            >
+                All
+            </button>
+            <button
+                @click="setStatusFilter('draft')"
+                class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors"
+                :class="filters.status === 'draft' ? 'bg-yellow-600 text-white' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'"
+            >
+                Draft
+            </button>
+            <button
+                @click="setStatusFilter('cron')"
+                class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors"
+                :class="filters.status === 'cron' ? 'bg-blue-600 text-white' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'"
+            >
+                Scheduled
+            </button>
+            <button
+                @click="setStatusFilter('published')"
+                class="px-3 py-1.5 text-sm font-medium rounded-md transition-colors"
+                :class="filters.status === 'published' ? 'bg-green-600 text-white' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'"
+            >
+                Published
+            </button>
         </div>
 
         <!-- Add this after the filters and before the table/card views -->
@@ -311,7 +351,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAdminClient } from '@cmmv/blog/admin/client'
 import Pagination from '../components/Pagination.vue'
@@ -322,6 +362,21 @@ const route = useRoute()
 const adminClient = useAdminClient()
 const loading = ref(false)
 const posts = ref([])
+
+// Search dropdown functionality
+const showSearchDropdown = ref(false)
+const searchInput = ref(null)
+
+function toggleSearchDropdown() {
+    showSearchDropdown.value = !showSearchDropdown.value
+
+    // Focus the search input when dropdown opens
+    if (showSearchDropdown.value) {
+        nextTick(() => {
+            searchInput.value?.focus()
+        })
+    }
+}
 
 const itemsPerPage = 10
 const currentPage = ref(1)
@@ -374,10 +429,52 @@ const showNotification = (type, message) => {
     }, notification.value.duration)
 }
 
+// Add this after the declaration of posts
+const statusCounts = ref({
+    draft: 0,
+    cron: 0,
+    published: 0
+})
+
+// Replace the loadPosts function
 async function loadPosts() {
     try {
         loading.value = true
 
+        // First, get counts for each status type without any other filters
+        try {
+            const countResponse = await adminClient.posts.get({
+                limit: 9999,
+                fields: 'id,status' // Minimize data returned
+            })
+
+            if (countResponse && countResponse.posts) {
+                // Count posts by status
+                const counts = {
+                    draft: 0,
+                    cron: 0,
+                    published: 0
+                }
+
+                countResponse.posts.forEach(post => {
+                    if (counts.hasOwnProperty(post.status)) {
+                        counts[post.status]++
+                    }
+                })
+
+                statusCounts.value = counts
+
+                // If current tab has zero posts, select the next one based on priority
+                if (filters.value.status && statusCounts.value[filters.value.status] === 0) {
+                    selectNextTab()
+                    return // Will re-run loadPosts with new status
+                }
+            }
+        } catch (err) {
+            console.error('Error checking status counts:', err)
+        }
+
+        // Get posts with the current filters
         const params = {
             limit: itemsPerPage,
             offset: (currentPage.value - 1) * itemsPerPage,
@@ -493,21 +590,37 @@ const initializeFromUrl = () => {
     }
 }
 
-// Add watchers to reset page when search/filters change
-watch(() => [searchQuery.value, filters.value.status], () => {
-    currentPage.value = 1;
-    updateUrlParams();
-}, { deep: true });
+// Modify the watcher for searchQuery
+watch(searchQuery, (newValue) => {
+    // Reset to page 1
+    currentPage.value = 1
 
-// Replace existing watch for searchQuery and filters
-watch([searchQuery, filters], () => {
-    loadPosts();
-}, { deep: true });
+    // If there's a search term, switch to "All" status to find post in any status
+    if (newValue && newValue.trim() !== '') {
+        filters.value.status = ''
+    }
 
-// Replace existing watch for currentPage
+    updateUrlParams()
+    loadPosts()
+})
+
+// Remove searchQuery from the combined watcher to avoid double updates
+watch([filters], () => {
+    loadPosts()
+}, { deep: true })
+
+// Add a watcher specifically for status filter changes
+watch(() => filters.value.status, (newStatus) => {
+    // Reset to page 1
+    currentPage.value = 1
+    updateUrlParams()
+}, { immediate: false })
+
+// Keep the existing watch for currentPage
 watch(currentPage, () => {
-    loadPosts();
-});
+    updateUrlParams()
+    loadPosts()
+})
 
 // Add watcher for URL changes
 watch(() => route.query, (newQuery, oldQuery) => {
@@ -537,11 +650,26 @@ const loadCategories = async () => {
     }
 }
 
-onMounted(() => {
-    initializeFromUrl();
-    loadBlogUrl();
-    loadCategories();
-    loadPosts();
+onMounted(async () => {
+    initializeFromUrl()
+    loadBlogUrl()
+    loadCategories()
+
+    // If no status filter is set initially, set it to draft (first in priority)
+    if (!filters.value.status) {
+        filters.value.status = 'draft'
+    }
+
+    // Load posts - this will check counts and select appropriate tab
+    loadPosts()
+
+    // Close search dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (showSearchDropdown.value && !e.target.closest('.relative')
+            && e.target !== document.querySelector('button[data-search-toggle]')) {
+            showSearchDropdown.value = false
+        }
+    })
 })
 
 const paginatedPosts = computed(() => {
@@ -657,5 +785,43 @@ function formatNumber(num) {
 // Add a refresh function
 function refreshData() {
     loadPosts();
+}
+
+function setStatusFilter(status) {
+    // Clear search when changing status filter
+    if (searchQuery.value.trim() !== '') {
+        searchQuery.value = ''
+    }
+
+    filters.value.status = status
+    // No need to set currentPage, update URL or load posts here
+    // The watchers will handle that
+}
+
+// Modify selectNextTab function
+function selectNextTab() {
+    // Priority order as requested: draft, cron (scheduled), published
+    const tabOrder = ['draft', 'cron', 'published']
+    const currentIndex = tabOrder.indexOf(filters.value.status)
+
+    // Find the next non-empty tab
+    for (let i = 0; i < tabOrder.length; i++) {
+        // Start from beginning if not found
+        const status = tabOrder[i]
+
+        if (statusCounts.value[status] > 0) {
+            setStatusFilter(status)
+            return
+        }
+    }
+
+    // If all tabs are empty, set to no filter
+    setStatusFilter('')
+}
+
+function clearSearch() {
+    searchQuery.value = ''
+    updateUrlParams()
+    loadPosts()
 }
 </script>

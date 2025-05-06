@@ -89,6 +89,7 @@ export class PostsPublicService {
             ],
             order: {
                 status: "ASC",
+                autoPublishAt: "DESC",
                 publishedAt: "DESC"
             }
         });

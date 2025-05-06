@@ -320,6 +320,9 @@ export class YTChannelsServiceAdmin {
                     const durationSeconds = this.parseDuration(video.contentDetails.duration);
                     const thumbnailUrl = this.getBestThumbnail(video.snippet.thumbnails);
 
+                    if(durationSeconds < 120)
+                        continue;
+
                     await Repository.insert(YTVideosEntity, {
                         title: video.snippet.title,
                         description: video.snippet.description,

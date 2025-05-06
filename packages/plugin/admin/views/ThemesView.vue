@@ -10,6 +10,47 @@
                     </svg>
                     Refresh
                 </button>
+                <!-- Add search button with dropdown -->
+                <div class="relative">
+                    <button @click="toggleSearchDropdown" data-search-toggle
+                        class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Search
+                        <!-- Indicator dot for active search -->
+                        <span
+                            v-if="searchQuery.trim()"
+                            class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-blue-500 rounded-full"
+                            title="Search filter active">
+                        </span>
+                    </button>
+                    <!-- Search dropdown -->
+                    <div v-if="showSearchDropdown" class="absolute right-0 mt-2 w-64 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
+                        <div class="p-3 space-y-2">
+                            <div class="relative">
+                                <input
+                                    v-model="searchQuery"
+                                    type="text"
+                                    placeholder="Search themes..."
+                                    class="bg-neutral-700 h-9 border border-neutral-600 text-white pl-3 pr-8 py-2 rounded-md w-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    @keydown.esc="showSearchDropdown = false"
+                                    ref="searchInput"
+                                >
+                                <!-- Clear button -->
+                                <button
+                                    v-if="searchQuery.trim()"
+                                    @click="clearSearch"
+                                    class="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white"
+                                    title="Clear search">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button @click="toggleView" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg v-if="viewMode === 'grid'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -19,27 +60,6 @@
                     </svg>
                     {{ viewMode === 'grid' ? 'List View' : 'Grid View' }}
                 </button>
-            </div>
-        </div>
-
-        <!-- Filters and Search -->
-        <div class="bg-neutral-800 rounded-lg p-4 mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div class="relative flex-1 flex items-center">
-                    <div class="relative flex-grow">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <input
-                            v-model="searchQuery"
-                            type="text"
-                            placeholder="Search themes..."
-                            class="bg-neutral-700 h-10 border border-neutral-800 text-white pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-1 focus:ring-blue-500"
-                        >
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -278,7 +298,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useAdminClient } from '@cmmv/blog/admin/client'
 import ToastNotification from '../components/ToastNotification.vue'
 
@@ -292,6 +312,8 @@ const searchQuery = ref('')
 const selectedTheme = ref(null)
 const showThemeDetail = ref(false)
 const activatingTheme = ref(null)
+const showSearchDropdown = ref(false)
+const searchInput = ref(null)
 
 const notification = ref({
     show: false,
@@ -392,8 +414,33 @@ const showNotification = (type, message) => {
     }, notification.value.duration)
 }
 
+const toggleSearchDropdown = () => {
+    showSearchDropdown.value = !showSearchDropdown.value
+
+    // Focus the search input when dropdown opens
+    if (showSearchDropdown.value) {
+        nextTick(() => {
+            searchInput.value?.focus()
+        })
+    }
+}
+
+const clearSearch = () => {
+    searchQuery.value = ''
+    showSearchDropdown.value = false
+}
+
 onMounted(() => {
     loadThemes()
+
+    // Close search dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (showSearchDropdown.value &&
+            !e.target.closest('[data-search-toggle]') &&
+            !e.target.closest('.absolute')) {
+            showSearchDropdown.value = false
+        }
+    })
 })
 </script>
 
