@@ -460,11 +460,6 @@ async function loadPosts() {
                 })
 
                 statusCounts.value = counts
-
-                if (filters.value.status && statusCounts.value[filters.value.status] === 0) {
-                    selectNextTab()
-                    return
-                }
             }
         } catch (err) {
             console.error('Error checking status counts:', err)
@@ -791,27 +786,6 @@ function setStatusFilter(status) {
     filters.value.status = status
     // No need to set currentPage, update URL or load posts here
     // The watchers will handle that
-}
-
-// Modify selectNextTab function
-function selectNextTab() {
-    // Priority order as requested: draft, cron (scheduled), published
-    const tabOrder = ['draft', 'cron', 'published']
-    const currentIndex = tabOrder.indexOf(filters.value.status)
-
-    // Find the next non-empty tab
-    for (let i = 0; i < tabOrder.length; i++) {
-        // Start from beginning if not found
-        const status = tabOrder[i]
-
-        if (statusCounts.value[status] > 0) {
-            setStatusFilter(status)
-            return
-        }
-    }
-
-    // If all tabs are empty, set to no filter
-    setStatusFilter('')
 }
 
 function clearSearch() {
