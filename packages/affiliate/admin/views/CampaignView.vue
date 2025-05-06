@@ -10,33 +10,53 @@
                     </svg>
                     Refresh
                 </button>
+                <!-- Add search dropdown button -->
+                <div class="relative">
+                    <button @click="toggleSearchDropdown" data-search-toggle
+                        class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Search
+                        <!-- Indicator dot for active search -->
+                        <span
+                            v-if="filters.search.trim()"
+                            class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-blue-500 rounded-full"
+                            title="Search filter active">
+                        </span>
+                    </button>
+                    <!-- Search dropdown -->
+                    <div v-if="showSearchDropdown" class="absolute right-0 mt-2 w-64 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
+                        <div class="p-3 space-y-3">
+                            <div class="relative">
+                                <input
+                                    v-model="filters.search"
+                                    type="text"
+                                    placeholder="Search campaigns..."
+                                    class="bg-neutral-700 h-9 border border-neutral-600 text-white pl-3 pr-8 py-2 rounded-md w-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    @keydown.esc="showSearchDropdown = false"
+                                    ref="searchInput"
+                                >
+                                <!-- Clear button -->
+                                <button
+                                    v-if="filters.search.trim()"
+                                    @click="clearSearch"
+                                    class="absolute right-2 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white"
+                                    title="Clear search">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <button @click="openAddDialog" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     Add Campaign
                 </button>
-            </div>
-        </div>
-
-        <!-- Filters and Search -->
-        <div class="bg-neutral-800 rounded-lg p-4 mb-6">
-            <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div class="relative flex-1 flex items-center">
-                    <div class="relative flex-grow">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <input
-                            v-model="filters.search"
-                            type="text"
-                            placeholder="Search campaigns..."
-                            class="bg-neutral-700 h-10 border border-neutral-800 text-white pl-10 pr-4 py-2 rounded-md w-full focus:outline-none focus:ring-0"
-                        >
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -579,6 +599,9 @@ const logoCropContext = ref(null)
 const isLogoDragging = ref(false)
 const logoDragStart = ref({ x: 0, y: 0 })
 const logoImagePosition = ref({ x: 0, y: 0 })
+
+const showSearchDropdown = ref(false)
+const searchInput = ref(null)
 
 const loadCampaigns = async () => {
     try {
@@ -1296,7 +1319,29 @@ const convertToWebP = (canvas, quality = 0.8) => {
     })
 }
 
+const toggleSearchDropdown = () => {
+    showSearchDropdown.value = !showSearchDropdown.value
+    if (showSearchDropdown.value) {
+        setTimeout(() => {
+            searchInput.value.focus()
+        }, 100)
+    }
+}
+
+const clearSearch = () => {
+    filters.value.search = ''
+    showSearchDropdown.value = false
+}
+
 onMounted(() => {
+    // Add click-outside handling for search dropdown
+    document.addEventListener('click', (event) => {
+        const target = event.target
+        if (!target.closest('[data-search-toggle]') && !target.closest('.absolute') && showSearchDropdown.value) {
+            showSearchDropdown.value = false
+        }
+    })
+
     loadCampaigns()
     loadNetworks()
 })
