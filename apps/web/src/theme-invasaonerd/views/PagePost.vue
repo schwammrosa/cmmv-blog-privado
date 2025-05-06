@@ -337,6 +337,7 @@ import {
     ref, computed, onServerPrefetch,
     onMounted, watchEffect, watch
 } from 'vue'
+
 import { useRoute } from 'vue-router'
 import { useHead } from '@unhead/vue'
 import { vue3 } from '@cmmv/blog/client'
@@ -367,9 +368,11 @@ const linkCopied = ref(false)
 
 const isSSR = import.meta.env.SSR
 
-post.value = await route.params.id
-        ? await blogAPI.posts.getById(route.params.id as string)
-        : await blogAPI.posts.getBySlug(route.params.slug as string)
+onServerPrefetch(async () => {
+    post.value = route.params.id
+            ? await blogAPI.posts.getById(route.params.id as string)
+            : await blogAPI.posts.getBySlug(route.params.slug as string);
+})
 
 const pageUrl = computed(() => {
     return `${import.meta.env.VITE_WEBSITE_URL}/post/${post.value?.slug || ''}`
