@@ -473,7 +473,7 @@ async function loadPosts() {
         const params = {
             limit: itemsPerPage,
             offset: (currentPage.value - 1) * itemsPerPage,
-            sortBy: 'updatedAt',
+            sortBy: 'publishedAt',
             sort: 'desc'
         }
 

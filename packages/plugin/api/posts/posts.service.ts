@@ -79,7 +79,6 @@ export class PostsPublicService {
         const posts = await Repository.findAll(PostsEntity, {
             ...queries,
             type: "post",
-            status: queries.status,
             deleted: false
         }, [], {
             select: [
@@ -88,9 +87,10 @@ export class PostsPublicService {
                 "updatedAt", "createdAt", "comments", "views"
             ],
             order: {
+                publishedAt: "DESC",
                 status: "ASC",
                 autoPublishAt: "DESC",
-                publishedAt: "DESC"
+
             }
         });
 
@@ -106,7 +106,9 @@ export class PostsPublicService {
                     post.scheduledPublishDate = new Date(post.autoPublishAt).toLocaleString();
 
                 userIdsIn = [...userIdsIn, ...post.authors];
-                userIdsIn.push(post.author);
+
+                if(post.author !== "current-user-id")
+                    userIdsIn.push(post.author);
 
                 if(post.categories && post.categories.length > 0){
                     categoryIdsIn = [...categoryIdsIn, ...post.categories];
@@ -169,7 +171,6 @@ export class PostsPublicService {
                 }
             }
 
-
             authors = (authorsData) ? authorsData.data : [];
 
             const categoriesData = await Repository.findAll(CategoriesEntity, {
@@ -226,8 +227,10 @@ export class PostsPublicService {
         if(posts){
             let userIdsIn: string[] = [];
 
-            for(const post of posts.data)
-                userIdsIn.push(post.author);
+            for(const post of posts.data){
+                if(post.author !== "current-user-id")
+                    userIdsIn.push(post.author);
+            }
 
             //@ts-ignore
             const usersIn = [...new Set(userIdsIn)];
@@ -335,6 +338,12 @@ export class PostsPublicService {
             }
 
             data.post.type = "post";
+
+            if(data.post.author === "current-user-id")
+                data.post.author = user.id;
+
+            if(data.post.author !== "current-user-id")
+                data.post.authors.push(data.post.author);
 
             const post: any = await Repository.updateOne(
                 PostsEntity, Repository.queryBuilder({ id: data.post.id }), data.post
