@@ -20,6 +20,7 @@ import { MediasService } from "../medias/medias.service";
 //@ts-ignore
 import { AIContentService } from "@cmmv/ai-content";
 import { CDNService } from "../cdn/cdn.service";
+import { IndexingService } from "../indexing/indexing.service";
 
 @Service('blog_posts_public')
 export class PostsPublicService {
@@ -29,7 +30,8 @@ export class PostsPublicService {
         private readonly mediasService: MediasService,
         private readonly eventsService: EventsService,
         private readonly aiContentService: AIContentService,
-        private readonly cdnService: CDNService
+        private readonly cdnService: CDNService,
+        private readonly indexingService: IndexingService
     ){}
 
     @Cron(CronExpression.EVERY_30_MINUTES)
@@ -369,8 +371,12 @@ export class PostsPublicService {
                 }
             }
 
+            if(data.post.status === "published")
+                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/posts/${data.post.slug}`);
+
             await this.upsertTags(data.post.tags);
             await this.recalculateCategories();
+
             return { result: true };
         }
         else {
@@ -396,6 +402,9 @@ export class PostsPublicService {
                     }
                 }
             }
+
+            if(data.post.status === "published")
+                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/posts/${data.post.slug}`);
 
             await this.upsertTags(data.post.tags);
             await this.recalculateCategories();
@@ -452,6 +461,9 @@ export class PostsPublicService {
                 }, data.meta);
             }
 
+            if(data.post.status === "published")
+                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/page/${data.post.slug}`);
+
             return { result: true };
         }
         else {
@@ -465,6 +477,9 @@ export class PostsPublicService {
                 data.meta.post = page.data.id;
                 await Repository.insert(MetaEntity, data.meta);
             }
+
+            if(data.post.status === "published")
+                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/page/${data.post.slug}`);
 
             return page.data;
         }
