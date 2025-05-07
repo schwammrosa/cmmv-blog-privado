@@ -12,8 +12,8 @@ export class IndexingService {
      * @returns {Promise<any>}
      */
     async updateIndexing(url: string) {
-        const googleApiKey = Config.get("blog.googleIndexing.apiKey");
-        const googleServiceAccount = Config.get("blog.googleIndexing.serviceAccount");
+        const googleApiKey = Config.get("blog.googleIndexingApiKey");
+        const googleServiceAccount = Config.get("blog.googleIndexingServiceAccount");
 
         if (!googleApiKey || !googleServiceAccount) {
             this.logger.log("Google Indexing API credentials not configured, skipping indexing");
@@ -59,8 +59,8 @@ export class IndexingService {
      * @returns {Promise<any>}
      */
     async deleteIndexing(url: string) {
-        const googleApiKey = Config.get("blog.googleIndexing.apiKey");
-        const googleServiceAccount = Config.get("blog.googleIndexing.serviceAccount");
+        const googleApiKey = Config.get("blog.googleIndexingApiKey");
+        const googleServiceAccount = Config.get("blog.googleIndexingServiceAccount");
 
         if (!googleApiKey || !googleServiceAccount) {
             this.logger.log("Google Indexing API credentials not configured, skipping deletion");
@@ -106,8 +106,8 @@ export class IndexingService {
      * @returns {Promise<any>}
      */
     async getIndexingStatus(url: string) {
-        const googleApiKey = Config.get("blog.googleIndexing.apiKey");
-        const googleServiceAccount = Config.get("blog.googleIndexing.serviceAccount");
+        const googleApiKey = Config.get("blog.googleIndexingApiKey");
+        const googleServiceAccount = Config.get("blog.googleIndexingServiceAccount");
 
         if (!googleApiKey || !googleServiceAccount) {
             this.logger.log("Google Indexing API credentials not configured, cannot check status");
@@ -153,8 +153,8 @@ export class IndexingService {
      * @returns {Promise<any>}
      */
     async batchUpdateIndexing(urls: string[]) {
-        const googleApiKey = Config.get("blog.googleIndexing.apiKey");
-        const googleServiceAccount = Config.get("blog.googleIndexing.serviceAccount");
+        const googleApiKey = Config.get("blog.googleIndexingApiKey");
+        const googleServiceAccount = Config.get("blog.googleIndexingServiceAccount");
 
         if (!googleApiKey || !googleServiceAccount) {
             this.logger.log("Google Indexing API credentials not configured, skipping batch indexing");
