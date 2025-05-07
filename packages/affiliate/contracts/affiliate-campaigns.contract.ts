@@ -61,8 +61,7 @@ export class AffiliateCampaignsContract extends AbstractContract {
                 createRelationship: true,
                 contract: AffiliateNetworksContract,
                 entityName: 'networks',
-                field: 'id',
-                array: true,
+                field: 'id'
             },
         ],
     })
@@ -70,18 +69,14 @@ export class AffiliateCampaignsContract extends AbstractContract {
 
     @ContractField({
         protoType: 'string',
-        defaultValue: '[]',
-        objectType: 'string',
-        entityType: 'simple-array',
-        protoRepeated: true,
         nullable: true,
         readOnly: true,
     })
-    domains!: Array<string>;
+    domain?: string;
 
     @ContractField({
         protoType: 'text',
         nullable: true,
     })
-    metadata!: string;
+    metadata?: string;
 }

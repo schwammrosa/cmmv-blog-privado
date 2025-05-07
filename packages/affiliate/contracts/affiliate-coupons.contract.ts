@@ -66,6 +66,20 @@ export class AffiliateCouponsContract extends AbstractContract {
         nullable: true,
         index: true
     })
+    advertiser?: string;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true,
+        index: true
+    })
+    promotionId?: string;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true,
+        index: true
+    })
     campaign?: string;
 
     @ContractField({

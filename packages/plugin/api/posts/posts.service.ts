@@ -1132,17 +1132,15 @@ export class PostsPublicService {
             7. Start with a strong introductory paragraph
             8. Suggesting 3-8 relevant tags for categorizing this content
 
-            IMPORTANT: For the title, DO NOT use sensationalist or clickbait headlines. Instead, follow one of these Google Discovery headline formulas:
+            IMPORTANT:
+            - For titles, DO NOT default to number-based formats (like "5 Ways to..." or "10 Tips for...")
+            - Only use numbered titles when the content specifically warrants it (such as step-by-step guides or ranked lists)
+            - Prefer descriptive, narrative or question-based titles that engage readers without relying on numbers
+            - Avoid sensationalist or clickbait headlines
 
-            1. The "Discover Headline Formula":
-            [Number] + [Adjective] + [Product Type/Topic] + for [Target Intent] – [Urgency/Result]
+            For titles, prioritize these non-numbered headline formulas:
 
-            Examples:
-            - "7 Powerful Bluetooth Speakers for Outdoor Parties – Up to 40% OFF Today"
-            - "5 Best Budget Gaming Chairs for Small Spaces – Perfect Deals in July 2025"
-            - "Top 10 Noise-Canceling Headphones for Work-from-Home – Tested & Reviewed"
-
-            2. The "How-To Formula":
+            1. The "How-To Formula":
             How to [Achieve Desired Outcome] without [Common Pain Point]
 
             Examples:
@@ -1150,7 +1148,7 @@ export class PostsPublicService {
             - "How to Learn a New Language Without Spending Hours Studying"
             - "How to Start Investing Without Taking Big Risks"
 
-            3. The "Question Formula":
+            2. The "Question Formula":
             [Intriguing Question That Promises an Answer]?
 
             Examples:
@@ -1158,15 +1156,7 @@ export class PostsPublicService {
             - "Are You Making These Common Skincare Mistakes?"
             - "What's the Secret to Perfect Homemade Pizza Every Time?"
 
-            4. The "List-Based Formula":
-            [Number] [Adjective] Ways to [Achieve Desired Outcome]
-
-            Examples:
-            - "12 Clever Ways to Save Money on Groceries Every Month"
-            - "8 Surprising Ways to Increase Your Productivity at Home"
-            - "5 Effective Ways to Improve Your Sleep Quality Tonight"
-
-            5. The "Secret Formula":
+            3. The "Secret Formula":
             The Secret to [Achieving Desired Outcome] That [Target Audience] Don't Know About
 
             Examples:
@@ -1174,7 +1164,7 @@ export class PostsPublicService {
             - "The Secret to Perfect Sourdough Bread That Bakers Won't Share"
             - "The Secret to Finding Cheap Flights That Travel Agents Keep Hidden"
 
-            6. The "Why Formula":
+            4. The "Why Formula":
             Why [Common Belief/Practice] Is [Wrong/Ineffective] and What to Do Instead
 
             Examples:
@@ -1182,7 +1172,7 @@ export class PostsPublicService {
             - "Why Your Coffee Brewing Method Is Ruining Your Morning Cup"
             - "Why Most Home Security Systems Fail When You Need Them Most"
 
-            7. The "Comparison Formula":
+            5. The "Comparison Formula":
             [Product/Method A] vs [Product/Method B]: Which Is Better for [Desired Outcome]
 
             Examples:
@@ -1190,7 +1180,7 @@ export class PostsPublicService {
             - "Morning Workouts vs Evening Workouts: Which Is Better for Weight Loss"
             - "Traditional Savings vs Investments: Which Is Better for Building Wealth"
 
-            8. The "Ultimate Guide":
+            6. The "Ultimate Guide":
             The Ultimate Guide to [Topic] for [Target Audience]
 
             Examples:
@@ -1198,13 +1188,31 @@ export class PostsPublicService {
             - "The Ultimate Guide to Personal Finance for Young Professionals"
             - "The Ultimate Guide to Photography for Smartphone Users"
 
-            9. The "Warning Formula":
+            7. The "Warning Formula":
             [Warning Sign] - [Problem] You Need to Address Now
 
             Examples:
             - "Warning - Your Password Security May Be Compromised Right Now"
             - "Caution - These Kitchen Habits Are Secretly Wasting Your Money"
             - "Alert - The Skincare Ingredient You Need to Stop Using Immediately"
+
+            Only if the content absolutely requires it, you may use these number-based formats:
+
+            8. The "List-Based Formula" (use sparingly):
+            [Number] [Adjective] Ways to [Achieve Desired Outcome]
+
+            Examples:
+            - "Clever Ways to Save Money on Groceries Every Month"
+            - "Surprising Ways to Increase Your Productivity at Home"
+            - "Effective Ways to Improve Your Sleep Quality Tonight"
+
+            9. The "Discover Headline Formula" (use only when comparing specific products):
+            [Adjective] + [Product Type/Topic] + for [Target Intent] – [Urgency/Result]
+
+            Examples:
+            - "Powerful Bluetooth Speakers for Outdoor Parties – Up to 40% OFF Today"
+            - "Best Budget Gaming Chairs for Small Spaces – Perfect Deals in July 2025"
+            - "Top Noise-Canceling Headphones for Work-from-Home – Tested & Reviewed"
 
             Here is the web page information:
 

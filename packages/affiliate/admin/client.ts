@@ -90,11 +90,34 @@ export const useAffiliateClient = () => {
         }
     }
 
+    const campaignsNetworks = {
+        get: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`affiliate/campaigns-networks?${query}`, "GET");
+        },
+        insert: async (data: any) => {
+            return api.authRequest("affiliate/campaigns-networks", "POST", data);
+        },
+        update: async (id: string, data: any) => {
+            return api.authRequest(`affiliate/campaigns-networks/${id}`, "PUT", data);
+        },
+        delete: async (id: string) => {
+            return api.authRequest(`affiliate/campaigns-networks/${id}`, "DELETE");
+        },
+        getApisSupported: async () => {
+            return api.authRequest("affiliate/campaigns-networks/apis-supported", "GET");
+        },
+        getNetworkCampaigns: async () => {
+            return api.authRequest("affiliate/campaigns-networks/network-campaigns", "GET");
+        }
+    }
+
     return {
         networks,
         campaigns,
         coupons,
         accounts,
-        categories
+        categories,
+        campaignsNetworks
     };
 };

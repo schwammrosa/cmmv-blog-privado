@@ -25,6 +25,9 @@ import {
         {
             name: 'network_campaign_id',
             fields: ['network', "campaignId"],
+            options: {
+                unique: true
+            }
         }
     ]
 })
@@ -39,18 +42,17 @@ export class AffiliateCampaignsNetworksContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         objectType: 'string',
-        entityType: 'AffiliateCampaignsEntity',
+        entityType: 'AffiliateNetworksEntity',
         protoRepeated: false,
         nullable: true,
-        modelName: 'AffiliateCampaigns',
+        modelName: 'AffiliateNetworks',
         readOnly: true,
         link: [
             {
                 createRelationship: true,
                 contract: AffiliateNetworksContract,
                 entityName: 'networks',
-                field: 'id',
-                array: true,
+                field: 'id'
             },
         ],
     })
@@ -66,19 +68,20 @@ export class AffiliateCampaignsNetworksContract extends AbstractContract {
     campaignId!: string;
 
     @ContractField({
-        protoType: 'string',
-        objectType: 'string',
-        nullable: true,
+        protoType: 'boolean',
+        nullable: false,
         readOnly: true,
-        defaultValue: 'Active',
+        defaultValue: true,
+        index: true,
     })
-    status?: string;
+    active?: boolean;
 
     @ContractField({
         protoType: 'string',
         objectType: 'string',
         nullable: true,
         readOnly: true,
+        index: true,
     })
     currencyCode?: string;
 
@@ -95,6 +98,7 @@ export class AffiliateCampaignsNetworksContract extends AbstractContract {
         objectType: 'string',
         nullable: true,
         readOnly: true,
+        index: true,
     })
     domain?: string;
 }

@@ -191,103 +191,239 @@
                         </svg>
                     </button>
                 </div>
+
+                <!-- Tab navigation -->
+                <div class="px-6 pt-4 border-b border-neutral-700">
+                    <div class="flex space-x-4">
+                        <button
+                            @click="activeTab = 'basic'"
+                            :class="[
+                                'pb-2 px-1 text-sm font-medium transition-colors border-b-2',
+                                activeTab === 'basic'
+                                    ? 'border-blue-500 text-blue-400'
+                                    : 'border-transparent text-neutral-400 hover:text-neutral-300'
+                            ]"
+                        >
+                            Basic Info
+                        </button>
+                        <button
+                            @click="activeTab = 'metadata'"
+                            :class="[
+                                'pb-2 px-1 text-sm font-medium transition-colors border-b-2',
+                                activeTab === 'metadata'
+                                    ? 'border-blue-500 text-blue-400'
+                                    : 'border-transparent text-neutral-400 hover:text-neutral-300'
+                            ]"
+                        >
+                            Metadata
+                        </button>
+                        <button
+                            @click="activeTab = 'api'"
+                            :class="[
+                                'pb-2 px-1 text-sm font-medium transition-colors border-b-2',
+                                activeTab === 'api'
+                                    ? 'border-blue-500 text-blue-400'
+                                    : 'border-transparent text-neutral-400 hover:text-neutral-300'
+                            ]"
+                        >
+                            API Links
+                        </button>
+                    </div>
+                </div>
+
                 <div class="p-6">
                     <form @submit.prevent="saveNetwork">
-                        <div class="mb-4">
-                            <label for="networkName" class="block text-sm font-medium text-neutral-300 mb-1">Network Name</label>
-                            <input
-                                id="networkName"
-                                v-model="networkForm.name"
-                                type="text"
-                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Network name"
-                                required
-                            />
-                            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="networkUrl" class="block text-sm font-medium text-neutral-300 mb-1">Network URL</label>
-                            <input
-                                id="networkUrl"
-                                v-model="networkForm.url"
-                                type="url"
-                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="https://example.com"
-                            />
-                            <p class="mt-1 text-sm text-neutral-500">The affiliate network's website URL</p>
-                            <p v-if="formErrors.url" class="mt-1 text-sm text-red-500">{{ formErrors.url }}</p>
-                        </div>
-
-                        <div class="mb-4">
-                            <div class="flex items-center">
+                        <!-- Basic Info Tab -->
+                        <div v-if="activeTab === 'basic'">
+                            <div class="mb-4">
+                                <label for="networkName" class="block text-sm font-medium text-neutral-300 mb-1">Network Name</label>
                                 <input
-                                    id="networkActive"
-                                    v-model="networkForm.active"
-                                    type="checkbox"
-                                    class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 bg-neutral-700 border-neutral-600"
+                                    id="networkName"
+                                    v-model="networkForm.name"
+                                    type="text"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Network name"
+                                    required
                                 />
-                                <label for="networkActive" class="ml-2 block text-sm font-medium text-neutral-300">
-                                    Active
-                                </label>
+                                <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
                             </div>
-                            <p class="mt-1 text-sm text-neutral-500">Only active networks will be available for affiliate campaigns</p>
+
+                            <div class="mb-4">
+                                <label for="networkUrl" class="block text-sm font-medium text-neutral-300 mb-1">Network URL</label>
+                                <input
+                                    id="networkUrl"
+                                    v-model="networkForm.url"
+                                    type="url"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="https://example.com"
+                                />
+                                <p class="mt-1 text-sm text-neutral-500">The affiliate network's website URL</p>
+                                <p v-if="formErrors.url" class="mt-1 text-sm text-red-500">{{ formErrors.url }}</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="networkApiType" class="block text-sm font-medium text-neutral-300 mb-1">API Type</label>
+                                <div v-if="loadingApiTypes" class="flex items-center py-2">
+                                    <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
+                                    <span class="ml-2 text-neutral-400 text-sm">Loading API types...</span>
+                                </div>
+                                <select
+                                    v-else
+                                    id="networkApiType"
+                                    v-model="networkForm.apiType"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                >
+                                    <option value="">Select API Type</option>
+                                    <option value="Fetch">Fetch (Default)</option>
+                                    <option v-for="(details, apiName) in supportedApis" :key="apiName" :value="apiName">
+                                        {{ apiName }} (v{{ details.version }})
+                                    </option>
+                                </select>
+                                <p class="mt-1 text-sm text-neutral-500">Select the API integration type for this network</p>
+                                <p v-if="currentApiDocs" class="mt-1 text-sm text-blue-400">
+                                    <a :href="currentApiDocs" target="_blank" rel="noopener noreferrer" class="hover:underline">
+                                        View API Documentation
+                                    </a>
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="flex items-center">
+                                    <input
+                                        id="networkActive"
+                                        v-model="networkForm.active"
+                                        type="checkbox"
+                                        class="h-4 w-4 text-blue-600 rounded focus:ring-blue-500 bg-neutral-700 border-neutral-600"
+                                    />
+                                    <label for="networkActive" class="ml-2 block text-sm font-medium text-neutral-300">
+                                        Active
+                                    </label>
+                                </div>
+                                <p class="mt-1 text-sm text-neutral-500">Only active networks will be available for affiliate campaigns</p>
+                            </div>
                         </div>
 
-                        <!-- Metadata Section -->
-                        <div class="mb-6">
-                            <label class="block text-sm font-medium text-neutral-300 mb-2">Metadata</label>
-                            <div class="bg-neutral-750 p-3 rounded-md mb-2">
-                                <div class="max-h-[250px] overflow-y-auto pr-1">
-                                    <div v-for="(item, index) in networkForm.metadata" :key="index" class="mb-3 border-b border-neutral-700 pb-3">
-                                        <div class="grid grid-cols-2 gap-2 mb-2">
-                                            <div>
-                                                <label :for="`metadataKey${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Key</label>
-                                                <input
-                                                    :id="`metadataKey${index}`"
-                                                    v-model="item.key"
-                                                    type="text"
-                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                    placeholder="Key"
-                                                />
+                        <!-- Metadata Tab -->
+                        <div v-if="activeTab === 'metadata'">
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-neutral-300 mb-2">Metadata</label>
+                                <div class="bg-neutral-750 p-3 rounded-md mb-2">
+                                    <div class="max-h-[250px] overflow-y-auto pr-1">
+                                        <div v-for="(item, index) in networkForm.metadata" :key="index" class="mb-3 border-b border-neutral-700 pb-3">
+                                            <div class="grid grid-cols-2 gap-2 mb-2">
+                                                <div>
+                                                    <label :for="`metadataKey${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Key</label>
+                                                    <input
+                                                        :id="`metadataKey${index}`"
+                                                        v-model="item.key"
+                                                        type="text"
+                                                        class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                        placeholder="Key"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label :for="`metadataType${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Type</label>
+                                                    <select
+                                                        :id="`metadataType${index}`"
+                                                        v-model="item.type"
+                                                        class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    >
+                                                        <option value="string">String</option>
+                                                        <option value="text">Text</option>
+                                                        <option value="number">Number</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <label :for="`metadataType${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Type</label>
-                                                <select
-                                                    :id="`metadataType${index}`"
-                                                    v-model="item.type"
-                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            <div class="flex justify-end">
+                                                <button
+                                                    type="button"
+                                                    @click="removeMetadataItem(index)"
+                                                    class="text-xs text-red-400 hover:text-red-300"
                                                 >
-                                                    <option value="string">String</option>
-                                                    <option value="text">Text</option>
-                                                    <option value="number">Number</option>
-                                                </select>
+                                                    Remove
+                                                </button>
                                             </div>
                                         </div>
-                                        <div class="flex justify-end">
-                                            <button
-                                                type="button"
-                                                @click="removeMetadataItem(index)"
-                                                class="text-xs text-red-400 hover:text-red-300"
-                                            >
-                                                Remove
-                                            </button>
+                                        <div v-if="networkForm.metadata.length === 0" class="text-center py-3 text-sm text-neutral-500">
+                                            No metadata added yet
                                         </div>
                                     </div>
-                                    <div v-if="networkForm.metadata.length === 0" class="text-center py-3 text-sm text-neutral-500">
-                                        No metadata added yet
-                                    </div>
+                                    <button
+                                        type="button"
+                                        @click="addMetadataItem"
+                                        class="mt-2 w-full px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md flex items-center justify-center"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        Add Metadata
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    @click="addMetadataItem"
-                                    class="mt-2 w-full px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md flex items-center justify-center"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                    </svg>
-                                    Add Metadata
-                                </button>
+                            </div>
+                        </div>
+
+                        <!-- API Links Tab -->
+                        <div v-if="activeTab === 'api'">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="apiUrlCampaigns" class="block text-sm font-medium text-neutral-300 mb-1">Campaigns API URL</label>
+                                    <input
+                                        id="apiUrlCampaigns"
+                                        v-model="networkForm.apiLinks.campaigns"
+                                        type="url"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="https://api.example.com/campaigns"
+                                    />
+                                    <p class="mt-1 text-sm text-neutral-500">API endpoint for retrieving campaigns</p>
+                                </div>
+
+                                <div>
+                                    <label for="apiUrlCoupons" class="block text-sm font-medium text-neutral-300 mb-1">Coupons API URL</label>
+                                    <input
+                                        id="apiUrlCoupons"
+                                        v-model="networkForm.apiLinks.coupons"
+                                        type="url"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="https://api.example.com/coupons/{campaignId}"
+                                    />
+                                    <p class="mt-1 text-sm text-neutral-500">API endpoint for retrieving coupons (include {campaignId} parameter)</p>
+                                </div>
+
+                                <div>
+                                    <label for="apiUrlOffers" class="block text-sm font-medium text-neutral-300 mb-1">Offers API URL</label>
+                                    <input
+                                        id="apiUrlOffers"
+                                        v-model="networkForm.apiLinks.offers"
+                                        type="url"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="https://api.example.com/offers/{campaignId}"
+                                    />
+                                    <p class="mt-1 text-sm text-neutral-500">API endpoint for retrieving offers (include {campaignId} parameter)</p>
+                                </div>
+
+                                <div>
+                                    <label for="apiUrlReports" class="block text-sm font-medium text-neutral-300 mb-1">Reports API URL</label>
+                                    <input
+                                        id="apiUrlReports"
+                                        v-model="networkForm.apiLinks.reports"
+                                        type="url"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="https://api.example.com/reports"
+                                    />
+                                    <p class="mt-1 text-sm text-neutral-500">API endpoint for retrieving performance reports</p>
+                                </div>
+
+                                <div>
+                                    <label for="deeplinkGenerator" class="block text-sm font-medium text-neutral-300 mb-1">Deeplink Generator URL</label>
+                                    <input
+                                        id="deeplinkGenerator"
+                                        v-model="networkForm.apiLinks.deeplink"
+                                        type="url"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="https://api.example.com/deeplink?url={rawUrl}"
+                                    />
+                                    <p class="mt-1 text-sm text-neutral-500">API endpoint for generating deeplinks (include {rawUrl} parameter)</p>
+                                </div>
                             </div>
                         </div>
 
@@ -359,11 +495,20 @@ const error = ref(null)
 
 const showDialog = ref(false)
 const isEditing = ref(false)
+const activeTab = ref('basic')
 const networkForm = ref({
     name: '',
     url: '',
     active: true,
-    metadata: []
+    apiType: 'Fetch',
+    metadata: [],
+    apiLinks: {
+        campaigns: '',
+        coupons: '',
+        offers: '',
+        reports: '',
+        deeplink: ''
+    }
 })
 const networkToEdit = ref(null)
 const formErrors = ref({})
@@ -398,6 +543,9 @@ const filters = ref({
 
 const showSearchDropdown = ref(false)
 const searchInput = ref(null)
+
+const supportedApis = ref({})
+const loadingApiTypes = ref(false)
 
 const loadNetworks = async () => {
     try {
@@ -476,33 +624,73 @@ watch(filters, () => {
 }, { deep: true })
 
 // Dialog methods
-const openAddDialog = () => {
+const openAddDialog = async () => {
     isEditing.value = false
+    activeTab.value = 'basic'
     networkForm.value = {
         name: '',
         url: '',
         active: true,
-        metadata: []
+        apiType: 'Fetch',
+        metadata: [],
+        apiLinks: {
+            campaigns: '',
+            coupons: '',
+            offers: '',
+            reports: '',
+            deeplink: ''
+        }
     }
     formErrors.value = {}
     showDialog.value = true
+
+    // Load supported APIs when opening the dialog
+    await loadSupportedApis()
 }
 
-const openEditDialog = (network) => {
+const openEditDialog = async (network) => {
     isEditing.value = true
+    activeTab.value = 'basic'
     networkToEdit.value = network
 
     // Parse metadata if exists
     const parsedMetadata = parseMetadata(network.metadata);
 
+    // Parse apiLinks if exists
+    const apiLinks = {
+        campaigns: '',
+        coupons: '',
+        offers: '',
+        reports: '',
+        deeplink: ''
+    };
+
+    if (network.apiLinks) {
+        try {
+            const parsedApiLinks = JSON.parse(network.apiLinks);
+            if (parsedApiLinks.campaigns) apiLinks.campaigns = parsedApiLinks.campaigns;
+            if (parsedApiLinks.coupons) apiLinks.coupons = parsedApiLinks.coupons;
+            if (parsedApiLinks.offers) apiLinks.offers = parsedApiLinks.offers;
+            if (parsedApiLinks.reports) apiLinks.reports = parsedApiLinks.reports;
+            if (parsedApiLinks.deeplink) apiLinks.deeplink = parsedApiLinks.deeplink;
+        } catch (e) {
+            console.error('Failed to parse API links:', e);
+        }
+    }
+
     networkForm.value = {
         name: network.name,
         url: network.url || '',
         active: network.active === undefined ? true : network.active,
-        metadata: parsedMetadata
+        apiType: network.apiType || '',
+        metadata: parsedMetadata,
+        apiLinks: apiLinks
     }
     formErrors.value = {}
     showDialog.value = true
+
+    // Load supported APIs when opening the dialog
+    await loadSupportedApis()
 }
 
 const closeDialog = () => {
@@ -511,7 +699,15 @@ const closeDialog = () => {
         name: '',
         url: '',
         active: true,
-        metadata: []
+        apiType: 'Fetch',
+        metadata: [],
+        apiLinks: {
+            campaigns: '',
+            coupons: '',
+            offers: '',
+            reports: '',
+            deeplink: ''
+        }
     }
     formErrors.value = {}
     networkToEdit.value = null
@@ -553,11 +749,22 @@ const saveNetwork = async () => {
             }
         });
 
+        // Prepare API links
+        const apiLinksObject = {
+            campaigns: networkForm.value.apiLinks.campaigns.trim(),
+            coupons: networkForm.value.apiLinks.coupons.trim(),
+            offers: networkForm.value.apiLinks.offers.trim(),
+            reports: networkForm.value.apiLinks.reports.trim(),
+            deeplink: networkForm.value.apiLinks.deeplink.trim()
+        };
+
         const networkData = {
             name: networkForm.value.name.trim(),
             url: networkForm.value.url.trim(),
             active: networkForm.value.active,
-            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null
+            apiType: networkForm.value.apiType,
+            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null,
+            apiLinks: Object.values(apiLinksObject).some(val => val !== '') ? JSON.stringify(apiLinksObject) : null
         }
 
         if (isEditing.value) {
@@ -729,6 +936,33 @@ const clearSearch = () => {
     filters.value.search = ''
     showSearchDropdown.value = false
 }
+
+const loadSupportedApis = async () => {
+    try {
+        loadingApiTypes.value = true
+        const response = await affiliateClient.campaignsNetworks.getApisSupported()
+
+        if (response && typeof response === 'object') {
+            supportedApis.value = response
+        } else {
+            supportedApis.value = {}
+        }
+
+        loadingApiTypes.value = false
+    } catch (err) {
+        console.error('Failed to load supported APIs:', err)
+        supportedApis.value = {}
+        loadingApiTypes.value = false
+    }
+}
+
+// Computed property to get the documentation URL for the currently selected API
+const currentApiDocs = computed(() => {
+    if (!networkForm.value.apiType || !supportedApis.value[networkForm.value.apiType]) {
+        return null
+    }
+    return supportedApis.value[networkForm.value.apiType].docs
+})
 
 onMounted(() => {
     // Add click-outside handling for search dropdown

@@ -183,6 +183,7 @@ import { useAdminClient } from '@cmmv/blog/admin/client'
 
 const adminClient = useAdminClient();
 const router = useRouter();
+adminClient.session.check();
 
 const loading = ref(false);
 const errors = ref({

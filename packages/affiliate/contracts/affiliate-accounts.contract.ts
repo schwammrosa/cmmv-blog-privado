@@ -43,8 +43,7 @@ export class AffiliateAccountsContract extends AbstractContract {
                 createRelationship: true,
                 contract: AffiliateNetworksContract,
                 entityName: 'networks',
-                field: 'id',
-                array: true,
+                field: 'id'
             },
         ],
     })

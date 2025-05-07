@@ -8,6 +8,7 @@ import CampaignView from './views/CampaignView.vue';
 import CouponView from './views/CouponView.vue';
 import AccountView from './views/AccountView.vue';
 import CategoryView from './views/CategoryView.vue';
+import NetworkCampaignsView from './views/NetworkCampaignsView.vue';
 
 export const affiliateRoutes: RouteRecordRaw[] = [
     {
@@ -38,6 +39,11 @@ export const affiliateRoutes: RouteRecordRaw[] = [
                 path: 'categories',
                 component: CategoryView,
                 name: 'affiliate.categories'
+            },
+            {
+                path: 'network-campaigns',
+                component: NetworkCampaignsView,
+                name: 'affiliate.network-campaigns'
             }
         ]
     },
@@ -48,6 +54,12 @@ useNavbar().addItems([
         label: 'Networks',
         icon: 'fas fa-network-wired',
         to: '/affiliate/networks',
+        group: 'Affiliate'
+    },
+    {
+        label: 'Advertisers',
+        icon: 'fas fa-sitemap',
+        to: '/affiliate/network-campaigns',
         group: 'Affiliate'
     },
     {

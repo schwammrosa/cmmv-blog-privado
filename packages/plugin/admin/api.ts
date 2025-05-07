@@ -196,6 +196,7 @@ export function useApi() {
 
     const checkSession = async () => {
         const result = await authRequest('auth/check', 'GET')
+        console.log(result)
 
         if (!result)
             refreshAuth()

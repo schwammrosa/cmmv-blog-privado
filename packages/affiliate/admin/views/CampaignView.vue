@@ -224,7 +224,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="campaignUrl" class="block text-sm font-medium text-neutral-300 mb-1">Campaign URL</label>
+                            <label for="campaignUrl" class="block text-sm font-medium text-neutral-300 mb-1">URL</label>
                             <input
                                 id="campaignUrl"
                                 v-model="campaignForm.url"
@@ -235,6 +235,20 @@
                             />
                             <p class="mt-1 text-sm text-neutral-500">The campaign's landing page URL</p>
                             <p v-if="formErrors.url" class="mt-1 text-sm text-red-500">{{ formErrors.url }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="campaignDomain" class="block text-sm font-medium text-neutral-300 mb-1">Domain</label>
+                            <input
+                                id="campaignDomain"
+                                v-model="campaignForm.domain"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="example.com"
+                                required
+                            />
+                            <p class="mt-1 text-sm text-neutral-500">The campaign's landing page domain</p>
+                            <p v-if="formErrors.domain" class="mt-1 text-sm text-red-500">{{ formErrors.domain }}</p>
                         </div>
 
                         <div class="mb-4">
@@ -554,7 +568,8 @@ const campaignForm = ref({
     logo: '',
     description: '',
     networkId: '',
-    metadata: []
+    metadata: [],
+    domain: ''
 })
 const campaignToEdit = ref(null)
 const formErrors = ref({})
@@ -712,7 +727,8 @@ const openAddDialog = async () => {
         logo: '',
         description: '',
         networkId: '',
-        metadata: []
+        metadata: [],
+        domain: ''
     }
     formErrors.value = {}
     showDialog.value = true
@@ -735,7 +751,8 @@ const openEditDialog = async (campaign) => {
         logo: campaign.logo || '',
         description: campaign.description || '',
         networkId: campaign.network || '',
-        metadata: parsedMetadata
+        metadata: parsedMetadata,
+        domain: campaign.domain || ''
     }
     formErrors.value = {}
     showDialog.value = true
@@ -784,7 +801,6 @@ const saveCampaign = async () => {
             return
         }
 
-        // Process metadata
         const metadataObject = {};
         campaignForm.value.metadata.forEach(item => {
             if (item.key.trim()) {
@@ -802,43 +818,35 @@ const saveCampaign = async () => {
             logo: campaignForm.value.logo,
             description: campaignForm.value.description?.trim(),
             network: campaignForm.value.networkId,
+            domain: campaignForm.value.domain,
             metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null
         }
 
-        // If the logo is a base64 string that we just processed, we'll
-        // need to handle it differently on the backend
         if (campaignForm.value.logo && campaignForm.value.logo.startsWith('data:')) {
             try {
-                // First create or update the campaign without the logo
                 const logoBackup = campaignForm.value.logo;
 
-                // Remove logo from initial save to avoid large payload
-                if (isEditing.value && campaignToEdit.value) {
+                if (isEditing.value && campaignToEdit.value)
                     campaignData.logo = campaignToEdit.value.logo || '';
-                } else {
+                else
                     campaignData.logo = '';
-                }
 
                 let campaign;
                 let campaignId;
 
                 if (isEditing.value && campaignToEdit.value) {
-                    // For existing campaigns, update and use the known ID
                     campaignId = campaignToEdit.value.id;
                     campaign = await affiliateClient.campaigns.update(campaignId, campaignData);
                 } else {
-                    // For new campaigns, insert and get the new ID
                     campaign = await affiliateClient.campaigns.insert(campaignData);
                     campaignId = campaign.id;
                 }
 
-                // Verify we have a valid campaign ID
                 if (!campaignId) {
                     console.error('Failed to get campaign ID for logo update', campaign);
                     throw new Error('Unable to update logo: Missing campaign ID');
                 }
 
-                // Then update the logo separately
                 await affiliateClient.campaigns.updateLogo(campaignId, logoBackup);
 
                 showNotification('success', isEditing.value
@@ -861,7 +869,6 @@ const saveCampaign = async () => {
                 return;
             }
         } else {
-            // Normal save without custom logo processing
             try {
                 if (isEditing.value && campaignToEdit.value) {
                     await affiliateClient.campaigns.update(campaignToEdit.value.id, campaignData);
@@ -958,16 +965,6 @@ const formatUrl = (url) => {
     }
 }
 
-const isValidUrl = (url) => {
-    try {
-        new URL(url);
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
-// Add metadata item
 const addMetadataItem = () => {
     campaignForm.value.metadata.push({
         key: '',
@@ -976,12 +973,10 @@ const addMetadataItem = () => {
     });
 };
 
-// Remove metadata item
 const removeMetadataItem = (index) => {
     campaignForm.value.metadata.splice(index, 1);
 };
 
-// Parse metadata JSON when editing
 const parseMetadata = (metadataJson) => {
     try {
         if (!metadataJson) return [];
@@ -989,7 +984,6 @@ const parseMetadata = (metadataJson) => {
         const metadata = JSON.parse(metadataJson);
         const result = [];
 
-        // Convert to our format with types
         for (const key in metadata) {
             if (Object.prototype.hasOwnProperty.call(metadata, key)) {
                 const value = metadata[key];
@@ -1016,10 +1010,7 @@ const collectCouponsWithAI = async (campaign) => {
     if (aiLoadingMap.value[campaign.id]) return;
 
     try {
-        // Set loading state for this specific campaign
         aiLoadingMap.value[campaign.id] = true;
-
-        // Call the API endpoint to collect coupons with AI
         const response = await affiliateClient.coupons.getCouponsWithAI(campaign.id);
 
         if (response && response.success) {
@@ -1041,38 +1032,31 @@ const collectCouponsWithAI = async (campaign) => {
             err.message || 'Failed to collect coupons using AI'
         );
     } finally {
-        // Clear loading state
         aiLoadingMap.value[campaign.id] = false;
     }
 }
 
-// Open logo upload dialog
 const openLogoUpload = () => {
     logoImageInput.value.click()
 }
 
-// Remove the logo
 const removeLogo = () => {
     campaignForm.value.logo = ''
     showNotification('info', 'Logo removed')
 }
 
-// Handle logo image file selection
 const handleLogoImageSelect = (event) => {
     const file = event.target.files[0]
     if (!file) return
 
-    // Only allow image files
     if (!file.type.startsWith('image/')) {
         showNotification('error', 'Please select an image file')
         event.target.value = ''
         return
     }
 
-    // Read the selected file
     const reader = new FileReader()
     reader.onload = (e) => {
-        // Create an image object to get dimensions
         const img = new Image()
         img.crossOrigin = "Anonymous"
 
@@ -1205,18 +1189,12 @@ const stopLogoDrag = () => {
     isLogoDragging.value = false
 }
 
-// Handle wheel event for zooming
 const handleLogoWheel = (e) => {
     e.preventDefault()
-
-    // Determine zoom direction and amount
     const delta = e.deltaY > 0 ? -0.1 : 0.1
-
-    // Apply zoom
     adjustLogoZoom(delta)
 }
 
-// Adjust zoom level
 const adjustLogoZoom = (delta) => {
     logoZoomLevel.value = Math.max(0.5, Math.min(3, logoZoomLevel.value + delta))
     drawLogoImageOnCanvas()
@@ -1249,17 +1227,14 @@ const cropLogo = async () => {
     const scaledWidth = selectedLogoImage.value.width * scale
     const scaledHeight = selectedLogoImage.value.height * scale
 
-    // Position of the image
     const x = logoImagePosition.value.x + (canvas.width - scaledWidth) / 2
     const y = logoImagePosition.value.y + (canvas.height - scaledHeight) / 2
 
-    // Calculate the source crop relative to the original image
     const srcX = (cropArea.x - x) / scale
     const srcY = (cropArea.y - y) / scale
     const srcWidth = cropArea.width / scale
     const srcHeight = cropArea.height / scale
 
-    // Draw only the cropped portion to the temp canvas
     tempCtx.drawImage(
         selectedLogoImage.value,
         srcX, srcY, srcWidth, srcHeight,
@@ -1267,20 +1242,13 @@ const cropLogo = async () => {
     )
 
     try {
-        // Convert to WebP with compression
         const webpData = await convertToWebP(tempCanvas, 0.8)
-
-        // Update the form
         campaignForm.value.logo = webpData
-
-        // Close the modal
         logoCropModalOpen.value = false
 
         showNotification('success', 'Logo updated')
     } catch (err) {
         console.error('Failed to convert image to WebP:', err)
-
-        // Fallback to JPEG if WebP conversion fails
         const jpegData = tempCanvas.toDataURL('image/jpeg', 0.8)
         campaignForm.value.logo = jpegData
 
@@ -1289,7 +1257,6 @@ const cropLogo = async () => {
     }
 }
 
-// Convert canvas to WebP format
 const convertToWebP = (canvas, quality = 0.8) => {
     return new Promise((resolve, reject) => {
         if (typeof canvas.toBlob === 'function') {
@@ -1308,7 +1275,6 @@ const convertToWebP = (canvas, quality = 0.8) => {
                 quality
             )
         } else {
-            // Fallback if toBlob is not supported
             try {
                 const dataUrl = canvas.toDataURL('image/webp', quality)
                 resolve(dataUrl)
@@ -1334,7 +1300,6 @@ const clearSearch = () => {
 }
 
 onMounted(() => {
-    // Add click-outside handling for search dropdown
     document.addEventListener('click', (event) => {
         const target = event.target
         if (!target.closest('[data-search-toggle]') && !target.closest('.absolute') && showSearchDropdown.value) {

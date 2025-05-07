@@ -2,7 +2,7 @@
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-white">Network Accounts</h1>
+            <h1 class="text-2xl font-bold text-white">Advertisers</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
                 <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -32,7 +32,7 @@
                                 <input
                                     v-model="filters.search"
                                     type="text"
-                                    placeholder="Search accounts..."
+                                    placeholder="Search network campaigns..."
                                     class="bg-neutral-700 h-9 border border-neutral-600 text-white pl-3 pr-8 py-2 rounded-md w-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     @keydown.esc="showSearchDropdown = false"
                                     ref="searchInput"
@@ -55,7 +55,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Add Account
+                    Add Advertisers
                 </button>
             </div>
         </div>
@@ -63,7 +63,7 @@
         <!-- Loading state -->
         <div v-if="loading" class="bg-neutral-800 rounded-lg p-12 flex justify-center items-center">
             <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-            <span class="ml-3 text-neutral-400">Loading accounts...</span>
+            <span class="ml-3 text-neutral-400">Loading advertisers...</span>
         </div>
 
         <!-- Error state -->
@@ -71,7 +71,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p class="text-neutral-300 mb-2">Failed to load accounts</p>
+            <p class="text-neutral-300 mb-2">Failed to load advertisers</p>
             <p class="text-neutral-400 text-sm mb-4">{{ error }}</p>
             <button @click="refreshData" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors">
                 Try Again
@@ -79,18 +79,23 @@
         </div>
 
         <!-- Empty state -->
-        <div v-else-if="accounts.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
+        <div v-else-if="networkCampaigns.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
             </svg>
-            <p class="text-neutral-300 mb-2">No network accounts found</p>
-            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first network account</p>
-            <button @click="openAddDialog" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">
-                Add Account
-            </button>
+            <p class="text-neutral-300 mb-2">No advertisers found</p>
+            <p class="text-neutral-400 text-sm mb-4">Get started by importing advertisers from your affiliate networks</p>
+            <div class="flex flex-wrap gap-3 justify-center">
+                <button @click="openAddDialog" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">
+                    Add Manually
+                </button>
+                <button @click="importCampaigns" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
+                    Import Advertisers
+                </button>
+            </div>
         </div>
 
-        <!-- Accounts table -->
+        <!-- Network Campaigns table -->
         <div v-else class="bg-neutral-800 rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-neutral-700">
@@ -100,17 +105,23 @@
                                 ID
                             </th>
                             <th
-                                @click="toggleSort('label')"
+                                @click="toggleSort('name')"
                                 scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white"
                             >
-                                Label
-                                <span v-if="filters.sortBy === 'label'" class="ml-1">
+                                Name
+                                <span v-if="filters.sortBy === 'name'" class="ml-1">
                                     {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
                                 </span>
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                                 Network
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
+                                Campaign ID
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
+                                Status
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-300 uppercase tracking-wider w-24">
                                 Actions
@@ -118,28 +129,36 @@
                         </tr>
                     </thead>
                     <tbody class="bg-neutral-800 divide-y divide-neutral-700">
-                        <tr v-for="account in accounts" :key="account.id" class="hover:bg-neutral-750">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="account.id">
-                                {{ account.id.substring(0, 6) }}...
+                        <tr v-for="campaign in networkCampaigns" :key="campaign.id" class="hover:bg-neutral-750">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="campaign.id">
+                                {{ campaign.id.substring(0, 6) }}...
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                {{ account.label }}
+                                {{ campaign.name }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                                 <span
-                                    v-if="account.networkName"
+                                    v-if="campaign.network"
                                     class="bg-neutral-700 text-xs rounded px-2 py-1"
                                 >
-                                    {{ account.networkName }}
+                                    {{ getNetworkName(campaign.network) }}
                                 </span>
                                 <span v-else class="text-neutral-500 italic">
                                     No network
                                 </span>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
+                                {{ campaign.campaignId }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span :class="getStatusClass(campaign.status)">
+                                    {{ campaign.status || 'Active' }}
+                                </span>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
                                     <button
-                                        @click="openEditDialog(account)"
+                                        @click="openEditDialog(campaign)"
                                         title="Edit"
                                         class="text-neutral-400 hover:text-white transition-colors"
                                     >
@@ -148,7 +167,7 @@
                                         </svg>
                                     </button>
                                     <button
-                                        @click="confirmDelete(account)"
+                                        @click="confirmDelete(campaign)"
                                         title="Delete"
                                         class="text-neutral-400 hover:text-red-500 transition-colors"
                                     >
@@ -167,15 +186,15 @@
         <!-- Pagination -->
         <Pagination
             :pagination="pagination"
-            itemName="accounts"
+            itemName="advertisers"
             @pageChange="handlePageChange"
         />
 
-        <!-- Add/Edit Account Dialog -->
+        <!-- Add/Edit Network Campaign Dialog -->
         <div v-if="showDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
             <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-lg mx-auto">
                 <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
-                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Account' : 'Add Account' }}</h3>
+                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Advertiser' : 'Add Advertiser' }}</h3>
                     <button @click="closeDialog" class="text-neutral-400 hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -183,22 +202,52 @@
                     </button>
                 </div>
                 <div class="p-6">
-                    <form @submit.prevent="saveAccount" class="max-h-[70vh] overflow-y-auto">
+                    <form @submit.prevent="saveCampaign" class="max-h-[70vh] overflow-y-auto">
                         <div class="mb-4">
-                            <label for="accountLabel" class="block text-sm font-medium text-neutral-300 mb-1">Account Label</label>
+                            <label for="campaignName" class="block text-sm font-medium text-neutral-300 mb-1">Name</label>
                             <input
-                                id="accountLabel"
-                                v-model="accountForm.label"
+                                id="campaignName"
+                                v-model="campaignForm.name"
                                 type="text"
                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Account label"
+                                placeholder="Campaign name"
                                 required
                             />
-                            <p v-if="formErrors.label" class="mt-1 text-sm text-red-500">{{ formErrors.label }}</p>
+                            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
                         </div>
 
                         <div class="mb-4">
-                            <label for="accountNetwork" class="block text-sm font-medium text-neutral-300 mb-1">Network</label>
+                            <label for="campaignId" class="block text-sm font-medium text-neutral-300 mb-1">Advertisers ID</label>
+                            <input
+                                id="campaignId"
+                                v-model="campaignForm.campaignId"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Advertisers ID"
+                                required
+                            />
+                            <p class="mt-1 text-sm text-neutral-500">The unique identifier for this campaign in the affiliate network</p>
+                            <p v-if="formErrors.campaignId" class="mt-1 text-sm text-red-500">{{ formErrors.campaignId }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="campaignStatus" class="block text-sm font-medium text-neutral-300 mb-1">Status</label>
+                            <select
+                                id="campaignStatus"
+                                v-model="campaignForm.status"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                                <option value="Active">Active</option>
+                                <option value="Paused">Paused</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Expired">Expired</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                            <p v-if="formErrors.status" class="mt-1 text-sm text-red-500">{{ formErrors.status }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="campaignNetwork" class="block text-sm font-medium text-neutral-300 mb-1">Network</label>
                             <div v-if="loadingNetworks" class="flex items-center py-2">
                                 <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
                                 <span class="ml-2 text-neutral-400 text-sm">Loading networks...</span>
@@ -208,9 +257,8 @@
                             </div>
                             <div v-else>
                                 <select
-                                    id="accountNetwork"
-                                    v-model="accountForm.network"
-                                    @change="loadNetworkMetadata"
+                                    id="campaignNetwork"
+                                    v-model="campaignForm.network"
                                     class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     required
                                 >
@@ -227,42 +275,40 @@
                             <p v-if="formErrors.network" class="mt-1 text-sm text-red-500">{{ formErrors.network }}</p>
                         </div>
 
-                        <!-- Dynamic Network Metadata Fields -->
-                        <div v-if="accountForm.network && networkMetadataFields.length > 0" class="mb-6">
-                            <label class="block text-sm font-medium text-neutral-300 mb-2">Network Credentials</label>
-                            <div class="bg-neutral-750 p-4 rounded-md mb-2">
-                                <div class="max-h-[250px] overflow-y-auto pr-1 space-y-4">
-                                    <div v-for="field in networkMetadataFields" :key="field.key" class="mb-3">
-                                        <label :for="`metadata_${field.key}`" class="block text-sm font-medium text-neutral-300 mb-1">
-                                            {{ field.key }}
-                                        </label>
-                                        <textarea
-                                            v-if="field.type === 'text'"
-                                            :id="`metadata_${field.key}`"
-                                            v-model="accountForm.metadata[field.key]"
-                                            rows="3"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            :placeholder="`Enter ${field.key}`"
-                                        ></textarea>
-                                        <input
-                                            v-else-if="field.type === 'number'"
-                                            :id="`metadata_${field.key}`"
-                                            v-model.number="accountForm.metadata[field.key]"
-                                            type="number"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            :placeholder="`Enter ${field.key}`"
-                                        />
-                                        <input
-                                            v-else
-                                            :id="`metadata_${field.key}`"
-                                            v-model="accountForm.metadata[field.key]"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            :placeholder="`Enter ${field.key}`"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="mb-4">
+                            <label for="campaignCurrency" class="block text-sm font-medium text-neutral-300 mb-1">Currency Code</label>
+                            <input
+                                id="campaignCurrency"
+                                v-model="campaignForm.currencyCode"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="USD, EUR, GBP, etc."
+                            />
+                            <p v-if="formErrors.currencyCode" class="mt-1 text-sm text-red-500">{{ formErrors.currencyCode }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="campaignSector" class="block text-sm font-medium text-neutral-300 mb-1">Sector</label>
+                            <input
+                                id="campaignSector"
+                                v-model="campaignForm.sector"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Retail, Fashion, Technology, etc."
+                            />
+                            <p v-if="formErrors.sector" class="mt-1 text-sm text-red-500">{{ formErrors.sector }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="campaignDomain" class="block text-sm font-medium text-neutral-300 mb-1">Domain</label>
+                            <input
+                                id="campaignDomain"
+                                v-model="campaignForm.domain"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="example.com"
+                            />
+                            <p v-if="formErrors.domain" class="mt-1 text-sm text-red-500">{{ formErrors.domain }}</p>
                         </div>
 
                         <div class="flex justify-end space-x-3 mt-6">
@@ -295,15 +341,85 @@
             </div>
         </div>
 
+        <!-- Import Campaigns Dialog -->
+        <div v-if="showImportDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
+            <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-lg mx-auto">
+                <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-white">Import Advertisers</h3>
+                    <button @click="showImportDialog = false" class="text-neutral-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="mb-6">
+                        <label for="importNetwork" class="block text-sm font-medium text-neutral-300 mb-2">Select Affiliate Network</label>
+                        <div v-if="loadingNetworks" class="flex items-center py-2">
+                            <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
+                            <span class="ml-2 text-neutral-400 text-sm">Loading networks...</span>
+                        </div>
+                        <div v-else-if="availableNetworks.length === 0" class="py-2 text-sm text-neutral-400">
+                            No networks available. Please create a network first.
+                        </div>
+                        <div v-else>
+                            <select
+                                id="importNetwork"
+                                v-model="importNetworkId"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                required
+                            >
+                                <option value="" disabled>Select a network</option>
+                                <option
+                                    v-for="network in availableNetworks"
+                                    :key="network.id"
+                                    :value="network.id"
+                                >
+                                    {{ network.name }}
+                                </option>
+                            </select>
+                        </div>
+                        <p class="mt-2 text-sm text-neutral-400">Import campaigns from the selected affiliate network</p>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button
+                            type="button"
+                            @click="showImportDialog = false"
+                            class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            @click="startImport"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                            :disabled="!importNetworkId || importLoading"
+                        >
+                            <span v-if="importLoading" class="flex items-center">
+                                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Importing...
+                            </span>
+                            <span v-else>
+                                Start Import
+                            </span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Delete Confirmation Dialog -->
         <DeleteDialog
             :show="showDeleteDialog"
-            :item-name="accountToDelete?.label"
+            :item-name="campaignToDelete?.name"
             :loading="deleteLoading"
-            message="Are you sure you want to delete the account"
-            warning-text="This action cannot be undone. All data associated with this account will be permanently deleted."
+            message="Are you sure you want to delete the network campaign"
+            warning-text="This action cannot be undone. The campaign will be removed from your system but will remain in the affiliate network."
             loading-text="Deleting..."
-            @confirm="deleteAccount"
+            @confirm="deleteCampaign"
             @cancel="closeDeleteDialog"
         />
 
@@ -327,30 +443,35 @@ import ToastNotification from '@cmmv/blog/admin/components/ToastNotification.vue
 
 const affiliateClient = useAffiliateClient()
 
-const accounts = ref([])
+const networkCampaigns = ref([])
 const loading = ref(true)
 const error = ref(null)
 
 const availableNetworks = ref([])
 const loadingNetworks = ref(false)
-const networkMetadataFields = ref([])
-const loadingNetworkMetadata = ref(false)
 
 const showDialog = ref(false)
 const isEditing = ref(false)
-const accountForm = ref({
-    label: '',
+const campaignForm = ref({
+    name: '',
+    campaignId: '',
     network: '',
-    networkName: '',
-    metadata: {}
+    status: 'Active',
+    currencyCode: '',
+    sector: '',
+    domain: ''
 })
-const accountToEdit = ref(null)
+const campaignToEdit = ref(null)
 const formErrors = ref({})
 const formLoading = ref(false)
 
 const showDeleteDialog = ref(false)
-const accountToDelete = ref(null)
+const campaignToDelete = ref(null)
 const deleteLoading = ref(false)
+
+const showImportDialog = ref(false)
+const importNetworkId = ref('')
+const importLoading = ref(false)
 
 const notification = ref({
     show: false,
@@ -370,7 +491,7 @@ const pagination = ref({
 
 const filters = ref({
     search: '',
-    sortBy: 'label',
+    sortBy: 'name',
     sortOrder: 'asc',
     page: 1
 })
@@ -378,13 +499,10 @@ const filters = ref({
 const showSearchDropdown = ref(false)
 const searchInput = ref(null)
 
-const loadAccounts = async () => {
+const loadNetworkCampaigns = async () => {
     try {
         loading.value = true
         error.value = null
-
-        if (availableNetworks.value.length === 0)
-            await loadNetworks()
 
         const apiFilters = {
             limit: pagination.value.perPage,
@@ -395,24 +513,20 @@ const loadAccounts = async () => {
 
         if (filters.value.search) {
             apiFilters.search = filters.value.search
-            apiFilters.searchField = 'label'
+            apiFilters.searchField = 'name'
         }
 
-        const response = await affiliateClient.accounts.get(apiFilters)
+        const response = await affiliateClient.campaignsNetworks.get(apiFilters)
 
         if (response && response.data) {
-            accounts.value = response.data.map(account => {
-                const networkInfo = availableNetworks.value.find(n => n.id === account.network)
-                return {
-                    ...account,
-                    networkName: networkInfo ? networkInfo.name : account.networkName
-                }
-            })
+            networkCampaigns.value = response.data || []
 
             const paginationData = response.pagination || {}
             const totalCount = response.count || 0
             const currentOffset = paginationData.offset || 0
             const currentLimit = paginationData.limit || 10
+
+            // Calculate current page from offset and limit
             const currentPage = Math.floor(currentOffset / currentLimit) + 1
             const lastPage = Math.ceil(totalCount / currentLimit)
 
@@ -425,7 +539,8 @@ const loadAccounts = async () => {
                 to: Math.min(currentOffset + currentLimit, totalCount)
             }
         } else {
-            accounts.value = []
+            networkCampaigns.value = []
+            // Reset pagination if data format is unexpected
             pagination.value = {
                 current: 1,
                 lastPage: 1,
@@ -438,10 +553,10 @@ const loadAccounts = async () => {
 
         loading.value = false
     } catch (err) {
-        console.error('Failed to load accounts:', err)
+        console.error('Failed to load network campaigns:', err)
         loading.value = false
-        error.value = err.message || 'Failed to load accounts'
-        showNotification('error', 'Failed to load accounts')
+        error.value = err.message || 'Failed to load network campaigns'
+        showNotification('error', 'Failed to load network campaigns')
     }
 }
 
@@ -469,73 +584,9 @@ const loadNetworks = async () => {
     }
 }
 
-const loadNetworkMetadata = async () => {
-    if (!accountForm.value.network) {
-        networkMetadataFields.value = [];
-        accountForm.value.metadata = {};
-        return;
-    }
-
-    try {
-        loadingNetworkMetadata.value = true;
-
-        const selectedNetwork = availableNetworks.value.find(n => n.id === accountForm.value.network);
-
-        if (selectedNetwork) {
-            accountForm.value.networkName = selectedNetwork.name;
-
-            if (selectedNetwork.metadata) {
-                try {
-                    const metadataDefinition = JSON.parse(selectedNetwork.metadata);
-                    networkMetadataFields.value = [];
-
-                    for (const key in metadataDefinition) {
-                        if (Object.prototype.hasOwnProperty.call(metadataDefinition, key)) {
-                            const value = metadataDefinition[key];
-                            let type = 'string';
-
-                            if (typeof value === 'number') {
-                                type = 'number';
-                            } else if (value && value.length > 50) {
-                                type = 'text';
-                            }
-
-                            networkMetadataFields.value.push({
-                                key,
-                                type
-                            });
-
-                            if (!accountForm.value.metadata[key])
-                                accountForm.value.metadata[key] = '';
-                        }
-                    }
-                } catch (e) {
-                    console.error('Failed to parse network metadata:', e);
-                    networkMetadataFields.value = [];
-                    accountForm.value.metadata = {};
-                }
-            } else {
-                networkMetadataFields.value = [];
-                accountForm.value.metadata = {};
-            }
-        } else {
-            networkMetadataFields.value = [];
-            accountForm.value.metadata = {};
-        }
-
-        loadingNetworkMetadata.value = false;
-    } catch (err) {
-        console.error('Failed to load network metadata:', err);
-        loadingNetworkMetadata.value = false;
-        networkMetadataFields.value = [];
-        accountForm.value.metadata = {};
-    }
-}
-
 // Refresh data
-const refreshData = async () => {
-    await loadNetworks()
-    await loadAccounts()
+const refreshData = () => {
+    loadNetworkCampaigns()
 }
 
 // Pagination methods
@@ -545,19 +596,21 @@ const handlePageChange = (newPage) => {
 
 // Watch for filter changes
 watch(filters, () => {
-    loadAccounts()
+    loadNetworkCampaigns()
 }, { deep: true })
 
 // Dialog methods
 const openAddDialog = async () => {
     isEditing.value = false
-    accountForm.value = {
-        label: '',
+    campaignForm.value = {
+        name: '',
+        campaignId: '',
         network: '',
-        networkName: '',
-        metadata: {}
+        status: 'Active',
+        currencyCode: '',
+        sector: '',
+        domain: ''
     }
-    networkMetadataFields.value = []
     formErrors.value = {}
     showDialog.value = true
 
@@ -566,87 +619,83 @@ const openAddDialog = async () => {
     }
 }
 
-const openEditDialog = async (account) => {
+const openEditDialog = async (campaign) => {
     isEditing.value = true
-    accountToEdit.value = account
+    campaignToEdit.value = campaign
 
-    // Parse existing metadata
-    let parsedMetadata = {};
-    if (account.metadata) {
-        try {
-            parsedMetadata = JSON.parse(account.metadata);
-        } catch (e) {
-            console.error('Failed to parse account metadata:', e);
-            parsedMetadata = {};
-        }
+    campaignForm.value = {
+        name: campaign.name,
+        campaignId: campaign.campaignId || '',
+        network: campaign.network || '',
+        status: campaign.status || 'Active',
+        currencyCode: campaign.currencyCode || '',
+        sector: campaign.sector || '',
+        domain: campaign.domain || ''
     }
-
-    accountForm.value = {
-        label: account.label,
-        network: account.network || '',
-        networkName: account.networkName || '',
-        metadata: parsedMetadata
-    }
-
     formErrors.value = {}
     showDialog.value = true
 
     if (availableNetworks.value.length === 0) {
         await loadNetworks()
-    }
-
-    // Load network metadata fields for the selected network
-    if (accountForm.value.network) {
-        await loadNetworkMetadata();
     }
 }
 
 const closeDialog = () => {
     showDialog.value = false
-    accountForm.value = {
-        label: '',
+    campaignForm.value = {
+        name: '',
+        campaignId: '',
         network: '',
-        networkName: '',
-        metadata: {}
+        status: 'Active',
+        currencyCode: '',
+        sector: '',
+        domain: ''
     }
-    networkMetadataFields.value = []
     formErrors.value = {}
-    accountToEdit.value = null
+    campaignToEdit.value = null
 }
 
-// Save account
-const saveAccount = async () => {
+// Save campaign
+const saveCampaign = async () => {
     try {
         formLoading.value = true
         formErrors.value = {}
 
         // Validate
-        if (!accountForm.value.label.trim()) {
-            formErrors.value.label = 'Account label is required'
+        if (!campaignForm.value.name.trim()) {
+            formErrors.value.name = 'Campaign name is required'
             formLoading.value = false
             return
         }
 
-        if (!accountForm.value.network) {
+        if (!campaignForm.value.campaignId.trim()) {
+            formErrors.value.campaignId = 'Campaign ID is required'
+            formLoading.value = false
+            return
+        }
+
+        if (!campaignForm.value.network) {
             formErrors.value.network = 'Please select a network'
             formLoading.value = false
             return
         }
 
-        const accountData = {
-            label: accountForm.value.label.trim(),
-            network: accountForm.value.network,
-            metadata: Object.keys(accountForm.value.metadata).length > 0
-                ? JSON.stringify(accountForm.value.metadata)
-                : null
+        const campaignData = {
+            name: campaignForm.value.name.trim(),
+            campaignId: campaignForm.value.campaignId.trim(),
+            network: campaignForm.value.network,
+            status: campaignForm.value.status,
+            currencyCode: campaignForm.value.currencyCode?.trim() || null,
+            sector: campaignForm.value.sector?.trim() || null,
+            domain: campaignForm.value.domain?.trim() || null
         }
 
-        if (isEditing.value) {
-            await affiliateClient.accounts.update(accountToEdit.value.id, accountData)
-            showNotification('success', 'Account updated successfully')
+        if (isEditing.value && campaignToEdit.value) {
+            await affiliateClient.campaignsNetworks.update(campaignToEdit.value.id, campaignData)
+            showNotification('success', 'Network campaign updated successfully')
         } else {
-            await affiliateClient.accounts.insert(accountData)
-            showNotification('success', 'Account created successfully')
+            await affiliateClient.campaignsNetworks.insert(campaignData)
+            showNotification('success', 'Network campaign created successfully')
         }
 
         formLoading.value = false
@@ -658,34 +707,34 @@ const saveAccount = async () => {
         if (err.response?.data?.errors)
             formErrors.value = err.response.data.errors
         else
-            showNotification('error', err.message || 'Failed to save account')
+            showNotification('error', err.message || 'Failed to save network campaign')
     }
 }
 
-const confirmDelete = (account) => {
-    accountToDelete.value = account
+const confirmDelete = (campaign) => {
+    campaignToDelete.value = campaign
     showDeleteDialog.value = true
 }
 
 const closeDeleteDialog = () => {
     showDeleteDialog.value = false
-    accountToDelete.value = null
+    campaignToDelete.value = null
 }
 
-const deleteAccount = async () => {
-    if (!accountToDelete.value) return
+const deleteCampaign = async () => {
+    if (!campaignToDelete.value) return
 
     try {
         deleteLoading.value = true
-        await affiliateClient.accounts.delete(accountToDelete.value.id)
+        await affiliateClient.campaignsNetworks.delete(campaignToDelete.value.id)
         deleteLoading.value = false
         closeDeleteDialog()
-        showNotification('success', 'Account deleted successfully')
+        showNotification('success', 'Network campaign deleted successfully')
         refreshData()
     } catch (err) {
         deleteLoading.value = false
-        console.error('Failed to delete account:', err)
-        showNotification('error', err.message || 'Failed to delete account')
+        console.error('Failed to delete network campaign:', err)
+        showNotification('error', err.message || 'Failed to delete network campaign')
     }
 }
 
@@ -711,10 +760,69 @@ const toggleSort = (column) => {
     }
 }
 
+const getNetworkName = (networkId) => {
+    const network = availableNetworks.value.find(n => n.id === networkId)
+    return network ? network.name : 'Unknown Network'
+}
+
+const getStatusClass = (status) => {
+    switch(status) {
+        case 'Active':
+            return 'bg-green-900 text-green-200 px-2 py-0.5 rounded text-xs'
+        case 'Paused':
+            return 'bg-yellow-900 text-yellow-200 px-2 py-0.5 rounded text-xs'
+        case 'Pending':
+            return 'bg-blue-900 text-blue-200 px-2 py-0.5 rounded text-xs'
+        case 'Expired':
+            return 'bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded text-xs'
+        case 'Rejected':
+            return 'bg-red-900 text-red-200 px-2 py-0.5 rounded text-xs'
+        default:
+            return 'bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded text-xs'
+    }
+}
+
+// Import functions
+const importCampaigns = async () => {
+    importNetworkId.value = ''
+    showImportDialog.value = true
+
+    if (availableNetworks.value.length === 0) {
+        await loadNetworks()
+    }
+}
+
+const startImport = async () => {
+    if (!importNetworkId.value) return
+
+    try {
+        importLoading.value = true
+
+        // Call API to get network campaigns
+        const response = await affiliateClient.campaignsNetworks.getNetworkCampaigns()
+
+        if (response && response.success) {
+            showNotification('success', `Successfully imported ${response.count || 0} campaigns`)
+            showImportDialog.value = false
+            refreshData()
+        } else {
+            showNotification('error', response.message || 'Failed to import campaigns')
+        }
+
+        importLoading.value = false
+    } catch (err) {
+        console.error('Failed to import campaigns:', err)
+        showNotification('error', err.message || 'Failed to import campaigns')
+        importLoading.value = false
+    }
+}
+
 const toggleSearchDropdown = () => {
     showSearchDropdown.value = !showSearchDropdown.value
     if (showSearchDropdown.value) {
-        searchInput.value.focus()
+        setTimeout(() => {
+            searchInput.value?.focus()
+        }, 100)
     }
 }
 
@@ -732,7 +840,7 @@ onMounted(() => {
         }
     })
 
-    // Load networks first, then accounts to ensure proper data association
-    refreshData()
+    loadNetworkCampaigns()
+    loadNetworks()
 })
 </script>

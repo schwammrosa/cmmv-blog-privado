@@ -93,16 +93,71 @@ export class YTVideosServiceAdmin {
             7. Start with a strong introductory paragraph before any video embed (the video will be automatically inserted after the first paragraph)
             8. Suggesting 3-8 relevant tags for categorizing this content
 
-            IMPORTANT: For the title, DO NOT use sensationalist or clickbait headlines. Instead, follow the "Discover Headline Formula":
+            IMPORTANT:
+            - For titles, DO NOT default to number-based formats (like "5 Ways to..." or "10 Tips for...")
+            - Only use numbered titles when the content specifically warrants it (such as step-by-step guides or ranked lists)
+            - Prefer descriptive, narrative or question-based titles that engage readers without relying on numbers
+            - Avoid sensationalist or clickbait headlines
 
-            [Number] + [Adjective] + [Product Type/Topic] + for [Target Intent] – [Urgency/Result]
+            For titles, use these headline formulas (preferring the non-numbered options):
+
+            1. The "How-To Formula":
+            How to [Achieve Desired Outcome] without [Common Pain Point]
 
             Examples:
-            - "7 Powerful Bluetooth Speakers for Outdoor Parties – Up to 40% OFF Today"
-            - "5 Best Budget Gaming Chairs for Small Spaces – Perfect Deals in July 2025"
-            - "Top 10 Noise-Canceling Headphones for Work-from-Home – Tested & Reviewed"
+            - "How to Master Advanced Photo Editing Without Expensive Software"
+            - "How to Build a Gaming PC Without Breaking Your Budget"
+            - "How to Start Streaming on YouTube Without Technical Headaches"
 
-            The title MUST be 100 characters or less, using this formula when applicable to the topic. If the formula doesn't fit the content's nature, create a clear, factual, non-sensationalist title that accurately represents the content.
+            2. The "Question Formula":
+            [Intriguing Question That Promises an Answer]?
+
+            Examples:
+            - "Is This the Gaming Setup You've Been Waiting For?"
+            - "What Makes This New GPU a Game-Changer for Creators?"
+            - "Why Are Professional Streamers Switching to This Platform?"
+
+            3. The "Secret Formula":
+            The Secret to [Achieving Desired Outcome] That [Target Audience] Don't Know About
+
+            Examples:
+            - "The Secret to Viral YouTube Content That New Creators Miss"
+            - "The Hidden Settings in Minecraft That Pro Players Use"
+            - "The Audio Trick That Makes Your Videos Sound Professional"
+
+            4. The "Why Formula":
+            Why [Common Belief/Practice] Is [Wrong/Ineffective] and What to Do Instead
+
+            Examples:
+            - "Why Traditional Gaming Setups Are Holding You Back"
+            - "Why Your YouTube Algorithm Recommendations Are Stuck"
+            - "Why Most PC Builds Fail and How to Succeed"
+
+            5. The "Comparison Formula":
+            [Product/Method A] vs [Product/Method B]: Which Is Better for [Desired Outcome]
+
+            Examples:
+            - "Console vs PC Gaming: Which Is Better for Competitive Play"
+            - "OBS vs Streamlabs: Which Recording Software Delivers Better Quality"
+            - "AMD vs NVIDIA: Which GPU Line Offers More Value in 2023"
+
+            6. The "Ultimate Guide":
+            The Ultimate Guide to [Topic] for [Target Audience]
+
+            Examples:
+            - "The Ultimate Guide to YouTube Growth for New Creators"
+            - "The Complete Guide to Building Your First Gaming PC"
+            - "The Definitive Guide to Optimizing Your Streaming Setup"
+
+            7. The "Warning Formula":
+            [Warning Sign] - [Problem] You Need to Address Now
+
+            Examples:
+            - "Warning - Your Gaming Hardware Might Be Silently Failing"
+            - "Alert - The YouTube Change That Affects All Content Creators"
+            - "Caution - This Common Streaming Mistake Is Costing You Viewers"
+
+            The title MUST be 100 characters or less, clear, factual, and non-sensationalist, accurately representing the content.
 
             DO NOT include instructions to watch the video or subscribe to the channel. The post should stand alone as valuable content.
 

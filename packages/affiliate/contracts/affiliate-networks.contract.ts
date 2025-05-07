@@ -44,5 +44,20 @@ export class AffiliateNetworksContract extends AbstractContract {
         protoType: 'text',
         nullable: true,
     })
-    metadata!: string;
+    metadata?: string;
+
+    @ContractField({
+        protoType: 'text',
+        nullable: true,
+        readOnly: true,
+    })
+    apiLinks?: string;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true,
+        readOnly: true,
+        defaultValue: 'Fetch',
+    })
+    apiType?: string;
 }
