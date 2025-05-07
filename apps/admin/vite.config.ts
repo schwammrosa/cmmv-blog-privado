@@ -21,7 +21,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
             }
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 30000);
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
 
             const response = await fetch(`${apiUrl}/whitelabel/admin`, {
                 signal: controller.signal
