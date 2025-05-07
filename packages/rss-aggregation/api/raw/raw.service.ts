@@ -336,13 +336,11 @@ export class RawService {
         let updatedRaw = null;
         let updateData: any = {};
 
-        if(data.postRef) {
+        if(data.postRef)
             updateData.postRef = data.postRef;
-        }
 
-        if(data.rejected) {
+        if(data.rejected)
             updateData.rejected = data.rejected;
-        }
 
         if(data.featureImage)
             updateData.featureImage = data.featureImage;
@@ -350,9 +348,13 @@ export class RawService {
         if (!raw)
             throw new Error(`Raw feed item with ID ${id} not found`);
 
-        updatedRaw = await Repository.update(FeedRawEntity, {
+        console.log("aki")
+
+        updatedRaw = await Repository.updateOne(FeedRawEntity, {
             id: id
         }, updateData);
+
+        console.log("aki2")
 
         return {
             message: "Raw feed item updated successfully"

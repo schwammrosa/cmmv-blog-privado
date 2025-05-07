@@ -36,19 +36,19 @@
         "signal-exit": "^4.1.0"
     },
     "dependencies": {
-        "@cmmv/blog": "workspace:plugin",
         "@cmmv/access-control": "workspace:access-control",
-        "@cmmv/ai-content": "workspace:ai-content",
-        "@cmmv/rss-aggregation": "workspace:rss-aggregation",
-        "@cmmv/yt-aggregation": "workspace:yt-aggregation",
         "@cmmv/affiliate": "workspace:affiliate",
+        "@cmmv/ai-content": "workspace:ai-content",
         "@cmmv/auth": "latest",
-        "@cmmv/cache": "^0.11.4",
+        "@cmmv/blog": "workspace:plugin",
+        "@cmmv/cache": "^0.11.6",
         "@cmmv/cli": "latest",
         "@cmmv/http": "latest",
         "@cmmv/repository": "latest",
+        "@cmmv/rss-aggregation": "workspace:rss-aggregation",
+        "@cmmv/yt-aggregation": "workspace:yt-aggregation",
         "cache-manager-fs-binary": "^1.0.4",
         "sharp": "^0.34.1",
-        "tsx": "^4.19.3"
+        "tsx": "^4.19.4"
     }
 }

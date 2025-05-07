@@ -429,41 +429,10 @@ const showNotification = (type, message) => {
     }, notification.value.duration)
 }
 
-// Add this after the declaration of posts
-const statusCounts = ref({
-    draft: 0,
-    cron: 0,
-    published: 0
-})
-
 // Replace the loadPosts function
 async function loadPosts() {
     try {
         loading.value = true
-
-        try {
-            const countResponse = await adminClient.posts.get({
-                limit: 100
-            })
-
-            if (countResponse && countResponse.posts) {
-                const counts = {
-                    draft: 0,
-                    cron: 0,
-                    published: 0
-                }
-
-                countResponse.posts.forEach(post => {
-                    if (counts.hasOwnProperty(post.status)) {
-                        counts[post.status]++
-                    }
-                })
-
-                statusCounts.value = counts
-            }
-        } catch (err) {
-            console.error('Error checking status counts:', err)
-        }
 
         const params = {
             limit: itemsPerPage,
@@ -645,15 +614,11 @@ onMounted(async () => {
     loadBlogUrl()
     loadCategories()
 
-    // If no status filter is set initially, set it to draft (first in priority)
-    if (!filters.value.status) {
+    if (!filters.value.status)
         filters.value.status = 'draft'
-    }
 
-    // Load posts - this will check counts and select appropriate tab
     loadPosts()
 
-    // Close search dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (showSearchDropdown.value && !e.target.closest('.relative')
             && e.target !== document.querySelector('button[data-search-toggle]')) {
