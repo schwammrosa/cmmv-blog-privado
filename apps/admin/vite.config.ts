@@ -10,23 +10,23 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
     const allowedHosts = env.VITE_ALLOWED_HOSTS || 'blog.cmmv.io';
     const whitelabelApiUrls: Record<string, string> = {};
 
-    const fetchWhitelabelApiUrls = async (retryCount = 0, maxRetries = 5) => {
+    const fetchWhitelabelApiUrls = async (retryCount = 0, maxRetries = 10) => {
         if(Object.keys(whitelabelApiUrls).length > 0)
             return true;
 
         try {
             if (typeof fetch === 'undefined') {
-                console.warn('Fetch API not available, skipping whitelabel data fetch');
+                //console.warn('Fetch API not available, skipping whitelabel data fetch');
                 return false;
             }
 
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            const timeoutId = setTimeout(() => controller.abort(), 30000);
 
             const response = await fetch(`${apiUrl}/whitelabel/admin`, {
                 signal: controller.signal
             }).catch(error => {
-                console.warn(`Fetch request failed: ${error.message}`);
+                //console.warn(`Fetch request failed: ${error.message}`);
                 return null;
             });
 
