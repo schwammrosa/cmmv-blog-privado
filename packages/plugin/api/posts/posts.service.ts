@@ -372,7 +372,7 @@ export class PostsPublicService {
             }
 
             if(data.post.status === "published")
-                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/posts/${data.post.slug}`);
+                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/post/${data.post.slug}`);
 
             await this.upsertTags(data.post.tags);
             await this.recalculateCategories();
@@ -404,7 +404,7 @@ export class PostsPublicService {
             }
 
             if(data.post.status === "published")
-                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/posts/${data.post.slug}`);
+                await this.indexingService.updateIndexing(`${Config.get("blog.url")}/post/${data.post.slug}`);
 
             await this.upsertTags(data.post.tags);
             await this.recalculateCategories();
