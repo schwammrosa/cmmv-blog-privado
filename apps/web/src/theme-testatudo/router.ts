@@ -5,7 +5,7 @@ import {
 
 import TemplateDefault from './templates/TemplateDefault.vue';
 
-import PageHome from './views/PageAuthor.vue';
+import PageHome from './views/PageHome.vue';
 import PagePost from './views/PagePost.vue';
 import PageCategory from './views/PageCategory.vue';
 import PagePage from './views/PagePage.vue';

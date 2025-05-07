@@ -1,16 +1,16 @@
 <template>
-    <div class="font-sans bg-gray-100 text-gray-800 antialiased min-h-screen">
+    <div class="flex flex-col min-h-screen bg-gray-100">
         <!-- Header -->
-        <header class="bg-black text-white sticky top-0 z-50 shadow-md">
-            <div class="max-w-7xl mx-auto px-4">
-                <div class="flex justify-between items-center py-4">
-                    <div class="flex items-center">
+        <header class="bg-[#000] text-white sticky top-0 z-50 shadow-md w-full">
+            <div class="container mx-auto">
+                <div class="top-header flex justify-between items-center py-4">
+                    <div class="logo flex items-center">
                         <a href="/" class="text-2xl font-bold text-white">
-                            <img src="/logo.png" alt="TestaTudo Logo" class="h-auto w-56 max-h-12">
+                            <img src="/TT_VER BRANCO.png" alt="TestaTudo Logo" class="h-auto w-56 max-h-12">
                         </a>
                     </div>
                     <div class="flex items-center space-x-4">
-                        <button class="bg-transparent text-white border-none text-xl cursor-pointer p-2 hover:text-[#ff0030] transition-colors">
+                        <button @click="openSearchModal" class="search-icon bg-transparent text-white border-none text-xl cursor-pointer p-2 hover:text-[#ff0030] transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -20,11 +20,12 @@
                     </div>
                 </div>
             </div>
-            <nav class="bg-[#111] py-3 relative">
-                <div class="max-w-7xl mx-auto px-4">
-                    <div class="flex justify-between items-center relative">
+            <nav class="main-nav bg-[#111] py-3 relative">
+                <div class="container mx-auto">
+                    <div class="nav-container flex justify-between items-center relative">
                         <!-- Menu para desktop -->
-                        <div class="flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto">
+                        <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto">
+                            <a href="/" class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#ff0030] bg-[#ff0030] transition-colors whitespace-nowrap">Home</a>
                             <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
                                 <a
                                     :href="`/category/${category.slug}`"
@@ -93,13 +94,15 @@
         </header>
 
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto">
-            <router-view />
+        <main class="flex-grow py-6 bg-[#f5f5f5]">
+            <div class="container mx-auto">
+                <router-view />
+            </div>
         </main>
 
         <!-- Footer -->
-        <footer class="bg-black text-gray-300 py-10">
-            <div class="max-w-7xl mx-auto px-4">
+        <footer class="bg-[#000] text-gray-300 py-10">
+            <div class="container mx-auto">
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                     <div>
                         <h3 class="text-lg font-semibold text-white border-b-2 border-[#ff0030] pb-2 mb-4 inline-block">Sobre</h3>
@@ -262,12 +265,12 @@ useHead({
     link: [
         {
             rel: 'stylesheet',
-            href: '/src/theme-gamedevbr/style.css'
+            href: '/src/theme-testatudo/style.css'
         },
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-gamedevbr/favicon.ico?v=2'
+            href: '/src/theme-testatudo/favicon.ico?v=2'
         },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com/' },
@@ -476,41 +479,3 @@ watch(isDarkMode, () => {
     applyTheme();
 });
 </script>
-
-<style>
-:root {
-    --primary-color: #ff0030;
-    --dark-color: #111;
-    --darker-color: #000;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Roboto', Arial, sans-serif;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
-    height: 100%;
-    width: 100%;
-}
-
-.line-clamp-2 {
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-}
-
-/* Custom scrollbar */
-.scrollbar-hide::-webkit-scrollbar {
-    display: none;
-}
-
-.scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-</style>
