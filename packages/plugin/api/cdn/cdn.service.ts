@@ -27,8 +27,8 @@ export class CDNService {
      * @returns {Promise<any>}
      */
     async clearCloudflareCache(urls?: string[]) {
-        const cloudflareToken = Config.get("cloudflare.token");
-        const cloudflareZoneId = Config.get("cloudflare.zoneId");
+        const cloudflareToken = Config.get("blog.cloudflareToken");
+        const cloudflareZoneId = Config.get("blog.cloudflareZoneId");
 
         if (!cloudflareToken || !cloudflareZoneId) {
             this.logger.log("Cloudflare credentials not configured, skipping cache purge");
@@ -86,10 +86,10 @@ export class CDNService {
      * @returns {Promise<any>}
      */
     async clearCloudfrontCache(urls?: string[]) {
-        const cloudfrontAccessKey = Config.get("cloudfront.accessKey");
-        const cloudfrontSecretKey = Config.get("cloudfront.secretKey");
-        const cloudfrontDistributionId = Config.get("cloudfront.distributionId");
-        const cloudfrontRegion = Config.get("cloudfront.region") || "us-east-1";
+        const cloudfrontAccessKey = Config.get("blog.cloudfrontAccessKey");
+        const cloudfrontSecretKey = Config.get("blog.cloudfrontSecretKey");
+        const cloudfrontDistributionId = Config.get("blog.cloudfrontDistributionId");
+        const cloudfrontRegion = Config.get("blog.cloudfrontRegion") || "us-east-1";
 
         if (!cloudfrontAccessKey || !cloudfrontSecretKey || !cloudfrontDistributionId) {
             this.logger.log("CloudFront credentials not configured, skipping cache purge");
