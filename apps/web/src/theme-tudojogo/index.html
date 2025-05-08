@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TudoJogo - Seu Portal de Notícias Gamer</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .logo-image {
+            max-height: 50px;
+            width: auto;
+        }
+        @media (max-width: 768px) {
+            .logo-image {
+                max-height: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="Nome.png" alt="TudoJogos" class="logo-image">
+            </div>
+            <nav>
+                <ul class="menu">
+                    <li><a href="#">Console</a></li>
+                    <li><a href="#">Mobile</a></li>
+                    <li><a href="#">PC</a></li>
+                </ul>
+            </nav>
+            <div class="header-right">
+                <div class="social-header">
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                </div>
+                <div class="search-icon">
+                    <button id="search-btn"><i class="fas fa-search"></i></button>
+                </div>
+                <div class="theme-toggle">
+                    <button id="theme-toggle-btn" title="Alternar modo claro/escuro">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+                <div class="mobile-menu-icon">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Modal de Pesquisa -->
+    <div id="search-modal" class="search-modal">
+        <div class="search-modal-content">
+            <span class="close-search">&times;</span>
+            <h2>Pesquisar</h2>
+            <div class="search-form">
+                <input type="text" id="search-input" placeholder="Digite sua busca...">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <section class="featured-news">
+        <div class="container">
+            <div class="news-grid">
+                <div class="news-card main">
+                    <div class="news-img">
+                        <img src="https://via.placeholder.com/600x400" alt="Notícia em destaque">
+                    </div>
+                    <div class="news-content">
+                        <span class="category">Console</span>
+                        <h3>PlayStation 6: Rumores apontam para lançamento em 2026</h3>
+                        <p>Fontes da indústria revelam detalhes sobre o próximo console da Sony que promete revolucionar o mercado de games.</p>
+                        <a href="#" class="read-more">Ler mais</a>
+                    </div>
+                </div>
+                <div class="news-card">
+                    <div class="news-img">
+                        <img src="https://via.placeholder.com/400x250" alt="Notícia sobre PC">
+                    </div>
+                    <div class="news-content">
+                        <span class="category">PC</span>
+                        <h3>Nova geração de placas de vídeo chega ao mercado</h3>
+                        <p>Confira os modelos e preços das novas GPUs que prometem desempenho extraordinário.</p>
+                        <a href="#" class="read-more">Ler mais</a>
+                    </div>
+                </div>
+                <div class="news-card">
+                    <div class="news-img">
+                        <img src="https://via.placeholder.com/400x250" alt="Notícia sobre Mobile">
+                    </div>
+                    <div class="news-content">
+                        <span class="category">Mobile</span>
+                        <h3>Os 10 melhores jogos mobile de 2023</h3>
+                        <p>Selecionamos os jogos para celular que mais se destacaram este ano.</p>
+                        <a href="#" class="read-more">Ler mais</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="latest-news">
+        <div class="container">
+            <h2 class="section-title">Últimas Notícias</h2>
+            <div class="news-grid">
+                <article class="news-card">
+                    <div class="news-img">
+                        <img src="https://via.placeholder.com/300x200" alt="Notícia recente">
+                    </div>
+                    <div class="news-content">
+                        <span class="category">Console</span>
+                        <h3>Xbox anuncia novos jogos exclusivos para 2024</h3>
+                        <p>Microsoft revela lineup impressionante de títulos que chegarão ao console no próximo ano.</p>
+                        <div class="news-meta">
+                            <span class="date">12/12/2023</span>
+                            <span class="author">Por: João Silva</span>
+                        </div>
+                        <a href="#" class="read-more">Ler mais</a>
+                    </div>
+                </article>
+                <article class="news-card">
+                    <div class="news-img">
+                        <img src="https://via.placeholder.com/300x200" alt="Notícia recente">
+                    </div>
+                    <div class="news-content">
+                        <span class="category">PC</span>
+                        <h3>Steam bate recorde de usuários simultâneos</h3>
+                        <p>Plataforma da Valve alcança marca histórica com mais de 30 milhões de jogadores online ao mesmo tempo.</p>
+                        <div class="news-meta">
+                            <span class="date">10/12/2023</span>
+                            <span class="author">Por: Maria Oliveira</span>
+                        </div>
+                        <a href="#" class="read-more">Ler mais</a>
+                    </div>
+                </article>
+                <article class="news-card">
+                    <div class="news-img">
+                        <img src="https://via.placeholder.com/300x200" alt="Notícia recente">
+                    </div>
+                    <div class="news-content">
+                        <span class="category">Mobile</span>
+                        <h3>PUBG Mobile anuncia colaboração com famosa franquia de filmes</h3>
+                        <p>Jogadores poderão desfrutar de skins e eventos temáticos inspirados no universo cinematográfico.</p>
+                        <div class="news-meta">
+                            <span class="date">08/12/2023</span>
+                            <span class="author">Por: Carlos Mendes</span>
+                        </div>
+                        <a href="#" class="read-more">Ler mais</a>
+                    </div>
+                </article>
+            </div>
+            <div class="load-more">
+                <button class="btn">Carregar mais notícias</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="newsletter">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2>Fique por dentro de todas as novidades</h2>
+                <p></p>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="Seu melhor email" required>
+                    <button type="submit" class="btn">Assinar</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="Nome.png" alt="TudoJogos" class="logo-image">
+                    <p>Seu portal completo de notícias gamer</p>
+                </div>
+                <div class="footer-links">
+                    <h3>Links Rápidos</h3>
+                    <ul>
+                        <li><a href="#">Console</a></li>
+                        <li><a href="#">Mobile</a></li>
+                        <li><a href="#">PC</a></li>
+                    </ul>
+                </div>
+                <div class="footer-categories">
+                    <h3>Categorias</h3>
+                    <ul>
+                        <li><a href="#">Notícias</a></li>
+                        <li><a href="#">Guias</a></li>
+                        <li><a href="#">eSports</a></li>
+                        <li><a href="#">Hardware</a></li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h3>Redes Sociais</h3>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 TudoJogos - Todos os direitos reservados</p>
+                <ul class="footer-bottom-links">
+                    <li><a href="#">Política de Privacidade</a></li>
+                    <li><a href="#">Termos de Uso</a></li>
+                    <li><a href="#">Contato</a></li>
+                </ul>
+                <button id="back-to-top" class="back-to-top">↑</button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/back-to-top.js"></script>
+</body>
+</html>
