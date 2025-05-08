@@ -67,13 +67,11 @@ export class AutopostService {
         }
     }
 
-
     /**
      * Send post to all configured social networks
      */
-    private async sendToSocialNetworks(post: any): Promise<void> {
+    public async sendToSocialNetworks(post: any): Promise<void> {
         try {
-            // Prepare post payload
             const siteUrl = Config.get<string>("blog.url", "");
             const postUrl = `${siteUrl}/post/${post.slug}`;
 
@@ -117,7 +115,6 @@ export class AutopostService {
      * Execute posting to all configured social networks
      */
     private async executeAutoPostToNetworks(payload: SocialPostPayload): Promise<void> {
-        // Check which networks are enabled
         const networks = [
             { name: 'Facebook', enabled: Config.get<boolean>("blog.autoPostFacebook", false), handler: this.postToFacebook.bind(this) },
             { name: 'Twitter', enabled: Config.get<boolean>("blog.autoPostTwitter", false), handler: this.postToTwitter.bind(this) },
@@ -130,11 +127,9 @@ export class AutopostService {
         const timeBetweenPosts = Config.get<number>("blog.timeBetweenPosts", 0);
         let lastPostTime = Date.now();
 
-        // Process each enabled network
         for (const network of networks) {
             if (network.enabled) {
                 try {
-                    // Wait if needed based on timeBetweenPosts
                     if (timeBetweenPosts > 0 && network !== networks[0]) {
                         const elapsedTime = Date.now() - lastPostTime;
                         const waitTime = (timeBetweenPosts * 60 * 1000) - elapsedTime;
@@ -145,16 +140,13 @@ export class AutopostService {
                         }
                     }
 
-                    // Post to this network
                     AutopostService.logger.debug(`Posting to ${network.name}...`);
                     await network.handler(payload);
                     AutopostService.logger.debug(`Successfully posted to ${network.name}`);
 
-                    // Update last post time
                     lastPostTime = Date.now();
                 } catch (error: any) {
                     AutopostService.logger.error(`Failed to post to ${network.name}: ${error?.message || 'Unknown error'}`);
-                    // Continue with other networks even if one fails
                 }
             } else {
                 AutopostService.logger.debug(`Skipping ${network.name} (disabled)`);
@@ -193,13 +185,11 @@ export class AutopostService {
     private formatPostMessage(payload: SocialPostPayload, template: string): string {
         let message = template || 'New post: {title} {url}';
 
-        // Replace variables in template
         message = message.replace('{title}', payload.title);
         message = message.replace('{excerpt}', payload.excerpt);
         message = message.replace('{url}', payload.url);
         message = message.replace('{author}', payload.author);
 
-        // Handle tags and categories
         const tagsStr = Array.isArray(payload.tags) ? payload.tags.join(', ') : '';
         const categoriesStr = Array.isArray(payload.categories) ? payload.categories.join(', ') : '';
 
@@ -274,14 +264,12 @@ export class AutopostService {
         if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret)
             throw new Error("Twitter configuration is incomplete. API keys and access tokens are required.");
 
-        // Format message
         const message = this.formatPostMessage(payload, postFormat);
 
-        // Adjust UTM source if using URL tracking
         let postUrl = payload.url;
-        if (postUrl.includes('utm_source={network}')) {
+
+        if (postUrl.includes('utm_source={network}'))
             postUrl = postUrl.replace('utm_source={network}', 'utm_source=twitter');
-        }
 
         try {
             const crypto = require('crypto');
@@ -304,18 +292,12 @@ export class AutopostService {
                 'oauth_version=1.0'
             ].sort().join('&');
 
-            // Create signature base
             const method = 'POST';
             const baseUrl = 'https://api.twitter.com/2/tweets';
             const signatureBase = method + '&' + encodeURIComponent(baseUrl) + '&' + encodeURIComponent(parameterString);
-
-            // Create signing key
             const signingKey = encodeURIComponent(oauth.consumer_secret) + '&' + encodeURIComponent(oauth.token_secret);
-
-            // Generate signature
             const signature = crypto.createHmac('sha1', signingKey).update(signatureBase).digest('base64');
 
-            // Create Authorization header
             const authHeader = 'OAuth ' + [
                 'oauth_consumer_key="' + encodeURIComponent(oauth.consumer_key) + '"',
                 'oauth_nonce="' + encodeURIComponent(oauthNonce) + '"',
@@ -326,14 +308,11 @@ export class AutopostService {
                 'oauth_version="1.0"'
             ].join(', ');
 
-            // Prepare the tweet text
             let tweetText = message;
-            // Twitter limits tweets to 280 characters
-            if (tweetText.length > 280) {
-                tweetText = tweetText.substring(0, 277) + '...';
-            }
 
-            // Make the API request
+            if (tweetText.length > 280)
+                tweetText = tweetText.substring(0, 277) + '...';
+
             const tweetData = {
                 text: tweetText
             };
@@ -374,9 +353,9 @@ export class AutopostService {
         const message = this.formatPostMessage(payload, postFormat);
 
         let postUrl = payload.url;
-        if (postUrl.includes('utm_source={network}')) {
+
+        if (postUrl.includes('utm_source={network}'))
             postUrl = postUrl.replace('utm_source={network}', 'utm_source=linkedin');
-        }
 
         try {
             const profileResponse = await fetch('https://api.linkedin.com/v2/me', {

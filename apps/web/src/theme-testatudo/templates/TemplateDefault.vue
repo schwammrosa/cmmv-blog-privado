@@ -215,9 +215,6 @@
                                             class="block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
                                         >
                                             <div class="flex flex-col sm:flex-row">
-                                                <div v-if="post.featureImage" class="w-full sm:w-32 h-40 sm:h-24 flex-shrink-0">
-                                                    <img :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover" loading="lazy" />
-                                                </div>
                                                 <div class="p-4 flex-grow">
                                                     <h4 class="font-bold text-gray-900 mb-1">{{ post.title }}</h4>
                                                     <p v-if="post.excerpt" class="text-sm text-gray-600 line-clamp-2">

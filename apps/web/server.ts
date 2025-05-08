@@ -224,7 +224,8 @@ async function bootstrap() {
 
     const port = env.VITE_SSR_PORT || 5001;
 
-    server.listen(port, () => {
+    // @ts-ignore
+    server.listen(port, "0.0.0.0", () => {
         console.log(`🚀 SSR server running at http://localhost:${port}`);
     });
 }
