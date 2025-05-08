@@ -57,7 +57,7 @@ export default defineConfig(({ mode }) => {
         },
         server: {
             allowedHosts: allowedHosts.split(',').map(host => host.trim()),
-
+            host: "0.0.0.0",
             proxy: {
                 '/api': {
                     target: apiUrl,

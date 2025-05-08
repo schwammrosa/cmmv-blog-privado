@@ -21,6 +21,7 @@ import { MediasService } from "../medias/medias.service";
 import { AIContentService } from "@cmmv/ai-content";
 import { CDNService } from "../cdn/cdn.service";
 import { IndexingService } from "../indexing/indexing.service";
+import { AutopostService } from "../autopost/autopost.service";
 
 @Service('blog_posts_public')
 export class PostsPublicService {
@@ -31,7 +32,8 @@ export class PostsPublicService {
         private readonly eventsService: EventsService,
         private readonly aiContentService: AIContentService,
         private readonly cdnService: CDNService,
-        private readonly indexingService: IndexingService
+        private readonly indexingService: IndexingService,
+        private readonly autopostService: AutopostService
     ){}
 
     @Cron(CronExpression.EVERY_30_MINUTES)
@@ -371,8 +373,10 @@ export class PostsPublicService {
                 }
             }
 
-            if(data.post.status === "published")
+            if(data.post.status === "published"){
                 await this.indexingService.updateIndexing(`${Config.get("blog.url")}/post/${data.post.slug}`);
+                await this.autopostService.sendToSocialNetworks(data.post);
+            }
 
             await this.upsertTags(data.post.tags);
             await this.recalculateCategories();
@@ -403,8 +407,10 @@ export class PostsPublicService {
                 }
             }
 
-            if(data.post.status === "published")
+            if(data.post.status === "published"){
                 await this.indexingService.updateIndexing(`${Config.get("blog.url")}/post/${data.post.slug}`);
+                await this.autopostService.sendToSocialNetworks(data.post);
+            }
 
             await this.upsertTags(data.post.tags);
             await this.recalculateCategories();

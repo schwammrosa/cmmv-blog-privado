@@ -168,7 +168,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
         server: {
             allowedHosts: allowedHosts.split(',').map(host => host.trim()),
             port: Number(env.VITE_PORT) || 5002,
-            host: true,
+            host: "0.0.0.0",
             proxy: generateProxyConfig()
         },
     }
