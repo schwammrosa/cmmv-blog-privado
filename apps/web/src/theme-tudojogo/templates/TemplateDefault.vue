@@ -157,12 +157,12 @@ useHead({
     link: [
         {
             rel: 'stylesheet',
-            href: '/src/theme-testatudo/style.css'
+            href: '/src/theme-tudojogo/style.css'
         },
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-testatudo/favicon.ico?v=2'
+            href: '/src/theme-tudojogo/favicon.ico?v=2'
         },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com/' },
