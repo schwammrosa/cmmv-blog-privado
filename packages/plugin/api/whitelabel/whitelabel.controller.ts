@@ -28,7 +28,7 @@ export class WhitelabelController {
     }
 
     @Get("access")
-    @Auth({ rootOnly: true })
+    @Auth()
     async getWhitelabelAccessByUser(@User() user: any) {
         return await this.whitelabelService.getWhitelabelAccessByUser(user);
     }
