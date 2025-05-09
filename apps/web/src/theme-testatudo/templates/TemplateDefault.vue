@@ -148,7 +148,6 @@
                     </div>
                 </div>
                 <div class="flex flex-col items-center pt-6 border-t border-gray-800 text-sm text-gray-500">
-                    <img src="/logo.png" alt="TestaTudo Logo" class="h-16 w-auto mb-4">
                     <p>&copy; {{ new Date().getFullYear() }} TestaTudo. Todos os direitos reservados.</p>
                 </div>
             </div>
