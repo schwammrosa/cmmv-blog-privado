@@ -21,18 +21,6 @@
         </div>
 
         <div v-else>
-            <!-- Top AdSense Banner -->
-            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
-                <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
-                    <div v-html="getAdHtml('header')"></div>
-                </div>
-                <div class="ad-container ad-banner-top py-2 px-4" v-else>
-                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                        <span>Anúncio</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Cover Section -->
             <section v-if="posts.length > 0" class="mb-8 md:block hidden">
                 <!-- Full Layout (default) -->
@@ -257,12 +245,12 @@
                 </div>
             </section>
 
-            <!-- Post-cover AdSense Banner -->
-            <div v-if="adSettings.enableAds" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
-                <div class="ad-container ad-banner-after-cover py-2 px-4" v-if="getAdHtml('afterCover')">
-                    <div v-html="getAdHtml('afterCover')"></div>
+            <!-- Top AdSense Banner -->
+            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+                <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
+                    <div v-html="getAdHtml('header')"></div>
                 </div>
-                <div class="ad-container ad-banner-after-cover py-2 px-4" v-else>
+                <div class="ad-container ad-banner-top py-2 px-4" v-else>
                     <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                         <span>Anúncio</span>
                     </div>
