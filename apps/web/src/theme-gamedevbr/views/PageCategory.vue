@@ -198,7 +198,7 @@
 
 <script setup lang="ts">
 //@ts-nocheck
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, onServerPrefetch  } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue'
 import { vue3 } from '@cmmv/blog/client';
