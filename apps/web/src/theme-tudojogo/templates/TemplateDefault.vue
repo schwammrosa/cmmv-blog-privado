@@ -1,135 +1,244 @@
 <template>
-    <div class="flex flex-col min-h-screen">
+    <div class="flex flex-col min-h-screen bg-gray-100">
         <!-- Header -->
-        <header class="bg-[#121212] text-white sticky top-0 z-50 shadow-md">
-            <div class="container mx-auto px-4">
-                <div class="flex justify-between items-center py-4">
-                    <div class="logo">
-                        <a href="/">
-                            <img src="/src/theme-tudojogo/Nome.png" alt="TudoJogos" class="h-10">
-                        </a>
-                    </div>
-                    <nav class="hidden md:block">
-                        <ul class="flex space-x-6">
-                            <li><a href="#" class="hover:text-[#14f195]">Console</a></li>
-                            <li><a href="#" class="hover:text-[#14f195]">Mobile</a></li>
-                            <li><a href="#" class="hover:text-[#14f195]">PC</a></li>
-                        </ul>
-                    </nav>
-                    <div class="flex items-center space-x-4">
-                        <!-- Redes sociais (visíveis apenas em desktop) -->
-                        <div class="hidden md:flex space-x-2">
-                            <a href="#" class="w-8 h-8 bg-white bg-opacity-10 rounded-full flex items-center justify-center hover:bg-[#14f195] hover:text-[#121212] transition-all transform hover:-translate-y-1">
-                                <i class="fab fa-facebook"></i>
-                            </a>
-                            <a href="#" class="w-8 h-8 bg-white bg-opacity-10 rounded-full flex items-center justify-center hover:bg-[#14f195] hover:text-[#121212] transition-all transform hover:-translate-y-1">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            <a href="#" class="w-8 h-8 bg-white bg-opacity-10 rounded-full flex items-center justify-center hover:bg-[#14f195] hover:text-[#121212] transition-all transform hover:-translate-y-1">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            <a href="#" class="w-8 h-8 bg-white bg-opacity-10 rounded-full flex items-center justify-center hover:bg-[#14f195] hover:text-[#121212] transition-all transform hover:-translate-y-1">
-                                <i class="fab fa-youtube"></i>
+        <header class="bg-[#000] text-white sticky top-0 z-50 shadow-md w-full">
+
+            <div class="mx-auto">
+                <div class="max-w-[1200px] mx-auto px-4">
+                    <div class="top-header flex justify-between items-center py-4">
+                        <div class="logo flex items-center">
+                            <a href="/" class="text-2xl font-bold text-white">
+                                <img src="/src/theme-tudojogo/assets/Logonome.png" alt="TudoJogo Logo" class="object-contain h-12 w-auto">
                             </a>
                         </div>
-                        <!-- Ícone de pesquisa -->
-                        <button @click="openSearchModal" class="text-white hover:text-[#14f195]">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <!-- Botão de tema -->
-                        <button @click="toggleTheme" class="text-[#14f195]">
-                            <i class="fas fa-moon"></i>
-                        </button>
-                        <!-- Ícone do menu mobile -->
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-white">
-                            <i :class="[mobileMenuOpen ? 'fas fa-times' : 'fas fa-bars']"></i>
-                        </button>
+                        <div class="flex items-center space-x-4">
+                            <button @click="openSearchModal" class="search-icon bg-transparent text-white border-none text-xl cursor-pointer p-2 hover:text-[#00aa30] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                            <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors">Entrar</a>
+                            <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors">Cadastrar</a>
+                        </div>
                     </div>
                 </div>
             </div>
+            <nav class="main-nav bg-[#111] py-3 relative">
+                <div class="max-w-[1200px] mx-auto px-4">
+                    <div class="mx-auto">
+                        <div class="nav-container flex justify-between items-center relative">
+                            <!-- Menu para desktop -->
+                            <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto">
+                                <a href="/" class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] bg-[#00aa30] transition-colors whitespace-nowrap">Home</a>
+                                <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
+                                    <a
+                                        :href="`/category/${category.slug}`"
+                                        class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] transition-colors whitespace-nowrap"
+                                    >
+                                        {{ category.name }}
+                                    </a>
+                                </template>
+                            </div>
+
+                            <!-- Ícones de redes sociais -->
+                            <div class="hidden md:flex items-center space-x-4">
+                                <a v-if="settings['blog.facebook']" :href="`https://facebook.com/${settings['blog.facebook']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors text-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    </svg>
+                                </a>
+                                <a v-if="settings['blog.twitter']" :href="`https://twitter.com/${settings['blog.twitter']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors text-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                    </svg>
+                                </a>
+                                <a v-if="settings['blog.instagram']" :href="`https://instagram.com/${settings['blog.instagram']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors text-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                    </svg>
+                                </a>
+                                <a v-if="settings['blog.youtube']" :href="`https://youtube.com/${settings['blog.youtube']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors text-lg">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                                    </svg>
+                                </a>
+                            </div>
+
+                            <!-- Indicador de rolagem em dispositivos móveis -->
+                            <div class="absolute right-0 bottom-0 w-8 h-full bg-gradient-to-r from-transparent to-[#111] pointer-events-none md:hidden"></div>
+                        </div>
+
+                        <!-- Redes sociais em dispositivos móveis -->
+                        <div class="flex justify-center mt-3 md:hidden">
+                            <div class="flex items-center space-x-6">
+                                <a v-if="settings['blog.facebook']" :href="`https://facebook.com/${settings['blog.facebook']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    </svg>
+                                </a>
+                                <a v-if="settings['blog.twitter']" :href="`https://twitter.com/${settings['blog.twitter']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                    </svg>
+                                </a>
+                                <a v-if="settings['blog.instagram']" :href="`https://instagram.com/${settings['blog.instagram']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                                    </svg>
+                                </a>
+                                <a v-if="settings['blog.youtube']" :href="`https://youtube.com/${settings['blog.youtube']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#00aa30] transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
         </header>
 
-        <!-- Modal de Pesquisa -->
-        <div v-if="searchModalOpen" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4">
-            <div class="bg-white dark:bg-gray-800 w-full max-w-2xl rounded-lg shadow-xl p-6 relative">
-                <button @click="closeSearchModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">Pesquisar</h2>
-                <div class="flex w-full">
-                    <input 
-                        type="text" 
-                        v-model="searchQuery" 
-                        @input="debouncedSearch" 
-                        ref="searchInput"
-                        placeholder="Digite sua busca..." 
-                        class="flex-grow p-3 border border-r-0 rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                    >
-                    <button 
-                        @click="performSearch" 
-                        class="bg-[#7b2cbf] text-white px-5 rounded-r-md hover:bg-[#6a1b9a] transition-colors"
-                    >
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-                <div v-if="isSearching" class="mt-6 flex justify-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#7b2cbf]"></div>
-                </div>
-                <div v-else-if="searchResults.length > 0" class="mt-6">
-                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">Resultados:</h3>
-                    <div class="max-h-80 overflow-y-auto">
-                        <a 
-                            v-for="result in searchResults" 
-                            :key="result.id" 
-                            :href="`/post/${result.slug}`" 
-                            class="block p-3 border-b border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 dark:border-gray-700 transition-colors"
-                            @click="closeSearchModal"
-                        >
-                            <h4 class="font-medium text-gray-800 dark:text-gray-200">{{ result.title }}</h4>
-                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ result.excerpt }}</p>
-                        </a>
-                    </div>
-                </div>
-                <div v-else-if="searchQuery && !isSearching" class="mt-6 text-center text-gray-500 dark:text-gray-400">
-                    Nenhum resultado encontrado para "{{ searchQuery }}"
-                </div>
+        <!-- Main Content -->
+        <main class="flex-grow py-6 bg-[#f5f5f5]">
+            <div class="container mx-auto">
+                <router-view />
             </div>
-        </div>
-
-        <!-- Conteúdo principal -->
-        <main class="flex-grow">
-            <slot />
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#121212] text-gray-300 py-8">
-            <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <footer class="bg-[#000] text-gray-300 py-10">
+            <div class="container mx-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
                     <div>
-                        <img src="/src/theme-tudojogo/Nome.png" alt="TudoJogos" class="h-8 mb-4">
-                        <p class="text-sm">Seu portal completo de notícias gamer.</p>
-                    </div>
-                    <div>
-                        <h3 class="text-white font-bold mb-4">Links Rápidos</h3>
+                        <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Sobre</h3>
                         <ul class="space-y-2">
-                            <li><a href="#" class="hover:text-[#14f195] text-sm">Console</a></li>
-                            <li><a href="#" class="hover:text-[#14f195] text-sm">Mobile</a></li>
-                            <li><a href="#" class="hover:text-[#14f195] text-sm">PC</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Quem Somos</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Nossa Equipe</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Trabalhe Conosco</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Contato</a></li>
                         </ul>
                     </div>
                     <div>
-                        <h3 class="text-white font-bold mb-4">Redes Sociais</h3>
-                        <div class="flex space-x-4">
-                            <a href="#" class="text-gray-400 hover:text-[#14f195]"><i class="fab fa-facebook"></i></a>
-                            <a href="#" class="text-gray-400 hover:text-[#14f195]"><i class="fab fa-twitter"></i></a>
-                            <a href="#" class="text-gray-400 hover:text-[#14f195]"><i class="fab fa-instagram"></i></a>
-                            <a href="#" class="text-gray-400 hover:text-[#14f195]"><i class="fab fa-youtube"></i></a>
+                        <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Categorias</h3>
+                        <ul class="space-y-2">
+                            <li v-for="category in categoriesColumns[0]" :key="category.id">
+                                <a :href="`/category/${category.slug}`" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">
+                                    {{ category.name }}
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Serviços</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Newsletter</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Podcasts</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Comparativos</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Reviews</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Legal</h3>
+                        <ul class="space-y-2">
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Termos de Uso</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Política de Privacidade</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Cookies</a></li>
+                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Direitos Autorais</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center pt-6 border-t border-gray-800 text-sm text-gray-500">
+                    <p>&copy; {{ new Date().getFullYear() }} TudoJogo. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Search Modal -->
+        <div v-if="searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="search-modal" role="dialog" aria-modal="true">
+            <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true" @click="closeSearchModal" style="backdrop-filter: blur(4px);"></div>
+
+                <!-- Modal panel -->
+                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
+                    <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="w-full">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                        Pesquisar
+                                    </h3>
+                                    <button @click="closeSearchModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="mb-4 relative">
+                                    <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="search"
+                                        v-model="searchQuery"
+                                        @input="debouncedSearch"
+                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-10 p-2.5 focus:ring-[#00aa30] focus:border-[#00aa30]"
+                                        placeholder="Pesquisar posts..."
+                                        autocomplete="off"
+                                        ref="searchInput"
+                                    />
+                                </div>
+
+                                <div class="mt-4 max-h-[70vh] overflow-y-auto">
+                                    <div v-if="isSearching" class="flex justify-center items-center py-8">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00aa30]"></div>
+                                    </div>
+
+                                    <div v-else-if="searchResults.length === 0 && searchQuery.length > 1" class="py-8 text-center text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p>Nenhum resultado encontrado para "{{ searchQuery }}"</p>
+                                    </div>
+
+                                    <div v-else-if="searchQuery.length > 1" class="space-y-4">
+                                        <p v-if="searchResults.length > 0" class="text-sm text-gray-500 mb-2">
+                                            {{ searchResults.length }} resultado{{ searchResults.length !== 1 ? 's' : '' }} encontrado{{ searchResults.length !== 1 ? 's' : '' }}
+                                        </p>
+                                        <a
+                                            v-for="post in searchResults"
+                                            :key="post.id"
+                                            :href="`/post/${post.slug}`"
+                                            class="block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                                        >
+                                            <div class="flex flex-col sm:flex-row">
+                                                <div class="p-4 flex-grow">
+                                                    <h4 class="font-bold text-gray-900 mb-1">{{ post.title }}</h4>
+                                                    <p v-if="post.excerpt" class="text-sm text-gray-600 line-clamp-2">
+                                                        {{ post.excerpt }}
+                                                    </p>
+                                                    <div class="mt-2 text-xs text-gray-500 flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        {{ formatDate(post.publishedAt || post.updatedAt) }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </footer>
+        </div>
     </div>
+
+    <CookieConsent />
 </template>
 
 <script setup lang="ts">
@@ -162,7 +271,7 @@ useHead({
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-tudojogo/favicon.ico?v=2'
+            href: '/src/theme-tudojogo/favicon.ico?v=3'
         },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com/' },

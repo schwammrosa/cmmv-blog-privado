@@ -392,26 +392,3 @@ iframe {
     background-repeat: no-repeat;
     opacity: 0.2;
 }
-
-/* Cores do tema */
-:root {
-  --primary: #7b2cbf;
-  --secondary: #14f195;
-  --dark: #121212;
-  --light: #f8f9fa;
-}
-
-/* Estilos globais */
-body {
-  background-color: var(--light);
-  color: #333;
-  font-family: 'Inter', sans-serif;
-}
-
-/* Grid de notícias */
-.news-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
-}
