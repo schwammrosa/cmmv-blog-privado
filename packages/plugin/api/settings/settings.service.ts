@@ -43,7 +43,9 @@ const SENSITIVE_KEYS = [
     "blog.twilioAuthToken",
     // Analytics and verification
     "blog.googleAnalyticsId",
-    "blog.adminEmail"
+    "blog.adminEmail",
+    "blog.cloudflareToken",
+    "blog.cloudflareZoneId",
 ];
 
 @Service("blog_settings")
