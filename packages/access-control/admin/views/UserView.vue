@@ -346,6 +346,18 @@
                                     Email Validated
                                 </label>
                             </div>
+                            <div class="flex items-center">
+                                <input
+                                    id="userVerifyEmail"
+                                    v-model="userForm.verifyEmail"
+                                    type="checkbox"
+                                    class="h-4 w-4 rounded border-neutral-600 text-blue-600 focus:ring-blue-500 bg-neutral-700"
+                                />
+                                <label for="userVerifyEmail" class="ml-2 block text-sm text-neutral-300">
+                                    Verify Email (Send verification)
+                                </label>
+                                <span class="ml-2 text-xs text-neutral-500">(Sends a new verification email to the user)</span>
+                            </div>
                         </div>
 
                         <div class="flex justify-end space-x-3 mt-6">
@@ -472,7 +484,8 @@ const userForm = ref({
     password: '',
     groups: [],
     validated: false,
-    blocked: false
+    blocked: false,
+    verifyEmail: false
 })
 const userToEdit = ref(null)
 const formErrors = ref({})
@@ -599,7 +612,8 @@ const openAddDialog = () => {
         password: '',
         groups: [],
         validated: false,
-        blocked: false
+        blocked: false,
+        verifyEmail: false
     }
     formErrors.value = {}
     loadGroups()
@@ -615,7 +629,8 @@ const openEditDialog = (user) => {
         password: '',
         groups: user.groups || [],
         validated: user.validated !== undefined ? user.validated : false,
-        blocked: user.blocked !== undefined ? user.blocked : false
+        blocked: user.blocked !== undefined ? user.blocked : false,
+        verifyEmail: false
     }
     formErrors.value = {}
     loadGroups()
@@ -630,7 +645,8 @@ const closeDialog = () => {
         password: '',
         groups: [],
         validated: false,
-        blocked: false
+        blocked: false,
+        verifyEmail: false
     }
     formErrors.value = {}
     userToEdit.value = null
@@ -667,6 +683,7 @@ const saveUser = async () => {
             email: userForm.value.email.trim(),
             validated: userForm.value.validated,
             blocked: userForm.value.blocked,
+            verifyEmail: userForm.value.verifyEmail,
             // Include groups directly in the user data
             groups: userForm.value.groups || []
         };
@@ -682,7 +699,11 @@ const saveUser = async () => {
             const updateResponse = await client.users.update(userToEdit.value.id, userData);
             console.log('User update response:', updateResponse);
 
-            showNotification('success', 'User updated successfully');
+            if (userForm.value.verifyEmail) {
+                showNotification('success', 'User updated and verification email sent');
+            } else {
+                showNotification('success', 'User updated successfully');
+            }
         } else {
             // Create user with groups included
             const createResponse = await client.users.create(userData);
