@@ -224,7 +224,7 @@ export const useAds = (settings: any, page = 'generic') => {
             }
 
             // Initialize AdSense ad units
-            if (adSettings.value.enableAdSense && window.adsbygoogle) {
+            /*if (adSettings.value.enableAdSense && window.adsbygoogle) {
                 setTimeout(() => {
                     try {
                         document.querySelectorAll('.adsbygoogle').forEach((ad) => {
@@ -236,7 +236,7 @@ export const useAds = (settings: any, page = 'generic') => {
                         console.error('AdSense initialization error:', e);
                     }
                 }, 300);
-            }
+            }*/
         }
     };
 
