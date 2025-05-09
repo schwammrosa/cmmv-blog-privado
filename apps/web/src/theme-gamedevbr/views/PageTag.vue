@@ -192,7 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, onServerPrefetch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
@@ -213,7 +213,7 @@ declare global {
 const settingsStore = useSettingsStore();
 const blogAPI = vue3.useBlog();
 const route = useRoute();
-const data = ref<any>({});
+const data = ref<any>(await blogAPI.tags.getPostsBySlug(route.params.slug as string));
 const posts = ref<any[]>(data.value.posts || []);
 const settings = ref<any>(settingsStore.getSettings);
 const loading = ref(false);
@@ -222,12 +222,6 @@ const hasMorePosts = ref(true);
 const currentPage = ref(0);
 const observerTarget = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
-
-onServerPrefetch(async () => {
-    const data = ref<any>(await blogAPI.tags.getPostsBySlug(route.params.slug as string));
-    posts.value = data.value.posts || [];
-    hasMorePosts.value = posts.value.length < (data.value.posts?.count || 0);
-});
 
 // Elements references
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
