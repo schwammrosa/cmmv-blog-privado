@@ -192,7 +192,7 @@ VITE_DEFAULT_THEME="default"
 
                     switch(setting.type) {
                         case "boolean":
-                            settingsResult[setting.key] = setting.value === "true";
+                            settingsResult[setting.key] = setting.value === "true" || setting.value === "1";
                             break;
                         case "number":
                             settingsResult[setting.key] = parseInt(setting.value);

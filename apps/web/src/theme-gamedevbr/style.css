@@ -287,7 +287,6 @@
 iframe {
     width: 100%;
     border: none;
-    margin: 1.5rem 0;
     aspect-ratio: 16/9;
     min-height: 477px;
 }

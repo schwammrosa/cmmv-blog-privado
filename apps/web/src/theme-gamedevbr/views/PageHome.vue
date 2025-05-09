@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full max-w-[1200px] mx-auto">
+    <div class="w-full max-w-[1400px] mx-auto px-4">
         <div v-if="error" class="text-center py-16 bg-white rounded-lg shadow-md">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -245,187 +245,279 @@
                 </div>
             </section>
 
+            <!-- Top AdSense Banner -->
+            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+                <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
+                    <div v-html="getAdHtml('header')"></div>
+                </div>
+                <div class="ad-container ad-banner-top py-2 px-4" v-else>
+                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                        <span>Anúncio</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Main Content Layout -->
             <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Posts Container -->
+                <!-- Left AdSense Sidebar -->
+                <aside class="xl:w-[160px] shrink-0 hidden xl:block" v-if="adSettings.enableAds">
+                    <div class="sticky top-24">
+                        <div class="ad-container ad-sidebar-left mb-6" v-if="adSettings.adSenseSidebarLeft">
+                            <div ref="sidebarLeftAdContainer"></div>
+                        </div>
+                        <div class="ad-container ad-sidebar-left mb-6" v-else>
+                            <div class="ad-placeholder h-[600px] w-[160px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                <span>Anúncio</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Content Area -->
                 <div class="flex-grow">
-                    <!-- Latest News Section -->
-                    <div class="mb-8">
-                        <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
-                            Últimas Notícias
-                        </h2>
+                    <!-- Main Content in 2 Columns -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Left Column (Latest News) -->
+                        <div class="lg:col-span-2">
+                            <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                Últimas Notícias
+                            </h2>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <article
-                                v-for="post in posts.slice(featuredPost ? 1 : 0, featuredPost ? 5 : 4)"
-                                :key="post.id"
-                                class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
-                            >
-                                <a :href="`/post/${post.slug}`" class="block">
-                                    <div class="h-48 overflow-hidden relative">
-                                        <img
-                                            v-if="post.featureImage"
-                                            :src="post.featureImage"
-                                            :alt="post.title"
-                                            class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                                        />
-                                        <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <article
+                                    v-for="post in posts.slice(featuredPost ? 1 : 0, featuredPost ? 5 : 4)"
+                                    :key="post.id"
+                                    class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                >
+                                    <a :href="`/post/${post.slug}`" class="block">
+                                        <div class="h-48 overflow-hidden relative">
+                                            <img
+                                                v-if="post.featureImage"
+                                                :src="post.featureImage"
+                                                :alt="post.title"
+                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                                            />
+                                            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
+                                                <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
+                                                    {{ post.categories[0].name }}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
-                                            <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
-                                                {{ post.categories[0].name }}
+                                    </a>
+                                    <div class="p-4">
+                                        <a :href="`/post/${post.slug}`" class="block">
+                                            <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                {{ post.title }}
+                                            </h3>
+                                        </a>
+                                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                                            {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
+                                        </p>
+                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                            <span v-if="getAuthor(post)">Por {{ getAuthor(post).name }}</span>
+                                            <span>{{ formatDate(post.publishedAt) }}</span>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <!-- Mid-content AdSense Banner -->
+                            <div v-if="adSettings.enableAds" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
+                                <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
+                                    <div v-html="getAdHtml('inContent')"></div>
+                                </div>
+                                <div class="ad-container ad-banner-mid py-2 px-4" v-else>
+                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- More Posts Section -->
+                            <div v-if="posts.length > (featuredPost ? 5 : 4)">
+                                <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                    Mais Conteúdo
+                                </h2>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    <article
+                                        v-for="post in posts.slice(featuredPost ? 5 : 4)"
+                                        :key="post.id"
+                                        class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                    >
+                                        <a :href="`/post/${post.slug}`" class="block">
+                                            <div class="h-48 overflow-hidden relative">
+                                                <img
+                                                    v-if="post.featureImage"
+                                                    :src="post.featureImage"
+                                                    :alt="post.title"
+                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                                                />
+                                                <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                                <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
+                                                    <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
+                                                        {{ post.categories[0].name }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="p-4">
+                                            <a :href="`/post/${post.slug}`" class="block">
+                                                <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                    {{ post.title }}
+                                                </h3>
+                                            </a>
+                                            <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                                                {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
+                                            </p>
+                                            <div class="flex justify-between items-center text-xs text-gray-500">
+                                                <span v-if="getAuthor(post)">Por {{ getAuthor(post).name }}</span>
+                                                <span>{{ formatDate(post.publishedAt) }}</span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+
+                            <!-- Bottom AdSense Banner -->
+                            <div v-if="adSettings.enableAds && adSettings.homePageAfterPosts" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
+                                <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
+                                    <div v-html="getAdHtml('belowContent')"></div>
+                                </div>
+                                <div class="ad-container ad-banner-bottom py-2 px-4" v-else>
+                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Loading More Indicator -->
+                            <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
+                                <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
+                                <span class="ml-3 text-gray-600">Carregando mais posts...</span>
+                            </div>
+
+                            <!-- Infinite Scroll Observer Target -->
+                            <div ref="observerTarget" class="h-4 w-full"></div>
+                        </div>
+
+                        <!-- Right Column (Widgets + Ads) -->
+                        <div class="lg:col-span-1">
+                            <!-- AdSense Rectangle (Top) -->
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                                <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
+                                    <div v-html="getAdHtml('sidebarTop')"></div>
+                                </div>
+                                <div class="ad-container ad-sidebar-top" v-else>
+                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Popular Posts Widget -->
+                            <div class="bg-white rounded-lg shadow-md p-5 mb-6">
+                                <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                    Mais Populares
+                                </h2>
+
+                                <div class="space-y-4">
+                                    <div
+                                        v-for="post in popularPosts"
+                                        :key="post.id"
+                                        class="flex gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                                    >
+                                        <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
+                                            <a :href="`/post/${post.slug}`">
+                                                <img
+                                                    v-if="post.image"
+                                                    :src="post.image"
+                                                    :alt="post.title"
+                                                    class="w-full h-full object-cover"
+                                                />
+                                                <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                </div>
+                                            </a>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <a :href="`/post/${post.slug}`" class="block">
+                                                <h4 class="text-sm font-semibold text-gray-800 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                    {{ post.title }}
+                                                </h4>
+                                            </a>
+                                            <span class="text-xs text-gray-500 mt-1 block">
+                                                {{ formatDate(post.publishedAt) }}
                                             </span>
                                         </div>
                                     </div>
-                                </a>
-                                <div class="p-4">
-                                    <a :href="`/post/${post.slug}`" class="block">
-                                        <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
-                                            {{ post.title }}
-                                        </h3>
-                                    </a>
-                                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                                        {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
-                                    </p>
-                                    <div class="flex justify-between items-center text-xs text-gray-500">
-                                        <span v-if="getAuthor(post)">Por {{ getAuthor(post).name }}</span>
-                                        <span>{{ formatDate(post.publishedAt) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- AdSense Rectangle (Middle) -->
+                            <div class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                                <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
+                                    <div v-html="getAdHtml('sidebarMid')"></div>
+                                </div>
+                                <div class="ad-container ad-sidebar-mid" v-else>
+                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
                                     </div>
                                 </div>
-                            </article>
-                        </div>
-                    </div>
+                            </div>
 
-                    <!-- More Posts Section -->
-                    <div v-if="posts.length > (featuredPost ? 5 : 4)">
-                        <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
-                            Mais Conteúdo
-                        </h2>
+                            <!-- Categories Widget -->
+                            <div class="bg-white rounded-lg shadow-md p-5 mb-6">
+                                <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                    Categorias
+                                </h2>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                            <article
-                                v-for="post in posts.slice(featuredPost ? 5 : 4)"
-                                :key="post.id"
-                                class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
-                            >
-                                <a :href="`/post/${post.slug}`" class="block">
-                                    <div class="h-48 overflow-hidden relative">
-                                        <img
-                                            v-if="post.featureImage"
-                                            :src="post.featureImage"
-                                            :alt="post.title"
-                                            class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                                        />
-                                        <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                        <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
-                                            <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
-                                                {{ post.categories[0].name }}
+                                <ul class="space-y-2">
+                                    <li v-for="category in categories" :key="category.id" class="border-b border-gray-100 last:border-0 pb-2 last:pb-0">
+                                        <a
+                                            :href="`/category/${category.slug}`"
+                                            class="flex justify-between items-center text-gray-700 hover:text-[#0a5d28] transition-colors"
+                                        >
+                                            {{ category.name }}
+                                            <span class="bg-[#0a5d28] text-white px-2 py-1 rounded-full text-xs font-medium">
+                                                {{ category.postCount }}
                                             </span>
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="p-4">
-                                    <a :href="`/post/${post.slug}`" class="block">
-                                        <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
-                                            {{ post.title }}
-                                        </h3>
-                                    </a>
-                                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">
-                                        {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
-                                    </p>
-                                    <div class="flex justify-between items-center text-xs text-gray-500">
-                                        <span v-if="getAuthor(post)">Por {{ getAuthor(post).name }}</span>
-                                        <span>{{ formatDate(post.publishedAt) }}</span>
-                                    </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <!-- AdSense Rectangle (Bottom) -->
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarBottom" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                                <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
+                                    <div v-html="getAdHtml('sidebarBottom')"></div>
                                 </div>
-                            </article>
-                        </div>
-                    </div>
-
-                    <!-- Loading More Indicator -->
-                    <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
-                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
-                        <span class="ml-3 text-gray-600">Carregando mais posts...</span>
-                    </div>
-
-                    <!-- Infinite Scroll Observer Target -->
-                    <div ref="observerTarget" class="h-4 w-full"></div>
-                </div>
-
-                <!-- Sidebar -->
-                <aside class="lg:w-80 shrink-0">
-                    <!-- Popular Posts Widget -->
-                    <div class="bg-white rounded-lg shadow-md p-5 mb-6">
-                        <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
-                            Mais Populares
-                        </h2>
-
-                        <div class="space-y-4">
-                            <div
-                                v-for="post in popularPosts"
-                                :key="post.id"
-                                class="flex gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0"
-                            >
-                                <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
-                                    <a :href="`/post/${post.slug}`">
-                                        <img
-                                            v-if="post.image"
-                                            :src="post.image"
-                                            :alt="post.title"
-                                            class="w-full h-full object-cover"
-                                        />
-                                        <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                            </svg>
-                                        </div>
-                                    </a>
-                                </div>
-                                <div class="flex-grow">
-                                    <a :href="`/post/${post.slug}`" class="block">
-                                        <h4 class="text-sm font-semibold text-gray-800 hover:text-[#0a5d28] transition-colors line-clamp-2">
-                                            {{ post.title }}
-                                        </h4>
-                                    </a>
-                                    <span class="text-xs text-gray-500 mt-1 block">
-                                        {{ formatDate(post.publishedAt) }}
-                                    </span>
+                                <div class="ad-container ad-sidebar-bottom" v-else>
+                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                    <!-- Categories Widget -->
-                    <div class="bg-white rounded-lg shadow-md p-5 mb-6">
-                        <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
-                            Categorias
-                        </h2>
-
-                        <ul class="space-y-2">
-                            <li v-for="category in categories" :key="category.id" class="border-b border-gray-100 last:border-0 pb-2 last:pb-0">
-                                <a
-                                    :href="`/category/${category.slug}`"
-                                    class="flex justify-between items-center text-gray-700 hover:text-[#0a5d28] transition-colors"
-                                >
-                                    {{ category.name }}
-                                    <span class="bg-[#0a5d28] text-white px-2 py-1 rounded-full text-xs font-medium">
-                                        {{ category.postCount }}
-                                    </span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </aside>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Taboola JS Code -->
+    <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
 </template>
 
 <script setup lang="ts">
@@ -437,18 +529,38 @@ import { useCategoriesStore } from '../../store/categories';
 import { usePostsStore } from '../../store/posts';
 import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
+import { useAds } from '../../composables/useAds';
+
+// Declare adsbygoogle for TypeScript
+declare global {
+    interface Window {
+        adsbygoogle: any[];
+    }
+}
 
 const settingsStore = useSettingsStore();
 const categoriesStore = useCategoriesStore();
 const postsStore = usePostsStore();
-const mostAccessedPostsStore = useMostAccessedPostsStore();
+const mostAccessedStore = useMostAccessedPostsStore();
 const blogAPI = vue3.useBlog();
 
 // State
-const settings = ref<any>(settingsStore.getSettings);
+const rawSettings = computed(() => settingsStore.getSettings);
+const settings = computed<Record<string, any>>(() => {
+    const settingsObj = rawSettings.value || {};
+    // Extract all blog.* settings
+    const blogSettings: Record<string, any> = {};
+    Object.keys(settingsObj).forEach(key => {
+        if (key.startsWith('blog.')) {
+            const shortKey = key.replace('blog.', '');
+            blogSettings[shortKey] = settingsObj[key];
+        }
+    });
+    return blogSettings;
+});
 const categories = ref<any[]>(categoriesStore.getCategories || []);
 const posts = ref<any[]>(postsStore.getPosts || []);
-const popularPosts = ref<any[]>(mostAccessedPostsStore.getMostAccessedPosts || []);
+const popularPosts = ref<any[]>(mostAccessedStore.getMostAccessedPosts || []);
 const loading = ref(true);
 const loadingMore = ref(false);
 const error = ref(null);
@@ -459,9 +571,20 @@ const observer = ref<IntersectionObserver | null>(null);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
 
+// Elements references
+const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
+
+// Create formatted settings object for useAds
+const adPluginSettings = computed(() => {
+    return settings.value || {};
+});
+
+// Set up ads functionality using the composable
+const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPluginSettings.value, 'home');
+
 const coverSettings = computed(() => {
     try {
-        const config = settings.value['blog.cover'];
+        const config = settings.value.cover;
         return config ? JSON.parse(config) : { layoutType: 'full' };
     } catch (err) {
         console.error('Error parsing cover settings:', err);
@@ -470,7 +593,7 @@ const coverSettings = computed(() => {
 });
 
 const hasCoverConfig = computed(() => {
-    return !!settings.value['blog.cover'] && Object.keys(coverSettings.value).length > 0;
+    return !!settings.value.cover && Object.keys(coverSettings.value).length > 0;
 });
 
 const coverPosts = computed(() => {
@@ -586,18 +709,18 @@ const prevCarouselSlide = () => {
 };
 
 const headData = ref({
-    title: settings.value['blog.title'],
+    title: settings.value.title,
     meta: [
-        { name: 'description', content: settings.value['blog.description'] },
-        { name: 'keywords', content: settings.value['blog.keywords'] },
+        { name: 'description', content: settings.value.description },
+        { name: 'keywords', content: settings.value.keywords },
         { property: 'og:type', content: 'website' },
-        { property: 'og:title', content: settings.value['blog.title'] },
-        { property: 'og:description', content: settings.value['blog.description'] },
-        { property: 'og:image', content: settings.value['blog.logo'] }
+        { property: 'og:title', content: settings.value.title },
+        { property: 'og:description', content: settings.value.description },
+        { property: 'og:image', content: settings.value.logo }
     ],
     link: [
-        { rel: 'canonical', href: settings.value['blog.url'] },
-        { rel: 'alternate', href: `${settings.value['blog.url']}/feed`, type: 'application/rss+xml', title: settings.value['blog.title'] }
+        { rel: 'canonical', href: settings.value.url },
+        { rel: 'alternate', href: `${settings.value.url}/feed`, type: 'application/rss+xml', title: settings.value.title }
     ]
 });
 
@@ -719,11 +842,13 @@ const getAuthor = (post: any) => {
 };
 
 onMounted(async () => {
-    await Promise.all([
-        loadPosts()
-    ]);
+    loading.value = false;
     setupIntersectionObserver();
     startCarouselInterval();
+
+    // Load ad scripts and sidebar left ad
+    loadAdScripts();
+    loadSidebarLeftAd(sidebarLeftAdContainer.value);
 });
 
 onUnmounted(() => {
@@ -746,6 +871,21 @@ watch(() => settings.value['blog.cover'], () => {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+
+.ad-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+}
+
+/* Only hide the left sidebar on screens smaller than 1280px */
+@media (max-width: 1280px) {
+    .ad-sidebar-left {
+        display: none;
+    }
 }
 </style>
 
