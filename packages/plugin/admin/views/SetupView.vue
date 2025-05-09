@@ -632,7 +632,7 @@ const finishSetup = async () => {
 }
 
 onMounted(async () => {
-    const settings = await adminClient.settings.getRoot();
+    const settings = await adminClient.settings.get();
 
     if(settings.setupFinish){
         localStorage.setItem('setupFinish', true);
