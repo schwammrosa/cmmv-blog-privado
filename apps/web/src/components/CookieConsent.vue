@@ -4,8 +4,8 @@
             <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                 <div class="flex-1">
                     <p class="text-sm md:text-base text-neutral-200">
-                        This website uses cookies to enhance your browsing experience. By continuing to use this site, you consent to our use of cookies according to our
-                        <a href="/terms-of-privacy" class="text-blue-400 hover:text-blue-300 underline">Privacy Policy</a>.
+                        Este site utiliza cookies para melhorar sua experiência de navegação. Ao continuar a usar este site, você consente com o uso de cookies de acordo com nossa
+                        <a href="/terms-of-privacy" class="text-blue-400 hover:text-blue-300 underline">Política de Privacidade</a>.
                     </p>
                 </div>
                 <div class="flex flex-shrink-0 gap-3">
@@ -13,13 +13,13 @@
                         @click="rejectCookies"
                         class="px-4 py-2 text-sm bg-transparent hover:bg-neutral-700 rounded-md border border-neutral-600 text-neutral-300 transition-colors cursor-pointer"
                     >
-                        Decline
+                        Recusar
                     </button>
                     <button
                         @click="acceptCookies"
                         class="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 rounded-md text-white font-medium transition-colors cursor-pointer"
                     >
-                        Accept
+                        Aceitar
                     </button>
                 </div>
             </div>
