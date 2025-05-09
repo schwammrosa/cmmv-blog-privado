@@ -254,7 +254,7 @@ onMounted(async () => {
     const settings = await adminClient.settings.get();
     console.log(settings);
 
-    if(!settings.setupFinish)
+    if(!settings.setupFinish && !settings["blog.url"])
         router.push('/setup');
 })
 </script>

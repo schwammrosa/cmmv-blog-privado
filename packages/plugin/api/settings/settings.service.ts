@@ -43,7 +43,26 @@ const SENSITIVE_KEYS = [
     "blog.twilioAuthToken",
     // Analytics and verification
     "blog.googleAnalyticsId",
-    "blog.adminEmail"
+    "blog.adminEmail",
+    "blog.cloudflareToken",
+    "blog.cloudflareZoneId",
+    "blog.cloudfrontAccessKey",
+    "blog.cloudfrontSecretKey",
+    "blog.cloudfrontDistributionId",
+    "blog.cloudfrontRegion",
+    "blog.autoPurgeCache",
+    // OneSignal settings
+    "blog.oneSignalAppId",
+    "blog.oneSignalApiKey",
+    "blog.oneSignalSafariWebId",
+    // AdSense settings
+    "blog.twilioAccountSid",
+    "blog.twilioAuthToken",
+    "blog.twilioFromNumber",
+    "blog.twilioAdminNumber",
+    // Indexing settings
+    "blog.googleIndexingApiKey",
+    "blog.googleIndexingServiceAccount",
 ];
 
 @Service("blog_settings")

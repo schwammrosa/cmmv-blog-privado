@@ -3893,7 +3893,11 @@ const tabFieldMap = {
         "redditUsername",
         "redditPassword",
     ],
-    seo: ["metaDescription", "metaKeywords", "defaultFeaturedImage"],
+    seo: [
+        "metaDescription",
+        "metaKeywords",
+        "defaultFeaturedImage"
+    ],
     ai: [
         "aiService",
         "geminiApiKey",
