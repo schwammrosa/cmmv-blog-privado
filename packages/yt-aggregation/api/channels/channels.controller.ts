@@ -16,19 +16,19 @@ export class YTChannelsController {
     constructor(private readonly ytChannelsService: YTChannelsServiceAdmin){}
 
     @Get("processChannels", {exclude: true })
-    @Auth({ rootOnly: true})
+    @Auth()
     async processChannels() {
         return await this.ytChannelsService.processChannels(true);
     }
 
     @Get("processChannel/:channelId", {exclude: true })
-    @Auth({ rootOnly: true})
+    @Auth()
     async processChannel(@Param("channelId") channelId: string) {
         return await this.ytChannelsService.processChannel(channelId);
     }
 
     @Get("getChannelInfo", {exclude: true })
-    @Auth({ rootOnly: true})
+    @Auth()
     async getChannelInfo(@Query("u") channelUrl: string) {
         return await this.ytChannelsService.getChannelInfoFromUrl(decodeURIComponent(channelUrl));
     }
