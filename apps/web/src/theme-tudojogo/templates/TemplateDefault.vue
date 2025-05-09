@@ -17,7 +17,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </button>
-                            <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors hidden md:inline-block">Entrar</a>
+
                             <!-- Botão do menu hambúrguer para dispositivos móveis -->
                             <button @click="toggleMobileMenu" class="md:hidden text-white p-2 focus:outline-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,7 +117,7 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-grow py-6 bg-[#f5f5f5]">
+        <main class="flex-grow py-6 bg-gray-400">
             <div class="container mx-auto">
                 <router-view />
             </div>
@@ -192,9 +192,9 @@
                             <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Contato</a></li>
                         </ul>
                     </div>
-                    <div>
+                    <div class="sm:col-span-2">
                         <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Categorias</h3>
-                        <ul class="space-y-2">
+                        <ul class="space-y-2 grid grid-cols-2 gap-x-4">
                             <li v-for="category in categoriesColumns[0]" :key="category.id">
                                 <a :href="`/category/${category.slug}`" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">
                                     {{ category.name }}
