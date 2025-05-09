@@ -245,15 +245,18 @@ const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPlu
 
 loading.value = true;
 
-const data = ref<any>(route.params.id ?
+onServerPrefetch(async () => {
+    const data = ref<any>(route.params.id ?
     await blogAPI.categories.getById(route.params.id as string) :
     await blogAPI.categories.getBySlug(route.params.slug as string));
 
-category.value = data.value.category;
-posts.value = data.value.posts?.data || [];
-pagination.value = data.value.posts?.pagination;
+    category.value = data.value.category;
+    posts.value = data.value.posts?.data || [];
+    pagination.value = data.value.posts?.pagination;
 
-hasMorePosts.value = posts.value.length < (data.value.posts?.count || 0);
+    hasMorePosts.value = posts.value.length < (data.value.posts?.count || 0);
+});
+
 
 const pageUrl = computed(() => {
     // Use the URL from settings instead of the environment variable

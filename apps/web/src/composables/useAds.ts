@@ -275,23 +275,6 @@ export const useAds = (settings: any, page = 'generic') => {
                     // Create a temporary div to parse the HTML
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = adSettings.value.adSenseSidebarLeft;
-
-                    // Get the ins element
-                    const insElement = tempDiv.querySelector('ins');
-                    if (insElement && containerRef) {
-                        containerRef.appendChild(insElement);
-
-                        // Initialize AdSense for this specific ad
-                        if (window.adsbygoogle) {
-                            try {
-                                window.adsbygoogle.push({});
-                            } catch (e) {
-                                console.error('Error initializing left sidebar ad:', e);
-                            }
-                        }
-                    } else {
-                        console.error('Could not find ins element in adSenseSidebarLeft HTML or container is no longer available');
-                    }
                 }, 500);
             } catch (e) {
                 console.error('Error inserting left sidebar ad:', e);
