@@ -6,7 +6,7 @@
                 <div class="flex justify-between items-center py-4">
                     <div class="logo">
                         <a href="/">
-                            <img src="./Nome.png" alt="TudoJogos" class="h-10">
+                            <img src="/src/theme-tudojogo/Nome.png" alt="TudoJogos" class="h-10">
                         </a>
                     </div>
                     <nav class="hidden md:block">
