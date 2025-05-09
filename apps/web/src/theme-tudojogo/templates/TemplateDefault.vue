@@ -17,18 +17,36 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </button>
-                            <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors">Entrar</a>
-                            <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors">Cadastrar</a>
+                            <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors hidden md:inline-block">Entrar</a>
+                            <!-- Botão do menu hambúrguer para dispositivos móveis -->
+                            <button @click="toggleMobileMenu" class="md:hidden text-white p-2 focus:outline-none">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- Menu móvel -->
+            <div v-if="mobileMenuOpen" class="md:hidden bg-[#111] py-2 px-4 absolute w-full z-50 shadow-lg">
+                <div class="flex flex-col space-y-3 py-2">
+                    <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors py-2 border-b border-gray-800">Entrar</a>
+                    <a v-for="category in mainNavCategories.rootCategories" :key="category.id"
+                       :href="`/category/${category.slug}`"
+                       class="text-white py-2 font-medium text-sm border-b border-gray-800">
+                        {{ category.name }}
+                    </a>
+                </div>
+            </div>
+            
             <nav class="main-nav bg-[#111] py-3 relative">
                 <div class="max-w-[1200px] mx-auto px-4">
                     <div class="mx-auto">
                         <div class="nav-container flex justify-between items-center relative">
                             <!-- Menu para desktop -->
-                            <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto">
+                            <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto hidden md:flex">
                                 <a href="/" class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] bg-[#00aa30] transition-colors whitespace-nowrap">Home</a>
                                 <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
                                     <a
@@ -106,9 +124,65 @@
         </main>
 
         <!-- Footer -->
-        <footer class="bg-[#000] text-gray-300 py-10">
+        <footer class="bg-[#000] text-gray-300 py-6 md:py-10">
             <div class="container mx-auto">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <!-- Versão móvel compacta do rodapé -->
+                <div class="md:hidden mb-4">
+                    <div class="accordion">
+                        <div class="accordion-item border-b border-gray-800 py-3">
+                            <button @click="toggleFooterSection('sobre')" class="w-full flex justify-between items-center text-left">
+                                <h3 class="text-lg font-semibold text-white">Sobre</h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" :class="{'rotate-180': openFooterSections.sobre}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div v-if="openFooterSections.sobre" class="mt-2 pl-2">
+                                <ul class="space-y-2">
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Quem Somos</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Nossa Equipe</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Trabalhe Conosco</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Contato</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-b border-gray-800 py-3">
+                            <button @click="toggleFooterSection('categorias')" class="w-full flex justify-between items-center text-left">
+                                <h3 class="text-lg font-semibold text-white">Categorias</h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" :class="{'rotate-180': openFooterSections.categorias}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div v-if="openFooterSections.categorias" class="mt-2 pl-2">
+                                <ul class="space-y-2">
+                                    <li v-for="category in categoriesColumns[0].slice(0, 4)" :key="category.id">
+                                        <a :href="`/category/${category.slug}`" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">
+                                            {{ category.name }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="accordion-item border-b border-gray-800 py-3">
+                            <button @click="toggleFooterSection('legal')" class="w-full flex justify-between items-center text-left">
+                                <h3 class="text-lg font-semibold text-white">Legal</h3>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform transition-transform" :class="{'rotate-180': openFooterSections.legal}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div v-if="openFooterSections.legal" class="mt-2 pl-2">
+                                <ul class="space-y-2">
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Termos de Uso</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Política de Privacidade</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Cookies</a></li>
+                                    <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Direitos Autorais</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Versão desktop do rodapé -->
+                <div class="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8 relative">
                     <div>
                         <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Sobre</h3>
                         <ul class="space-y-2">
@@ -128,16 +202,8 @@
                             </li>
                         </ul>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Serviços</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Newsletter</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Podcasts</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Comparativos</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Reviews</a></li>
-                        </ul>
-                    </div>
-                    <div>
+
+                    <div class="lg:col-start-4 lg:justify-self-end">
                         <h3 class="text-lg font-semibold text-white border-b-2 border-[#00aa30] pb-2 mb-4 inline-block">Legal</h3>
                         <ul class="space-y-2">
                             <li><a href="#" class="text-gray-400 hover:text-[#00aa30] transition-colors text-sm">Termos de Uso</a></li>
@@ -147,7 +213,7 @@
                         </ul>
                     </div>
                 </div>
-                <div class="flex flex-col items-center pt-6 border-t border-gray-800 text-sm text-gray-500">
+                <div class="flex flex-col items-center pt-4 md:pt-6 border-t border-gray-800 text-sm text-gray-500">
                     <p>&copy; {{ new Date().getFullYear() }} TudoJogo. Todos os direitos reservados.</p>
                 </div>
             </div>
@@ -312,6 +378,11 @@ const isSearching = ref(false);
 const searchTimeout = ref<any>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
 const mobileMenuOpen = ref(false);
+const openFooterSections = ref({
+    sobre: false,
+    categorias: false,
+    legal: false
+});
 
 const categories = ref<any[]>(categoriesStore.getCategories || []);
 
@@ -339,6 +410,14 @@ const mainNavCategories = computed(() => {
 });
 
 const openDropdowns = ref<Record<string, boolean>>({});
+
+const toggleMobileMenu = () => {
+    mobileMenuOpen.value = !mobileMenuOpen.value;
+};
+
+const toggleFooterSection = (section: string) => {
+    openFooterSections.value[section] = !openFooterSections.value[section];
+};
 
 const toggleDropdown = (categoryId: string, event: Event) => {
     event.stopPropagation();
