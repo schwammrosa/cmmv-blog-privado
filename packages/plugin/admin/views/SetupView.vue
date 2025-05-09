@@ -634,7 +634,7 @@ const finishSetup = async () => {
 onMounted(async () => {
     const settings = await adminClient.settings.get();
 
-    if(settings.setupFinish){
+    if(settings.setupFinish || settings.url){
         localStorage.setItem('setupFinish', true);
         router.push('/');
     }
