@@ -198,7 +198,7 @@
 
 <script setup lang="ts">
 //@ts-nocheck
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, onServerPrefetch  } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue'
 import { vue3 } from '@cmmv/blog/client';
@@ -245,18 +245,14 @@ const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPlu
 
 loading.value = true;
 
-onServerPrefetch(async () => {
-    const data = ref<any>(route.params.id ?
+const data = ref<any>(route.params.id ?
     await blogAPI.categories.getById(route.params.id as string) :
     await blogAPI.categories.getBySlug(route.params.slug as string));
 
-    category.value = data.value.category;
-    posts.value = data.value.posts?.data || [];
-    pagination.value = data.value.posts?.pagination;
-
-    hasMorePosts.value = posts.value.length < (data.value.posts?.count || 0);
-});
-
+category.value = data.value.category;
+posts.value = data.value.posts?.data || [];
+pagination.value = data.value.posts?.pagination;
+hasMorePosts.value = posts.value.length < (data.value.posts?.count || 0);
 
 const pageUrl = computed(() => {
     // Use the URL from settings instead of the environment variable
