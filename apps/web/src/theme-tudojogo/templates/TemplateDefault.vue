@@ -106,7 +106,7 @@
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
-                        <img src="./Nome.png" alt="TudoJogos" class="h-8 mb-4">
+                        <img src="/src/theme-tudojogo/Nome.png" alt="TudoJogos" class="h-8 mb-4">
                         <p class="text-sm">Seu portal completo de notícias gamer.</p>
                     </div>
                     <div>
