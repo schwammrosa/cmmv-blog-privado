@@ -1257,19 +1257,13 @@ const loadAdScripts = () => {
             try {
                 // Wait a bit for the DOM to be ready
                 setTimeout(() => {
-                    // Check if the reference is still valid
-                    if (!sidebarLeftAdContainer.value) {
-                        console.error('Left sidebar ad container no longer available');
-                        return;
-                    }
-
                     // Create a temporary div to parse the HTML
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = adSettings.value.adSenseSidebarLeft;
 
                     // Get the ins element
                     const insElement = tempDiv.querySelector('ins');
-                    if (insElement && sidebarLeftAdContainer.value) {
+                    if (insElement) {
                         sidebarLeftAdContainer.value.appendChild(insElement);
                         console.log('Left sidebar ad inserted into DOM');
 
@@ -1283,7 +1277,7 @@ const loadAdScripts = () => {
                             }
                         }
                     } else {
-                        console.error('Could not find ins element in adSenseSidebarLeft HTML or container is no longer available');
+                        console.error('Could not find ins element in adSenseSidebarLeft HTML');
                     }
                 }, 500);
             } catch (e) {
@@ -1313,7 +1307,7 @@ const loadAdScripts = () => {
 };
 
 // Elements references
-const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
+const sidebarLeftAdContainer = ref(null);
 </script>
 
 <style scoped>

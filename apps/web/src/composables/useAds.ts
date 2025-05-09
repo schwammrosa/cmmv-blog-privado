@@ -19,62 +19,80 @@ const isTruthy = (value: any): boolean => {
 export const useAds = (settings: any, page = 'generic') => {
     const adSettings = computed(() => {
         const rawSettings = settings || {};
+        const processedSettings: Record<string, any> = {};
+
+        // Process settings - extract blog. prefix if present
+        Object.keys(rawSettings).forEach(key => {
+            if (key.startsWith('blog.')) {
+                const shortKey = key.replace('blog.', '');
+                processedSettings[shortKey] = rawSettings[key];
+            } else {
+                processedSettings[key] = rawSettings[key];
+            }
+        });
 
         const result: Record<string, any> = {
             // Convert potential string values to proper booleans
-            enableAds: rawSettings['enableAds'],
-            showAdsLoggedIn: isTruthy(rawSettings['showAdsLoggedIn']),
+            enableAds: isTruthy(processedSettings['enableAds']),
+            showAdsLoggedIn: isTruthy(processedSettings['showAdsLoggedIn']),
 
             // Default ad position settings by page type
-            [`${page}PageHeader`]: true,
-            [`${page}PageSidebarTop`]: true,
-            [`${page}PageSidebarMid`]: true,
-            [`${page}PageSidebarBottom`]: true,
-            [`${page}PageInContent`]: true,
-            [`${page}PageAfterContent`]: true,
-            [`${page}PageAfterTitle`]: true,
-            [`${page}PageAfterCover`]: true,
+            [`${page}PageHeader`]: processedSettings[`${page}PageHeader`] === undefined ? true : isTruthy(processedSettings[`${page}PageHeader`]),
+            [`${page}PageSidebarTop`]: processedSettings[`${page}PageSidebarTop`] === undefined ? true : isTruthy(processedSettings[`${page}PageSidebarTop`]),
+            [`${page}PageSidebarMid`]: processedSettings[`${page}PageSidebarMid`] === undefined ? true : isTruthy(processedSettings[`${page}PageSidebarMid`]),
+            [`${page}PageSidebarBottom`]: processedSettings[`${page}PageSidebarBottom`] === undefined ? true : isTruthy(processedSettings[`${page}PageSidebarBottom`]),
+            [`${page}PageInContent`]: processedSettings[`${page}PageInContent`] === undefined ? true : isTruthy(processedSettings[`${page}PageInContent`]),
+            [`${page}PageAfterContent`]: processedSettings[`${page}PageAfterContent`] === undefined ? true : isTruthy(processedSettings[`${page}PageAfterContent`]),
+            [`${page}PageAfterTitle`]: processedSettings[`${page}PageAfterTitle`] === undefined ? false : isTruthy(processedSettings[`${page}PageAfterTitle`]),
+            [`${page}PageAfterCover`]: processedSettings[`${page}PageAfterCover`] === undefined ? false : isTruthy(processedSettings[`${page}PageAfterCover`]),
 
             // AdSense settings
-            enableAdSense: rawSettings['enableAdSense'],
-            adSensePublisherId: rawSettings['adSensePublisherId'] || '',
-            adSenseAutoAdsCode: rawSettings['adSenseAutoAdsCode'] || '',
-            enableAdSenseAutoAds: rawSettings['enableAdSenseAutoAds'],
-            adSenseHeaderBanner: rawSettings['adSenseHeaderBanner'] || '',
-            adSenseSidebarTop: rawSettings['adSenseSidebarTop'] || '',
-            adSenseSidebarMid: rawSettings['adSenseSidebarMid'] || '',
-            adSenseSidebarBottom: rawSettings['adSenseSidebarBottom'] || '',
-            adSenseSidebarLeft: rawSettings['adSenseSidebarLeft'] || '',
-            adSenseAfterCover: rawSettings['adSenseAfterCover'] || '',
-            adSenseAfterTitle: rawSettings['adSenseAfterTitle'] || '',
-            adSenseInArticle: rawSettings['adSenseInArticle'] || '',
-            adSenseBelowContent: rawSettings['adSenseBelowContent'] || '',
+            enableAdSense: isTruthy(processedSettings['enableAdSense']),
+            adSensePublisherId: processedSettings['adSensePublisherId'] || '',
+            adSenseAutoAdsCode: processedSettings['adSenseAutoAdsCode'] || '',
+            enableAdSenseAutoAds: isTruthy(processedSettings['enableAdSenseAutoAds']),
+            adSenseHeaderBanner: processedSettings['adSenseHeaderBanner'] || '',
+            adSenseSidebarTop: processedSettings['adSenseSidebarTop'] || '',
+            adSenseSidebarMid: processedSettings['adSenseSidebarMid'] || '',
+            adSenseSidebarBottom: processedSettings['adSenseSidebarBottom'] || '',
+            adSenseSidebarLeft: processedSettings['adSenseSidebarLeft'] || '',
+            adSenseAfterCover: processedSettings['adSenseAfterCover'] || '',
+            adSenseAfterTitle: processedSettings['adSenseAfterTitle'] || '',
+            adSenseInArticle: processedSettings['adSenseInArticle'] || '',
+            adSenseBelowContent: processedSettings['adSenseBelowContent'] || '',
 
             // Custom Ads
-            enableCustomAds: rawSettings['enableCustomAds'],
-            customHeaderBanner: rawSettings['customHeaderBanner'] || '',
-            customSidebarTop: rawSettings['customSidebarTop'] || '',
-            customSidebarBottom: rawSettings['customSidebarBottom'] || '',
-            customInArticle: rawSettings['customInArticle'] || '',
-            customBelowContent: rawSettings['customBelowContent'] || '',
-            customAfterTitle: rawSettings['customAfterTitle'] || '',
-            customAfterCover: rawSettings['customAfterCover'] || '',
+            enableCustomAds: isTruthy(processedSettings['enableCustomAds']),
+            customHeaderBanner: processedSettings['customHeaderBanner'] || '',
+            customSidebarTop: processedSettings['customSidebarTop'] || '',
+            customSidebarBottom: processedSettings['customSidebarBottom'] || '',
+            customInArticle: processedSettings['customInArticle'] || '',
+            customBelowContent: processedSettings['customBelowContent'] || '',
+            customAfterTitle: processedSettings['customAfterTitle'] || '',
+            customAfterCover: processedSettings['customAfterCover'] || '',
 
             // Amazon Affiliate
-            enableAmazonAds: rawSettings['enableAmazonAds'],
-            amazonAssociateId: rawSettings['amazonAssociateId'] || '',
-            amazonSidebarAd: rawSettings['amazonSidebarAd'] || '',
-            amazonInContentAd: rawSettings['amazonInContentAd'] || '',
-            amazonBelowContentAd: rawSettings['amazonBelowContentAd'] || '',
+            enableAmazonAds: isTruthy(processedSettings['enableAmazonAds']),
+            amazonAssociateId: processedSettings['amazonAssociateId'] || '',
+            amazonSidebarAd: processedSettings['amazonSidebarAd'] || '',
+            amazonInContentAd: processedSettings['amazonInContentAd'] || '',
+            amazonBelowContentAd: processedSettings['amazonBelowContentAd'] || '',
 
             // Taboola Ads
-            enableTaboolaAds: rawSettings['enableTaboolaAds'],
-            taboolaPublisherId: rawSettings['taboolaPublisherId'] || '',
-            taboolaBelowArticle: rawSettings['taboolaBelowArticle'] || '',
-            taboolaRightRail: rawSettings['taboolaRightRail'] || '',
-            taboolaFooter: rawSettings['taboolaFooter'] || '',
-            taboolaJsCode: rawSettings['taboolaJsCode'] || '',
+            enableTaboolaAds: isTruthy(processedSettings['enableTaboolaAds']),
+            taboolaPublisherId: processedSettings['taboolaPublisherId'] || '',
+            taboolaBelowArticle: processedSettings['taboolaBelowArticle'] || '',
+            taboolaRightRail: processedSettings['taboolaRightRail'] || '',
+            taboolaFooter: processedSettings['taboolaFooter'] || '',
+            taboolaJsCode: processedSettings['taboolaJsCode'] || '',
         };
+
+        console.log(`Ad settings for ${page} page:`, {
+            enableAds: result.enableAds,
+            enableAdSense: result.enableAdSense,
+            adSenseSidebarLeft: result.adSenseSidebarLeft ? 'configured' : 'not set',
+            adSenseSidebarTop: result.adSenseSidebarTop ? 'configured' : 'not set'
+        });
 
         return result;
     });

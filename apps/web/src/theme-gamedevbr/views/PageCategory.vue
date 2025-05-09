@@ -237,16 +237,7 @@ const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
 
 // Create formatted settings object for useAds
 const adPluginSettings = computed(() => {
-    const settingsObj = settings.value || {};
-    // Extract all blog.* settings
-    const adSettings: Record<string, any> = {};
-    Object.keys(settingsObj).forEach(key => {
-        if (key.startsWith('blog.')) {
-            const shortKey = key.replace('blog.', '');
-            adSettings[shortKey] = settingsObj[key];
-        }
-    });
-    return adSettings;
+    return settings.value || {};
 });
 
 // Set up ads functionality using the composable

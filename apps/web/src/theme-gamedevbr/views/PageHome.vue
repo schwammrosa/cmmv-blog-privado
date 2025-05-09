@@ -586,8 +586,13 @@ const carouselInterval = ref<number | null>(null);
 // Elements references
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
 
+// Create formatted settings object for useAds
+const adPluginSettings = computed(() => {
+    return settings.value || {};
+});
+
 // Set up ads functionality using the composable
-const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(settings.value, 'home');
+const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPluginSettings.value, 'home');
 
 const coverSettings = computed(() => {
     try {
