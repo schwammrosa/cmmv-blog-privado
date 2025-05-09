@@ -251,7 +251,7 @@ const handleSubmit = async () => {
 }
 
 onMounted(async () => {
-    const settings = await adminClient.settings.getRoot();
+    const settings = await adminClient.settings.get();
 
     if(!settings.setupFinish)
         router.push('/setup');
