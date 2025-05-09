@@ -356,7 +356,17 @@
                                 <label for="userVerifyEmail" class="ml-2 block text-sm text-neutral-300">
                                     Verify Email (Send verification)
                                 </label>
-                                <span class="ml-2 text-xs text-neutral-500">(Sends a new verification email to the user)</span>
+                            </div>
+                            <div class="flex items-center">
+                                <input
+                                    id="userRoot"
+                                    v-model="userForm.root"
+                                    type="checkbox"
+                                    class="h-4 w-4 rounded border-neutral-600 text-blue-600 focus:ring-blue-500 bg-neutral-700"
+                                />
+                                <label for="userRoot" class="ml-2 block text-sm text-neutral-300">
+                                    Root User
+                                </label>
                             </div>
                         </div>
 
@@ -613,7 +623,8 @@ const openAddDialog = () => {
         groups: [],
         validated: false,
         blocked: false,
-        verifyEmail: false
+        verifyEmail: false,
+        root: false
     }
     formErrors.value = {}
     loadGroups()
@@ -630,7 +641,8 @@ const openEditDialog = (user) => {
         groups: user.groups || [],
         validated: user.validated !== undefined ? user.validated : false,
         blocked: user.blocked !== undefined ? user.blocked : false,
-        verifyEmail: false
+        verifyEmail: false,
+        root: user.root !== undefined ? user.root : false
     }
     formErrors.value = {}
     loadGroups()
@@ -646,7 +658,8 @@ const closeDialog = () => {
         groups: [],
         validated: false,
         blocked: false,
-        verifyEmail: false
+        verifyEmail: false,
+        root: false
     }
     formErrors.value = {}
     userToEdit.value = null
@@ -684,6 +697,7 @@ const saveUser = async () => {
             validated: userForm.value.validated,
             blocked: userForm.value.blocked,
             verifyEmail: userForm.value.verifyEmail,
+            root: userForm.value.root,
             // Include groups directly in the user data
             groups: userForm.value.groups || []
         };
