@@ -2617,6 +2617,677 @@
                         </div>
                     </div>
 
+                    <!-- Advertising Settings -->
+                    <div class="p-6" v-if="activeTab === 'advertising'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Advertising Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- Global Ad Settings -->
+                            <div class="space-y-4">
+                                <h3 class="text-lg font-medium text-white border-b border-neutral-700 pb-2">
+                                    Global Ad Settings
+                                </h3>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input
+                                            id="enable-ads"
+                                            type="checkbox"
+                                            v-model="settings.enableAds"
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="enable-ads"
+                                            class="text-sm text-neutral-300"
+                                            >Enable ads across the site</label
+                                        >
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="flex items-center">
+                                        <input
+                                            id="show-ads-logged-in"
+                                            type="checkbox"
+                                            v-model="settings.showAdsLoggedIn"
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="show-ads-logged-in"
+                                            class="text-sm text-neutral-300"
+                                            >Show ads to logged-in users</label
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Google AdSense -->
+                            <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        Google AdSense
+                                    </h3>
+                                    <div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                v-model="settings.enableAdSense"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-if="settings.enableAdSense" class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            AdSense Publisher ID
+                                        </label>
+                                        <input
+                                            v-model="settings.adSensePublisherId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="pub-xxxxxxxxxxxxxxxx"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            Your Google AdSense publisher ID (e.g., pub-1234567890123456)
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Auto Ads Code
+                                        </label>
+                                        <textarea
+                                            v-model="settings.adSenseAutoAdsCode"
+                                            rows="4"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                            placeholder="<script async src=&quot;https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-xxxxxxxxxxxxxxxx&quot; crossorigin=&quot;anonymous&quot;></script>"
+                                        ></textarea>
+                                        <p class="text-xs text-neutral-500">
+                                            Paste your AdSense auto ads code here. This will be included in the head section of your site.
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input
+                                                id="enable-auto-ads"
+                                                type="checkbox"
+                                                v-model="settings.enableAdSenseAutoAds"
+                                                class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                            />
+                                            <label
+                                                for="enable-auto-ads"
+                                                class="text-sm text-neutral-300"
+                                                >Enable Auto Ads (let Google place ads automatically)</label
+                                            >
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4 mt-4">
+                                        <h4 class="text-base font-medium text-neutral-300 border-b border-neutral-700 pb-2">
+                                            Ad Unit Codes
+                                        </h4>
+                                        <p class="text-xs text-neutral-400 mb-4">
+                                            Add your individual ad unit codes for specific placements throughout your site.
+                                            These will be used if Auto Ads is disabled or for more control over ad placements.
+                                        </p>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Header Banner (728x90)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseHeaderBanner"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                After Article Title (728x90)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseAfterTitle"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                After Cover Banner (728x90)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseAfterCover"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Sidebar Top (300x250)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseSidebarTop"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:300px;height:250px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Sidebar Middle (300x250)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseSidebarMid"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:300px;height:250px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Sidebar Bottom (300x250)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseSidebarBottom"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:300px;height:250px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Left Sidebar (160x600)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseSidebarLeft"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:160px;height:600px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                In-Content Ad (Article Middle)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseInArticle"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Below Content Banner (728x90)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.adSenseBelowContent"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
+                                            ></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Amazon Affiliate -->
+                            <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        Amazon Affiliate
+                                    </h3>
+                                    <div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                v-model="settings.enableAmazonAds"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-if="settings.enableAmazonAds" class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Amazon Associate ID
+                                        </label>
+                                        <input
+                                            v-model="settings.amazonAssociateId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="yourstore-20"
+                                        />
+                                        <p class="text-xs text-neutral-500">
+                                            Your Amazon Associate tracking ID (e.g., yourstore-20)
+                                        </p>
+                                    </div>
+
+                                    <div class="space-y-4 mt-4">
+                                        <h4 class="text-base font-medium text-neutral-300 border-b border-neutral-700 pb-2">
+                                            Amazon Native Shopping Ads
+                                        </h4>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Sidebar Ad (Recommendation Ads)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.amazonSidebarAd"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;manual&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                In-Content Ad (Search Ads)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.amazonInContentAd"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;search&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
+                                            ></textarea>
+                                        </div>
+
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Below Content (Responsive Ads)
+                                            </label>
+                                            <textarea
+                                                v-model="settings.amazonBelowContentAd"
+                                                rows="3"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                                placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;auto&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
+                                            ></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Taboola Ads -->
+                            <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        Taboola Ads
+                                    </h3>
+                                    <div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                v-model="settings.enableTaboolaAds"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-if="settings.enableTaboolaAds" class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Taboola Publisher ID
+                                        </label>
+                                        <input
+                                            v-model="settings.taboolaPublisherId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="yoursite-yourcode"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Below Article Widget
+                                        </label>
+                                        <textarea
+                                            v-model="settings.taboolaBelowArticle"
+                                            rows="4"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                            placeholder="<div id='taboola-below-article-thumbnails'></div><script>window._taboola = window._taboola || [];_taboola.push({mode: 'thumbnails-a',container: 'taboola-below-article-thumbnails',placement: 'Below Article Thumbnails',target_type: 'mix'});</script>"
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Right Rail Widget
+                                        </label>
+                                        <textarea
+                                            v-model="settings.taboolaRightRail"
+                                            rows="4"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                            placeholder="<div id='taboola-right-rail-thumbnails'></div><script>window._taboola = window._taboola || [];_taboola.push({mode: 'thumbnails-rr',container: 'taboola-right-rail-thumbnails',placement: 'Right Rail Thumbnails',target_type: 'mix'});</script>"
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Footer Widget
+                                        </label>
+                                        <textarea
+                                            v-model="settings.taboolaFooter"
+                                            rows="4"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                            placeholder="<div id='taboola-footer'></div><script>window._taboola = window._taboola || [];_taboola.push({mode: 'thumbnails-f',container: 'taboola-footer',placement: 'Footer',target_type: 'mix'});</script>"
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Taboola JS Code (Put at the bottom)
+                                        </label>
+                                        <textarea
+                                            v-model="settings.taboolaJsCode"
+                                            rows="4"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
+                                            placeholder="<script>window._taboola = window._taboola || []; _taboola.push({flush: true});</script> <script type='text/javascript' src='//cdn.taboola.com/libtrc/yoursite-yourcode/loader.js' async></script>"
+                                        ></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ad Placement Configuration -->
+                            <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
+                                <h3 class="text-lg font-medium text-white border-b border-neutral-700 pb-2">
+                                    Ad Placement Configuration
+                                </h3>
+
+                                <div class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Home Page Positions
+                                        </label>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-header"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageHeader"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-header"
+                                                    class="text-sm text-neutral-300"
+                                                    >Header Banner</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-sidebar-top"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageSidebarTop"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-sidebar-top"
+                                                    class="text-sm text-neutral-300"
+                                                    >Sidebar Top</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-sidebar-mid"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageSidebarMid"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-sidebar-mid"
+                                                    class="text-sm text-neutral-300"
+                                                    >Sidebar Middle</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-sidebar-bottom"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageSidebarBottom"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-sidebar-bottom"
+                                                    class="text-sm text-neutral-300"
+                                                    >Sidebar Bottom</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-sidebar-left"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageSidebarLeft"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-sidebar-left"
+                                                    class="text-sm text-neutral-300"
+                                                    >Left Sidebar</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-after-cover"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageAfterCover"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-after-cover"
+                                                    class="text-sm text-neutral-300"
+                                                    >After Cover</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-after-posts"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageAfterPosts"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-after-posts"
+                                                    class="text-sm text-neutral-300"
+                                                    >After Post List</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="home-footer"
+                                                    type="checkbox"
+                                                    v-model="settings.homePageFooter"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="home-footer"
+                                                    class="text-sm text-neutral-300"
+                                                    >Footer</label
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Article Page Positions
+                                        </label>
+                                        <div class="space-y-1">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-header"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageHeader"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-header"
+                                                    class="text-sm text-neutral-300"
+                                                    >Header Banner</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-sidebar-top"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageSidebarTop"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-sidebar-top"
+                                                    class="text-sm text-neutral-300"
+                                                    >Sidebar Top</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-sidebar-mid"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageSidebarMid"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-sidebar-mid"
+                                                    class="text-sm text-neutral-300"
+                                                    >Sidebar Middle</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-sidebar-bottom"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageSidebarBottom"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-sidebar-bottom"
+                                                    class="text-sm text-neutral-300"
+                                                    >Sidebar Bottom</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-sidebar-left"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageSidebarLeft"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-sidebar-left"
+                                                    class="text-sm text-neutral-300"
+                                                    >Left Sidebar</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-after-title"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageAfterTitle"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-after-title"
+                                                    class="text-sm text-neutral-300"
+                                                    >After Article Title</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-in-content"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageInContent"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-in-content"
+                                                    class="text-sm text-neutral-300"
+                                                    >In Content (Middle)</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-after-content"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageAfterContent"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-after-content"
+                                                    class="text-sm text-neutral-300"
+                                                    >After Content</label
+                                                >
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="article-footer"
+                                                    type="checkbox"
+                                                    v-model="settings.articlePageFooter"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="article-footer"
+                                                    class="text-sm text-neutral-300"
+                                                    >Footer</label
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            In-Content Ads Configuration
+                                        </label>
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Paragraph gap (insert ad after every X paragraphs)
+                                            </label>
+                                            <input
+                                                v-model="settings.inContentAdGap"
+                                                type="number"
+                                                min="1"
+                                                max="10"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            <p class="text-xs text-neutral-500">
+                                                For in-content ads, specify after how many paragraphs to insert an ad
+                                            </p>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="block text-sm font-medium text-neutral-300">
+                                                Maximum in-content ads per article
+                                            </label>
+                                            <input
+                                                v-model="settings.maxInContentAds"
+                                                type="number"
+                                                min="0"
+                                                max="5"
+                                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            <p class="text-xs text-neutral-500">
+                                                Limit the number of ads displayed within article content (0 for unlimited)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Email Settings -->
                     <div class="p-6" v-if="activeTab === 'email'">
                         <h2 class="text-xl font-bold text-white mb-6">
@@ -2632,798 +3303,6 @@
                                     >
                                     <select
                                         v-model="settings.emailProvider"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                    >
-                                        <option value="smtp">SMTP</option>
-                                        <option value="aws">AWS SES</option>
-                                        <option value="none">
-                                            None (System Default)
-                                        </option>
-                                    </select>
-                                    <p class="text-xs text-neutral-500">
-                                        Select which email provider to use for
-                                        sending system emails.
-                                    </p>
-                                </div>
-                            </div>
-
-                            <!-- SMTP Settings -->
-                            <div
-                                v-if="settings.emailProvider === 'smtp'"
-                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
-                            >
-                                <h3
-                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
-                                >
-                                    SMTP Configuration
-                                </h3>
-
-                                <div class="grid gap-6 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >SMTP Host</label
-                                        >
-                                        <input
-                                            v-model="settings.smtpHost"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="smtp.example.com"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >SMTP Port</label
-                                        >
-                                        <input
-                                            v-model="settings.smtpPort"
-                                            type="number"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="587"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div class="grid gap-6 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >SMTP Username</label
-                                        >
-                                        <input
-                                            v-model="settings.smtpUsername"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="username@example.com"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >SMTP Password</label
-                                        >
-                                        <input
-                                            v-model="settings.smtpPassword"
-                                            type="password"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="••••••••••••"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >Encryption</label
-                                    >
-                                    <div class="space-y-2">
-                                        <div class="flex items-center">
-                                            <input
-                                                id="encryption-none"
-                                                type="radio"
-                                                value="none"
-                                                v-model="
-                                                    settings.smtpEncryption
-                                                "
-                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                            />
-                                            <label
-                                                for="encryption-none"
-                                                class="text-sm text-neutral-300"
-                                                >None</label
-                                            >
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input
-                                                id="encryption-tls"
-                                                type="radio"
-                                                value="tls"
-                                                v-model="
-                                                    settings.smtpEncryption
-                                                "
-                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                            />
-                                            <label
-                                                for="encryption-tls"
-                                                class="text-sm text-neutral-300"
-                                                >TLS</label
-                                            >
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input
-                                                id="encryption-ssl"
-                                                type="radio"
-                                                value="ssl"
-                                                v-model="
-                                                    settings.smtpEncryption
-                                                "
-                                                class="h-4 w-4 mr-2 text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                            />
-                                            <label
-                                                for="encryption-ssl"
-                                                class="text-sm text-neutral-300"
-                                                >SSL</label
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >From Email</label
-                                    >
-                                    <input
-                                        v-model="settings.smtpFromEmail"
-                                        type="email"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="noreply@example.com"
-                                    />
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >From Name</label
-                                    >
-                                    <input
-                                        v-model="settings.smtpFromName"
-                                        type="text"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="Your Site Name"
-                                    />
-                                </div>
-                            </div>
-
-                            <!-- AWS SES Settings -->
-                            <div
-                                v-if="settings.emailProvider === 'aws'"
-                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
-                            >
-                                <h3
-                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
-                                >
-                                    AWS SES Configuration
-                                </h3>
-
-                                <div class="grid gap-6 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >AWS Access Key</label
-                                        >
-                                        <input
-                                            v-model="settings.awsAccessKey"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="AKIAIOSFODNN7EXAMPLE"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >AWS Secret Key</label
-                                        >
-                                        <input
-                                            v-model="settings.awsSecretKey"
-                                            type="password"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="••••••••••••"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div class="grid gap-6 md:grid-cols-2">
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >AWS Region</label
-                                        >
-                                        <select
-                                            v-model="settings.awsRegion"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        >
-                                            <option value="us-east-1">
-                                                US East (N. Virginia)
-                                            </option>
-                                            <option value="us-east-2">
-                                                US East (Ohio)
-                                            </option>
-                                            <option value="us-west-1">
-                                                US West (N. California)
-                                            </option>
-                                            <option value="us-west-2">
-                                                US West (Oregon)
-                                            </option>
-                                            <option value="af-south-1">
-                                                Africa (Cape Town)
-                                            </option>
-                                            <option value="ap-east-1">
-                                                Asia Pacific (Hong Kong)
-                                            </option>
-                                            <option value="ap-south-1">
-                                                Asia Pacific (Mumbai)
-                                            </option>
-                                            <option value="ap-northeast-3">
-                                                Asia Pacific (Osaka)
-                                            </option>
-                                            <option value="ap-northeast-2">
-                                                Asia Pacific (Seoul)
-                                            </option>
-                                            <option value="ap-southeast-1">
-                                                Asia Pacific (Singapore)
-                                            </option>
-                                            <option value="ap-southeast-2">
-                                                Asia Pacific (Sydney)
-                                            </option>
-                                            <option value="ap-northeast-1">
-                                                Asia Pacific (Tokyo)
-                                            </option>
-                                            <option value="ca-central-1">
-                                                Canada (Central)
-                                            </option>
-                                            <option value="eu-central-1">
-                                                Europe (Frankfurt)
-                                            </option>
-                                            <option value="eu-west-1">
-                                                Europe (Ireland)
-                                            </option>
-                                            <option value="eu-west-2">
-                                                Europe (London)
-                                            </option>
-                                            <option value="eu-south-1">
-                                                Europe (Milan)
-                                            </option>
-                                            <option value="eu-west-3">
-                                                Europe (Paris)
-                                            </option>
-                                            <option value="eu-north-1">
-                                                Europe (Stockholm)
-                                            </option>
-                                            <option value="me-south-1">
-                                                Middle East (Bahrain)
-                                            </option>
-                                            <option value="sa-east-1">
-                                                South America (São Paulo)
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >From Email</label
-                                    >
-                                    <input
-                                        v-model="settings.awsFromEmail"
-                                        type="email"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="noreply@example.com"
-                                    />
-                                    <p class="text-xs text-neutral-500">
-                                        Must be a verified sender in your AWS
-                                        SES account.
-                                    </p>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >From Name</label
-                                    >
-                                    <input
-                                        v-model="settings.awsFromName"
-                                        type="text"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="Your Site Name"
-                                    />
-                                </div>
-                            </div>
-
-                            <!-- Test Email Section -->
-                            <div
-                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
-                            >
-                                <h3
-                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
-                                >
-                                    Test Email Configuration
-                                </h3>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >Test Email Address</label
-                                    >
-                                    <div class="flex">
-                                        <input
-                                            v-model="testEmailAddress"
-                                            type="email"
-                                            class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-l-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="you@example.com"
-                                        />
-                                        <button
-                                            @click="sendTestEmail"
-                                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md transition-colors"
-                                            :disabled="testEmailSending"
-                                        >
-                                            <span v-if="testEmailSending"
-                                                >Sending...</span
-                                            >
-                                            <span v-else>Send Test</span>
-                                        </button>
-                                    </div>
-                                    <p class="text-xs text-neutral-500">
-                                        Send a test email to verify your
-                                        configuration.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Notifications Settings -->
-                    <div class="p-6" v-if="activeTab === 'notifications'">
-                        <h2 class="text-xl font-bold text-white mb-6">
-                            Notifications Settings
-                        </h2>
-                        <div class="space-y-8">
-                            <!-- OneSignal Integration -->
-                            <div
-                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-medium text-white">
-                                        OneSignal Push Notifications
-                                    </h3>
-                                    <div>
-                                        <label
-                                            class="relative inline-flex items-center cursor-pointer"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                v-model="
-                                                    settings.oneSignalEnabled
-                                                "
-                                                class="sr-only peer"
-                                            />
-                                            <div
-                                                class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-                                            ></div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div
-                                    v-if="settings.oneSignalEnabled"
-                                    class="space-y-4"
-                                >
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >OneSignal App ID</label
-                                        >
-                                        <input
-                                            v-model="settings.oneSignalAppId"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >REST API Key</label
-                                        >
-                                        <input
-                                            v-model="settings.oneSignalApiKey"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >Safari Web ID</label
-                                        >
-                                        <input
-                                            v-model="
-                                                settings.oneSignalSafariWebId
-                                            "
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="web.onesignal.auto.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >Notification Events</label
-                                        >
-                                        <div class="space-y-2">
-                                            <div class="flex items-center">
-                                                <input
-                                                    id="notify-new-post"
-                                                    type="checkbox"
-                                                    v-model="
-                                                        settings.notifyOnNewPost
-                                                    "
-                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                                />
-                                                <label
-                                                    for="notify-new-post"
-                                                    class="text-sm text-neutral-300"
-                                                    >Send notification on new
-                                                    post</label
-                                                >
-                                            </div>
-                                            <div class="flex items-center">
-                                                <input
-                                                    id="notify-new-comment"
-                                                    type="checkbox"
-                                                    v-model="
-                                                        settings.notifyOnNewComment
-                                                    "
-                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                                />
-                                                <label
-                                                    for="notify-new-comment"
-                                                    class="text-sm text-neutral-300"
-                                                    >Send notification on new
-                                                    comment</label
-                                                >
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Twilio Integration -->
-                            <div
-                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
-                            >
-                                <div class="flex items-center justify-between">
-                                    <h3 class="text-lg font-medium text-white">
-                                        Twilio SMS Notifications
-                                    </h3>
-                                    <div>
-                                        <label
-                                            class="relative inline-flex items-center cursor-pointer"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                v-model="settings.twilioEnabled"
-                                                class="sr-only peer"
-                                            />
-                                            <div
-                                                class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
-                                            ></div>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div
-                                    v-if="settings.twilioEnabled"
-                                    class="space-y-4"
-                                >
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >Twilio Account SID</label
-                                        >
-                                        <input
-                                            v-model="settings.twilioAccountSid"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >Twilio Auth Token</label
-                                        >
-                                        <input
-                                            v-model="settings.twilioAuthToken"
-                                            type="password"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="••••••••••••"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >From Number</label
-                                        >
-                                        <input
-                                            v-model="settings.twilioFromNumber"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="+15551234567"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >Admin Number (for
-                                            notifications)</label
-                                        >
-                                        <input
-                                            v-model="settings.twilioAdminNumber"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                            placeholder="+15551234567"
-                                        />
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >Notification Events</label
-                                        >
-                                        <div class="space-y-2">
-                                            <div class="flex items-center">
-                                                <input
-                                                    id="sms-new-comment"
-                                                    type="checkbox"
-                                                    v-model="
-                                                        settings.smsOnNewComment
-                                                    "
-                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                                />
-                                                <label
-                                                    for="sms-new-comment"
-                                                    class="text-sm text-neutral-300"
-                                                    >Send SMS on new
-                                                    comment</label
-                                                >
-                                            </div>
-                                            <div class="flex items-center">
-                                                <input
-                                                    id="sms-new-user"
-                                                    type="checkbox"
-                                                    v-model="
-                                                        settings.smsOnNewUser
-                                                    "
-                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                                />
-                                                <label
-                                                    for="sms-new-user"
-                                                    class="text-sm text-neutral-300"
-                                                    >Send SMS on new user
-                                                    registration</label
-                                                >
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="space-y-2">
-                                        <label
-                                            class="block text-sm font-medium text-neutral-300"
-                                            >Test SMS</label
-                                        >
-                                        <div class="flex">
-                                            <input
-                                                v-model="testSmsNumber"
-                                                type="text"
-                                                class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-l-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                                placeholder="+15551234567"
-                                            />
-                                            <button
-                                                @click="sendTestSMS"
-                                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md transition-colors"
-                                                :disabled="testSmsSending"
-                                            >
-                                                <span v-if="testSmsSending"
-                                                    >Sending...</span
-                                                >
-                                                <span v-else>Send Test</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CDN Settings -->
-                    <div class="p-6" v-if="activeTab === 'cdn'">
-                        <h2 class="text-xl font-bold text-white mb-6">
-                            CDN Settings
-                        </h2>
-                        <div class="space-y-8">
-                            <!-- Cloudflare Settings -->
-                            <div
-                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
-                            >
-                                <h3
-                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
-                                >
-                                    Cloudflare Configuration
-                                </h3>
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >API Token</label
-                                    >
-                                    <input
-                                        v-model="settings.cloudflareToken"
-                                        type="password"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="Enter your Cloudflare API token"
-                                    />
-                                    <p class="text-xs text-neutral-500">
-                                        Required for Cloudflare cache purging functionality.
-                                    </p>
-                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >Zone ID</label
-                                    >
-                                    <input
-                                        v-model="settings.cloudflareZoneId"
-                                        type="text"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="Enter your Cloudflare Zone ID"
-                                    />
-                                    <p class="text-xs text-neutral-500">
-                                        The Zone ID for your domain in Cloudflare.
-                                    </p>
-            </div>
-
-                                <div class="mt-4">
-                                    <h4
-                                        class="text-sm font-medium text-neutral-300 mb-2"
-                                    >
-                                        How to find your Cloudflare credentials:
-                                    </h4>
-                                    <ol
-                                        class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
-                                    >
-                                        <li>
-                                            Log in to your
-                                            <a
-                                                href="https://dash.cloudflare.com/"
-                                                target="_blank"
-                                                class="text-blue-400 hover:underline"
-                                                >Cloudflare Dashboard</a
-                                            >
-                                        </li>
-                                        <li>
-                                            Select your domain to get the Zone ID
-                                        </li>
-                                        <li>
-                                            Go to "My Profile" > "API Tokens" to create a token
-                                        </li>
-                                        <li>
-                                            Create a token with "Zone.Cache Purge" permissions
-                                        </li>
-                                    </ol>
-                                </div>
-
-                                <div class="mt-4">
-                                    <button
-                                        @click="purgeCloudflareCacheTest"
-                                        class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-                                        :disabled="cachePurgeInProgress"
-                                    >
-                                        <span v-if="cachePurgeInProgress" class="flex items-center">
-                                            <svg
-                                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <circle
-                                                    class="opacity-25"
-                                                    cx="12"
-                                                    cy="12"
-                                                    r="10"
-                                                    stroke="currentColor"
-                                                    stroke-width="4"
-                                                ></circle>
-                                                <path
-                                                    class="opacity-75"
-                                                    fill="currentColor"
-                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                                                ></path>
-                                            </svg>
-                                            Purging...
-                                        </span>
-                                        <span v-else>Test Cloudflare Cache Purge</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- CloudFront Settings -->
-                            <div
-                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
-                            >
-                                <h3
-                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
-                                >
-                                    AWS CloudFront Configuration
-                                </h3>
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >AWS Access Key</label
-                                    >
-                                    <input
-                                        v-model="settings.cloudfrontAccessKey"
-                                        type="text"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="Enter your AWS Access Key"
-                                    />
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >AWS Secret Key</label
-                                    >
-                                    <input
-                                        v-model="settings.cloudfrontSecretKey"
-                                        type="password"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="Enter your AWS Secret Key"
-                                    />
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >Distribution ID</label
-                                    >
-                                    <input
-                                        v-model="settings.cloudfrontDistributionId"
-                                        type="text"
-                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                        placeholder="Enter your CloudFront Distribution ID"
-                                    />
-                                </div>
-
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
-                                        >Region</label
-                                    >
-                                    <select
-                                        v-model="settings.cloudfrontRegion"
                                         class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     >
                                         <option value="us-east-1">US East (N. Virginia)</option>
@@ -3690,6 +3569,7 @@ const tabs = [
     },
     { id: "ai", name: "AI Tools", icon: "fas fa-robot" },
     { id: "advanced", name: "Advanced", icon: "fas fa-code" },
+    { id: "advertising", name: "Advertising", icon: "fas fa-ad" },
 ];
 
 const activeTab = ref("general");
@@ -3861,6 +3741,66 @@ const settings = ref({
     cloudfrontDistributionId: "",
     cloudfrontRegion: "us-east-1",
     autoPurgeCache: true,
+
+    // Advertising Settings
+    enableAds: true,
+    showAdsLoggedIn: false,
+
+    // Google AdSense
+    enableAdSense: false,
+    adSensePublisherId: "",
+    adSenseAutoAdsCode: "",
+    enableAdSenseAutoAds: false,
+    adSenseHeaderBanner: "",
+    adSenseSidebarTop: "",
+    adSenseSidebarBottom: "",
+    adSenseInArticle: "",
+    adSenseBelowContent: "",
+    adSenseSidebarMid: "",
+    adSenseSidebarLeft: "",
+    adSenseSidebarRight: "",
+    adSenseAfterCover: "",
+
+    // Custom Ads
+    enableCustomAds: false,
+    customHeaderBanner: "",
+    customSidebarTop: "",
+    customSidebarBottom: "",
+    customInArticle: "",
+    customBelowContent: "",
+
+    // Amazon Affiliate
+    enableAmazonAds: false,
+    amazonAssociateId: "",
+    amazonSidebarAd: "",
+    amazonInContentAd: "",
+    amazonBelowContentAd: "",
+
+    // Taboola Ads
+    enableTaboolaAds: false,
+    taboolaPublisherId: "",
+    taboolaBelowArticle: "",
+    taboolaRightRail: "",
+    taboolaFooter: "",
+    taboolaJsCode: "",
+
+    // Ad Placement Configuration
+    homePageHeader: true,
+    homePageSidebarTop: true,
+    homePageSidebarBottom: true,
+    homePageAfterPosts: true,
+    homePageFooter: false,
+
+    articlePageHeader: true,
+    articlePageSidebarTop: true,
+    articlePageSidebarBottom: true,
+    articlePageAfterTitle: false,
+    articlePageInContent: true,
+    articlePageAfterContent: true,
+    articlePageFooter: false,
+
+    inContentAdGap: 3,
+    maxInContentAds: 2,
 });
 
 const tabFieldMap = {
