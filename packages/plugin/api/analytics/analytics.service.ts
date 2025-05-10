@@ -1,7 +1,7 @@
 import { Service } from '@cmmv/core';
 
 import {
-    Repository, In
+    Repository, In, MoreThanOrEqual
 } from "@cmmv/repository"
 
 import {
@@ -250,11 +250,13 @@ export class AnalyticsService {
 
         const posts = await Repository.findAll(PostsEntity, {
             id: In(Object.keys(postsAccess)),
+            status: "published",
+            publishedAt: MoreThanOrEqual(new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)),
             sortBy: "views",
             sort: "desc",
             limit: 10
         }, [], {
-            select: ["id", "title", "slug", "views", "createdAt", "comments", "featureImage"]
+            select: ["id", "title", "slug", "views", "createdAt", "comments", "featureImage", "publishedAt"]
         });
 
         if(!posts)
@@ -275,7 +277,8 @@ export class AnalyticsService {
             image: post.featureImage,
             createdAt: post.createdAt,
             comments: post.comments,
-            views: postsAccess[post.id]
+            views: postsAccess[post.id],
+            publishedAt: post.publishedAt
         }));
     }
 
