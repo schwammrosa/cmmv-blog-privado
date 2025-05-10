@@ -3828,6 +3828,304 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Notifications Settings -->
+                    <div class="p-6" v-if="activeTab === 'notifications'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Notification Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- OneSignal Integration -->
+                            <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        OneSignal Web Push Notifications
+                                    </h3>
+                                    <div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                v-model="settings.oneSignalEnabled"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-if="settings.oneSignalEnabled" class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            OneSignal App ID
+                                        </label>
+                                        <input
+                                            v-model="settings.oneSignalAppId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            OneSignal API Key
+                                        </label>
+                                        <input
+                                            v-model="settings.oneSignalApiKey"
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Safari Web ID (Optional)
+                                        </label>
+                                        <input
+                                            v-model="settings.oneSignalSafariWebId"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="web.onesignal.auto.xxxxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2 mt-4">
+                                        <h4 class="text-sm font-medium text-neutral-300 mb-1">
+                                            Notification Settings
+                                        </h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="notify-new-post"
+                                                    type="checkbox"
+                                                    v-model="settings.notifyOnNewPost"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="notify-new-post"
+                                                    class="text-sm text-neutral-300"
+                                                >
+                                                    Send notification when new post is published
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="notify-new-comment"
+                                                    type="checkbox"
+                                                    v-model="settings.notifyOnNewComment"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="notify-new-comment"
+                                                    class="text-sm text-neutral-300"
+                                                >
+                                                    Send notification for new comments
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <a
+                                            href="https://documentation.onesignal.com/docs/web-push-quickstart"
+                                            target="_blank"
+                                            class="text-blue-500 hover:text-blue-400 text-sm flex items-center"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            OneSignal Documentation
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Twilio SMS Integration -->
+                            <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-medium text-white">
+                                        Twilio SMS Notifications
+                                    </h3>
+                                    <div>
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input
+                                                type="checkbox"
+                                                v-model="settings.twilioEnabled"
+                                                class="sr-only peer"
+                                            />
+                                            <div class="w-11 h-6 bg-neutral-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div v-if="settings.twilioEnabled" class="space-y-4">
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Twilio Account SID
+                                        </label>
+                                        <input
+                                            v-model="settings.twilioAccountSid"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Twilio Auth Token
+                                        </label>
+                                        <input
+                                            v-model="settings.twilioAuthToken"
+                                            type="password"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="••••••••••••"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Twilio From Number
+                                        </label>
+                                        <input
+                                            v-model="settings.twilioFromNumber"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="+1xxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-medium text-neutral-300">
+                                            Admin Phone Number
+                                        </label>
+                                        <input
+                                            v-model="settings.twilioAdminNumber"
+                                            type="text"
+                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            placeholder="+1xxxxxxxxxx"
+                                        />
+                                    </div>
+
+                                    <div class="space-y-2 mt-4">
+                                        <h4 class="text-sm font-medium text-neutral-300 mb-1">
+                                            SMS Notification Settings
+                                        </h4>
+                                        <div class="space-y-2">
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="sms-new-comment"
+                                                    type="checkbox"
+                                                    v-model="settings.smsOnNewComment"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="sms-new-comment"
+                                                    class="text-sm text-neutral-300"
+                                                >
+                                                    Send SMS for new comments
+                                                </label>
+                                            </div>
+                                            <div class="flex items-center">
+                                                <input
+                                                    id="sms-new-user"
+                                                    type="checkbox"
+                                                    v-model="settings.smsOnNewUser"
+                                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                                />
+                                                <label
+                                                    for="sms-new-user"
+                                                    class="text-sm text-neutral-300"
+                                                >
+                                                    Send SMS for new user registrations
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-4 mt-4">
+                                        <h4 class="text-sm font-medium text-neutral-300 mb-1">
+                                            Test SMS Notification
+                                        </h4>
+                                        <div class="flex space-x-2">
+                                            <input
+                                                v-model="testSmsNumber"
+                                                type="text"
+                                                placeholder="Enter phone number: +1xxxxxxxxxx"
+                                                class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                            />
+                                            <button
+                                                @click="sendTestSMS"
+                                                class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                                                :disabled="testSmsSending"
+                                            >
+                                                <span v-if="testSmsSending" class="flex items-center">
+                                                    <svg
+                                                        class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <circle
+                                                            class="opacity-25"
+                                                            cx="12"
+                                                            cy="12"
+                                                            r="10"
+                                                            stroke="currentColor"
+                                                            stroke-width="4"
+                                                        ></circle>
+                                                        <path
+                                                            class="opacity-75"
+                                                            fill="currentColor"
+                                                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                        ></path>
+                                                    </svg>
+                                                    Sending...
+                                                </span>
+                                                <span v-else>Send Test SMS</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <a
+                                            href="https://www.twilio.com/docs/sms/quickstart"
+                                            target="_blank"
+                                            class="text-blue-500 hover:text-blue-400 text-sm flex items-center"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                                />
+                                            </svg>
+                                            Twilio Documentation
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
