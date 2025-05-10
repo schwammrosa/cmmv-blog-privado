@@ -11,7 +11,7 @@ import {
 export class PromptsServiceTools {
 
     getDefaultPrompt(){
-        return `            2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
+        return `2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
             3. Writing a comprehensive article that summarizes the key points and insights
             4. Adding context, background information, and your own analysis to enhance the content
             5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
@@ -29,82 +29,82 @@ export class PromptsServiceTools {
             - Only use numbered titles when the content specifically warrants it (such as step-by-step guides or ranked lists)
             - Prefer descriptive, narrative or question-based titles that engage readers without relying on numbers
             - Avoid sensationalist or clickbait headlines
+            - IMPORTANT: AVOID clickbait phrases like "The Secret", "Discover", "You Won't Believe", "This Is Why", etc.
+            - Focus on straightforward, informative titles that clearly communicate the article's value
 
-            For titles, prioritize these non-numbered headline formulas:
+            For titles, prioritize these natural headline formulas:
 
             1. The "How-To Formula":
             How to [Achieve Desired Outcome] without [Common Pain Point]
 
             Examples:
-            - "How to Lose Weight Without Giving Up Your Favorite Foods"
-            - "How to Learn a New Language Without Spending Hours Studying"
-            - "How to Start Investing Without Taking Big Risks"
+            - "How to Lose Weight While Still Enjoying Your Meals"
+            - "How to Learn a New Language with Just 15 Minutes Daily"
+            - "How to Begin Investing with Minimal Risk"
 
             2. The "Question Formula":
-            [Intriguing Question That Promises an Answer]?
+            [Straightforward Question That Promises an Answer]?
 
             Examples:
-            - "Is This the Most Overlooked Feature When Buying a Smartphone?"
-            - "Are You Making These Common Skincare Mistakes?"
-            - "What's the Secret to Perfect Homemade Pizza Every Time?"
+            - "What Should You Consider When Buying a New Smartphone?"
+            - "Are These Skincare Habits Damaging Your Skin?"
+            - "What Makes Homemade Pizza Better Than Takeout?"
 
-            3. The "Secret Formula":
-            The Secret to [Achieving Desired Outcome] That [Target Audience] Don't Know About
+            3. The "Practical Insight Formula":
+            What [Experts/Experience] Teaches About [Topic]
 
             Examples:
-            - "The Secret to Flawless Skin That Dermatologists Don't Tell You"
-            - "The Secret to Perfect Sourdough Bread That Bakers Won't Share"
-            - "The Secret to Finding Cheap Flights That Travel Agents Keep Hidden"
+            - "What Dermatologists Recommend for Healthy Skin"
+            - "What Professional Bakers Know About Perfect Sourdough"
+            - "What Travel Experience Reveals About Finding Affordable Flights"
 
             4. The "Why Formula":
-            Why [Common Belief/Practice] Is [Wrong/Ineffective] and What to Do Instead
+            Why [Common Belief/Practice] May Not Work and What to Try Instead
 
             Examples:
-            - "Why Traditional Dieting Is Flawed and What to Do Instead"
-            - "Why Your Coffee Brewing Method Is Ruining Your Morning Cup"
-            - "Why Most Home Security Systems Fail When You Need Them Most"
+            - "Why Traditional Dieting Often Doesn't Work Long-Term"
+            - "Why Your Coffee Brewing Method Matters for Flavor"
+            - "Why Home Security Goes Beyond Just Installing Cameras"
 
             5. The "Comparison Formula":
-            [Product/Method A] vs [Product/Method B]: Which Is Better for [Desired Outcome]
+            [Product/Method A] vs [Product/Method B]: Choosing the Right Option for [Goal]
 
             Examples:
-            - "Air Fryers vs Convection Ovens: Which Is Better for Healthy Cooking"
-            - "Morning Workouts vs Evening Workouts: Which Is Better for Weight Loss"
-            - "Traditional Savings vs Investments: Which Is Better for Building Wealth"
+            - "Air Fryers vs Convection Ovens: Choosing the Right Kitchen Tool"
+            - "Morning vs Evening Exercise: Fitting Workouts Into Your Schedule"
+            - "Savings vs Investments: Building Your Financial Foundation"
 
-            6. The "Ultimate Guide":
-            The Ultimate Guide to [Topic] for [Target Audience]
-
-            Examples:
-            - "The Ultimate Guide to Home Automation for Beginners"
-            - "The Ultimate Guide to Personal Finance for Young Professionals"
-            - "The Ultimate Guide to Photography for Smartphone Users"
-
-            7. The "Warning Formula":
-            [Warning Sign] - [Problem] You Need to Address Now
+            6. The "Straightforward Guide":
+            A Practical Guide to [Topic] for [Target Audience]
 
             Examples:
-            - "Warning - Your Password Security May Be Compromised Right Now"
-            - "Caution - These Kitchen Habits Are Secretly Wasting Your Money"
-            - "Alert - The Skincare Ingredient You Need to Stop Using Immediately"
+            - "A Practical Guide to Home Automation for Beginners"
+            - "A Realistic Approach to Personal Finance for Young Professionals"
+            - "A Beginner's Handbook for Smartphone Photography"
 
-            Only if the content absolutely requires it, you may use these number-based formats:
-
-            8. The "List-Based Formula" (use sparingly):
-            [Number] [Adjective] Ways to [Achieve Desired Outcome]
+            7. The "Helpful Advice Formula":
+            Important Considerations About [Topic] You Should Know
 
             Examples:
-            - "Clever Ways to Save Money on Groceries Every Month"
-            - "Surprising Ways to Increase Your Productivity at Home"
-            - "Effective Ways to Improve Your Sleep Quality Tonight"
+            - "Important Password Security Practices Worth Implementing"
+            - "Kitchen Habits That Can Help Reduce Your Grocery Budget"
+            - "Skincare Ingredients That Might Not Be Right for Your Skin Type"
 
-            9. The "Discover Headline Formula" (use only when comparing specific products):
-            [Adjective] + [Product Type/Topic] + for [Target Intent] – [Urgency/Result]
+            8. The "Experience-Based Formula":
+            What I Learned About [Topic] After [Time Period/Experience]
 
             Examples:
-            - "Powerful Bluetooth Speakers for Outdoor Parties – Up to 40% OFF Today"
-            - "Best Budget Gaming Chairs for Small Spaces – Perfect Deals in July 2025"
-            - "Top Noise-Canceling Headphones for Work-from-Home – Tested & Reviewed"
+            - "What I Learned About Remote Work After Three Years"
+            - "My Experience With Minimalism After Downsizing My Home"
+            - "Insights From Growing My Own Vegetables For a Full Season"
+
+            9. The "Informative Formula":
+            [Topic]: Understanding [Key Aspect] for Better [Outcome]
+
+            Examples:
+            - "Bluetooth Speakers: Understanding Audio Quality for Better Outdoor Sound"
+            - "Gaming Chairs: Evaluating Comfort Features for Long Sessions"
+            - "Noise-Canceling Headphones: Comparing Technologies for Work-from-Home"
 
             IMPORTANT - MAKING TEXT HUMAN-LIKE:
             - DO NOT follow a rigid, predictable structure for all articles
@@ -126,4 +126,24 @@ export class PromptsServiceTools {
         `;
     }
 
+    async getRandomPrompt(){
+        const PromptsEntity = Repository.getEntity("PromptsEntity");
+        const promptsData = await Repository.findAll(PromptsEntity, {
+            limit: 100
+        }, [], {
+            select: ["prompt", "relevance"]
+        });
+
+        let promts: string[] = [];
+
+        if(promptsData){
+            for(let promptItem of promptsData.data){
+                for(let i = 0; i < promptItem.relevance; i++){
+                    promts.push(promptItem.prompt);
+                }
+            }
+        }
+
+        return promts.length > 0 ? promts[Math.floor(Math.random() * promts.length)] : this.getDefaultPrompt();
+    }
 }

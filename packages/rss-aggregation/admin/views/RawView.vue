@@ -965,7 +965,6 @@ const generateAIContent = async (): Promise<void> => {
             content: contentToProcess
         };
 
-        // Start the AI job asynchronously and get the job ID
         const jobStartResponse = await feedClient.raw.startAIJob(previewItem.value.id, { content: contentToProcess });
         const jobId = jobStartResponse.jobId;
 
@@ -975,16 +974,14 @@ const generateAIContent = async (): Promise<void> => {
 
         showNotification('info', 'AI processing started. This may take a moment...');
 
-        // Poll for job completion
         const checkJobStatus = async () => {
             try {
                 const jobStatus = await feedClient.raw.getAIJobStatus(jobId);
 
                 if (jobStatus.status === 'completed') {
-                    // Job completed successfully
                     const response = jobStatus.result;
 
-                    if (response && response.title && response.content) {
+                    if (response && response.title && response.content && previewItem.value) {
                         aiContent.value = {
                             ...previewItem.value,
                             title: response.title,
@@ -1023,11 +1020,9 @@ const generateAIContent = async (): Promise<void> => {
                         throw new Error('Invalid response format from AI service');
                     }
                 } else if (jobStatus.status === 'error') {
-                    // Job failed
                     throw new Error(jobStatus.error || 'AI processing failed');
                 } else {
-                    // Job still in progress, continue polling
-                    setTimeout(checkJobStatus, 2000); // Check again in 2 seconds
+                    setTimeout(checkJobStatus, 2000);
                 }
             } catch (err) {
                 aiLoading.value = false;
@@ -1036,7 +1031,6 @@ const generateAIContent = async (): Promise<void> => {
             }
         };
 
-        // Start polling
         checkJobStatus();
 
     } catch (err: unknown) {

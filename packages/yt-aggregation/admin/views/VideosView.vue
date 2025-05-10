@@ -632,13 +632,11 @@ const generateAIContent = async (): Promise<void> => {
         const response = await ytClient.videos.getAI(selectedVideo.value.id);
 
         if (response) {
-            // Update blog post fields with AI-generated content
             blogPost.value.title = response.title || selectedVideo.value.title;
-            blogPost.value.content = response.content || '';
+            blogPost.value.content = `${response.content || ''}`;
             blogPost.value.excerpt = response.excerpt ||
                 (selectedVideo.value.description?.substring(0, 150) + (selectedVideo.value.description?.length > 150 ? '...' : ''));
 
-            // Update tags if provided
             if (response.suggestedTags && Array.isArray(response.suggestedTags)) {
                 blogPost.value.tags = [...response.suggestedTags, 'YouTube', getChannelName(selectedVideo.value.channelId)];
             } else {
