@@ -8,9 +8,15 @@
                     <div class="top-header flex justify-between items-center py-4">
                         <div class="logo flex items-center">
                             <a href="/" class="text-2xl font-bold text-white">
-                                <img src="/src/theme-tudojogo/assets/Logonome.png" alt="TudoJogo Logo" class="object-contain h-12 w-auto">
+                                <img src="/src/theme-tudojogo/assets/Logonome.png" alt="TudoJogo Logo" class="site-logo object-contain h-12 w-auto">
                             </a>
                         </div>
+                        
+                        <!-- Nova caixa entre o logo e o menu -->
+                        <div class="hidden md:flex items-center bg-[#111] rounded-lg px-4 py-2 border-2 border-[#00aa30]">
+                            <span class="text-white text-sm font-medium">Bem-vindo ao TudoJogo!</span>
+                        </div>
+                        
                         <div class="flex items-center space-x-4">
                             <button @click="openSearchModal" class="search-icon bg-transparent text-white border-none text-xl cursor-pointer p-2 hover:text-[#00aa30] transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,12 +53,35 @@
                             <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto hidden md:flex">
                                 <a href="/" class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] bg-[#00aa30] transition-colors whitespace-nowrap">Home</a>
                                 <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
-                                    <a
-                                        :href="`/category/${category.slug}`"
-                                        class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] transition-colors whitespace-nowrap"
-                                    >
-                                        {{ category.name }}
-                                    </a>
+                                    <div class="relative group">
+                                        <a
+                                            :href="`/category/${category.slug}`"
+                                            class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] transition-colors whitespace-nowrap inline-flex items-center"
+                                            @mouseover="showDropdown(category.id)"
+                                        >
+                                            {{ category.name }}
+                                            <svg v-if="mainNavCategories.childrenMap[category.id] && mainNavCategories.childrenMap[category.id].length > 0" 
+                                                 xmlns="http://www.w3.org/2000/svg" 
+                                                 class="h-4 w-4 ml-1" 
+                                                 fill="none" 
+                                                 viewBox="0 0 24 24" 
+                                                 stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </a>
+                                        <!-- Dropdown Menu -->
+                                        <div v-if="mainNavCategories.childrenMap[category.id] && mainNavCategories.childrenMap[category.id].length > 0"
+                                             class="absolute left-0 mt-1 w-48 bg-[#111] rounded-md shadow-lg overflow-hidden z-50 transform opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top-left hover:opacity-100 hover:scale-100">
+                                            <div class="py-2">
+                                                <a v-for="subCategory in mainNavCategories.childrenMap[category.id]" 
+                                                   :key="subCategory.id"
+                                                   :href="`/category/${subCategory.slug}`"
+                                                   class="block px-4 py-2 text-sm text-white hover:bg-[#00aa30] transition-colors">
+                                                    {{ subCategory.name }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </template>
                             </div>
 
@@ -417,22 +446,16 @@ const toggleFooterSection = (section: string) => {
     openFooterSections.value[section] = !openFooterSections.value[section];
 };
 
-const toggleDropdown = (categoryId: string, event: Event) => {
-    event.stopPropagation();
-    if (openDropdowns.value[categoryId]) {
-        openDropdowns.value = {
-            ...openDropdowns.value,
-            [categoryId]: false
-        };
-    } else {
-        const newDropdownState: Record<string, boolean> = {};
-        Object.keys(openDropdowns.value).forEach(key => {
-            newDropdownState[key] = false;
-        });
-        newDropdownState[categoryId] = true;
-        openDropdowns.value = newDropdownState;
-    }
+const showDropdown = (categoryId: string) => {
+    // Esta função é usada para compatibilidade com o evento @mouseover
+    // O dropdown é controlado principalmente pela classe group do Tailwind
+    openDropdowns.value = {
+        ...openDropdowns.value,
+        [categoryId]: true
+    };
 };
+
+
 
 const openSearchModal = () => {
     searchModalOpen.value = true;
@@ -557,3 +580,70 @@ watch(isDarkMode, () => {
     applyTheme();
 });
 </script>
+
+<style>
+/* Configurações do Tailwind */
+:root {
+    --color-primary: #00aa30;
+    --color-dark: #111;
+    --color-darker: #000;
+}
+
+/* Estilos globais */
+body {
+    background-color: #f5f5f5;
+    color: #333;
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--color-primary);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: visible;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Estilo específico para a logo do site */
+.site-logo {
+    height: 3rem !important; /* equivalente a h-12 do Tailwind */
+    width: auto !important;
+    object-fit: contain !important;
+}
+
+/* Estilo para dispositivos móveis */
+@media (max-width: 768px) {
+    .btn {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    .hero-content h2 {
+        font-size: 20px;
+    }
+    
+    .hero-content p {
+        font-size: 14px;
+    }
+}
+</style>
