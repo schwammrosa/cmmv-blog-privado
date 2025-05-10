@@ -2892,7 +2892,6 @@
                                                 v-model="settings.amazonSidebarAd"
                                                 rows="3"
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
-                                                placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;manual&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
                                             ></textarea>
                                     </div>
 
@@ -2904,7 +2903,6 @@
                                                 v-model="settings.amazonInContentAd"
                                                 rows="3"
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
-                                                placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;search&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
                                             ></textarea>
                                         </div>
 
@@ -2916,7 +2914,6 @@
                                                 v-model="settings.amazonBelowContentAd"
                                                 rows="3"
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
-                                                placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;auto&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
                                             ></textarea>
                                 </div>
                             </div>
