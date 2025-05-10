@@ -21,6 +21,7 @@ import CoverView from './views/CoverView.vue';
 import WhitelabelView from './views/WhitelabelView.vue';
 import WhitelabelAccessView from './views/WhitelabelAccessView.vue';
 import BackupView from './views/BackupView.vue';
+import PromptsView from './views/PromptsView.vue';
 
 import SetupView from './views/SetupView.vue';
 import PostView from './views/PostView.vue';
@@ -47,7 +48,8 @@ export const blogAdminRoutes: RouteRecordRaw[] = [
             { path: '/cover', component: CoverView },
             { path: '/whitelabel', component: WhitelabelView },
             { path: '/whitelabel-access', component: WhitelabelAccessView },
-            { path: '/backup', component: BackupView }
+            { path: '/backup', component: BackupView },
+            { path: '/prompts', component: PromptsView }
         ]
     },
     {
@@ -117,6 +119,12 @@ useNavbar().addItems([
         label: 'Tags',
         icon: 'fas fa-tags',
         to: '/tags',
+        group: 'CMS'
+    },
+    {
+        label: 'Prompts',
+        icon: 'fas fa-robot',
+        to: '/prompts',
         group: 'CMS'
     },
     {

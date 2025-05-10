@@ -2636,14 +2636,14 @@
                                             v-model="settings.enableAds"
                                             class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                         />
-                                        <label
+                                    <label
                                             for="enable-ads"
                                             class="text-sm text-neutral-300"
                                             >Enable ads across the site</label
                                         >
-                                    </div>
                                 </div>
-                                <div class="space-y-2">
+                            </div>
+                                    <div class="space-y-2">
                                     <div class="flex items-center">
                                         <input
                                             id="show-ads-logged-in"
@@ -2668,7 +2668,7 @@
                                     </h3>
                                     <div>
                                         <label class="relative inline-flex items-center cursor-pointer">
-                                            <input
+                                        <input
                                                 type="checkbox"
                                                 v-model="settings.enableAdSense"
                                                 class="sr-only peer"
@@ -2707,7 +2707,7 @@
                                         <p class="text-xs text-neutral-500">
                                             Paste your AdSense auto ads code here. This will be included in the head section of your site.
                                         </p>
-                                    </div>
+                                </div>
 
                                     <div class="space-y-2">
                                         <div class="flex items-center">
@@ -2723,7 +2723,7 @@
                                                 >Enable Auto Ads (let Google place ads automatically)</label
                                             >
                                         </div>
-                                    </div>
+                                        </div>
 
                                     <div class="space-y-4 mt-4">
                                         <h4 class="text-base font-medium text-neutral-300 border-b border-neutral-700 pb-2">
@@ -2756,7 +2756,7 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
                                             ></textarea>
-                                        </div>
+                                    </div>
 
                                         <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
@@ -2768,9 +2768,9 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
                                             ></textarea>
-                                        </div>
+                                </div>
 
-                                        <div class="space-y-2">
+                                <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
                                                 Sidebar Top (300x250)
                                             </label>
@@ -2780,9 +2780,9 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:300px;height:250px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
                                             ></textarea>
-                                        </div>
+                                </div>
 
-                                        <div class="space-y-2">
+                                <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
                                                 Sidebar Middle (300x250)
                                             </label>
@@ -2792,7 +2792,7 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:300px;height:250px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
                                             ></textarea>
-                                        </div>
+                                </div>
 
                                         <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
@@ -2804,9 +2804,9 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:300px;height:250px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
                                             ></textarea>
-                                        </div>
+                            </div>
 
-                                        <div class="space-y-2">
+                                    <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
                                                 Left Sidebar (160x600)
                                             </label>
@@ -2816,9 +2816,9 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:160px;height:600px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
                                             ></textarea>
-                                        </div>
+                                    </div>
 
-                                        <div class="space-y-2">
+                                    <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
                                                 In-Content Ad (Article Middle)
                                             </label>
@@ -2828,9 +2828,9 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<ins class=&quot;adsbygoogle&quot; style=&quot;display:inline-block;width:728px;height:90px&quot; data-ad-client=&quot;ca-pub-xxxxxxxxxxxxxxxx&quot; data-ad-slot=&quot;xxxxxxxxxx&quot;></ins>"
                                             ></textarea>
-                                        </div>
+                                </div>
 
-                                        <div class="space-y-2">
+                                    <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
                                                 Below Content Banner (728x90)
                                             </label>
@@ -2842,8 +2842,8 @@
                                             ></textarea>
                                         </div>
                                     </div>
+                                    </div>
                                 </div>
-                            </div>
 
                             <!-- Amazon Affiliate -->
                             <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
@@ -2853,7 +2853,7 @@
                                     </h3>
                                     <div>
                                         <label class="relative inline-flex items-center cursor-pointer">
-                                            <input
+                                    <input
                                                 type="checkbox"
                                                 v-model="settings.enableAmazonAds"
                                                 class="sr-only peer"
@@ -2864,27 +2864,27 @@
                                 </div>
 
                                 <div v-if="settings.enableAmazonAds" class="space-y-4">
-                                    <div class="space-y-2">
+                                <div class="space-y-2">
                                         <label class="block text-sm font-medium text-neutral-300">
                                             Amazon Associate ID
                                         </label>
-                                        <input
+                                    <input
                                             v-model="settings.amazonAssociateId"
-                                            type="text"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                                             placeholder="yourstore-20"
-                                        />
+                                    />
                                         <p class="text-xs text-neutral-500">
                                             Your Amazon Associate tracking ID (e.g., yourstore-20)
                                         </p>
-                                    </div>
+                            </div>
 
                                     <div class="space-y-4 mt-4">
                                         <h4 class="text-base font-medium text-neutral-300 border-b border-neutral-700 pb-2">
                                             Amazon Native Shopping Ads
                                         </h4>
 
-                                        <div class="space-y-2">
+                                <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
                                                 Sidebar Ad (Recommendation Ads)
                                             </label>
@@ -2894,7 +2894,7 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;manual&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
                                             ></textarea>
-                                        </div>
+                                    </div>
 
                                         <div class="space-y-2">
                                             <label class="block text-sm font-medium text-neutral-300">
@@ -2918,10 +2918,10 @@
                                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono text-sm"
                                                 placeholder="<script type=&quot;text/javascript&quot;>amzn_assoc_placement=&quot;adunit0&quot;;amzn_assoc_tracking_id=&quot;yourstore-20&quot;;amzn_assoc_ad_mode=&quot;auto&quot;;...</script><script src=&quot;//z-na.amazon-adsystem.com/widgets/onejs?MarketPlace=US&quot;></script>"
                                             ></textarea>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
                             <!-- Taboola Ads -->
                             <div class="space-y-4 p-4 border border-neutral-700 rounded-md">
@@ -3023,14 +3023,14 @@
                                                     v-model="settings.homePageHeader"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
-                                                <label
+                                        <label
                                                     for="home-header"
                                                     class="text-sm text-neutral-300"
                                                     >Header Banner</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
-                                                <input
+                                        <input
                                                     id="home-sidebar-top"
                                                     type="checkbox"
                                                     v-model="settings.homePageSidebarTop"
@@ -3041,7 +3041,7 @@
                                                     class="text-sm text-neutral-300"
                                                     >Sidebar Top</label
                                                 >
-                                            </div>
+                                    </div>
                                             <div class="flex items-center">
                                                 <input
                                                     id="home-sidebar-mid"
@@ -3049,11 +3049,11 @@
                                                     v-model="settings.homePageSidebarMid"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
-                                                <label
+                                        <label
                                                     for="home-sidebar-mid"
                                                     class="text-sm text-neutral-300"
                                                     >Sidebar Middle</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
                                                 <input
@@ -3101,16 +3101,16 @@
                                                     v-model="settings.homePageAfterPosts"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
-                                                <label
+                                        <label
                                                     for="home-after-posts"
                                                     class="text-sm text-neutral-300"
                                                     >After Post List</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
-                                                <input
+                                            <input
                                                     id="home-footer"
-                                                    type="checkbox"
+                                                type="checkbox"
                                                     v-model="settings.homePageFooter"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
@@ -3120,8 +3120,8 @@
                                                     >Footer</label
                                                 >
                                             </div>
-                                        </div>
                                     </div>
+                                </div>
 
                                     <div class="space-y-2">
                                         <label class="block text-sm font-medium text-neutral-300">
@@ -3135,40 +3135,40 @@
                                                     v-model="settings.articlePageHeader"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
-                                                <label
+                                        <label
                                                     for="article-header"
                                                     class="text-sm text-neutral-300"
                                                     >Header Banner</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
-                                                <input
+                                        <input
                                                     id="article-sidebar-top"
                                                     type="checkbox"
                                                     v-model="settings.articlePageSidebarTop"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
-                                                <label
+                                        <label
                                                     for="article-sidebar-top"
                                                     class="text-sm text-neutral-300"
                                                     >Sidebar Top</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
-                                                <input
+                                        <input
                                                     id="article-sidebar-mid"
                                                     type="checkbox"
                                                     v-model="settings.articlePageSidebarMid"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
-                                                />
-                                                <label
+                                        />
+                                        <label
                                                     for="article-sidebar-mid"
                                                     class="text-sm text-neutral-300"
                                                     >Sidebar Middle</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
-                                                <input
+                                        <input
                                                     id="article-sidebar-bottom"
                                                     type="checkbox"
                                                     v-model="settings.articlePageSidebarBottom"
@@ -3179,7 +3179,7 @@
                                                     class="text-sm text-neutral-300"
                                                     >Sidebar Bottom</label
                                                 >
-                                            </div>
+                                    </div>
                                             <div class="flex items-center">
                                                 <input
                                                     id="article-sidebar-left"
@@ -3187,14 +3187,14 @@
                                                     v-model="settings.articlePageSidebarLeft"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
-                                                <label
+                                        <label
                                                     for="article-sidebar-left"
                                                     class="text-sm text-neutral-300"
                                                     >Left Sidebar</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
-                                                <input
+                                        <input
                                                     id="article-after-title"
                                                     type="checkbox"
                                                     v-model="settings.articlePageAfterTitle"
@@ -3205,7 +3205,7 @@
                                                     class="text-sm text-neutral-300"
                                                     >After Article Title</label
                                                 >
-                                            </div>
+                                    </div>
                                             <div class="flex items-center">
                                                 <input
                                                     id="article-in-content"
@@ -3213,11 +3213,11 @@
                                                     v-model="settings.articlePageInContent"
                                                     class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
                                                 />
-                                                <label
+                                        <label
                                                     for="article-in-content"
                                                     class="text-sm text-neutral-300"
                                                     >In Content (Middle)</label
-                                                >
+                                        >
                                             </div>
                                             <div class="flex items-center">
                                                 <input
@@ -3296,11 +3296,11 @@
                         <div class="space-y-8">
                             <!-- Email Provider Selection -->
                             <div class="space-y-4">
-                                <div class="space-y-2">
-                                    <label
-                                        class="block text-sm font-medium text-neutral-300"
+                                    <div class="space-y-2">
+                                        <label
+                                            class="block text-sm font-medium text-neutral-300"
                                         >Email Provider</label
-                                    >
+                                        >
                                     <select
                                         v-model="settings.emailProvider"
                                         class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
@@ -3378,11 +3378,11 @@
                                 </div>
 
                                 <div class="mt-4">
-                                    <button
+                                            <button
                                         @click="purgeCloudFrontCacheTest"
                                         class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
                                         :disabled="cfCachePurgeInProgress"
-                                    >
+                                            >
                                         <span v-if="cfCachePurgeInProgress" class="flex items-center">
                                             <svg
                                                 class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
@@ -3407,9 +3407,9 @@
                                             Purging...
                                         </span>
                                         <span v-else>Test CloudFront Cache Purge</span>
-                                    </button>
-                                </div>
-                            </div>
+                                            </button>
+                                        </div>
+                                    </div>
 
                             <!-- Global Cache Settings -->
                             <div
@@ -3506,7 +3506,7 @@
                                     <p class="text-xs text-neutral-500">
                                         Required for Cloudflare cache purging. Create a token with the "Cache Purge" permission.
                                     </p>
-                                </div>
+                </div>
 
                                 <div class="space-y-2">
                                     <label
@@ -3522,7 +3522,7 @@
                                     <p class="text-xs text-neutral-500">
                                         Your Cloudflare Zone ID found in the Cloudflare dashboard
                                     </p>
-                                </div>
+            </div>
 
                                 <div class="mt-4">
                                     <h4

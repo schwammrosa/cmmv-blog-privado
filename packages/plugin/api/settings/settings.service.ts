@@ -87,7 +87,7 @@ API_SIGNATURE="${signature}"
 
         await fs.writeFileSync(webEnv, `VITE_API_URL="${setupData.settings.apiUrl}"
 VITE_WEBSITE_URL="${setupData.blog.url}"
-VITE_API_URL_FRONTEND="${setupData.settings.frontendApiUrl}"
+VITE_API_URL_FRONT="${setupData.settings.frontendApiUrl}"
 VITE_SSR="true"
 VITE_SSR_PORT="${setupData.settings.basePort + 1}"
 VITE_ALLOWED_HOSTS="${setupData.settings.allowedHosts.join(",")}"
