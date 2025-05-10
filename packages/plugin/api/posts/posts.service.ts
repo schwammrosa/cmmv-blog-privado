@@ -1014,12 +1014,14 @@ export class PostsPublicService {
      */
     async getPostsMostAccessedWeek(){
         const PostsEntity = Repository.getEntity("PostsEntity");
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
         const posts = await Repository.findAll(PostsEntity, {
             sortBy: "views",
             sort: "desc",
             limit: 10,
-            publishedAt: MoreThanOrEqual(new Date().getTime() - 7 * 24 * 60 * 60 * 1000)
+            status: "published",
+            publishedAt: MoreThanOrEqual(oneWeekAgo.toISOString())
         }, [], {
             select: [
                 "id", "title", "slug", "views", "createdAt",

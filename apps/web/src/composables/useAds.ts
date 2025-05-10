@@ -87,13 +87,6 @@ export const useAds = (settings: any, page = 'generic') => {
             taboolaJsCode: processedSettings['taboolaJsCode'] || '',
         };
 
-        console.log(`Ad settings for ${page} page:`, {
-            enableAds: result.enableAds,
-            enableAdSense: result.enableAdSense,
-            adSenseSidebarLeft: result.adSenseSidebarLeft ? 'configured' : 'not set',
-            adSenseSidebarTop: result.adSenseSidebarTop ? 'configured' : 'not set'
-        });
-
         return result;
     });
 

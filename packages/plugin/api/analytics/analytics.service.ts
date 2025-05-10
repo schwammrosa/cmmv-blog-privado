@@ -1,7 +1,7 @@
 import { Service } from '@cmmv/core';
 
 import {
-    Repository, In
+    Repository, In, MoreThanOrEqual
 } from "@cmmv/repository"
 
 import {
@@ -226,35 +226,17 @@ export class AnalyticsService {
      * Get the posts most accessed in the last week
      */
     async getPostsMostAccessedWeek(){
-        const AnalyticsAccessEntity = Repository.getEntity("AnalyticsAccessEntity");
-
-        const analyticsAccess = await Repository.findAll(AnalyticsAccessEntity, {
-            summarized: true,
-            limit: 10000
-        }, [], {
-            select: ["postId"]
-        });
-
-        const postsAccess: Record<string, number> = {};
-
-        if(analyticsAccess){
-            for(const record of analyticsAccess.data){
-                if(!postsAccess[record.postId])
-                    postsAccess[record.postId] = 0;
-
-                postsAccess[record.postId]++;
-            }
-        }
-
         const PostsEntity = Repository.getEntity("PostsEntity");
+        const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
         const posts = await Repository.findAll(PostsEntity, {
-            id: In(Object.keys(postsAccess)),
+            status: "published",
+            publishedAt: MoreThanOrEqual(oneWeekAgo.toISOString()),
             sortBy: "views",
             sort: "desc",
             limit: 10
         }, [], {
-            select: ["id", "title", "slug", "views", "createdAt", "comments", "featureImage"]
+            select: ["id", "title", "slug", "views", "createdAt", "comments", "featureImage", "publishedAt"]
         });
 
         if(!posts)
@@ -275,7 +257,8 @@ export class AnalyticsService {
             image: post.featureImage,
             createdAt: post.createdAt,
             comments: post.comments,
-            views: postsAccess[post.id]
+            views: post.views,
+            publishedAt: post.publishedAt
         }));
     }
 
