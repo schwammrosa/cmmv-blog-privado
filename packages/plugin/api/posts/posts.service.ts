@@ -1167,11 +1167,8 @@ export class PostsPublicService {
      * @deprecated Use startGenerateJob and getGenerateJobStatus instead
      */
     async generatePostFromUrl(url: string) {
-        // Start a job and immediately return its result
         const jobId = await this.startGenerateJob(url);
 
-        // Wait for job to complete (this will still timeout for long jobs)
-        // This is kept for backward compatibility but should be avoided
         let result;
         let attempts = 0;
         const MAX_ATTEMPTS = 30; // 30 seconds max wait
@@ -1186,7 +1183,6 @@ export class PostsPublicService {
                 throw new Error(jobStatus.error || 'Generation failed');
             }
 
-            // Wait 1 second before checking again
             await new Promise(resolve => setTimeout(resolve, 1000));
             attempts++;
         }
@@ -1339,7 +1335,7 @@ export class PostsPublicService {
                 1. Translating it to ${language} if needed
 
                 Original prompt:
-                ${promptService.getDefaultPrompt()}
+                ${await promptService.getRandomPrompt()}
 
                 Original Title: ${parsedContent.title}
                 Original URL: ${url}

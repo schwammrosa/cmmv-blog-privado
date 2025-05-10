@@ -11,7 +11,7 @@ import {
 export class PromptsServiceTools {
 
     getDefaultPrompt(){
-        return `            2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
+        return `2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
             3. Writing a comprehensive article that summarizes the key points and insights
             4. Adding context, background information, and your own analysis to enhance the content
             5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
@@ -126,4 +126,24 @@ export class PromptsServiceTools {
         `;
     }
 
+    async getRandomPrompt(){
+        const PromptsEntity = Repository.getEntity("PromptsEntity");
+        const promptsData = await Repository.findAll(PromptsEntity, {
+            limit: 100
+        }, [], {
+            select: ["prompt", "relevance"]
+        });
+
+        let promts: string[] = [];
+
+        if(promptsData){
+            for(let promptItem of promptsData.data){
+                for(let i = 0; i < promptItem.relevance; i++){
+                    promts.push(promptItem.prompt);
+                }
+            }
+        }
+
+        return promts.length > 0 ? promts[Math.floor(Math.random() * promts.length)] : this.getDefaultPrompt();
+    }
 }
