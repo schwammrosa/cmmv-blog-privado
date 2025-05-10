@@ -53,14 +53,16 @@
                             <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto hidden md:flex">
                                 <a href="/" class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] bg-[#00aa30] transition-colors whitespace-nowrap">Home</a>
                                 <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
-                                    <div class="relative group">
+                                    <div class="relative dropdown-container" 
+                                         @mouseover="showDropdown(category.id)" 
+                                         @mouseleave="hideDropdown(category.id)">
                                         <a
                                             :href="`/category/${category.slug}`"
                                             class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] transition-colors whitespace-nowrap inline-flex items-center"
-                                            @mouseover="showDropdown(category.id)"
+                                            @click.prevent="hasSubcategories(category.id) ? toggleDropdown(category.id) : navigateTo(`/category/${category.slug}`)"
                                         >
                                             {{ category.name }}
-                                            <svg v-if="mainNavCategories.childrenMap[category.id] && mainNavCategories.childrenMap[category.id].length > 0" 
+                                            <svg v-if="hasSubcategories(category.id)" 
                                                  xmlns="http://www.w3.org/2000/svg" 
                                                  class="h-4 w-4 ml-1" 
                                                  fill="none" 
@@ -70,8 +72,9 @@
                                             </svg>
                                         </a>
                                         <!-- Dropdown Menu -->
-                                        <div v-if="mainNavCategories.childrenMap[category.id] && mainNavCategories.childrenMap[category.id].length > 0"
-                                             class="absolute left-0 mt-1 w-48 bg-[#111] rounded-md shadow-lg overflow-hidden z-50 transform opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 origin-top-left hover:opacity-100 hover:scale-100">
+                                        <div v-if="hasSubcategories(category.id)"
+                                             :class="['absolute left-0 mt-1 w-48 bg-[#111] rounded-md shadow-lg overflow-hidden z-50 transition-all duration-200 origin-top-left', 
+                                                     {'opacity-100 visible': isDropdownOpen(category.id), 'opacity-0 invisible': !isDropdownOpen(category.id)}]">
                                             <div class="py-2">
                                                 <a v-for="subCategory in mainNavCategories.childrenMap[category.id]" 
                                                    :key="subCategory.id"
@@ -446,13 +449,44 @@ const toggleFooterSection = (section: string) => {
     openFooterSections.value[section] = !openFooterSections.value[section];
 };
 
+const hasSubcategories = (categoryId: string) => {
+    return mainNavCategories.value.childrenMap[categoryId] && 
+           mainNavCategories.value.childrenMap[categoryId].length > 0;
+};
+
+const isDropdownOpen = (categoryId: string) => {
+    return openDropdowns.value[categoryId] === true;
+};
+
 const showDropdown = (categoryId: string) => {
-    // Esta função é usada para compatibilidade com o evento @mouseover
-    // O dropdown é controlado principalmente pela classe group do Tailwind
+    if (hasSubcategories(categoryId)) {
+        openDropdowns.value = {
+            ...openDropdowns.value,
+            [categoryId]: true
+        };
+    }
+};
+
+const hideDropdown = (categoryId: string) => {
+    if (hasSubcategories(categoryId)) {
+        setTimeout(() => {
+            openDropdowns.value = {
+                ...openDropdowns.value,
+                [categoryId]: false
+            };
+        }, 200); // Pequeno atraso para evitar fechamento acidental
+    }
+};
+
+const toggleDropdown = (categoryId: string) => {
     openDropdowns.value = {
         ...openDropdowns.value,
-        [categoryId]: true
+        [categoryId]: !openDropdowns.value[categoryId]
     };
+};
+
+const navigateTo = (url: string) => {
+    window.location.href = url;
 };
 
 
@@ -607,6 +641,29 @@ a {
 
 a:hover {
     color: var(--color-primary);
+}
+
+/* Exceção para links da navegação */
+.main-nav a:hover {
+    color: white;
+}
+
+/* Estilos para o dropdown */
+.dropdown-container {
+    position: relative;
+}
+
+.dropdown-container div.visible {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-container div.invisible {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
 }
 
 .container {
