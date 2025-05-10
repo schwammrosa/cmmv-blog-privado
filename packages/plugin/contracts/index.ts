@@ -24,3 +24,6 @@ export * from './comments-likes.contract';
 
 // Members
 export * from './member.contract';
+
+// AI
+export * from './prompts.contract';

@@ -222,20 +222,15 @@ const hasMorePosts = ref(true);
 const currentPage = ref(0);
 const observerTarget = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
-
-// Elements references
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
 
-// Create formatted settings object for useAds
 const adPluginSettings = computed(() => {
     return settings.value || {};
 });
 
-// Set up ads functionality using the composable
 const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPluginSettings.value, 'tag');
 
 const pageUrl = computed(() => {
-    // Use the URL from settings instead of the environment variable
     const baseUrl = settings.value['blog.url'] || '';
     return `${baseUrl}/tag/${data.value?.tag?.slug || ''}`;
 })

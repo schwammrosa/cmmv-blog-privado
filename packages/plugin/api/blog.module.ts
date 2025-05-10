@@ -21,6 +21,7 @@ import { WhitelabelModule } from './whitelabel/whitelabel.modules';
 import { CDNModule } from './cdn/cdn.module';
 import { LogsModule } from './logs/logs.module';
 import { BackupModule } from './backup/backup.module';
+import { PromptsModule } from './prompts/prompts.modules';
 
 export const BlogModule = new Module('blog', {
     submodules: [
@@ -44,6 +45,7 @@ export const BlogModule = new Module('blog', {
         WhitelabelModule,
         CDNModule,
         LogsModule,
-        BackupModule
+        BackupModule,
+        PromptsModule
     ]
 });

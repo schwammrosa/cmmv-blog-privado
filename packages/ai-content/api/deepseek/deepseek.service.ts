@@ -12,15 +12,16 @@ export class DeepSeekService {
                 'Authorization': `Bearer ${deepseekApiKey || ''}`
             },
             body: JSON.stringify({
-                model: "deepseek-chat",
+                model: "deepseek-reasoner",
                 messages: [
                     {
                         role: "user",
                         content: prompt
                     }
                 ],
-                temperature: 0.7,
-                max_tokens: 8000
+                temperature: 0.9,
+                top_p: 0.8,
+                max_tokens: 8192
             })
         });
 

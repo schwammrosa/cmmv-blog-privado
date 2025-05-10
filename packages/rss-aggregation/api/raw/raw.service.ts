@@ -1,6 +1,6 @@
 import {
     Service, Logger,
-    Config
+    Config, Application
 } from "@cmmv/core";
 
 import {
@@ -10,10 +10,9 @@ import {
 
 //@ts-ignore
 import { AIContentService } from "@cmmv/ai-content";
-
-import {
-    ParserService
-} from "../parser/parser.service";
+//@ts-ignore
+import { PromptsServiceTools } from "@cmmv/blog/prompts/prompts.service";
+import { ParserService } from "../parser/parser.service";
 
 @Service()
 export class RawService {
@@ -56,6 +55,7 @@ export class RawService {
      */
     async getAIRaw(id: string, customContent?: string) {
         try {
+            const promptService:any = Application.resolveProvider(PromptsServiceTools);
             const language = Config.get("blog.language");
             const FeedRawEntity = Repository.getEntity("FeedRawEntity");
             const raw = await Repository.findOne(FeedRawEntity, {
@@ -76,84 +76,11 @@ export class RawService {
 
             Please transform the following content by:
             1. Translating it to ${language}
-            2. Significantly rewriting and expanding the text (aim for 600-3000 words) to avoid similarity with the original
-            3. Removing all references to images, videos, or any content that connects directly to the original source
-            4. Adding complementary information to enrich the news item, including background context, analysis, and relevant details
-            5. Maintaining the general topic but rephrasing completely
-            6. Preserving important links to authors, sources, and reference pages, but adding rel="noindex nofollow" attributes to all links
-            7. Organizing content with proper HTML formatting for the TipTap editor:
-               - Use <h2> tags for section headings (2-4 sections recommended)
-               - Use <p> tags for paragraphs
-               - Use <ul> and <li> tags for lists where appropriate
-               - Include a concluding paragraph
-               - For links, use: <a href="https://example.com" rel="noindex nofollow">text</a>
-            8. Suggesting 3-8 relevant tags in Portuguese for categorizing this content
+            ${promptService.getDefaultPrompt()}
 
-            IMPORTANT:
-            - For titles, DO NOT default to number-based formats (like "5 Ways to..." or "10 Tips for...")
-            - Only use numbered titles when the content specifically warrants it (such as step-by-step guides or ranked lists)
-            - Prefer descriptive, narrative or question-based titles that engage readers without relying on numbers
-            - Avoid sensationalist or clickbait headlines
-
-            For titles, use these headline formulas (preferring the non-numbered options):
-
-            1. The "How-To Formula":
-            How to [Achieve Desired Outcome] without [Common Pain Point]
-
-            Examples:
-            - "How to Lose Weight Without Giving Up Your Favorite Foods"
-            - "How to Learn a New Language Without Spending Hours Studying"
-            - "How to Start Investing Without Taking Big Risks"
-
-            2. The "Question Formula":
-            [Intriguing Question That Promises an Answer]?
-
-            Examples:
-            - "Is This the Most Overlooked Feature When Buying a Smartphone?"
-            - "Are You Making These Common Skincare Mistakes?"
-            - "What's the Secret to Perfect Homemade Pizza Every Time?"
-
-            3. The "Secret Formula":
-            The Secret to [Achieving Desired Outcome] That [Target Audience] Don't Know About
-
-            Examples:
-            - "The Secret to Flawless Skin That Dermatologists Don't Tell You"
-            - "The Secret to Perfect Sourdough Bread That Bakers Won't Share"
-            - "The Secret to Finding Cheap Flights That Travel Agents Keep Hidden"
-
-            4. The "Why Formula":
-            Why [Common Belief/Practice] Is [Wrong/Ineffective] and What to Do Instead
-
-            Examples:
-            - "Why Traditional Dieting Is Flawed and What to Do Instead"
-            - "Why Your Coffee Brewing Method Is Ruining Your Morning Cup"
-            - "Why Most Home Security Systems Fail When You Need Them Most"
-
-            5. The "Comparison Formula":
-            [Product/Method A] vs [Product/Method B]: Which Is Better for [Desired Outcome]
-
-            Examples:
-            - "Air Fryers vs Convection Ovens: Which Is Better for Healthy Cooking"
-            - "Morning Workouts vs Evening Workouts: Which Is Better for Weight Loss"
-            - "Traditional Savings vs Investments: Which Is Better for Building Wealth"
-
-            6. The "Ultimate Guide":
-            The Ultimate Guide to [Topic] for [Target Audience]
-
-            Examples:
-            - "The Ultimate Guide to Home Automation for Beginners"
-            - "The Ultimate Guide to Personal Finance for Young Professionals"
-            - "The Ultimate Guide to Photography for Smartphone Users"
-
-            7. The "Warning Formula":
-            [Warning Sign] - [Problem] You Need to Address Now
-
-            Examples:
-            - "Warning - Your Password Security May Be Compromised Right Now"
-            - "Caution - These Kitchen Habits Are Secretly Wasting Your Money"
-            - "Alert - The Skincare Ingredient You Need to Stop Using Immediately"
-
-            The title MUST be 100 characters or less, clear, factual, and non-sensationalist, accurately representing the content.
+            IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
+            It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
+            "Finally," or any language that suggests the article is ending.
 
             Here is the content to transform:
 
@@ -170,7 +97,6 @@ export class RawService {
               "suggestedTags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
             }
 
-            The suggestedTags should be in Portuguese, relevant to the article topic, and useful for SEO and content categorization. Provide suggestions that would complement the article well. The queryTerms should be effective search terms in Portuguese.
             `;
 
             const generatedText = await this.aiContentService.generateContent(prompt);
@@ -187,11 +113,79 @@ export class RawService {
 
                 const parsedContent = JSON.parse(jsonContent);
 
-                await this.processSuggestedImages(parsedContent);
-
                 if (parsedContent.title && parsedContent.title.length > 100) {
                     parsedContent.title = parsedContent.title.substring(0, 97) + '...';
                     this.logger.log(`Title was truncated to 100 characters for raw feed item ${id}`);
+                }
+
+                // Generate continuation text
+                this.logger.log(`Generating continuation text for raw feed item ${id}`);
+
+                const continuationPrompt = `
+                You are a content generator for a news aggregation platform that uses the TipTap editor.
+
+                I've already generated part of the content below, but I need you to continue this article with more details, examples, or insights. Keep the same style and flow as the existing content.
+
+                1. Translating it to ${language}
+
+                Original prompt:
+                ${promptService.getDefaultPrompt()}
+
+                Original Title: ${contentToProcess.title}
+                Category: ${contentToProcess.category || 'General'}
+
+                Here's the content already generated:
+                ${parsedContent.content}
+
+                Please continue from where this left off, adding depth, details, and value. Make it feel like a natural extension.
+                Your continuation should be at least as long as the original text.
+
+                IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
+                It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
+                "Finally," or any language that suggests the article is ending.
+
+                Return only the continuation in JSON format with the following field:
+                {
+                  "continuation": "HTML-formatted content with proper tags that continues the existing text"
+                }
+                `;
+
+                const continuationText = await this.aiContentService.generateContent(continuationPrompt);
+
+                if (!continuationText) {
+                    this.logger.error(`No continuation text generated for raw feed item ${id}, using only the original text`);
+                } else {
+                    try {
+                        const continuationJsonMatch = continuationText.match(/\{[\s\S]*\}/);
+                        const continuationJsonContent = continuationJsonMatch ? continuationJsonMatch[0] : null;
+
+                        if (continuationJsonContent) {
+                            const parsedContinuation = JSON.parse(continuationJsonContent);
+
+                            if (parsedContinuation.continuation) {
+                                // Combine the original content with the continuation
+                                // Find the last closing tag in the original content
+                                const lastClosingTagMatch = parsedContent.content.match(/<\/[^>]+>$/);
+
+                                if (lastClosingTagMatch) {
+                                    // Insert the continuation before the last closing tag
+                                    const insertPosition = parsedContent.content.lastIndexOf(lastClosingTagMatch[0]);
+                                    parsedContent.content =
+                                        parsedContent.content.substring(0, insertPosition) +
+                                        parsedContinuation.continuation +
+                                        parsedContent.content.substring(insertPosition);
+                                } else {
+                                    // Simply append if we can't find a closing tag
+                                    parsedContent.content += parsedContinuation.continuation;
+                                }
+
+                                this.logger.log(`Successfully combined original content with continuation for raw feed item ${id}`);
+                            }
+                        }
+                    } catch (continuationError) {
+                        this.logger.error(`Failed to parse continuation text: ${continuationError}`);
+                        this.logger.error(`Using only the original text for raw feed item ${id}`);
+                    }
                 }
 
                 return {
@@ -200,7 +194,6 @@ export class RawService {
                     originalContent: raw.content,
                     title: parsedContent.title,
                     content: parsedContent.content,
-                    suggestedImages: parsedContent.suggestedImages || [],
                     suggestedTags: parsedContent.suggestedTags || [],
                     aiProcessed: true,
                     processedAt: new Date()
@@ -213,112 +206,6 @@ export class RawService {
         } catch (error: unknown) {
             this.logger.error(`Error in getAIRaw: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
-        }
-    }
-
-    /**
-     * Process suggested images by finding actual image URLs
-     * @param parsedContent The content with suggested image queries
-     */
-    private async processSuggestedImages(parsedContent: any) {
-        try {
-            if (!parsedContent.suggestedImages || !Array.isArray(parsedContent.suggestedImages)) {
-                parsedContent.suggestedImages = [];
-                return;
-            }
-
-            for (const suggestion of parsedContent.suggestedImages) {
-                if (!suggestion.queryTerms) continue;
-
-                try {
-                    suggestion.imageUrls = await this.findImageUrls(suggestion.queryTerms);
-                } catch (imgError) {
-                    this.logger.log(`Failed to find images for query "${suggestion.queryTerms}": ${imgError}`);
-                    suggestion.imageUrls = [];
-                }
-            }
-
-            parsedContent.suggestedImages = parsedContent.suggestedImages.filter(
-                (suggestion: any) => suggestion.imageUrls && suggestion.imageUrls.length > 0
-            );
-        } catch (error) {
-            this.logger.error(`Error processing image suggestions: ${error}`);
-            parsedContent.suggestedImages = [];
-        }
-    }
-
-    /**
-     * Find image URLs based on search terms
-     * @param query Search terms to find images
-     * @returns Array of image URLs
-     */
-    private async findImageUrls(query: string): Promise<string[]> {
-        try {
-            const searchTerms = encodeURIComponent(query.trim().toLowerCase());
-            const imageUrls = [];
-
-            if (searchTerms.includes('tecnologia') || searchTerms.includes('tech')) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8dGVjaG5vbG9neXxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1531297484001-80022131f5a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8NHx8dGVjaHxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1518770660439-4636190af475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8M3x8dGVjaG5vbG9neXxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            } else if (searchTerms.includes('negocio') || searchTerms.includes('business') || searchTerms.includes('empresa')) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1507679799987-c73779587ccf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8YnVzaW5lc3N8ZW58MHx8fHwxNjE0MDI4OTU2&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1664575602554-2087b04935d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTR8fGJ1c2luZXNzfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1551836022-d5d88e9218df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTB8fGJ1c2luZXNzfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            } else if (searchTerms.includes('politica') || searchTerms.includes('political') || searchTerms.includes('governo')) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1541872703-74c5e44368f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8cG9saXRpY3N8ZW58MHx8fHwxNjE0MDI4OTU2&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1575320181282-9afab399332c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8M3x8Z292ZXJubWVudHxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1555848962-6e79363ec58f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8NHx8cG9saXRpY3N8ZW58MHx8fHwxNjE0MDI4OTU2&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            } else if (searchTerms.includes('ciencia') || searchTerms.includes('science')) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1507413245164-6160d8298b31?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8c2NpZW5jZXxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1564325724739-bae0bd08762c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8NXx8c2NpZW5jZXxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1518152006812-edab29b069ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Nnx8c2NpZW5jZXxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            } else if (searchTerms.includes('saude') || searchTerms.includes('health') || searchTerms.includes('medicina')) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1530497610245-94d3c16cda28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8aGVhbHRofGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8bWVkaWNhbHxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1584982751601-97dcc096659c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTJ8fGhlYWx0aHxlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            } else if (searchTerms.includes('esporte') || searchTerms.includes('sport')) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8c3BvcnRzfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8c3BvcnRzfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MTB8fHNwb3J0c3xlbnwwfHx8fDE2MTQwMjg5NTY&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            } else if (searchTerms.includes('arte') || searchTerms.includes('art')) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8YXJ0fGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1513364776144-60967b0f800f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8YXJ0fGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1578926375605-eaf7559b1458?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8M3x8YXJ0fGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            }
-
-            if (imageUrls.length === 0) {
-                imageUrls.push(
-                    'https://images.unsplash.com/photo-1493612276216-ee3925520721?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8cmFuZG9tfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1481277542470-605612bd2d61?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8cmFuZG9tfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                    'https://images.unsplash.com/photo-1509114397022-ed747cca3f65?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8NHx8cmFuZG9tfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080'
-                );
-            }
-
-            this.logger.log(`Found ${imageUrls.length} images for query "${query}"`);
-
-            return imageUrls;
-        } catch (error) {
-            this.logger.error(`Error finding images for query "${query}": ${error}`);
-
-            return [
-                'https://images.unsplash.com/photo-1493612276216-ee3925520721?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8MXx8cmFuZG9tfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080',
-                'https://images.unsplash.com/photo-1481277542470-605612bd2d61?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMjA3fDB8MXxzZWFyY2h8Mnx8cmFuZG9tfGVufDB8fHx8MTYxNDAyODk1Ng&ixlib=rb-4.0.3&q=80&w=1080'
-            ];
         }
     }
 
@@ -347,8 +234,6 @@ export class RawService {
 
         if (!raw)
             throw new Error(`Raw feed item with ID ${id} not found`);
-
-        console.log("aki")
 
         updatedRaw = await Repository.updateOne(FeedRawEntity, {
             id: id
