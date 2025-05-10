@@ -17,7 +17,6 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </button>
-
                             <!-- Botão do menu hambúrguer para dispositivos móveis -->
                             <button @click="toggleMobileMenu" class="md:hidden text-white p-2 focus:outline-none">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -32,7 +31,6 @@
             <!-- Menu móvel -->
             <div v-if="mobileMenuOpen" class="md:hidden bg-[#111] py-2 px-4 absolute w-full z-50 shadow-lg">
                 <div class="flex flex-col space-y-3 py-2">
-                    <a href="#" class="text-gray-300 text-sm hover:text-[#00aa30] transition-colors py-2 border-b border-gray-800">Entrar</a>
                     <a v-for="category in mainNavCategories.rootCategories" :key="category.id"
                        :href="`/category/${category.slug}`"
                        class="text-white py-2 font-medium text-sm border-b border-gray-800">
