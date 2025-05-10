@@ -3476,6 +3476,361 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- CDN Settings -->
+                    <div class="p-6" v-if="activeTab === 'cdn'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            CDN Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- Cloudflare CDN -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Cloudflare CDN
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >API Token</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudflareToken"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Cloudflare API token"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Required for Cloudflare cache purging. Create a token with the "Cache Purge" permission.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Zone ID</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudflareZoneId"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Cloudflare Zone ID"
+                                    />
+                                    <p class="text-xs text-neutral-500">
+                                        Your Cloudflare Zone ID found in the Cloudflare dashboard
+                                    </p>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h4
+                                        class="text-sm font-medium text-neutral-300 mb-2"
+                                    >
+                                        How to set up Cloudflare API access:
+                                    </h4>
+                                    <ol
+                                        class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
+                                    >
+                                        <li>
+                                            Go to the Cloudflare dashboard
+                                        </li>
+                                        <li>
+                                            Navigate to "My Profile" > "API Tokens"
+                                        </li>
+                                        <li>
+                                            Create a custom token with "Cache Purge" permissions
+                                        </li>
+                                        <li>
+                                            Grab your Zone ID from the Overview page of your domain
+                                        </li>
+                                    </ol>
+                                    <a
+                                        href="https://developers.cloudflare.com/api/tokens/"
+                                        target="_blank"
+                                        class="inline-flex items-center mt-2 text-blue-400 hover:underline"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 mr-1"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                            />
+                                        </svg>
+                                        Cloudflare API Documentation
+                                    </a>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button
+                                        @click="purgeCloudflareCacheTest"
+                                        class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                                        :disabled="cachePurgeInProgress"
+                                    >
+                                        <span v-if="cachePurgeInProgress" class="flex items-center">
+                                            <svg
+                                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    class="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    stroke-width="4"
+                                                ></circle>
+                                                <path
+                                                    class="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            Purging...
+                                        </span>
+                                        <span v-else>Test Cloudflare Cache Purge</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- AWS CloudFront CDN -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    AWS CloudFront CDN
+                                </h3>
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Access Key</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudfrontAccessKey"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your AWS Access Key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Secret Key</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudfrontSecretKey"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your AWS Secret Key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Distribution ID</label
+                                    >
+                                    <input
+                                        v-model="settings.cloudfrontDistributionId"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your CloudFront Distribution ID"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >AWS Region</label
+                                    >
+                                    <select
+                                        v-model="settings.cloudfrontRegion"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                        <option value="us-east-1">US East (N. Virginia)</option>
+                                        <option value="us-east-2">US East (Ohio)</option>
+                                        <option value="us-west-1">US West (N. California)</option>
+                                        <option value="us-west-2">US West (Oregon)</option>
+                                        <option value="af-south-1">Africa (Cape Town)</option>
+                                        <option value="ap-east-1">Asia Pacific (Hong Kong)</option>
+                                        <option value="ap-south-1">Asia Pacific (Mumbai)</option>
+                                        <option value="ap-northeast-3">Asia Pacific (Osaka)</option>
+                                        <option value="ap-northeast-2">Asia Pacific (Seoul)</option>
+                                        <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                                        <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
+                                        <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+                                        <option value="ca-central-1">Canada (Central)</option>
+                                        <option value="eu-central-1">Europe (Frankfurt)</option>
+                                        <option value="eu-west-1">Europe (Ireland)</option>
+                                        <option value="eu-west-2">Europe (London)</option>
+                                        <option value="eu-south-1">Europe (Milan)</option>
+                                        <option value="eu-west-3">Europe (Paris)</option>
+                                        <option value="eu-north-1">Europe (Stockholm)</option>
+                                        <option value="me-south-1">Middle East (Bahrain)</option>
+                                        <option value="sa-east-1">South America (São Paulo)</option>
+                                    </select>
+                                    <p class="text-xs text-neutral-500">
+                                        The AWS region where your CloudFront distribution is located. Default is us-east-1.
+                                    </p>
+                                </div>
+
+                                <div class="mt-4">
+                                    <h4
+                                        class="text-sm font-medium text-neutral-300 mb-2"
+                                    >
+                                        How to set up AWS CloudFront access:
+                                    </h4>
+                                    <ol
+                                        class="list-decimal pl-5 space-y-1 text-sm text-neutral-400"
+                                    >
+                                        <li>
+                                            Create an IAM user with permissions for CloudFront invalidations
+                                        </li>
+                                        <li>
+                                            Generate an Access Key and Secret Key for this user
+                                        </li>
+                                        <li>
+                                            Find your Distribution ID in the CloudFront console
+                                        </li>
+                                        <li>
+                                            Enter the details above to enable cache invalidation
+                                        </li>
+                                    </ol>
+                                    <a
+                                        href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessingCloudFront.html"
+                                        target="_blank"
+                                        class="inline-flex items-center mt-2 text-blue-400 hover:underline"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4 mr-1"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                            />
+                                        </svg>
+                                        CloudFront Documentation
+                                    </a>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button
+                                        @click="purgeCloudFrontCacheTest"
+                                        class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                                        :disabled="cfCachePurgeInProgress"
+                                    >
+                                        <span v-if="cfCachePurgeInProgress" class="flex items-center">
+                                            <svg
+                                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    class="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    stroke-width="4"
+                                                ></circle>
+                                                <path
+                                                    class="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            Purging...
+                                        </span>
+                                        <span v-else>Test CloudFront Cache Purge</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Global Cache Settings -->
+                            <div
+                                class="space-y-4 p-4 border border-neutral-700 rounded-md"
+                            >
+                                <h3
+                                    class="text-lg font-medium text-white border-b border-neutral-700 pb-2"
+                                >
+                                    Global Cache Settings
+                                </h3>
+
+                                <div class="space-y-2">
+                                    <label
+                                        class="block text-sm font-medium text-neutral-300"
+                                        >Auto-Purge Cache</label
+                                    >
+                                    <div class="flex items-center">
+                                        <input
+                                            id="auto-purge-cache"
+                                            type="checkbox"
+                                            v-model="settings.autoPurgeCache"
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="auto-purge-cache"
+                                            class="text-sm text-neutral-300"
+                                            >Automatically purge CDN cache when content is updated</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="mt-4">
+                                    <button
+                                        @click="purgeAllCaches"
+                                        class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors"
+                                        :disabled="allCachePurgeInProgress"
+                                    >
+                                        <span v-if="allCachePurgeInProgress" class="flex items-center">
+                                            <svg
+                                                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <circle
+                                                    class="opacity-25"
+                                                    cx="12"
+                                                    cy="12"
+                                                    r="10"
+                                                    stroke="currentColor"
+                                                    stroke-width="4"
+                                                ></circle>
+                                                <path
+                                                    class="opacity-75"
+                                                    fill="currentColor"
+                                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                                ></path>
+                                            </svg>
+                                            Purging All Caches...
+                                        </span>
+                                        <span v-else>Purge All CDN Caches</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
