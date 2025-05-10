@@ -23,6 +23,8 @@ export const useFeedClient = () => {
         },
         getById: (id: string) => api.authRequest(`feed/raw/get/${id}`, "GET"),
         getAIRaw: (id: string, data: any = {}) => api.authRequest(`feed/raw/getAIRaw/${id}`, "POST", data),
+        startAIJob: (id: string, data: any = {}) => api.authRequest(`feed/raw/startAIJob/${id}`, "POST", data),
+        getAIJobStatus: (jobId: string) => api.authRequest(`feed/raw/getAIJobStatus/${jobId}`, "GET"),
         updateRaw: (id: string, data: any) => api.authRequest(`feed/raw/updateRaw/${id}`, "PUT", data),
         reprocessRaw: (id: string) => api.authRequest(`feed/raw/reprocess/${id}`, "POST"),
         rejectRaw: (id: string) => api.authRequest(`feed/raw/rejectRaw/${id}`, "PUT"),

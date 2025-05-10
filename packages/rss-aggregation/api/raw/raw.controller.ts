@@ -27,6 +27,19 @@ export class RawController {
         return await this.rawService.getAIRaw(id, data?.content);
     }
 
+    @Post("startAIJob/:id", {exclude: true })
+    @Auth()
+    async startAIJob(@Param("id") id: string, @Body() data?: any) {
+        const jobId = await this.rawService.startAIJob(id, data?.content);
+        return { jobId };
+    }
+
+    @Get("getAIJobStatus/:jobId", {exclude: true })
+    @Auth()
+    async getAIJobStatus(@Param("jobId") jobId: string) {
+        return await this.rawService.getAIJobStatus(jobId);
+    }
+
     @Put("updateRaw/:id", {exclude: true })
     @Auth()
     async updateRaw(@Param("id") id: string, @Body() data: any) {

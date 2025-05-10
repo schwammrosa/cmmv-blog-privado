@@ -54,6 +54,8 @@ export const useAdminClient = () => {
         update: (id: string, data: any) => api.authRequest(`blog/posts/${id}`, 'PUT', data),
         delete: (id: string) => api.authRequest(`blog/posts/${id}`, 'DELETE'),
         generate: (data: any) => api.authRequest('blog/posts/generate', 'POST', data),
+        startGenerate: (data: any) => api.authRequest('blog/posts/generate/start', 'POST', data),
+        getGenerateStatus: (jobId: string) => api.authRequest(`blog/posts/generate/status/${jobId}`, 'GET'),
     };
 
     const pages = {
