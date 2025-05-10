@@ -1002,27 +1002,44 @@
                 <h3 class="text-lg font-medium text-white">AI Content Generation</h3>
             </div>
             <div class="p-6">
-                <p class="text-neutral-300 mb-4">
-                    Enter a URL to generate blog content using AI. The content will be processed and used to fill the editor.
-                </p>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-neutral-400 mb-1">URL</label>
-                    <input
-                        v-model="aiGenerateUrl"
-                        type="url"
-                        placeholder="https://example.com/article"
-                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    />
+                <div v-if="!aiGenerateJobId">
+                    <p class="text-neutral-300 mb-4">
+                        Enter a URL to generate blog content using AI. The content will be processed and used to fill the editor.
+                    </p>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-neutral-400 mb-1">URL</label>
+                        <input
+                            v-model="aiGenerateUrl"
+                            type="url"
+                            placeholder="https://example.com/article"
+                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        />
+                    </div>
+                </div>
+
+                <div v-else class="mb-4">
+                    <div class="flex items-center justify-center flex-col">
+                        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-4"></div>
+                        <p class="text-neutral-300 mb-2 text-center">Generating content...</p>
+                        <p class="text-sm text-neutral-400 text-center">
+                            This may take 30-60 seconds to complete. The system is reading the URL, extracting relevant content, and creating a high-quality blog post.
+                        </p>
+                    </div>
                 </div>
 
                 <div class="flex justify-end space-x-3">
-                    <button @click="showAIGenerateDialog = false"
-                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors">
+                    <button
+                        @click="cancelGeneration"
+                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
+                    >
                         Cancel
                     </button>
-                    <button @click="generateFromUrl"
+                    <button
+                        v-if="!aiGenerateJobId"
+                        @click="generateFromUrl"
                         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
-                        :disabled="aiGenerateLoading">
+                        :disabled="aiGenerateLoading"
+                    >
                         <span v-if="aiGenerateLoading" class="flex items-center">
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
                                 fill="none" viewBox="0 0 24 24">
@@ -1033,7 +1050,7 @@
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                 </path>
                             </svg>
-                            Generating...
+                            Starting...
                         </span>
                         <span v-else>Generate Content</span>
                     </button>
@@ -2659,6 +2676,8 @@ function insertReddit() {
 const showAIGenerateDialog = ref(false)
 const aiGenerateUrl = ref('')
 const aiGenerateLoading = ref(false)
+const aiGenerateJobId = ref('')
+const aiGeneratePollingInterval = ref(null)
 
 async function generateFromUrl() {
     if (!aiGenerateUrl.value) {
@@ -2669,48 +2688,107 @@ async function generateFromUrl() {
     try {
         aiGenerateLoading.value = true
 
-        const response = await adminClient.posts.generate({
+        // Start the job
+        const response = await adminClient.posts.startGenerate({
             url: aiGenerateUrl.value
         })
 
-        if (response) {
-            post.value.title = response.title || post.value.title
-            post.value.excerpt = response.excerpt || post.value.excerpt
+        if (!response || !response.jobId) {
+            throw new Error('Failed to start content generation job')
+        }
 
-            if (response.suggestedTags && Array.isArray(response.suggestedTags)) {
-                post.value.tags = response.suggestedTags
+        // Store the job ID
+        aiGenerateJobId.value = response.jobId
+
+        // Start polling for job status
+        aiGeneratePollingInterval.value = setInterval(checkGenerateJobStatus, 2000)
+
+        // Keep dialog open with loading state
+        // The dialog will be closed once the job completes
+    } catch (error) {
+        console.error('Failed to start content generation:', error)
+        showNotification('error', error.message || 'Failed to start content generation')
+        aiGenerateLoading.value = false
+    }
+}
+
+async function checkGenerateJobStatus() {
+    if (!aiGenerateJobId.value) {
+        clearInterval(aiGeneratePollingInterval.value)
+        return
+    }
+
+    try {
+        const statusResponse = await adminClient.posts.getGenerateStatus(aiGenerateJobId.value)
+
+        if (statusResponse.status === 'completed') {
+            // Job completed successfully, update the UI
+            clearInterval(aiGeneratePollingInterval.value)
+
+            const result = statusResponse.result
+
+            // Update post data
+            post.value.title = result.title || post.value.title
+            post.value.excerpt = result.excerpt || post.value.excerpt
+
+            if (result.suggestedTags && Array.isArray(result.suggestedTags)) {
+                post.value.tags = result.suggestedTags
             }
 
-            if (response.slug) {
-                post.value.slug = response.slug
+            if (result.slug) {
+                post.value.slug = result.slug
                 slugManuallyEdited.value = true
             }
 
-            if (response.featureImage) {
-                post.value.featureImage = response.featureImage
+            if (result.featureImage) {
+                post.value.featureImage = result.featureImage
             }
 
-            if (response.content) {
-                editor.commands.setContent(response.content)
-                post.value.content = response.content
+            if (result.content) {
+                editor.commands.setContent(result.content)
+                post.value.content = result.content
             }
 
             showNotification('success', 'Content generated successfully')
             showAIGenerateDialog.value = false
             aiGenerateUrl.value = ''
+            aiGenerateJobId.value = ''
+            aiGenerateLoading.value = false
 
             nextTick(() => {
                 autoResizeTitle()
             })
-        } else {
-            throw new Error('No content was generated')
         }
+        else if (statusResponse.status === 'error') {
+            // Job failed
+            clearInterval(aiGeneratePollingInterval.value)
+            throw new Error(statusResponse.error || 'Content generation failed')
+        }
+        // For 'pending' or 'processing' status, continue polling
+
     } catch (error) {
-        console.error('Failed to generate content:', error)
+        clearInterval(aiGeneratePollingInterval.value)
+        console.error('Error checking job status:', error)
         showNotification('error', error.message || 'Failed to generate content')
-    } finally {
         aiGenerateLoading.value = false
     }
+}
+
+// Clean up polling on component unmount
+onBeforeUnmount(() => {
+    if (aiGeneratePollingInterval.value) {
+        clearInterval(aiGeneratePollingInterval.value)
+    }
+})
+
+// Add this function near the generateFromUrl function
+function cancelGeneration() {
+    if (aiGeneratePollingInterval.value) {
+        clearInterval(aiGeneratePollingInterval.value);
+    }
+    aiGenerateJobId.value = '';
+    aiGenerateLoading.value = false;
+    showAIGenerateDialog.value = false;
 }
 </script>
 

@@ -24,9 +24,19 @@ import { IndexingService } from "../indexing/indexing.service";
 import { AutopostService } from "../autopost/autopost.service";
 import { PromptsServiceTools } from "../prompts/prompts.service";
 
+interface AIJob {
+    id: string;
+    url: string;
+    status: 'pending' | 'processing' | 'completed' | 'error';
+    result?: any;
+    error?: string;
+    startTime: Date;
+}
+
 @Service('blog_posts_public')
 export class PostsPublicService {
     private readonly logger = new Logger("PostsPublicService");
+    private aiJobs: Map<string, AIJob> = new Map();
 
     constructor(
         private readonly mediasService: MediasService,
@@ -1041,11 +1051,159 @@ export class PostsPublicService {
     }
 
     /**
+     * Start an asynchronous job to generate a post from a URL
+     * @param url The URL to fetch content from
+     * @returns Job ID that can be used to check status
+     */
+    async startGenerateJob(url: string): Promise<string> {
+        // Generate unique job ID
+        const jobId = `ai-job-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+
+        // Create job record
+        const job: AIJob = {
+            id: jobId,
+            url,
+            status: 'pending',
+            startTime: new Date()
+        };
+
+        // Store job
+        this.aiJobs.set(jobId, job);
+
+        // Process in background
+        setTimeout(() => this.processGenerateJob(jobId), 0);
+
+        return jobId;
+    }
+
+    /**
+     * Process an AI content generation job asynchronously
+     * @param jobId The ID of the job to process
+     */
+    private async processGenerateJob(jobId: string): Promise<void> {
+        const job = this.aiJobs.get(jobId);
+        if (!job) {
+            this.logger.error(`Job ${jobId} not found`);
+            return;
+        }
+
+        try {
+            job.status = 'processing';
+            this.aiJobs.set(jobId, job);
+
+            this.logger.log(`Processing AI generation job ${jobId} for URL ${job.url}`);
+
+            try {
+                const result = await this.generatePostFromUrlInternal(job.url);
+
+                // Store the result in the job object
+                job.result = result;
+                job.status = 'completed';
+                this.aiJobs.set(jobId, job);
+
+                this.logger.log(`AI generation job ${jobId} completed successfully`);
+            } catch (generateError) {
+                this.logger.error(`Error generating content: ${generateError instanceof Error ? generateError.message : String(generateError)}`);
+                job.status = 'error';
+                job.error = generateError instanceof Error ? generateError.message : String(generateError);
+                this.aiJobs.set(jobId, job);
+            }
+        } catch (error) {
+            this.logger.error(`Error processing AI generation job ${jobId}: ${error instanceof Error ? error.message : String(error)}`);
+            job.status = 'error';
+            job.error = error instanceof Error ? error.message : String(error);
+            this.aiJobs.set(jobId, job);
+        }
+    }
+
+    /**
+     * Get the status and result of an AI job
+     * @param jobId The ID of the job to check
+     * @returns The current status and result (if available) of the job
+     */
+    async getGenerateJobStatus(jobId: string) {
+        const job = this.aiJobs.get(jobId);
+
+        if (!job)
+            throw new Error(`Job ${jobId} not found`);
+
+        // Clean up completed/error jobs that are more than 1 hour old
+        this.cleanupOldJobs();
+
+        if (job.status === 'completed') {
+            return {
+                status: job.status,
+                result: job.result
+            };
+        } else if (job.status === 'error') {
+            return {
+                status: job.status,
+                error: job.error
+            };
+        } else {
+            return {
+                status: job.status
+            };
+        }
+    }
+
+    /**
+     * Clean up old completed/error jobs to prevent memory leaks
+     */
+    private cleanupOldJobs() {
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+        for (const [jobId, job] of this.aiJobs.entries()) {
+            if ((job.status === 'completed' || job.status === 'error') && job.startTime < oneHourAgo) {
+                this.aiJobs.delete(jobId);
+            }
+        }
+    }
+
+    /**
      * Generate a post from a URL by fetching content and processing with AI
      * @param url The URL to fetch content from
      * @returns Processed post content ready for frontend
+     * @deprecated Use startGenerateJob and getGenerateJobStatus instead
      */
     async generatePostFromUrl(url: string) {
+        // Start a job and immediately return its result
+        const jobId = await this.startGenerateJob(url);
+
+        // Wait for job to complete (this will still timeout for long jobs)
+        // This is kept for backward compatibility but should be avoided
+        let result;
+        let attempts = 0;
+        const MAX_ATTEMPTS = 30; // 30 seconds max wait
+
+        while (attempts < MAX_ATTEMPTS) {
+            const jobStatus = await this.getGenerateJobStatus(jobId);
+
+            if (jobStatus.status === 'completed') {
+                result = jobStatus.result;
+                break;
+            } else if (jobStatus.status === 'error') {
+                throw new Error(jobStatus.error || 'Generation failed');
+            }
+
+            // Wait 1 second before checking again
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            attempts++;
+        }
+
+        if (!result) {
+            throw new Error('Generation is taking too long. Please check job status separately.');
+        }
+
+        return result;
+    }
+
+    /**
+     * Internal implementation of generatePostFromUrl
+     * @param url The URL to fetch content from
+     * @returns Processed post content ready for frontend
+     */
+    private async generatePostFromUrlInternal(url: string) {
         try {
             const promptService:any = Application.resolveProvider(PromptsServiceTools);
             this.logger.log(`Generating post from URL: ${url}`);
@@ -1174,7 +1332,7 @@ export class PostsPublicService {
                 this.logger.log(`Generating continuation text for article about: ${parsedContent.title}`);
 
                 const continuationPrompt = `
-                You are a content creator who specializes in creating high-quality blog posts based on online articles.
+                You are a content creator who specializes in creating high-quality blog posts.
 
                 I've already generated part of the content below, but I need you to continue this article with more details, examples, or insights. Keep the same style and flow as the existing content.
 
@@ -1235,7 +1393,7 @@ export class PostsPublicService {
                             }
                         }
                     } catch (continuationError) {
-                        this.logger.error(`Failed to parse continuation text: ${continuationError}`);
+                        this.logger.error(`Failed to parse continuation text: ${continuationError instanceof Error ? continuationError.message : String(continuationError)}`);
                         this.logger.error(`Using only the original text`);
                     }
                 }
@@ -1260,7 +1418,7 @@ export class PostsPublicService {
                 };
 
             } catch (parseError) {
-                this.logger.error(`Failed to parse AI generated content: ${parseError}`);
+                this.logger.error(`Failed to parse AI generated content: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
                 throw new Error('Failed to parse AI generated content');
             }
 

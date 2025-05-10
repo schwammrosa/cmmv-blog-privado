@@ -965,50 +965,85 @@ const generateAIContent = async (): Promise<void> => {
             content: contentToProcess
         };
 
-        const response = await feedClient.raw.getAIRaw(previewItem.value.id, { content: contentToProcess });
+        // Start the AI job asynchronously and get the job ID
+        const jobStartResponse = await feedClient.raw.startAIJob(previewItem.value.id, { content: contentToProcess });
+        const jobId = jobStartResponse.jobId;
 
-        if (response && response.title && response.content) {
-            aiContent.value = {
-                ...previewItem.value,
-                title: response.title,
-                content: response.content,
-                suggestedTags: response.suggestedTags || []
-            };
-
-            if (response.suggestedTags && response.suggestedTags.length > 0)
-                selectedTags.value = [...response.suggestedTags];
-
-            if (previewItem.value.featureImage) {
-                try {
-                    showNotification('info', 'Processando imagem do conteúdo original...');
-                    const imageResponse = await adminClient.medias.processImage({
-                        image: previewItem.value.featureImage,
-                        format: 'webp',
-                        maxWidth: 1060,
-                        alt: response.title || 'Feature image',
-                        caption: ''
-                    });
-
-                    if (imageResponse && imageResponse.url) {
-                        coverImage.value = imageResponse.url;
-                        showNotification('success', 'Imagem processada para uso no conteúdo AI');
-                    }
-                } catch (imgErr) {
-                    console.error('Erro ao processar imagem para AI:', imgErr);
-                    coverImage.value = null;
-                }
-            } else {
-                coverImage.value = null;
-            }
-        } else {
-            throw new Error('Invalid response from AI service');
+        if (!jobId) {
+            throw new Error('Failed to start AI job');
         }
+
+        showNotification('info', 'AI processing started. This may take a moment...');
+
+        // Poll for job completion
+        const checkJobStatus = async () => {
+            try {
+                const jobStatus = await feedClient.raw.getAIJobStatus(jobId);
+
+                if (jobStatus.status === 'completed') {
+                    // Job completed successfully
+                    const response = jobStatus.result;
+
+                    if (response && response.title && response.content) {
+                        aiContent.value = {
+                            ...previewItem.value,
+                            title: response.title,
+                            content: response.content,
+                            suggestedTags: response.suggestedTags || []
+                        };
+
+                        if (response.suggestedTags && response.suggestedTags.length > 0)
+                            selectedTags.value = [...response.suggestedTags];
+
+                        if (previewItem.value.featureImage) {
+                            try {
+                                showNotification('info', 'Processing image from original content...');
+                                const imageResponse = await adminClient.medias.processImage({
+                                    image: previewItem.value.featureImage,
+                                    format: 'webp',
+                                    maxWidth: 1060,
+                                    alt: response.title || 'Feature image',
+                                    caption: ''
+                                });
+
+                                if (imageResponse && imageResponse.url) {
+                                    coverImage.value = imageResponse.url;
+                                    showNotification('success', 'Image processed for use in AI content');
+                                }
+                            } catch (imgErr) {
+                                console.error('Error processing image for AI:', imgErr);
+                                coverImage.value = null;
+                            }
+                        } else {
+                            coverImage.value = null;
+                        }
+
+                        aiLoading.value = false;
+                    } else {
+                        throw new Error('Invalid response format from AI service');
+                    }
+                } else if (jobStatus.status === 'error') {
+                    // Job failed
+                    throw new Error(jobStatus.error || 'AI processing failed');
+                } else {
+                    // Job still in progress, continue polling
+                    setTimeout(checkJobStatus, 2000); // Check again in 2 seconds
+                }
+            } catch (err) {
+                aiLoading.value = false;
+                aiError.value = err instanceof Error ? err.message : 'Error checking job status';
+                showNotification('error', aiError.value);
+            }
+        };
+
+        // Start polling
+        checkJobStatus();
+
     } catch (err: unknown) {
         console.error('Failed to generate AI content:', err);
+        aiLoading.value = false;
         aiError.value = err instanceof Error ? err.message : 'Failed to generate AI content';
         showNotification('error', 'Failed to generate AI content');
-    } finally {
-        aiLoading.value = false;
     }
 };
 

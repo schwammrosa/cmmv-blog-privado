@@ -186,4 +186,17 @@ export class PostsController {
     async generatePost(@Body() body: any) {
         return this.postsPublicService.generatePostFromUrl(body.url);
     }
+
+    @Post("posts/generate/start", { exclude: true })
+    @Auth("posts:insert")
+    async startGeneratePost(@Body() body: any) {
+        const jobId = await this.postsPublicService.startGenerateJob(body.url);
+        return { jobId };
+    }
+
+    @Get("posts/generate/status/:jobId", { exclude: true })
+    @Auth("posts:insert")
+    async getGeneratePostStatus(@Param("jobId") jobId: string) {
+        return this.postsPublicService.getGenerateJobStatus(jobId);
+    }
 }
