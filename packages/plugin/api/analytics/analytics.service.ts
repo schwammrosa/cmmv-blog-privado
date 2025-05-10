@@ -202,7 +202,11 @@ export class AnalyticsService {
      */
     async getSummary(){
         const AnalyticsSummaryEntity = Repository.getEntity("AnalyticsSummaryEntity");
-        const summary = await Repository.findAll(AnalyticsSummaryEntity, {}, [], {
+        const summary = await Repository.findAll(AnalyticsSummaryEntity, {
+            limit: 30,
+            sortBy: "date",
+            sort: "desc"
+        }, [], {
             select: ["date", "totalAccess", "uniqueAccess", "bounceRate", "avgTimeOnPage"]
         });
 
