@@ -50,7 +50,7 @@
                     <div class="mx-auto">
                         <div class="nav-container flex justify-between items-center relative">
                             <!-- Menu para desktop -->
-                            <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto hidden md:flex">
+                            <div class="categories flex flex-wrap py-1 w-full md:w-auto hidden md:flex">
                                 <a href="/" class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#00aa30] bg-[#00aa30] transition-colors whitespace-nowrap">Home</a>
                                 <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
                                     <div class="relative dropdown-container" 
@@ -460,8 +460,17 @@ const isDropdownOpen = (categoryId: string) => {
 
 const showDropdown = (categoryId: string) => {
     if (hasSubcategories(categoryId)) {
+        // Fecha todos os outros dropdowns imediatamente
+        const newDropdowns: Record<string, boolean> = {};
+        Object.keys(openDropdowns.value).forEach(key => {
+            if (key !== categoryId) {
+                newDropdowns[key] = false;
+            }
+        });
+        
+        // Abre apenas o dropdown atual
         openDropdowns.value = {
-            ...openDropdowns.value,
+            ...newDropdowns,
             [categoryId]: true
         };
     }
@@ -474,7 +483,7 @@ const hideDropdown = (categoryId: string) => {
                 ...openDropdowns.value,
                 [categoryId]: false
             };
-        }, 200); // Pequeno atraso para evitar fechamento acidental
+        }, 50); // Atraso reduzido para fechamento mais rápido
     }
 };
 
