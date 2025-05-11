@@ -44,8 +44,7 @@ export class PostsPublicService {
         private readonly aiContentService: AIContentService,
         private readonly cdnService: CDNService,
         private readonly indexingService: IndexingService,
-        private readonly autopostService: AutopostService,
-        private readonly promptsService: PromptsServiceTools
+        private readonly autopostService: AutopostService
     ){}
 
     @Cron(CronExpression.EVERY_30_MINUTES)

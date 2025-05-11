@@ -23,6 +23,22 @@ export class PromptsServiceTools {
                - For links, use: <a href="https://example.com" rel="noindex nofollow" target="_blank">text</a>
             7. Start with a strong introductory paragraph
             8. Suggesting 3-8 relevant tags for categorizing this content
+            9. Properly extract and handle all images from the content by following these rules:
+               - Extract the best quality image URL from image tags
+               - For images with srcset attribute, choose the largest/highest resolution option
+               - For WordPress images with data-src or data-srcset, use the src attribute value if available
+               - When encountering relative image paths, convert them to absolute URLs using the provided base URL
+               - Preserve alt text from original images
+               - Format image tags like: <img src="https://example.com/image.jpg" alt="Description" loading="lazy" />
+               - Do not include width and height attributes unless absolutely necessary
+               - For each image, determine if it's the main/feature image of the article
+
+            IMAGE EXTRACTION EXAMPLE:
+            From a complex WordPress image tag like:
+            <img decoding="async" src="https://example.com/image-1200x675.webp" alt="Description" data-src="https://example.com/image-1200x675.webp" data-srcset="https://example.com/image-1200x675.webp 1200w, https://example.com/image-640x360.webp 640w, https://example.com/image.webp 1280w" srcset="https://example.com/image-1200x675.webp 1200w, https://example.com/image.webp 1280w">
+
+            Extract the highest resolution image URL (in this case: https://example.com/image.webp) and output:
+            <img src="https://example.com/image.webp" alt="Description" loading="lazy" />
 
             IMPORTANT:
             - For titles, DO NOT default to number-based formats (like "5 Ways to..." or "10 Tips for...")
