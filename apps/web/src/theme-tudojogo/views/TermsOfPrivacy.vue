@@ -125,11 +125,11 @@ useHead({
     meta: [
         {
             name: 'description',
-            content: 'Política de Privacidade para GameDevBR'
+            content: 'Política de Privacidade para Tudo Jogo'
         },
         {
             name: 'keywords',
-            content: 'GameDevBR, Política de Privacidade, CMMV'
+            content: 'Tudo Jogo, Política de Privacidade, CMMV'
         }
     ]
 })

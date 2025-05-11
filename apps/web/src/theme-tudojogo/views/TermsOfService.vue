@@ -134,11 +134,11 @@ useHead({
     meta: [
         {
             name: 'description',
-            content: 'Termos de Serviço para GameDevBR'
+            content: 'Termos de Serviço para Tudo Jogo'
         },
         {
             name: 'keywords',
-            content: 'GameDevBR, Termos de Serviço, CMMV'
+            content: 'Tudo Jogo, Termos de Serviço, CMMV'
         }
     ]
 })
