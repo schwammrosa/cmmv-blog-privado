@@ -8,7 +8,7 @@
                     <div class="top-header flex justify-between items-center py-4">
                         <div class="logo flex items-center">
                             <a href="/" class="text-2xl font-bold text-white">
-                                <img src="/src/theme-tudojogo/assets/Logonome.png" alt="TudoJogo Logo" class="site-logo object-contain h-12 w-auto">
+                                <img src="../assets/Logonome.png" alt="TudoJogo Logo" class="site-logo object-contain h-12 w-auto">
                             </a>
                         </div>
                         
@@ -338,7 +338,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
@@ -352,8 +352,7 @@ const settingsStore = useSettingsStore();
 const settings = ref<any>(settingsStore.getSettings);
 
 const scripts = computed(() => {
-    const baseScripts = [];
-    return [...baseScripts, ...settingsStore.googleAnalyticsScripts];
+    return [...settingsStore.googleAnalyticsScripts];
 });
 
 useHead({
@@ -362,12 +361,12 @@ useHead({
     link: [
         {
             rel: 'stylesheet',
-            href: '/src/theme-tudojogo/style.css'
+            href: '../style.css'
         },
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-tudojogo/favicon.ico?v=3'
+            href: '../favicon.ico?v=3'
         },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com/' },
@@ -375,31 +374,12 @@ useHead({
         { rel: 'preconnect', href: 'https://connect.facebook.net/' },
         { rel: 'preconnect', href: 'https://securepubads.g.doubleclick.net/' },
         { rel: 'preconnect', href: 'https://tpc.googlesyndication.com/' },
-        { rel: 'preconnect', href: 'https://www.googletag.com/' },
         { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
         { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' }
     ],
 
     script: scripts
 })
-
-const isDarkMode = ref(false);
-const popularPosts = ref<any[]>([]);
-const loadingPopularPosts = ref(true);
-
-const toggleTheme = () => {
-    isDarkMode.value = !isDarkMode.value;
-    localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
-    applyTheme();
-};
-
-const applyTheme = () => {
-    if (isDarkMode.value) {
-        document.documentElement.classList.add('dark');
-    } else {
-        document.documentElement.classList.remove('dark');
-    }
-};
 
 const searchModalOpen = ref(false);
 const searchQuery = ref('');
@@ -530,21 +510,26 @@ const performSearch = async () => {
     }
 
     isSearching.value = true;
+    searchResults.value = [];
 
     try {
         const response = await blogAPI.posts.search(searchQuery.value);
 
-        if (Array.isArray(response)) {
-            searchResults.value = response;
-        } else if (response && typeof response === 'object') {
-            const typedResponse = response as { posts?: any[] };
-            searchResults.value = Array.isArray(typedResponse.posts) ? typedResponse.posts : [];
-        } else {
-            searchResults.value = [];
+        // Processar a resposta e extrair os posts
+        if (response) {
+            if (Array.isArray(response)) {
+                searchResults.value = response;
+            } else if (typeof response === 'object') {
+                // Verificar diferentes estruturas de resposta possíveis
+                if (response.posts && Array.isArray(response.posts)) {
+                    searchResults.value = response.posts;
+                } else if (response.data?.posts && Array.isArray(response.data.posts)) {
+                    searchResults.value = response.data.posts;
+                }
+            }
         }
     } catch (error) {
-        console.error('Search error:', error);
-        searchResults.value = [];
+        console.error('Erro na busca:', error);
     } finally {
         isSearching.value = false;
     }
@@ -572,24 +557,17 @@ const categoriesColumns = computed(() => {
 });
 
 onMounted(async () => {
-    await Promise.all([
-        (async () => {
-            if (!categories.value.length) {
-                try {
-                    const categoriesResponse = await blogAPI.categories.getAll();
-                    if (categoriesResponse) {
-                        categories.value = categoriesResponse;
-                    }
-                } catch (err) {
-                    console.error('Failed to load categories:', err);
-                }
+    if (!categories.value.length) {
+        try {
+            const categoriesResponse = await blogAPI.categories.getAll();
+            if (categoriesResponse) {
+                categories.value = categoriesResponse;
             }
-        })()
-    ]);
-
-    isDarkMode.value = false;
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('theme', 'light');
+        } catch (err) {
+            console.error('Failed to load categories:', err);
+        }
+    }
+    
     document.addEventListener('click', closeDropdownsOnClickOutside);
 });
 
@@ -619,9 +597,7 @@ const closeDropdownsOnClickOutside = (event: Event) => {
     }
 };
 
-watch(isDarkMode, () => {
-    applyTheme();
-});
+
 </script>
 
 <style>
