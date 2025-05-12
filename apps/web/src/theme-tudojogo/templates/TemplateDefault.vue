@@ -87,85 +87,76 @@
                     </div>
 
                     <!-- Mobile Menu Button -->
-                    <ClientOnly>
-                        <div v-if="isMounted" class="md:hidden flex items-center space-x-3">
-                            <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Search" aria-label="Search">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </button>
-                            <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white" title="Navbar" aria-label="Navbar">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path v-if="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div v-else class="md:hidden flex items-center space-x-3">
-                            <!-- Placeholder para evitar problemas de hidratação -->
-                            <div class="w-5 h-5"></div>
-                            <div class="w-6 h-6"></div>
-                        </div>
-                    </ClientOnly>
+                    <div class="md:hidden flex items-center space-x-3">
+                        <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Search" aria-label="Search">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white" title="Navbar" aria-label="Navbar">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path v-if="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Mobile Menu -->
-                <ClientOnly>
-                    <div v-if="isMounted && mobileMenuOpen" class="md:hidden py-3 mt-2">
-                        <div class="flex flex-col gap-1">
-                            <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
-                                <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
-                                    <button
-                                        @click="(e) => toggleDropdown(category.id, e)"
-                                        class="dropdown-toggle flex items-center justify-between w-full text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
-                                        :class="{'bg-[#000000] text-[#00B8D4]': openDropdowns[category.id]}"
-                                    >
-                                        {{ category.name }}
-                                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
-                                    </button>
-                                    <div v-show="openDropdowns[category.id]" class="pl-4 py-1 bg-[#000000] rounded mt-1">
-                                        <a
-                                            v-for="child in mainNavCategories.childrenMap[category.id]"
-                                            :key="child.id"
-                                            :href="`/category/${child.slug}`"
-                                            class="block px-4 py-2 text-sm text-white hover:bg-[#000000] hover:text-[#00B8D4] rounded"
-                                        >
-                                            {{ child.name }}
-                                        </a>
-                                    </div>
-                                </div>
-                                <a
-                                    v-else
-                                    :href="`/category/${category.slug}`"
-                                    class="block text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
+                <div v-show="mobileMenuOpen" class="md:hidden py-3 mt-2">
+                    <div class="flex flex-col gap-1">
+                        <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
+                            <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
+                                <button
+                                    @click="(e) => toggleDropdown(category.id, e)"
+                                    class="dropdown-toggle flex items-center justify-between w-full text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
+                                    :class="{'bg-[#000000] text-[#00B8D4]': openDropdowns[category.id]}"
                                 >
                                     {{ category.name }}
-                                </a>
-                            </template>
-                        </div>
-
-                        <!-- Social Icons for Mobile -->
-                        <div class="flex justify-center space-x-6 mt-3 pt-3 border-t border-[#00B8D4]">
-                            <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                </svg>
+                                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div v-show="openDropdowns[category.id]" class="pl-4 py-1 bg-[#000000] rounded mt-1">
+                                    <a
+                                        v-for="child in mainNavCategories.childrenMap[category.id]"
+                                        :key="child.id"
+                                        :href="`/category/${child.slug}`"
+                                        class="block px-4 py-2 text-sm text-white hover:bg-[#000000] hover:text-[#00B8D4] rounded"
+                                    >
+                                        {{ child.name }}
+                                    </a>
+                                </div>
+                            </div>
+                            <a
+                                v-else
+                                :href="`/category/${category.slug}`"
+                                class="block text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
+                            >
+                                {{ category.name }}
                             </a>
-                            <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085a4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                                </svg>
-                            </a>
-                            <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                                </svg>
-                            </a>
-                        </div>
+                        </template>
                     </div>
-                </ClientOnly>
+
+                    <!-- Social Icons for Mobile -->
+                    <div class="flex justify-center space-x-6 mt-3 pt-3 border-t border-[#00B8D4]">
+                        <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                            </svg>
+                        </a>
+                        <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -314,97 +305,90 @@
 
                 <div class="border-t border-gray-700 mt-8 pt-6 text-center">
                     <p class="text-gray-400 text-sm">
-                        <ClientOnly>
-                            &copy; {{ new Date().getFullYear() }} Tudo Jogo - Todos os direitos reservados.
-                        </ClientOnly>
-                        <template v-if="!isMounted">
-                            &copy; 2025 Tudo Jogo - Todos os direitos reservados.
-                        </template>
+                        &copy; {{ new Date().getFullYear() }} Tudo Jogo - Todos os direitos reservados.
                     </p>
                 </div>
             </div>
         </footer>
 
         <!-- Search Modal -->
-        <ClientOnly>
-            <div v-if="isMounted && searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="search-modal" role="dialog" aria-modal="true">
-                <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                    <div class="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true" @click="closeSearchModal" style="backdrop-filter: blur(4px);"></div>
+        <div v-if="searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="search-modal" role="dialog" aria-modal="true">
+            <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                <div class="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true" @click="closeSearchModal" style="backdrop-filter: blur(4px);"></div>
 
-                    <!-- Modal panel -->
-                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
-                        <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                            <div class="sm:flex sm:items-start">
-                                <div class="w-full">
-                                    <div class="flex justify-between items-center mb-4">
-                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                            Pesquisar
-                                        </h3>
-                                        <button @click="closeSearchModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
-                                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                            </svg>
-                                        </button>
+                <!-- Modal panel -->
+                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
+                    <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="w-full">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                        Pesquisar
+                                    </h3>
+                                    <button @click="closeSearchModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="mb-4 relative">
+                                    <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
+                                        <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <input
+                                        type="search"
+                                        v-model="searchQuery"
+                                        @input="debouncedSearch"
+                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-10 p-2.5 focus:ring-[#0a5d28] focus:border-[#0a5d28]"
+                                        placeholder="Pesquisar posts..."
+                                        autocomplete="off"
+                                        ref="searchInput"
+                                    />
+                                </div>
+
+                                <div class="mt-4 max-h-[70vh] overflow-y-auto">
+                                    <div v-if="isSearching" class="flex justify-center items-center py-8">
+                                        <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
                                     </div>
 
-                                    <div class="mb-4 relative">
-                                        <div class="flex items-center absolute inset-y-0 left-0 pl-3 pointer-events-none">
-                                            <svg class="w-5 h-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
-                                        </div>
-                                        <input
-                                            type="search"
-                                            v-model="searchQuery"
-                                            @input="debouncedSearch"
-                                            class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-10 p-2.5 focus:ring-[#0a5d28] focus:border-[#0a5d28]"
-                                            placeholder="Pesquisar posts..."
-                                            autocomplete="off"
-                                            ref="searchInput"
-                                        />
+                                    <div v-else-if="searchResults.length === 0 && searchQuery.length > 1" class="py-8 text-center text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p>Nenhum resultado encontrado para "{{ searchQuery }}"</p>
                                     </div>
 
-                                    <div class="mt-4 max-h-[70vh] overflow-y-auto">
-                                        <div v-if="isSearching" class="flex justify-center items-center py-8">
-                                            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
-                                        </div>
-
-                                        <div v-else-if="searchResults.length === 0 && searchQuery.length > 1" class="py-8 text-center text-gray-600">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                            <p>Nenhum resultado encontrado para "{{ searchQuery }}"</p>
-                                        </div>
-
-                                        <div v-else-if="searchQuery.length > 1" class="space-y-4">
-                                            <p v-if="searchResults.length > 0" class="text-sm text-gray-500 mb-2">
-                                                {{ searchResults.length }} resultado{{ searchResults.length !== 1 ? 's' : '' }} encontrado{{ searchResults.length !== 1 ? 's' : '' }}
-                                            </p>
-                                            <a
-                                                v-for="post in searchResults"
-                                                :key="post.id"
-                                                :href="`/post/${post.slug}`"
-                                                class="block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-                                            >
-                                                <div class="flex flex-col sm:flex-row">
-                                                    <div v-if="post.featureImage" class="w-full sm:w-32 h-40 sm:h-24 flex-shrink-0">
-                                                        <img :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover" loading="lazy" />
-                                                    </div>
-                                                    <div class="p-4 flex-grow">
-                                                        <h4 class="font-bold text-gray-900 mb-1">{{ post.title }}</h4>
-                                                        <p v-if="post.excerpt" class="text-sm text-gray-600 line-clamp-2">
-                                                            {{ post.excerpt }}
-                                                        </p>
-                                                        <div class="mt-2 text-xs text-gray-500 flex items-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                            </svg>
-                                                            {{ formatDate(post.publishedAt || post.updatedAt) }}
-                                                        </div>
+                                    <div v-else-if="searchQuery.length > 1" class="space-y-4">
+                                        <p v-if="searchResults.length > 0" class="text-sm text-gray-500 mb-2">
+                                            {{ searchResults.length }} resultado{{ searchResults.length !== 1 ? 's' : '' }} encontrado{{ searchResults.length !== 1 ? 's' : '' }}
+                                        </p>
+                                        <a
+                                            v-for="post in searchResults"
+                                            :key="post.id"
+                                            :href="`/post/${post.slug}`"
+                                            class="block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                                        >
+                                            <div class="flex flex-col sm:flex-row">
+                                                <div v-if="post.featureImage" class="w-full sm:w-32 h-40 sm:h-24 flex-shrink-0">
+                                                    <img :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover" loading="lazy" />
+                                                </div>
+                                                <div class="p-4 flex-grow">
+                                                    <h4 class="font-bold text-gray-900 mb-1">{{ post.title }}</h4>
+                                                    <p v-if="post.excerpt" class="text-sm text-gray-600 line-clamp-2">
+                                                        {{ post.excerpt }}
+                                                    </p>
+                                                    <div class="mt-2 text-xs text-gray-500 flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        {{ formatDate(post.publishedAt || post.updatedAt) }}
                                                     </div>
                                                 </div>
-                                            </a>
-                                        </div>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -412,7 +396,7 @@
                     </div>
                 </div>
             </div>
-        </ClientOnly>
+        </div>
     </div>
 
     <CookieConsent />
@@ -490,12 +474,6 @@ const isSearching = ref(false);
 const searchTimeout = ref<any>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
 const mobileMenuOpen = ref(false);
-
-// Inicializar com false para evitar problemas de hidratação
-const isMounted = ref(false);
-onMounted(() => {
-    isMounted.value = true;
-});
 
 const categories = ref<any[]>(categoriesStore.getCategories || []);
 
@@ -613,9 +591,6 @@ const categoriesColumns = computed(() => {
 });
 
 onMounted(async () => {
-    // Definir isMounted como true para habilitar interatividade
-    isMounted.value = true;
-    
     await Promise.all([
         (async () => {
             if (!categories.value.length) {
