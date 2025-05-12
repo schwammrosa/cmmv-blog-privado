@@ -1285,6 +1285,8 @@ export class PostsPublicService {
             It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
             "Finally," or any language that suggests the article is ending.
 
+            - ONLY use images that exist in the original post - DO NOT create or generate new images that don't exist
+
             Here is the web page information:
 
             URL: ${url}

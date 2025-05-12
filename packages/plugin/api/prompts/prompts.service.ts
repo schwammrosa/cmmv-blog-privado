@@ -24,6 +24,7 @@ export class PromptsServiceTools {
             7. Start with a strong introductory paragraph
             8. Suggesting 3-8 relevant tags for categorizing this content
             9. Properly extract and handle all images from the content by following these rules:
+                - ONLY use images that exist in the original post - DO NOT create or generate new images that don't exist
                - Extract the best quality image URL from image tags
                - For images with srcset attribute, choose the largest/highest resolution option
                - For WordPress images with data-src or data-srcset, use the src attribute value if available
