@@ -107,59 +107,60 @@
                 <!-- Mobile Menu -->
                 <ClientOnly>
                     <div v-show="mobileMenuOpen" class="md:hidden py-3 mt-2">
-                    <div class="flex flex-col gap-1">
-                        <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
-                            <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
-                                <button
-                                    @click="(e) => toggleDropdown(category.id, e)"
-                                    class="dropdown-toggle flex items-center justify-between w-full text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
-                                    :class="{'bg-[#000000] text-[#00B8D4]': openDropdowns[category.id]}"
+                        <div class="flex flex-col gap-1">
+                            <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
+                                <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
+                                    <button
+                                        @click="(e) => toggleDropdown(category.id, e)"
+                                        class="dropdown-toggle flex items-center justify-between w-full text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
+                                        :class="{'bg-[#000000] text-[#00B8D4]': openDropdowns[category.id]}"
+                                    >
+                                        {{ category.name }}
+                                        <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <div v-show="openDropdowns[category.id]" class="pl-4 py-1 bg-[#000000] rounded mt-1">
+                                        <a
+                                            v-for="child in mainNavCategories.childrenMap[category.id]"
+                                            :key="child.id"
+                                            :href="`/category/${child.slug}`"
+                                            class="block px-4 py-2 text-sm text-white hover:bg-[#000000] hover:text-[#00B8D4] rounded"
+                                        >
+                                            {{ child.name }}
+                                        </a>
+                                    </div>
+                                </div>
+                                <a
+                                    v-else
+                                    :href="`/category/${category.slug}`"
+                                    class="block text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
                                 >
                                     {{ category.name }}
-                                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-                                <div v-show="openDropdowns[category.id]" class="pl-4 py-1 bg-[#000000] rounded mt-1">
-                                    <a
-                                        v-for="child in mainNavCategories.childrenMap[category.id]"
-                                        :key="child.id"
-                                        :href="`/category/${child.slug}`"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-[#000000] hover:text-[#00B8D4] rounded"
-                                    >
-                                        {{ child.name }}
-                                    </a>
-                                </div>
-                            </div>
-                            <a
-                                v-else
-                                :href="`/category/${category.slug}`"
-                                class="block text-white hover:bg-[#1a1a1a] hover:text-[#00B8D4] rounded-lg px-4 py-2 text-sm border border-[#00B8D4] shadow-sm mb-1"
-                            >
-                                {{ category.name }}
-                            </a>
-                        </template>
-                    </div>
+                                </a>
+                            </template>
+                        </div>
 
-                    <!-- Social Icons for Mobile -->
-                    <div class="flex justify-center space-x-6 mt-3 pt-3 border-t border-[#00B8D4]">
-                        <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                            </svg>
-                        </a>
-                        <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
-                            </svg>
-                        </a>
+                        <!-- Social Icons for Mobile -->
+                        <div class="flex justify-center space-x-6 mt-3 pt-3 border-t border-[#00B8D4]">
+                            <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                </svg>
+                            </a>
+                            <a href="#" class="text-white hover:text-[#00B8D4] transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                                </svg>
+                            </a>
+                        </div>
                     </div>
-                </div>
+                </ClientOnly>
             </div>
         </header>
 
@@ -322,11 +323,11 @@
         <!-- Search Modal -->
         <ClientOnly>
             <div v-if="searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="search-modal" role="dialog" aria-modal="true">
-            <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true" @click="closeSearchModal" style="backdrop-filter: blur(4px);"></div>
+                <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true" @click="closeSearchModal" style="backdrop-filter: blur(4px);"></div>
 
-                <!-- Modal panel -->
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
+                    <!-- Modal panel -->
+                    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
                     <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
                             <div class="w-full">
@@ -402,6 +403,7 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
