@@ -87,23 +87,26 @@
                     </div>
 
                     <!-- Mobile Menu Button -->
-                    <div class="md:hidden flex items-center space-x-3">
-                        <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Search" aria-label="Search">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </button>
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white" title="Navbar" aria-label="Navbar">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path v-if="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
+                    <ClientOnly>
+                        <div class="md:hidden flex items-center space-x-3">
+                            <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Search" aria-label="Search">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                            <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white" title="Navbar" aria-label="Navbar">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path v-if="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </ClientOnly>
                 </div>
 
                 <!-- Mobile Menu -->
-                <div v-show="mobileMenuOpen" class="md:hidden py-3 mt-2">
+                <ClientOnly>
+                    <div v-show="mobileMenuOpen" class="md:hidden py-3 mt-2">
                     <div class="flex flex-col gap-1">
                         <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
                             <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
@@ -305,14 +308,20 @@
 
                 <div class="border-t border-gray-700 mt-8 pt-6 text-center">
                     <p class="text-gray-400 text-sm">
-                        &copy; {{ new Date().getFullYear() }} Tudo Jogo - Todos os direitos reservados.
+                        <ClientOnly>
+                            &copy; {{ new Date().getFullYear() }} Tudo Jogo - Todos os direitos reservados.
+                        </ClientOnly>
+                        <template v-if="!isMounted">
+                            &copy; 2025 Tudo Jogo - Todos os direitos reservados.
+                        </template>
                     </p>
                 </div>
             </div>
         </footer>
 
         <!-- Search Modal -->
-        <div v-if="searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="search-modal" role="dialog" aria-modal="true">
+        <ClientOnly>
+            <div v-if="searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="search-modal" role="dialog" aria-modal="true">
             <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true" @click="closeSearchModal" style="backdrop-filter: blur(4px);"></div>
 
@@ -396,7 +405,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </ClientOnly>
     </div>
 
     <CookieConsent />
@@ -474,6 +483,12 @@ const isSearching = ref(false);
 const searchTimeout = ref<any>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
 const mobileMenuOpen = ref(false);
+
+// Inicializar com false para evitar problemas de hidratação
+const isMounted = ref(false);
+onMounted(() => {
+    isMounted.value = true;
+});
 
 const categories = ref<any[]>(categoriesStore.getCategories || []);
 
@@ -591,6 +606,9 @@ const categoriesColumns = computed(() => {
 });
 
 onMounted(async () => {
+    // Definir isMounted como true para habilitar interatividade
+    isMounted.value = true;
+    
     await Promise.all([
         (async () => {
             if (!categories.value.length) {
