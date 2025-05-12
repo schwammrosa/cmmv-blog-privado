@@ -1207,7 +1207,11 @@ export class MediasService extends AbstractService {
             const cleanUrl = url.split('?')[0].split('#')[0];
             const buffer = await fetch(cleanUrl).then(res => res.arrayBuffer());
             const imageBuffer = Buffer.from(buffer);
-            const filename = cleanUrl.split('/').pop();
+            let filename = cleanUrl.split('/').pop();
+
+            if(filename && filename.includes("?"))
+                filename = filename.split("?")[0];
+
             const ext = path.extname(filename || '').substring(1).toLowerCase();
 
             try {

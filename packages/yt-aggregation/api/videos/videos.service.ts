@@ -79,6 +79,8 @@ export class YTVideosServiceAdmin {
 
             Please transform the following YouTube video information into a well-structured blog post by:
 
+            - ONLY use images that exist in the original post - DO NOT create or generate new images that don't exist
+
             1. Translating it to ${language}
             2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
             3. Writing a comprehensive article that summarizes the key points and insights from the video

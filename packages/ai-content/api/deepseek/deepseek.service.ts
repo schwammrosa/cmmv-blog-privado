@@ -19,8 +19,8 @@ export class DeepSeekService {
                         content: prompt
                     }
                 ],
-                temperature: 0.9,
-                top_p: 0.8,
+                temperature: 0.1,
+                top_p: 0.9,
                 max_tokens: 8192
             })
         });
