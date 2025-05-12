@@ -27,7 +27,7 @@
     },
     "scripts": {
         "dev": "cmmv dev --watch --debug",
-        "build": "cmmv build",
+        "build": "echo 'build'",
         "start": "cmmv dev"
     },
     "peerDependencies": {
@@ -50,5 +50,8 @@
         "cache-manager-fs-binary": "^1.0.4",
         "sharp": "^0.34.1",
         "tsx": "^4.19.4"
+    },
+    "devDependencies": {
+        "tsconfig-paths": "^4.2.0"
     }
 }
