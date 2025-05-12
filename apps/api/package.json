@@ -3,6 +3,15 @@
     "version": "0.0.1",
     "private": true,
     "description": "Blog API sample",
+    "main": "./dist/index.js",
+    "module": "./dist/index.js",
+    "exports": {
+        ".": {
+        "import": "./dist/index.js",
+        "require": "./dist/index.js"
+        }
+    },
+    "types": "./dist/index.d.ts",
     "dev": {
         "watch": [
             "src",
@@ -27,8 +36,8 @@
     },
     "scripts": {
         "dev": "cmmv dev --watch --debug",
-        "build": "cmmv build",
-        "start": "cmmv dev"
+        "build": "tsup src/main.ts --out-dir dist --format esm,cjs",
+        "start": "NODE_ENV=production cmmv run ./dist/main.js"
     },
     "peerDependencies": {
         "cli-cursor": "^5.0.0",

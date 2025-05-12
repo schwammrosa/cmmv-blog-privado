@@ -1,4 +1,4 @@
-import crypto from 'node:crypto';
+import crypto from 'crypto';
 
 import {
     Contract, AbstractContract,
@@ -45,8 +45,6 @@ export class MemberContract extends AbstractContract {
                 message: 'The password must be a string',
             },
         ],
-        afterValidation: (value: string) =>
-            crypto.createHash('sha256').update(value).digest('hex'),
     })
     password!: string;
 
