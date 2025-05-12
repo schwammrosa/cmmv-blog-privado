@@ -2204,8 +2204,16 @@ async function loadPost(postId) {
                 editor.commands.setContent(post.value.content)
 
             if (post.value.status === 'cron' && post.value.autoPublishAt) {
+                // Manter a data/hora original do post
                 const date = new Date(post.value.autoPublishAt)
-                scheduleDate.value = date.toISOString().slice(0, 16)
+                // Formato ISO para datetime-local (YYYY-MM-DDTHH:MM)
+                const year = date.getFullYear()
+                const month = String(date.getMonth() + 1).padStart(2, '0')
+                const day = String(date.getDate()).padStart(2, '0')
+                const hours = String(date.getHours()).padStart(2, '0')
+                const minutes = String(date.getMinutes()).padStart(2, '0')
+                
+                scheduleDate.value = `${year}-${month}-${day}T${hours}:${minutes}`
             }
 
             nextTick(() => {
