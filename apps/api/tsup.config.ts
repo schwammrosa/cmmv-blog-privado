@@ -39,7 +39,8 @@ export default defineConfig([
         entry: ['src/main.ts'],
         format: ['esm', 'cjs'],
         outDir: 'dist',
-        ...sharedOptions
+        ...sharedOptions,
+        dts: true
     },
     {
         entry: ['.generated/app.module.ts'],

@@ -27,7 +27,7 @@
     },
     "scripts": {
         "dev": "cmmv dev --watch --debug",
-        "build": "tsup",
+        "build": "echo 'build'",
         "start": "cmmv dev"
     },
     "peerDependencies": {
