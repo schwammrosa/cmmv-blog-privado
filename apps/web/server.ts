@@ -175,7 +175,6 @@ async function bootstrap() {
 
                 const ssrData = { ...globalThis.__SSR_DATA__, prefetchCache };
                 const serializedData = JSON.stringify(ssrData).replace(/</g, '\\u003c');
-                //const dataScript = `${piniaScript}`;
                 const dataScript = `<script>window.__CMMV_DATA__ = ${serializedData};</script>${piniaScript}`;
 
                 template = await transformHtmlTemplate(head, template.replace(`<div id="app"></div>`, `
@@ -183,21 +182,6 @@ async function bootstrap() {
                     ${dataScript}
                 `));
 
-
-                if(!themeStyle) {
-                    const { useSettingsStore } = await import('./src/store/settings.js');
-                    const settingsStore = useSettingsStore();
-                    let theme = settingsStore.getSetting('blog.theme', env.VITE_DEFAULT_THEME);
-                    const routerModules = path.resolve(`./src/theme-${theme}/style.css`);
-
-                    if(fs.existsSync(routerModules))
-                        themeStyle = fs.readFileSync(routerModules, 'utf-8');
-                }
-
-                //if(themeStyle)
-                //    template = template.replace("</head>", `<style>${themeStyle}</style>` + "</head>");
-
-                template = template.replace(/<script type="module" src="\/@vite\/client"><\/script>\s*/g, '');
                 template = template.replace("<analytics />", settings["blog.analyticsCode"] || "").replace("<analytics>", settings["blog.analyticsCode"] || "");
                 template = template.replace("<custom-js />", settings["blog.customJs"] || "").replace("<custom-js>", settings["blog.customJs"] || "");
                 template = template.replace("<custom-css />", settings["blog.customCss"] || "").replace("<custom-css>", settings["blog.customCss"] || "");

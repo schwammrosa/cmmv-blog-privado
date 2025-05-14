@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col min-h-screen bg-gray-100">
+    <div class="flex flex-col min-h-screen bg-neutral-100">
         <!-- Header -->
         <header class="bg-[#000] text-white sticky top-0 z-50 shadow-md w-full">
 
@@ -8,7 +8,7 @@
                     <div class="top-header flex justify-between items-center py-4">
                         <div class="logo flex items-center">
                             <a href="/" class="text-2xl font-bold text-white">
-                                <img src="/TT_VER BRANCO.png" alt="TestaTudo Logo" class="h-auto w-56 max-h-12">
+                                <img src="/TT_VER BRANCO.png" alt="TestaTudo Logo" class="h-auto w-48 max-h-12">
                             </a>
                         </div>
                         <div class="flex items-center space-x-4">
@@ -19,19 +19,49 @@
                             </button>
                             <a href="#" class="text-gray-300 text-sm hover:text-[#ff0030] transition-colors">Entrar</a>
                             <a href="#" class="text-gray-300 text-sm hover:text-[#ff0030] transition-colors">Cadastrar</a>
+                            <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path v-if="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-            <nav class="main-nav bg-[#111] py-3 relative">
+            <nav class="main-nav bg-[#111] py-3 relative md:block" :style="{ display: mobileMenuOpen ? 'block' : '' }">
                 <div class="max-w-[1200px] mx-auto px-4">
                     <div class="mx-auto">
                         <div class="nav-container flex justify-between items-center relative">
                             <!-- Menu para desktop -->
-                            <div class="categories flex flex-wrap overflow-x-auto scrollbar-hide py-1 w-full md:w-auto">
+                            <div class="categories hidden md:flex flex-wrap  scrollbar-hide py-1 w-full md:w-auto">
                                 <a href="/" class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#ff0030] bg-[#ff0030] transition-colors whitespace-nowrap">Home</a>
                                 <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
+                                    <div v-if="mainNavCategories.childrenMap[category.id]" class="relative">
+                                        <button
+                                            @click="(e) => toggleDropdown(category.id, e)"
+                                            class="dropdown-toggle text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#ff0030] transition-colors whitespace-nowrap flex items-center"
+                                            :class="{'bg-[#ff0030]': openDropdowns[category.id]}"
+                                        >
+                                            {{ category.name }}
+                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+                                        <div
+                                            v-show="openDropdowns[category.id]"
+                                            class="dropdown-menu absolute left-0 mt-1 w-48 rounded-md shadow-lg bg-[#111] ring-1 ring-black ring-opacity-5 z-10"
+                                        >
+                                            <a v-for="child in mainNavCategories.childrenMap[category.id]" :key="child.id"
+                                                :href="`/category/${child.slug}`"
+                                                class="block text-white hover:bg-[#ff0030] px-4 py-2 text-sm transition-colors"
+                                            >
+                                                {{ child.name }}
+                                            </a>
+                                        </div>
+                                    </div>
                                     <a
+                                        v-else
                                         :href="`/category/${category.slug}`"
                                         class="text-white px-4 py-2 mr-2 font-medium text-sm md:text-base rounded hover:bg-[#ff0030] transition-colors whitespace-nowrap"
                                     >
@@ -68,8 +98,46 @@
                             <div class="absolute right-0 bottom-0 w-8 h-full bg-gradient-to-r from-transparent to-[#111] pointer-events-none md:hidden"></div>
                         </div>
 
+                        <!-- Mobile Menu -->
+                        <div v-show="mobileMenuOpen" class="md:hidden py-3 border-t border-gray-700 mt-2">
+                            <div class="flex flex-col gap-1">
+                                <a href="/" class="text-white px-4 py-2 font-medium text-sm rounded hover:bg-[#ff0030] transition-colors">Home</a>
+                                <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
+                                    <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
+                                        <button
+                                            @click="(e) => toggleDropdown(category.id, e)"
+                                            class="dropdown-toggle flex items-center justify-between w-full text-white hover:bg-[#ff0030] rounded px-4 py-2 text-sm"
+                                            :class="{'bg-[#ff0030]': openDropdowns[category.id]}"
+                                        >
+                                            {{ category.name }}
+                                            <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                            </svg>
+                                        </button>
+                                        <div v-show="openDropdowns[category.id]" class="pl-4 py-1 bg-[#222] rounded mt-1">
+                                            <a
+                                                v-for="child in mainNavCategories.childrenMap[category.id]"
+                                                :key="child.id"
+                                                :href="`/category/${child.slug}`"
+                                                class="block px-4 py-2 text-sm text-white hover:bg-[#ff0030] rounded"
+                                            >
+                                                {{ child.name }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <a
+                                        v-else
+                                        :href="`/category/${category.slug}`"
+                                        class="block text-white hover:bg-[#ff0030] rounded px-4 py-2 text-sm"
+                                    >
+                                        {{ category.name }}
+                                    </a>
+                                </template>
+                            </div>
+                        </div>
+
                         <!-- Redes sociais em dispositivos móveis -->
-                        <div class="flex justify-center mt-3 md:hidden">
+                        <div class="flex justify-center mt-3 md:hidden" v-show="mobileMenuOpen">
                             <div class="flex items-center space-x-6">
                                 <a v-if="settings['blog.facebook']" :href="`https://facebook.com/${settings['blog.facebook']}`" target="_blank" rel="noopener noreferrer" class="text-white hover:text-[#ff0030] transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
@@ -99,8 +167,8 @@
         </header>
 
         <!-- Main Content -->
-        <main class="flex-grow py-6 bg-[#f5f5f5]">
-            <div class="container mx-auto">
+        <main class="flex-grow container mx-auto md:px-4 md:py-6">
+            <div class="flex flex-col lg:flex-row gap-6">
                 <router-view />
             </div>
         </main>
@@ -247,6 +315,7 @@ import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
+
 import CookieConsent from '../../components/CookieConsent.vue';
 
 const blogAPI = vue3.useBlog();
@@ -288,14 +357,6 @@ useHead({
 })
 
 const isDarkMode = ref(false);
-const popularPosts = ref<any[]>([]);
-const loadingPopularPosts = ref(true);
-
-const toggleTheme = () => {
-    isDarkMode.value = !isDarkMode.value;
-    localStorage.setItem('theme', isDarkMode.value ? 'dark' : 'light');
-    applyTheme();
-};
 
 const applyTheme = () => {
     if (isDarkMode.value) {
@@ -311,13 +372,14 @@ const searchResults = ref<any[]>([]);
 const isSearching = ref(false);
 const searchTimeout = ref<any>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
-const mobileMenuOpen = ref(false);
 
 const categories = ref<any[]>(categoriesStore.getCategories || []);
 
 const footerCategories = computed(() => {
     return categories.value.slice(0, 6);
 });
+
+const mobileMenuOpen = ref(false);
 
 const mainNavCategories = computed(() => {
     const navCategories = categories.value?.filter((category: any) => category.mainNav) || [];

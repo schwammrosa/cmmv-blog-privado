@@ -307,9 +307,7 @@
 
                                     <!-- Comments Section -->
                                     <div id="comments-container" ref="commentsObserver" class="mt-10 min-h-[100px]">
-                                        <div v-if="!commentsLoaded" class="text-center py-4 text-gray-600">
-                                            Os comentários serão carregados quando você rolar até aqui.
-                                        </div>
+                                        <div v-if="!commentsLoaded" class="text-center py-4 text-gray-600"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1203,7 +1201,7 @@ const loadRelatedPosts = async () => {
 
                 if (filteredPosts.length > 0) {
                     if (document.body.contains(relatedPostsObserver.value))
-                        relatedPosts.value = shuffleArray(filteredPosts).slice(0, 3);
+                        relatedPosts.value = shuffleArray(filteredPosts).slice(0, 4);
                 }
             }
 
