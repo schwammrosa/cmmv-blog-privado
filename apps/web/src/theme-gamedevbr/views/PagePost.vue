@@ -301,7 +301,7 @@
                             <!-- Right Column (Widgets + Ads) -->
                             <div class="lg:col-span-1">
                                 <!-- AdSense Rectangle (Top) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px]">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden">
                                     <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                         <div v-html="getAdHtml('sidebarTop')"></div>
                                     </div>

@@ -1,4 +1,3 @@
-import * as fs from 'node:fs';
 import { createSSRApp } from 'vue';
 //@ts-ignore
 import { loadEnv } from 'vite';
@@ -11,7 +10,6 @@ import { useCategoriesStore } from "./store/categories.js";
 import { usePostsStore } from './store/posts.js';
 import { useMostAccessedPostsStore } from './store/mostaccessed.js';
 
-import ClientOnly from './components/ClientOnly.vue';
 import App from './App.vue';
 
 const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), 'VITE');
@@ -40,19 +38,6 @@ export async function setup(){
 
     if (!categories.ok)
         throw new Error('Failed to fetch categories');
-
-    const themes = import.meta.glob('./theme-*/theme.json', {
-        eager: true
-    });
-
-    await fetch(`${env.VITE_API_URL}/blog/themes`, {
-        method: 'POST',
-        body: JSON.stringify(themes),
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${env.VITE_SIGNATURE}`
-        }
-    });
 
     settingsData = await settings.json();
     categoriesData = await categories.json();
