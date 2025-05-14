@@ -10,7 +10,7 @@
 
             <div v-else>
                 <!-- Top AdSense Banner -->
-                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center h-[400px]">
                     <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
                         <div v-html="getAdHtml('header')"></div>
                     </div>
@@ -25,7 +25,7 @@
                 <div class="flex flex-col lg:flex-row gap-8">
                     <!-- Main Content Area -->
                     <div class="flex-grow">
-                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
                             <!-- Main Post Content (2 columns width) -->
                             <div class="lg:col-span-3 bg-white rounded-lg p-4 relative">
                                 <div class="w-full mx-auto overflow-hidden">
