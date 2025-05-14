@@ -1,3 +1,4 @@
+
 <template>
     <div class="flex h-screen bg-neutral-900 text-white overflow-hidden">
 
@@ -169,6 +170,10 @@
                         class="p-1.5 rounded hover:bg-neutral-100 transition-colors w-8 h-8 flex items-center justify-center" title="Reddit Post">
                         <i class="fab fa-reddit h-3.5 w-3.5 text-neutral-600"></i>
                     </button>
+                    <button @click="insertAudio"
+                        class="p-1.5 rounded hover:bg-neutral-100 transition-colors w-8 h-8 flex items-center justify-center" title="Áudio">
+                        <i class="fas fa-headphones h-3.5 w-3.5 text-neutral-600"></i>
+                    </button>
                 </div>
             </div>
 
@@ -297,12 +302,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                    <div v-if="post.status === 'cron'">
-                                        <label class="block text-sm font-medium text-neutral-400 mb-1">Schedule for</label>
-                                        <input v-model="scheduleDate" type="datetime-local"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" />
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -355,8 +354,8 @@
                                     class="flex items-center bg-blue-500/20 text-blue-400 px-2 py-1 text-sm rounded-md">
                                     {{ tag }}
                                     <button @click="removeTag(index)" class="ml-1.5 text-blue-400 hover:text-white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12" />
                                         </svg>
@@ -394,8 +393,8 @@
                                         class="rounded-md w-full h-auto" />
                                     <button @click.stop="post.featureImage = null"
                                         class="absolute top-2 right-2 bg-neutral-800/80 rounded-full p-1 hover:bg-neutral-700">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12" />
                                         </svg>
@@ -432,9 +431,14 @@
                                             class="mt-2 w-full px-2 py-1 bg-yellow-600 hover:bg-yellow-700 text-white text-xs rounded transition-colors flex items-center justify-center"
                                             :disabled="imageProcessingLoading">
                                             <span v-if="imageProcessingLoading" class="flex items-center">
-                                                <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                <svg class="animate-spin -ml-1 mr-1 h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg"
+                                                    fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                                        stroke-width="4">
+                                                    </circle>
+                                                    <path class="opacity-75" fill="currentColor"
+                                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                                    </path>
                                                 </svg>
                                                 Processando...
                                             </span>
@@ -576,8 +580,10 @@
                                         @click="removeCoAuthor(userId)"
                                         class="ml-2 text-neutral-400 hover:text-white"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
                                 </div>
@@ -599,15 +605,14 @@
                                     @click="addCoAuthor"
                                     class="ml-2 p-1 bg-blue-600 hover:bg-blue-700 rounded-md"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                     </svg>
                                 </button>
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </div>
@@ -679,6 +684,10 @@
                     <div @click="insertYouTubeVideo" class="flex items-center p-2 rounded hover:bg-neutral-700 cursor-pointer">
                         <i class="fab fa-youtube h-5 w-5 text-neutral-400 mr-3"></i>
                         <span>YouTube Video</span>
+                    </div>
+                    <div @click="insertAudio" class="flex items-center p-2 rounded hover:bg-neutral-700 cursor-pointer">
+                        <i class="fas fa-headphones h-5 w-5 text-neutral-400 mr-3"></i>
+                        <span>Áudio</span>
                     </div>
                 </div>
             </div>
@@ -786,6 +795,9 @@
                 <button @click="insertReddit" class="p-2 text-sm text-neutral-300 hover:bg-neutral-700 rounded">
                     <i class="fab fa-reddit h-4 w-4"></i>
                 </button>
+                <button @click="insertAudio" class="p-2 text-sm text-neutral-300 hover:bg-neutral-700 rounded">
+                    <i class="fas fa-headphones h-4 w-4"></i>
+                </button>
             </div>
         </bubble-menu>
 
@@ -813,7 +825,7 @@
     <!-- Publish Confirmation Dialog -->
     <div v-if="showPublishDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4"
         style="backdrop-filter: blur(4px);">
-        <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
+        <div class="bg-neutral-800 rounded-lg w-full max-w-md mx-auto">
             <div class="p-6 border-b border-neutral-700">
                 <h3 class="text-lg font-medium text-white">Confirm Publication</h3>
             </div>
@@ -1363,6 +1375,45 @@ const Reddit = Node.create({
   }
 })
 
+const AudioNode = Node.create({
+    name: 'audio',
+    group: 'block',
+    atom: true,
+
+    addAttributes() {
+        return {
+            src: {
+                default: null
+            }
+        }
+    },
+
+    parseHTML() {
+        return [{
+            tag: 'div[data-audio]',
+        }]
+    },
+
+    renderHTML({ node }) {
+        return [
+            'div',
+            { 'data-audio': '' },
+            [
+                'audio',
+                { src: node.attrs.src, controls: false },
+                [
+                    'button',
+                    {
+                        class: 'play-button',
+                        onclick: 'this.parentElement.play()'
+                    },
+                    ['i', { class: 'fas fa-play' }]
+                ]
+            ]
+        ]
+    }
+})
+
 const adminClient = useAdminClient()
 const router = useRouter()
 const route = useRoute()
@@ -1559,6 +1610,7 @@ const editor = new Editor({
         Iframe,
         Tweet,
         Reddit, // Add Reddit extension
+        AudioNode // Add AudioNode extension
     ],
     content: '',
     onUpdate: ({ editor }) => {
@@ -1792,7 +1844,6 @@ function removeTag(index) {
 const featureCropModalOpen = ref(false)
 const featureZoomLevel = ref(1)
 const featureCropCanvas = ref(null)
-const featureImageInput = ref(null)
 const selectedFeatureImage = ref(null)
 const featureCropContext = ref(null)
 const isFeatureDragging = ref(false)
@@ -1943,18 +1994,15 @@ function cropFeatureImage() {
     tempCanvas.width = outputWidth
     tempCanvas.height = outputHeight
 
-    const scale = Math.max(canvas.width / selectedFeatureImage.value.width, canvas.height / selectedFeatureImage.value.height) * featureZoomLevel.value
-    const scaledWidth = selectedFeatureImage.value.width * scale
-    const scaledHeight = selectedFeatureImage.value.height * scale
-    const x = featureImagePosition.value.x + (canvas.width - scaledWidth) / 2
-    const y = featureImagePosition.value.y + (canvas.height - scaledHeight) / 2
+    featureZoomLevel.value = 1
+    featureImagePosition.value = { x: 0, y: 0 }
 
     tempCtx.drawImage(
         selectedFeatureImage.value,
-        -x / scale,
-        -y / scale,
-        canvas.width / scale,
-        canvas.height / scale,
+        -featureImagePosition.value.x / featureZoomLevel.value,
+        -featureImagePosition.value.y / featureZoomLevel.value,
+        canvas.width / featureZoomLevel.value,
+        canvas.height / featureZoomLevel.value,
         0, 0,
         outputWidth, outputHeight
     )
@@ -2055,8 +2103,6 @@ function savePost() {
 
             if (!route.params.id)
                 router.push(`/post/${response.id}`);
-
-            return response;
         }
         else if(response.result){
             showNotification('success', 'Post saved successfully');
@@ -2577,7 +2623,6 @@ function handleImageClick(e) {
 
             if (foundPos > -1) {
                 editor.commands.setNodeSelection(foundPos);
-                e.preventDefault();
             }
         }
     }
@@ -2765,11 +2810,6 @@ async function checkGenerateJobStatus() {
                 post.value.tags = result.suggestedTags
             }
 
-            if (result.slug) {
-                post.value.slug = result.slug
-                slugManuallyEdited.value = true
-            }
-
             if (result.featureImage) {
                 post.value.featureImage = result.featureImage
             }
@@ -2819,6 +2859,24 @@ function cancelGeneration() {
     aiGenerateJobId.value = '';
     aiGenerateLoading.value = false;
     showAIGenerateDialog.value = false;
+}
+
+function insertAudio() {
+    const url = prompt('Enter audio URL:')
+    if (url) {
+        editor.chain().focus().insertContent({
+            type: 'audio',
+            attrs: {
+                src: url
+            }
+        }).run()
+    }
+}
+
+function playAudio(event) {
+    const audioUrl = event.target.closest('.floating-audio').querySelector('a').href;
+    const audio = new Audio(audioUrl);
+    audio.play();
 }
 </script>
 
@@ -2876,12 +2934,11 @@ function cancelGeneration() {
     right: -10px;
     width: 24px;
     height: 24px;
-    background: #ff4444;
-    border-radius: 50%;
+    background-color: #ef4444;
     color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     z-index: 10;
@@ -3239,5 +3296,22 @@ function cancelGeneration() {
 
 .ProseMirror-selectednode .iframe-wrapper iframe {
     opacity: 0.7; /* dim the iframe when selected to show it's in edit mode */
+}
+
+.floating-audio {
+    position: relative;
+    display: inline-block;
+}
+
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.7);
+    border-radius: 50%;
+    padding: 8px;
+    color: white;
+    cursor: pointer;
 }
 </style>
