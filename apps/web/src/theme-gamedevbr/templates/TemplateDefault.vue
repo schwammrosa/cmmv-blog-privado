@@ -464,10 +464,6 @@ const mobileMenuOpen = ref(false);
 
 const categories = ref<any[]>(categoriesStore.getCategories || []);
 
-const footerCategories = computed(() => {
-    return categories.value.slice(0, 6);
-});
-
 const mainNavCategories = computed(() => {
     const navCategories = categories.value?.filter((category: any) => category.mainNav) || [];
     navCategories.sort((a: any, b: any) => (a.mainNavIndex ?? 999) - (b.mainNavIndex ?? 999));
