@@ -300,6 +300,12 @@
                                                     <span class="ml-2 text-sm">Scheduled</span>
                                                 </label>
                                             </div>
+
+                                            <div v-if="post.status === 'cron'" class="mt-2">
+                                                <label class="block text-sm font-medium text-neutral-400 mb-1">Schedule for</label>
+                                                <input v-model="scheduleDate" type="datetime-local"
+                                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1423,7 +1429,6 @@ const sidebarOpen = ref(JSON.parse(localStorage.getItem('postEditor_sidebarOpen'
 const blocksOpen = ref(JSON.parse(localStorage.getItem('postEditor_blocksOpen') || 'false'))
 const activeTab = ref('basic')
 const newTag = ref('')
-const scheduleDate = ref('')
 const websiteUrl = ref('https://yourblog.com')
 const slugManuallyEdited = ref(false)
 
@@ -2026,6 +2031,7 @@ function toggleBlocks() {
 
 const showPublishDialog = ref(false)
 const publishLoading = ref(false)
+const scheduleDate = ref('')
 
 function confirmPublish() {
     if (post.value.status === 'published') {
@@ -2049,10 +2055,15 @@ function confirmPublish() {
 function publishPost() {
     publishLoading.value = true;
     fullPageLoading.value = true;
-    loadingMessage.value = 'Publishing post...';
-
-    post.value.status = 'published';
-    post.value.publishedAt = new Date().toISOString();
+    
+    if (post.value.status === 'cron') {
+        loadingMessage.value = 'Scheduling post...';
+        post.value.autoPublishAt = new Date(scheduleDate.value).toISOString();
+    } else {
+        loadingMessage.value = 'Publishing post...';
+        post.value.status = 'published';
+        post.value.publishedAt = new Date().toISOString();
+    }
 
     adminClient.posts.save({
         post: post.value,
