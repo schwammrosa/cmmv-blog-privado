@@ -314,7 +314,6 @@
 
                             <!-- Right Column (Widgets + Ads) -->
                             <div class="lg:col-span-1">
-                                <!-- AdSense Rectangle (Top) -->
                                 <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden">
                                     <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                         <div v-html="getAdHtml('sidebarTop')"></div>
@@ -326,7 +325,6 @@
                                     </div>
                                 </div>
 
-                                <!-- AdSense Rectangle (Middle) -->
                                 <div v-if="adSettings.enableAds && adSettings.articlePageSidebarMid" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden">
                                     <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
                                         <div v-html="getAdHtml('sidebarMid')"></div>
@@ -338,7 +336,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Share Widget -->
                                 <div class="bg-white rounded-lg shadow-md p-5 mb-6">
                                     <h2 class="text-xl font-bold mb-4 pb-2 text-[#ff0030] border-b-2 border-[#000] inline-block">
                                         Compartilhar
@@ -416,7 +413,7 @@
                                 </div>
 
                                 <!-- Popular Posts Widget -->
-                                <div v-if="popularPosts && popularPosts.length > 0" class="bg-white rounded-lg shadow-md p-5 mb-6">
+                                <div v-if="popularPosts && popularPosts.length > 0" class="bg-white rounded-lg shadow-md p-5 mb-6 hidden md:block">
                                     <h2 class="text-xl font-bold mb-4 pb-2 text-[#ff0030] border-b-2 border-[#000] inline-block">
                                         Mais Populares
                                     </h2>
@@ -539,7 +536,6 @@ const isSSR = import.meta.env.SSR
 if(!isSSR)
     post.value = window.__CMMV_DATA__["post"]
 
-// Helper function to handle boolean settings (could be 1, true, etc)
 const isTruthy = (value: any): boolean => {
     if (typeof value === 'boolean') return value;
     if (typeof value === 'string') {
@@ -548,16 +544,13 @@ const isTruthy = (value: any): boolean => {
     return false;
 };
 
-// Ad Settings
 const adSettings = computed(() => {
     const rawSettings = settings.value || {};
 
     const result: Record<string, any> = {
-        // Convert potential string values to proper booleans
         enableAds: isTruthy(rawSettings['blog.enableAds']),
         showAdsLoggedIn: isTruthy(rawSettings['blog.showAdsLoggedIn']),
 
-        // Ad positions for article page - default to true for most positions
         articlePageHeader: rawSettings['blog.articlePageHeader'] === undefined ? true : isTruthy(rawSettings['blog.articlePageHeader']),
         articlePageSidebarTop: rawSettings['blog.articlePageSidebarTop'] === undefined ? true : isTruthy(rawSettings['blog.articlePageSidebarTop']),
         articlePageSidebarBottom: rawSettings['blog.articlePageSidebarBottom'] === undefined ? true : isTruthy(rawSettings['blog.articlePageSidebarBottom']),
@@ -581,7 +574,6 @@ const adSettings = computed(() => {
         adSenseInArticle: rawSettings['blog.adSenseInArticle'] || '',
         adSenseBelowContent: rawSettings['blog.adSenseBelowContent'] || '',
 
-        // Custom Ads
         enableCustomAds: isTruthy(rawSettings['blog.enableCustomAds']),
         customHeaderBanner: rawSettings['blog.customHeaderBanner'] || '',
         customSidebarTop: rawSettings['blog.customSidebarTop'] || '',
@@ -589,14 +581,12 @@ const adSettings = computed(() => {
         customInArticle: rawSettings['blog.customInArticle'] || '',
         customBelowContent: rawSettings['blog.customBelowContent'] || '',
 
-        // Amazon Affiliate
         enableAmazonAds: isTruthy(rawSettings['blog.enableAmazonAds']),
         amazonAssociateId: rawSettings['blog.amazonAssociateId'] || '',
         amazonSidebarAd: rawSettings['blog.amazonSidebarAd'] || '',
         amazonInContentAd: rawSettings['blog.amazonInContentAd'] || '',
         amazonBelowContentAd: rawSettings['blog.amazonBelowContentAd'] || '',
 
-        // Taboola Ads
         enableTaboolaAds: isTruthy(rawSettings['blog.enableTaboolaAds']),
         taboolaPublisherId: rawSettings['blog.taboolaPublisherId'] || '',
         taboolaBelowArticle: rawSettings['blog.taboolaBelowArticle'] || '',
