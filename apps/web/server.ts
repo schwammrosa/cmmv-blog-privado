@@ -1,6 +1,6 @@
 import { createServer, loadEnv } from 'vite';
 import { transformHtmlTemplate } from '@unhead/vue/server';
-import { useSettingsStore } from 'src/store/settings.js';
+import { useSettingsStore } from './src/store/settings.js';
 
 import * as http from 'node:http';
 import * as fs from 'node:fs';
