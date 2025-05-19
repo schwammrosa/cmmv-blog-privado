@@ -6,12 +6,17 @@ import * as sharp from "sharp";
 
 import {
     AbstractService,
-    Config, Service
+    Config, Service,
+    Application
 } from "@cmmv/core";
 
 import {
     Repository, In
 } from "@cmmv/repository";
+
+import {
+    BlogStorageService
+} from "../storage/storage.service";
 
 @Service("blog_medias")
 export class MediasService extends AbstractService {
@@ -109,12 +114,17 @@ export class MediasService extends AbstractService {
             return image;
 
         const mediasPath = path.join(cwd(), "medias", "images");
+        const blogStorageService = Application.resolveProvider(BlogStorageService);
 
         if(!fs.existsSync(mediasPath))
             await fs.mkdirSync(mediasPath, { recursive: true });
 
         format = format.toLowerCase(); //bugfix
-        const apiUrl = Config.get<string>("blog.url", process.env.API_URL);
+        let apiUrl = Config.get<string>("blog.url", process.env.API_URL);
+
+        if(apiUrl.endsWith("/"))
+            apiUrl = apiUrl.slice(0, -1);
+
         const paramString = `${image}_${format}_${maxWidth}`;
         const imageHash = await crypto.createHash('sha1').update(paramString).digest('hex');
         const imageFullpath = path.join(mediasPath, `${imageHash}.${format}`).toLowerCase();
@@ -135,6 +145,38 @@ export class MediasService extends AbstractService {
                 //@ts-ignore
                 let processor = sharp(buffer);
                 const metadata = await processor.metadata();
+
+                const uploadedFile = await blogStorageService.uploadFile({
+                    buffer: buffer,
+                    originalname: `${imageHash}.${format}`,
+                    mimetype: `image/${format}`
+                });
+
+                if(uploadedFile){
+                    const MediasEntity = Repository.getEntity("MediasEntity");
+                    const media = await Repository.findOne(MediasEntity, { sha1: imageHash });
+
+                    if(media){
+                        await Repository.updateOne(MediasEntity, { sha1: imageHash }, {
+                            url: uploadedFile.url
+                        });
+                    }
+                    else{
+                        await Repository.insert(MediasEntity, {
+                            sha1: imageHash,
+                            filepath: uploadedFile.url,
+                            name: image,
+                            format: format,
+                            width: metadata.width,
+                            height: metadata.height,
+                            alt: alt,
+                            caption: caption,
+                            size: metadata.size
+                        });
+                    }
+
+                    return uploadedFile.url;
+                }
 
                 if (metadata.width && metadata.width > maxWidth) {
                     //@ts-ignore
@@ -210,7 +252,6 @@ export class MediasService extends AbstractService {
                 }
 
                 await processor.toFile(imageFullpath);
-                console.log(`Image saved as ${format}: ${imageFullpath} (${maxWidth}px max width)`);
             } catch (error) {
                 console.error('Error processing image:', error);
                 return null;
@@ -331,21 +372,24 @@ export class MediasService extends AbstractService {
         const mediasPath = path.join(cwd(), "medias", "images");
 
         for(const media of medias?.data){
-            if (media.sha1 && media.format) {
+            if (media.sha1 && media.format && !media.filepath.startsWith("https://")) {
                 media.format = media.format.toLowerCase(); //bugfix
                 const hashFilePath = path.join(mediasPath, `${media.sha1}.${media.format}`);
+
                 if (fs.existsSync(hashFilePath)) {
                     media.url = `${apiUrl}/images/${media.sha1}.${media.format}`;
                     continue;
                 }
             }
 
-            if (media.filepath) {
+            if(media.filepath && media.filepath.startsWith("https://")){
+                media.url = media.filepath;
+                continue;
+            }
+            else if (media.filepath && !media.filepath.startsWith("https://")) {
                 const filename = path.basename(media.filepath);
                 media.url = `${apiUrl}/images/${filename}`;
             } else {
-                console.warn(`Media ${media.id} does not have a valid filepath or hash+format`);
-
                 if (media.sha1 && media.format)
                     media.url = `${apiUrl}/images/${media.sha1}.${media.format}`;
                 else
@@ -457,7 +501,6 @@ export class MediasService extends AbstractService {
                 };
             }
 
-            console.log(`Found ${allMedias.length} media records in database. Checking for orphaned entries...`);
             MediasService.reprocessProgress.message = `Found ${allMedias.length} media records in database. Checking for orphaned entries...`;
             MediasService.reprocessProgress.total = allMedias.length;
             MediasService.reprocessProgress.processed = 0;
@@ -470,10 +513,8 @@ export class MediasService extends AbstractService {
 
                 MediasService.reprocessProgress.processed = i + 1;
 
-                if (i % 100 === 0 || i === allMedias.length - 1) {
+                if (i % 100 === 0 || i === allMedias.length - 1)
                     MediasService.reprocessProgress.message = `Checking media records: ${i+1} of ${allMedias.length}`;
-                    console.log(`Progress: ${i+1}/${allMedias.length} records checked`);
-                }
 
                 if (media.filepath && fs.existsSync(media.filepath)) {
                     validRecords.push(media);
