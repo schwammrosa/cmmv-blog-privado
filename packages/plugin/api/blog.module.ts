@@ -22,6 +22,7 @@ import { CDNModule } from './cdn/cdn.module';
 import { LogsModule } from './logs/logs.module';
 import { BackupModule } from './backup/backup.module';
 import { PromptsModule } from './prompts/prompts.modules';
+import { StorageModule } from './storage/storage.module';
 
 export const BlogModule = new Module('blog', {
     submodules: [
@@ -46,6 +47,7 @@ export const BlogModule = new Module('blog', {
         CDNModule,
         LogsModule,
         BackupModule,
-        PromptsModule
+        PromptsModule,
+        StorageModule
     ]
 });

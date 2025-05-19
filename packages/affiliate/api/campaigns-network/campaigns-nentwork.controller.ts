@@ -32,4 +32,16 @@ export class CampaignsNetworksControllerTools {
     async getCoupons() {
         return this.campaignsNetworksService.getCoupons();
     }
+
+    @Get("/network-campaigns/:networkId")
+    @Auth()
+    async getNetworkCampaignsByNetwork(@Param("networkId") networkId: string) {
+        return this.campaignsNetworksService.getNetworkCampaignsByNetwork(networkId);
+    }
+
+    @Get("/coupons/:networkId")
+    @Auth()
+    async getCouponsByNetwork(@Param("networkId") networkId: string) {
+        return this.campaignsNetworksService.getCouponsByNetwork(networkId);
+    }
 }

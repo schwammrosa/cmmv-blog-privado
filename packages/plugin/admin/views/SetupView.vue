@@ -198,6 +198,19 @@
                                 />
                                 <p v-if="errors.blogUrl" class="mt-1 text-sm text-red-600">{{ errors.blogUrl }}</p>
                             </div>
+
+                            <div class="mb-4">
+                                <label for="blog-admin-url" class="block text-gray-700 dark:text-gray-300 text-sm font-medium mb-1">Admin Blog URL</label>
+                                <input
+                                    id="blog-admin-url"
+                                    v-model="setupData.blogAdminUrl"
+                                    type="url"
+                                    placeholder="https://admin.myblog.com"
+                                    :disabled="loading"
+                                    class="w-full px-4 py-2 rounded-md border border-gray-300 dark:border-neutral-600 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-neutral-700 text-gray-900 dark:text-white select-text"
+                                />
+                                <p v-if="errors.blogAdminUrl" class="mt-1 text-sm text-red-600">{{ errors.blogAdminUrl }}</p>
+                            </div>
                         </div>
 
                         <!-- Advanced Settings -->
@@ -499,6 +512,7 @@ const setupData = ref({
     blogTitle: '',
     blogDescription: '',
     blogUrl: '',
+    blogAdminUrl: '',
 
     postsPerPage: 10,
     enableComments: true,
@@ -600,7 +614,8 @@ const finishSetup = async () => {
             blog: {
                 title: setupData.value.blogTitle,
                 description: setupData.value.blogDescription,
-                url: setupData.value.blogUrl
+                url: setupData.value.blogUrl,
+                adminUrl: setupData.value.blogAdminUrl
             },
             settings: {
                 postsPerPage: parseInt(setupData.value.postsPerPage),
@@ -608,7 +623,6 @@ const finishSetup = async () => {
                 moderateComments: setupData.value.moderateComments,
                 language: setupData.value.language,
                 timezone: setupData.value.timezone,
-
                 allowedHosts: setupData.value.allowedHosts.split(',').map(host => host.trim()).filter(host => host),
                 apiUrl: setupData.value.apiUrl,
                 frontendApiUrl: setupData.value.frontendApiUrl,

@@ -3829,6 +3829,243 @@
                         </div>
                     </div>
 
+                    <!-- Storage Settings -->
+                    <div class="p-6" v-if="activeTab === 'storage'">
+                        <h2 class="text-xl font-bold text-white mb-6">
+                            Storage Settings
+                        </h2>
+                        <div class="space-y-8">
+                            <!-- Storage Type -->
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Storage Type</label
+                                >
+                                <select
+                                    v-model="settings.storageType"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                >
+                                    <option value="local">Local Storage</option>
+                                    <option value="s3">AWS S3</option>
+                                    <option value="spaces">Digital Ocean Spaces</option>
+                                </select>
+                                <p class="text-xs text-neutral-500">
+                                    Select the storage type for your media files.
+                                </p>
+                            </div>
+
+                            <!-- AWS S3 Settings -->
+                            <div v-if="settings.storageType === 's3'" class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Access Key
+                                    </label>
+                                    <input
+                                        v-model="settings.s3AccessKey"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your AWS Access Key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Secret Key
+                                    </label>
+                                    <input
+                                        v-model="settings.s3SecretKey"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your AWS Secret Key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Bucket
+                                    </label>
+                                    <input
+                                        v-model="settings.s3Bucket"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your S3 bucket name"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Region
+                                    </label>
+                                    <select
+                                        v-model="settings.s3Region"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                        <option value="us-east-1">US East (N. Virginia)</option>
+                                        <option value="us-east-2">US East (Ohio)</option>
+                                        <option value="us-west-1">US West (N. California)</option>
+                                        <option value="us-west-2">US West (Oregon)</option>
+                                        <option value="af-south-1">Africa (Cape Town)</option>
+                                        <option value="ap-east-1">Asia Pacific (Hong Kong)</option>
+                                        <option value="ap-south-1">Asia Pacific (Mumbai)</option>
+                                        <option value="ap-northeast-3">Asia Pacific (Osaka)</option>
+                                        <option value="ap-northeast-2">Asia Pacific (Seoul)</option>
+                                        <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                                        <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
+                                        <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+                                        <option value="ca-central-1">Canada (Central)</option>
+                                        <option value="eu-central-1">Europe (Frankfurt)</option>
+                                        <option value="eu-west-1">Europe (Ireland)</option>
+                                        <option value="eu-west-2">Europe (London)</option>
+                                        <option value="eu-south-1">Europe (Milan)</option>
+                                        <option value="eu-west-3">Europe (Paris)</option>
+                                        <option value="eu-north-1">Europe (Stockholm)</option>
+                                        <option value="me-south-1">Middle East (Bahrain)</option>
+                                        <option value="sa-east-1">South America (São Paulo)</option>
+                                    </select>
+                                    <p class="text-xs text-neutral-500">
+                                        The AWS region where your S3 bucket is located. Default is us-east-1.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Endpoint
+                                    </label>
+                                    <input
+                                        v-model="settings.s3Endpoint"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your S3 endpoint URL"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Use Path Style
+                                    </label>
+                                    <div class="flex items-center">
+                                        <input
+                                            id="s3-use-path-style"
+                                            type="checkbox"
+                                            v-model="settings.s3UsePathStyle"
+                                            class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                        />
+                                        <label
+                                            for="s3-use-path-style"
+                                            class="text-sm text-neutral-300"
+                                            >Use path style URLs</label
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Bucket URL
+                                    </label>
+                                    <input
+                                        v-model="settings.s3BucketUrl"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your S3 bucket URL"
+                                    />
+                                </div>
+                            </div>
+
+                            <!-- Digital Ocean Spaces Settings -->
+                            <div v-if="settings.storageType === 'spaces'" class="space-y-4">
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Access Key
+                                    </label>
+                                    <input
+                                        v-model="settings.spacesAccessKey"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Digital Ocean Spaces access key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Secret Key
+                                    </label>
+                                    <input
+                                        v-model="settings.spacesSecretKey"
+                                        type="password"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Digital Ocean Spaces secret key"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Name
+                                    </label>
+                                    <input
+                                        v-model="settings.spacesName"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Digital Ocean Spaces name"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Region
+                                    </label>
+                                    <select
+                                        v-model="settings.spacesRegion"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    >
+                                        <option value="nyc3">New York 3</option>
+                                        <option value="sfo3">San Francisco 3</option>
+                                        <option value="ams3">Amsterdam 3</option>
+                                        <option value="sgp1">Singapore 1</option>
+                                        <option value="fra1">Frankfurt 1</option>
+                                        <option value="lon1">London 1</option>
+                                        <option value="blr1">Bangalore 1</option>
+                                        <option value="syd1">Sydney 1</option>
+                                        <option value="tor1">Toronto 1</option>
+                                        <option value="sfo2">San Francisco 2</option>
+                                        <option value="ams2">Amsterdam 2</option>
+                                        <option value="sgp2">Singapore 2</option>
+                                        <option value="lon2">London 2</option>
+                                        <option value="blr2">Bangalore 2</option>
+                                        <option value="syd2">Sydney 2</option>
+                                        <option value="tor2">Toronto 2</option>
+                                    </select>
+                                    <p class="text-xs text-neutral-500">
+                                        The region where your Digital Ocean Spaces is located. Default is nyc3.
+                                    </p>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        Endpoint
+                                    </label>
+                                    <input
+                                        v-model="settings.spacesEndpoint"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Digital Ocean Spaces endpoint URL"
+                                    />
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label class="block text-sm font-medium text-neutral-300">
+                                        URL
+                                    </label>
+                                    <input
+                                        v-model="settings.spacesUrl"
+                                        type="text"
+                                        class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Enter your Digital Ocean Spaces URL"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Notifications Settings -->
                     <div class="p-6" v-if="activeTab === 'notifications'">
                         <h2 class="text-xl font-bold text-white mb-6">
@@ -4205,6 +4442,7 @@ const tabs = [
     { id: "social-auto-posting", name: "Auto-Posting", icon: "fas fa-paper-plane" },
     { id: "integrations", name: "Integrations", icon: "fas fa-plug" },
     { id: "cdn", name: "CDN", icon: "fas fa-server" },
+    { id: "storage", name: "Storage", icon: "fas fa-database" },
     { id: "seo", name: "SEO", icon: "fas fa-search" },
     {
         id: "search-integrations",
@@ -4391,6 +4629,24 @@ const settings = ref({
     cloudfrontDistributionId: "",
     cloudfrontRegion: "us-east-1",
     autoPurgeCache: true,
+
+    // Storage Settings
+    storageType: "local",
+    // AWS S3 Settings
+    s3AccessKey: "",
+    s3SecretKey: "",
+    s3Bucket: "",
+    s3Region: "us-east-1",
+    s3Endpoint: "",
+    s3UsePathStyle: false,
+    s3BucketUrl: "",
+    // Digital Ocean Spaces Settings
+    spacesAccessKey: "",
+    spacesSecretKey: "",
+    spacesName: "",
+    spacesRegion: "nyc3",
+    spacesEndpoint: "",
+    spacesUrl: "",
 
     // Advertising Settings
     enableAds: true,
@@ -4612,6 +4868,22 @@ const tabFieldMap = {
         "cloudfrontDistributionId",
         "cloudfrontRegion",
         "autoPurgeCache"
+    ],
+    storage: [
+        "storageType",
+        "s3AccessKey",
+        "s3SecretKey",
+        "s3Bucket",
+        "s3Region",
+        "s3Endpoint",
+        "s3UsePathStyle",
+        "s3BucketUrl",
+        "spacesAccessKey",
+        "spacesSecretKey",
+        "spacesName",
+        "spacesRegion",
+        "spacesEndpoint",
+        "spacesUrl",
     ],
 };
 

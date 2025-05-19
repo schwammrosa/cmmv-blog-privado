@@ -125,8 +125,6 @@ export class YTChannelsServiceAdmin {
 
         try {
             const videos = await this.fetchVideosFromYouTube(channel.channelId, youtubeApiKey);
-            console.log(`Found ${videos.length} videos for channel ${channel.name}`);
-
             let newVideosCount = 0;
 
             for (const video of videos) {
@@ -212,7 +210,6 @@ export class YTChannelsServiceAdmin {
                 };
             }
 
-            console.log(`Processing ${channels.data.length} YouTube channels`);
             const results = [];
 
             const GLOBAL_TIMEOUT = 600000;
@@ -226,10 +223,8 @@ export class YTChannelsServiceAdmin {
 
             const processPromise = (async () => {
                 for (const channel of channels.data) {
-                    if (Date.now() - startTime > GLOBAL_TIMEOUT - 10000) {
-                        console.log('Approaching global timeout, stopping channel processing');
+                    if (Date.now() - startTime > GLOBAL_TIMEOUT - 10000)
                         break;
-                    }
 
                     const lastUpdate = channel.lastUpdate ? new Date(channel.lastUpdate).getTime() : 0;
                     const currentTime = Date.now();
@@ -237,7 +232,6 @@ export class YTChannelsServiceAdmin {
 
                     if (shouldUpdate) {
                         try {
-                            console.log(`Processing YouTube channel: ${channel.name} (${channel.id})`);
                             const channelTimeout = 120000;
 
                             const processResult = await Promise.race([
@@ -256,21 +250,16 @@ export class YTChannelsServiceAdmin {
                             });
                         } catch (error) {
                             const errorMessage = error instanceof Error ? error.message : String(error);
-                            console.error(`Error processing channel ${channel.name}: ${errorMessage}`);
                             results.push({ channel: channel.name, success: false, error: errorMessage });
 
                             try {
                                 await Repository.update(YTChannelsEntity, { id: channel.id }, {
                                     lastUpdate: new Date()
                                 });
-                            } catch (updateError) {
-                                console.error(`Failed to update lastUpdate for channel ${channel.name}`);
-                            }
+                            } catch (updateError) {}
                         }
 
                         await new Promise(resolve => setTimeout(resolve, 1000));
-                    } else {
-                        console.log(`Skipping channel ${channel.name} - last updated ${new Date(lastUpdate).toISOString()}`);
                     }
                 }
 
@@ -307,8 +296,6 @@ export class YTChannelsServiceAdmin {
 
         try {
             const videos = await this.fetchVideosFromYouTube(channel.channelId, apiKey);
-            console.log(`Found ${videos.length} videos for channel ${channel.name}`);
-
             let newVideosCount = 0;
 
             for (const video of videos) {
@@ -390,10 +377,8 @@ export class YTChannelsServiceAdmin {
 
             const searchData: YouTubeSearchResponse = await searchResponse.json();
 
-            if (!searchData.items || searchData.items.length === 0) {
-                console.log(`No videos found for channel ${channelId}`);
+            if (!searchData.items || searchData.items.length === 0)
                 return [];
-            }
 
             const videoIds = searchData.items.map(item => item.id.videoId);
 
