@@ -2111,9 +2111,9 @@ function saveDraft() {
 
     if (post.value.status === 'cron' && scheduleDate.value) {
         // Garantir que o timestamp seja correto para o fuso horário do cliente
-        
+
         const scheduleDateComponents = scheduleDate.value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
-        
+
         if (scheduleDateComponents) {
             const [_, year, month, day, hours, minutes] = scheduleDateComponents;
             // Criar a data baseada nos componentes (no fuso horário local)
@@ -2125,7 +2125,7 @@ function saveDraft() {
             dt.setMinutes(parseInt(minutes));
             dt.setSeconds(0);
             dt.setMilliseconds(0);
-            
+
             postData.autoPublishAt = dt.getTime();
         } else {
             // Fallback para o método anterior se o formato não corresponder
@@ -2234,7 +2234,7 @@ async function loadPost(postId) {
                 const day = String(date.getDate()).padStart(2, '0')
                 const hours = String(date.getHours()).padStart(2, '0')
                 const minutes = String(date.getMinutes()).padStart(2, '0')
-                
+
                 scheduleDate.value = `${year}-${month}-${day}T${hours}:${minutes}`
             }
 
@@ -2591,6 +2591,9 @@ function isFeatureImageUnprocessed() {
 
     if(!featureImage)
         return true;
+
+    if(featureImage.startsWith("https://static") || featureImage.startsWith("https://cdn"))
+        return false;
 
     if(!featureImage.includes(window.location.hostname) &&
         !featureImage.includes(settings.value["blog.url"]))
