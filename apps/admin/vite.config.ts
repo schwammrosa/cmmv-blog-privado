@@ -15,10 +15,8 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
             return true;
 
         try {
-            if (typeof fetch === 'undefined') {
-                //console.warn('Fetch API not available, skipping whitelabel data fetch');
+            if (typeof fetch === 'undefined')
                 return false;
-            }
 
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -26,7 +24,6 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
             const response = await fetch(`${apiUrl}/whitelabel/admin`, {
                 signal: controller.signal
             }).catch(error => {
-                //console.warn(`Fetch request failed: ${error.message}`);
                 return null;
             });
 
@@ -46,7 +43,6 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
                     }
                 });
 
-                console.log(`Successfully loaded ${count} whitelabel API URLs`);
                 return true;
             } else {
                 return false;

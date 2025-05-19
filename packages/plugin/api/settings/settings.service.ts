@@ -1,6 +1,6 @@
-import * as crypto from "crypto";
-import * as path from "path";
-import * as fs from "fs";
+import * as crypto from "node:crypto";
+import * as path from "node:path";
+import * as fs from "node:fs";
 
 import {
     Service, Config
@@ -63,6 +63,21 @@ const SENSITIVE_KEYS = [
     // Indexing settings
     "blog.googleIndexingApiKey",
     "blog.googleIndexingServiceAccount",
+    // Storage settings
+    "blog.s3AccessKey",
+    "blog.s3SecretKey",
+    "blog.s3Bucket",
+    "blog.s3Region",
+    "blog.s3Endpoint",
+    "blog.s3UsePathStyle",
+    "blog.s3BucketUrl",
+    // Digital Ocean Spaces Settings
+    "blog.spacesAccessKey",
+    "blog.spacesSecretKey",
+    "blog.spacesName",
+    "blog.spacesRegion",
+    "blog.spacesEndpoint",
+    "blog.spacesUrl",
 ];
 
 @Service("blog_settings")
@@ -73,6 +88,7 @@ export class SettingsService {
      * @returns {Promise<any>}
      */
     public async getSetup(setupData: ISetup) : Promise<any> {
+        const adminEnv = path.join(__dirname, "../../../../apps/admin/.env");
         const apiEnv = path.join(__dirname, "../../../../apps/api/.env");
         const webEnv = path.join(__dirname, "../../../../apps/web/.env");
 
@@ -81,9 +97,13 @@ export class SettingsService {
             .update(new Date().getTime().toString())
             .digest('hex');
 
-        await fs.writeFileSync(apiEnv, `API_URL="${setupData.settings.apiUrl}"
-API_SIGNATURE="${signature}"
-        `);
+        await fs.writeFileSync(adminEnv, `VITE_PORT=${setupData.settings.basePort + 2}
+VITE_ALLOWED_HOSTS="0.0.0.0,${setupData.blog.adminUrl}"`);
+
+        await fs.writeFileSync(apiEnv, `PORT=${setupData.settings.basePort}
+API_URL="${setupData.settings.apiUrl}"
+FRONTEND_URL="${setupData.blog.url}"
+API_SIGNATURE="${signature}"`);
 
         await fs.writeFileSync(webEnv, `VITE_API_URL="${setupData.settings.apiUrl}"
 VITE_WEBSITE_URL="${setupData.blog.url}"
@@ -92,8 +112,7 @@ VITE_SSR="true"
 VITE_SSR_PORT="${setupData.settings.basePort + 1}"
 VITE_ALLOWED_HOSTS="${setupData.settings.allowedHosts.join(",")}"
 VITE_SIGNATURE="${signature}"
-VITE_DEFAULT_THEME="default"
-        `);
+VITE_DEFAULT_THEME="default"`);
 
         const SettingsRepository = Repository.getEntity("SettingsEntity");
 

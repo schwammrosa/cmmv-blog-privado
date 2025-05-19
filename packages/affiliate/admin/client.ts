@@ -17,6 +17,12 @@ export const useAffiliateClient = () => {
         },
         delete: async (id: string) => {
             return api.authRequest(`affiliate/networks/${id}`, "DELETE");
+        },
+        getNetworkCampaigns: async (networkId: string) => {
+            return api.authRequest(`affiliate/campaigns-networks/network-campaigns/${networkId}`, "GET");
+        },
+        getCouponsByNetwork: async (networkId: string) => {
+            return api.authRequest(`affiliate/campaigns-networks/coupons/${networkId}`, "GET");
         }
     }
 

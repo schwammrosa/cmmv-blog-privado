@@ -145,9 +145,7 @@ export class ChannelsService {
                                 await Repository.update(FeedChannelsEntity, { id: channel.id }, {
                                     lastUpdate: new Date()
                                 });
-                            } catch (updateError) {
-                                console.error(`Failed to update lastUpdate for channel ${channel.name}`);
-                            }
+                            } catch (updateError) {}
                         }
 
                         await new Promise(resolve => setTimeout(resolve, 1000));
@@ -289,7 +287,6 @@ export class ChannelsService {
 
             for (const item of items) {
                 processedCount++;
-                console.log(`Processing item ${processedCount} of ${items.length} for channel: ${channelId}`);
 
                 try {
                     const itemPromise = this.processFeedItemSafely(item, feedType, channelId);
@@ -312,7 +309,6 @@ export class ChannelsService {
 
             return itemsAdded;
         } catch (error) {
-            console.error(`Error in processFeedItem for channel ${channelId}: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
     }
@@ -461,8 +457,6 @@ export class ChannelsService {
                         }
                     }
                 } catch (parseError) {}
-            } else {
-                console.log(`Skipping content parsing for ${link} as requestLink is disabled for channel: ${channelId}`);
             }
 
             const newItem = {

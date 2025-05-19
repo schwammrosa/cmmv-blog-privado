@@ -16,6 +16,7 @@ export interface ISetup {
         title: string;
         description: string;
         url: string;
+        adminUrl: string;
     },
     settings: {
         postsPerPage: number;

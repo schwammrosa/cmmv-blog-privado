@@ -622,7 +622,6 @@ export class RawService {
             };
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            this.logger.error(`Error cleaning raw feed items for channel: ${errorMessage}`);
             throw new Error(`Failed to clean raw feed items for channel: ${errorMessage}`);
         }
     }
