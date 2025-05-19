@@ -398,7 +398,7 @@
                         </div>
 
                         <!-- Right Column (Widgets + Ads) -->
-                        <div class="lg:col-span-1">
+                        <div class="lg:col-span-1 min-w-[300px]">
                             <!-- AdSense Rectangle (Top) -->
                             <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
                                 <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
@@ -453,7 +453,7 @@
                             </div>
 
                             <!-- AdSense Rectangle (Middle) -->
-                            <div class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center">
+                            <div class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
                                 <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
                                     <div v-html="getAdHtml('sidebarMid')"></div>
                                 </div>
@@ -486,7 +486,7 @@
                             </div>
 
                             <!-- AdSense Rectangle (Bottom) -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarBottom" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center">
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarBottom" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
                                 <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
                                     <div v-html="getAdHtml('sidebarBottom')"></div>
                                 </div>

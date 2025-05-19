@@ -106,7 +106,6 @@ export class ChannelsService {
                 };
             }
 
-            console.log(`Processing ${channels.data.length} feed channels`);
             let itemsAdded = 0;
 
             const GLOBAL_TIMEOUT = 600000;
@@ -121,14 +120,11 @@ export class ChannelsService {
 
             const processPromise = (async () => {
                 for (const channel of channels.data) {
-                    if (Date.now() - startTime > GLOBAL_TIMEOUT - 10000) {
-                        console.log('Approaching global timeout, stopping feed processing');
+                    if (Date.now() - startTime > GLOBAL_TIMEOUT - 10000)
                         break;
-                    }
 
                     if(channel.lastUpdate < new Date(Date.now() - channel.intervalUpdate) || force){
                         try {
-                            console.log(`Processing channel: ${channel.name} (${channel.id})`);
                             const channelTimeout = 120000;
 
                             await Promise.race([
@@ -143,7 +139,6 @@ export class ChannelsService {
                             results.push({ channel: channel.name, success: true });
                         } catch (error) {
                             const errorMessage = error instanceof Error ? error.message : String(error);
-                            console.error(`Error processing channel ${channel.name}: ${errorMessage}`);
                             results.push({ channel: channel.name, success: false, error: errorMessage });
 
                             try {
@@ -173,7 +168,7 @@ export class ChannelsService {
             };
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
-            console.error(`Global error in processFeeds: ${errorMessage}`);
+
             return {
                 success: false,
                 message: `Feed processing failed: ${errorMessage}`
@@ -257,9 +252,6 @@ export class ChannelsService {
      * @param channelId - The ID of the channel
      */
     async processFeedItem(feedData: any, channelId: string) {
-        const FeedRawEntity = Repository.getEntity("FeedRawEntity");
-        const FeedChannelsEntity = Repository.getEntity("FeedChannelsEntity");
-
         try {
             let items = [];
             let feedType = '';
@@ -311,15 +303,9 @@ export class ChannelsService {
                         })
                     ]) as { success: boolean, message?: string };
 
-                    if (result && result.success) {
+                    if (result && result.success)
                         itemsAdded++;
-                        console.log(`Successfully processed item ${processedCount}/${items.length} in channel: ${channelId}`);
-                    } else {
-                        console.log(`Skipped item ${processedCount}/${items.length} in channel: ${channelId}: ${result?.message || 'Unknown reason'}`);
-                    }
-                } catch (itemError) {
-                    console.error(`Error processing item ${processedCount}/${items.length} in channel ${channelId}: ${itemError instanceof Error ? itemError.message : String(itemError)}`);
-                }
+                } catch (itemError) {}
 
                 await new Promise(resolve => setTimeout(resolve, 1500));
             }
@@ -428,15 +414,11 @@ export class ChannelsService {
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-            if (pubDate < sevenDaysAgo) {
-                console.log(`Skipping item "${title}" - too old (published on ${pubDate.toISOString().split('T')[0]})`);
+            if (pubDate < sevenDaysAgo)
                 return { success: false, message: "Item is older than 7 days" };
-            }
 
-            if (!link) {
-                console.log(`Skipping item with empty link in ${feedType} feed for channel: ${channelId}`);
+            if (!link)
                 return { success: false, message: "Empty link" };
-            }
 
             const existingItem = await Repository.findOne(FeedRawEntity, {
                 link: link
@@ -478,9 +460,7 @@ export class ChannelsService {
                             if ('featureImage' in data && data.featureImage) featureImage = data.featureImage;
                         }
                     }
-                } catch (parseError) {
-                    console.error(`Error parsing content from ${link}: ${parseError instanceof Error ? parseError.message : String(parseError)}`);
-                }
+                } catch (parseError) {}
             } else {
                 console.log(`Skipping content parsing for ${link} as requestLink is disabled for channel: ${channelId}`);
             }

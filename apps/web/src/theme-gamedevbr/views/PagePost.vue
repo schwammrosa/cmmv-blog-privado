@@ -299,9 +299,9 @@
                             </div>
 
                             <!-- Right Column (Widgets + Ads) -->
-                            <div class="lg:col-span-1">
+                            <div class="lg:col-span-1 min-w-[300px]">
                                 <!-- AdSense Rectangle (Top) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px]">
                                     <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                         <div v-html="getAdHtml('sidebarTop')"></div>
                                     </div>
@@ -313,7 +313,7 @@
                                 </div>
 
                                 <!-- AdSense Rectangle (Middle) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarMid" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarMid" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px]">
                                     <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
                                         <div v-html="getAdHtml('sidebarMid')"></div>
                                     </div>
@@ -464,7 +464,7 @@
                                 </div>
 
                                 <!-- AdSense Rectangle (Bottom) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
                                     <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
                                         <div v-html="getAdHtml('sidebarBottom')"></div>
                                     </div>
