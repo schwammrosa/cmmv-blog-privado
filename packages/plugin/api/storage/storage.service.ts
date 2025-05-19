@@ -101,7 +101,7 @@ export class BlogStorageService {
 
         try {
             await client.send(command);
-            const publicUrl = `${s3BucketUrl}/${file.originalname}`;
+            const publicUrl = (s3BucketUrl) ? `${s3BucketUrl}/${file.originalname}` : `${s3Endpoint}/${s3Bucket}/${file.originalname}`;
             return { success: true, url: publicUrl };
         } catch (err) {
             console.error(err);
