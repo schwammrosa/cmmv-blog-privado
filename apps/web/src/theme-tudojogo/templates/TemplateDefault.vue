@@ -194,7 +194,7 @@
         <!-- Footer -->
         <footer class="bg-gradient-to-b from-[#222222] to-[#111111] text-white">
             <div class="max-w-[1200px] mx-auto px-4 py-12">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div class="grid grid-cols-1 gap-10">
                     <div class="bg-black/20 p-6 rounded-lg shadow-lg border-l-4 border-[#00A079]">
                         <h3 class="text-xl font-bold mb-5 relative pb-3 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
@@ -272,35 +272,7 @@
                         </div>
                     </div>
 
-                    <div>
-                        <h3 class="text-lg font-bold mb-4 relative pb-3">
-                            Categorias
-                            <span class="absolute bottom-0 left-0 w-10 h-1 bg-[#000000]"></span>
-                        </h3>
-                        <div class="grid grid-cols-3 gap-x-4">
-                            <ul class="space-y-2">
-                                <li v-for="(category, index) in categoriesColumns[0]" :key="category.id">
-                                    <a :href="`/category/${category.slug}`" class="text-gray-300 hover:text-[#00B8D4]">
-                                        {{ category.name }}
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="space-y-2">
-                                <li v-for="category in categoriesColumns[1]" :key="category.id">
-                                    <a :href="`/category/${category.slug}`" class="text-gray-300 hover:text-[#00B8D4]">
-                                        {{ category.name }}
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="space-y-2">
-                                <li v-for="category in categoriesColumns[2]" :key="category.id">
-                                    <a :href="`/category/${category.slug}`" class="text-gray-300 hover:text-[#00B8D4]">
-                                        {{ category.name }}
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+
                 </div>
 
                 <div class="border-t border-gray-700 mt-8 pt-6 text-center">

@@ -115,9 +115,17 @@
                                         </div>
                                     </div>
 
+                                    <!-- Comments Section -->
+                                    <div id="comments-container" ref="commentsObserver" class="mt-6 mb-6 min-h-[100px]">
+                                        <h3 class="text-xl font-bold mb-4 text-neutral-800">Comentários</h3>
+                                        <div v-if="!commentsLoaded" class="text-center py-4 text-gray-600">
+                                            Os comentários serão carregados quando você rolar até aqui.
+                                        </div>
+                                    </div>
+
                                     <!-- Author Box -->
                                     <div v-if="author"
-                                        class="mb-10 p-6 bg-neutral-50 rounded-lg border border-neutral-200 mt-8">
+                                        class="mb-10 p-6 bg-neutral-50 rounded-lg border border-neutral-200 mt-6">
                                         <div class="flex items-center mb-4">
                                             <!-- Author Avatar -->
                                             <div
@@ -305,12 +313,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Comments Section -->
-                                    <div id="comments-container" ref="commentsObserver" class="mt-10 min-h-[100px]">
-                                        <div v-if="!commentsLoaded" class="text-center py-4 text-gray-600">
-                                            Os comentários serão carregados quando você rolar até aqui.
-                                        </div>
-                                    </div>
+                                    <!-- Comments Section foi movida para acima da caixa do autor -->
                                 </div>
                             </div>
 
@@ -340,8 +343,8 @@
                                     </div>
                                 </div>
 
-                                <!-- Share Widget -->
-                                <div class="bg-white rounded-lg shadow-md p-5 mb-6">
+                                <!-- Share Widget (oculto em dispositivos móveis) -->
+                                <div class="bg-white rounded-lg shadow-md p-5 mb-6 hidden md:block">
                                     <h2 class="text-xl font-bold mb-4 pb-2 text-black border-b-2 border-[#00B8D4]">
                                         Compartilhar
                                     </h2>
@@ -464,34 +467,7 @@
                                     </div>
                                 </div>
 
-                                <!-- Categories Widget -->
-                                <div v-if="categories && categories.length > 0" class="bg-white rounded-lg shadow-lg p-5 mb-6 border-t-4 border-[#00B8D4]">
-                                    <h2 class="text-xl font-bold mb-5 pb-2 text-black border-b-2 border-[#00B8D4] flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#00B8D4]" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                                        </svg>
-                                        Categorias
-                                    </h2>
 
-                                    <ul class="space-y-3">
-                                        <li v-for="category in categories" :key="category.id" class="border-b border-gray-100 last:border-0 pb-3 last:pb-0 hover:bg-gray-50 rounded-lg transition-colors">
-                                            <a
-                                                :href="`/category/${category.slug}`"
-                                                class="flex justify-between items-center text-gray-700 hover:text-[#00B8D4] transition-colors p-2 group"
-                                            >
-                                                <span class="flex items-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-400 group-hover:text-[#00B8D4] transition-colors" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM2 11a2 2 0 012-2h12a2 2 0 012 2v4a2 2 0 01-2 2H4a2 2 0 01-2-2v-4z" />
-                                                    </svg>
-                                                    {{ category.name }}
-                                                </span>
-                                                <span class="bg-[#00B8D4] text-white px-2 py-1 rounded-full text-xs font-medium shadow-sm group-hover:bg-[#064019] transition-colors">
-                                                    {{ category.postCount }}
-                                                </span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
 
                                 <!-- AdSense Rectangle (Bottom) -->
                                 <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
@@ -512,8 +488,81 @@
         </div>
     </div>
 
-    <!-- Taboola JS Code -->
-    <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
+    <!-- Código do Taboola removido completamente para evitar duplicação do rodapé -->
+
+    <!-- Botão flutuante de compartilhamento para dispositivos móveis -->
+    <div class="fixed bottom-6 right-6 z-50 md:hidden">
+        <button @click="showShareOptions = !showShareOptions" 
+            class="bg-[#00B8D4] w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+        </button>
+
+        <!-- Opções de compartilhamento -->  
+        <div v-if="showShareOptions" class="absolute bottom-16 right-0 bg-white p-4 rounded-lg shadow-xl">
+            <div class="flex flex-col space-y-3">
+                <!-- Facebook -->
+                <a class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    rel="nofollow noopener"
+                    :href="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl)"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"
+                    title="Compartilhar no Facebook">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M9.19795 21.5H13.198V13.4901H16.8021L17.198 9.50977H13.198V7.5C13.198 6.94772 13.6457 6.5 14.198 6.5H17.198V2.5H14.198C11.4365 2.5 9.19795 4.73858 9.19795 7.5V9.50977H7.19795L6.80206 13.4901H9.19795V21.5Z" />
+                    </svg>
+                    <span>Facebook</span>
+                </a>
+
+                <!-- Twitter -->
+                <a class="flex items-center gap-2 px-3 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600 transition-colors"
+                    rel="nofollow noopener"
+                    :href="'https://twitter.com/share?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent(pageUrl)"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"
+                    title="Compartilhar no Twitter">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                    </svg>
+                    <span>Twitter</span>
+                </a>
+
+                <!-- WhatsApp -->
+                <a class="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                    rel="nofollow noopener"
+                    :href="whatsappShareUrl"
+                    target="_blank"
+                    data-action="share/whatsapp/share"
+                    title="Compartilhar no WhatsApp">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="currentColor">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    <span>WhatsApp</span>
+                </a>
+
+                <!-- Copy link button -->
+                <button @click="copyPageUrl"
+                    class="flex items-center gap-2 px-3 py-2 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-colors relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>Copiar link</span>
+                    <span v-if="linkCopied"
+                        class="absolute right-2 bg-green-600 text-white text-xs py-1 px-2 rounded">
+                        Copiado!
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -612,8 +661,8 @@ const adSettings = computed(() => {
         amazonInContentAd: rawSettings['blog.amazonInContentAd'] || '',
         amazonBelowContentAd: rawSettings['blog.amazonBelowContentAd'] || '',
 
-        // Taboola Ads
-        enableTaboolaAds: isTruthy(rawSettings['blog.enableTaboolaAds']),
+        // Taboola Ads - Desativado para evitar duplicação do rodapé
+        enableTaboolaAds: false, // Forçado como false para evitar duplicação do rodapé
         taboolaPublisherId: rawSettings['blog.taboolaPublisherId'] || '',
         taboolaBelowArticle: rawSettings['blog.taboolaBelowArticle'] || '',
         taboolaRightRail: rawSettings['blog.taboolaRightRail'] || '',
@@ -725,7 +774,8 @@ const getAdHtml = (position) => {
                 if (adSettings.value.taboolaRightRail) return adSettings.value.taboolaRightRail;
                 break;
             case 'footer':
-                if (adSettings.value.taboolaFooter) return adSettings.value.taboolaFooter;
+                // Comentado para evitar duplicação do rodapé
+                // if (adSettings.value.taboolaFooter) return adSettings.value.taboolaFooter;
                 break;
         }
     }
@@ -748,6 +798,19 @@ function processPostContent(content) {
     ];
 
     let processedContent = content;
+    
+    // Padronizar formatação dos parágrafos de atribuição de fonte
+    // Procura por parágrafos com "Com informações" ou "Fonte:" que não tenham a classe "source-attribution"
+    const sourcePatterns = [
+        /<p(?![^>]*class="source-attribution")[^>]*>(\s*<strong[^>]*>\s*Com informações[^<]*<\/strong>.*?)<\/p>/gi,
+        /<p(?![^>]*class="source-attribution")[^>]*>(\s*<strong[^>]*>\s*Fonte[^<]*<\/strong>.*?)<\/p>/gi,
+        /<p(?![^>]*class="source-attribution")[^>]*>(.*?(?:Com informações|Fonte).*?)<\/p>/gi
+    ];
+    
+    // Substituir por versões formatadas corretamente
+    sourcePatterns.forEach(pattern => {
+        processedContent = processedContent.replace(pattern, '<p class="source-attribution">$1</p>');
+    });
 
     // Replace Twitter/X URLs with embed code
     twitterUrlPatterns.forEach(pattern => {
@@ -817,6 +880,7 @@ const isScrolled = ref(false)
 const relatedPosts = ref<any[]>([])
 const isDesktop = ref(false)
 const linkCopied = ref(false)
+const showShareOptions = ref(false)
 
 const authorInitials = computed(() => {
     return author.value?.name
