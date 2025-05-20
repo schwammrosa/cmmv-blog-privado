@@ -216,7 +216,7 @@
         </section>
 
         <!-- Footer -->
-        <footer class="text-white" style="background: linear-gradient(180deg, var(--bg-secondary), var(--bg-tertiary));">
+        <footer class="text-white" :class="{ 'dark-mode': isDarkMode }" :style="isDarkMode ? 'background-color: #1e2636 !important; background: linear-gradient(180deg, #1e2636, #131b29) !important;' : 'background: linear-gradient(180deg, var(--bg-secondary), var(--bg-tertiary));'">
             <div class="max-w-[1200px] mx-auto px-4 py-12">
                 <div class="grid grid-cols-1 gap-10">
                     <div class="dark-footer-box bg-black/20 p-6 rounded-lg shadow-lg border-l-4 border-[#00A079]" :class="{ 'dark-mode': isDarkMode }" :style="isDarkMode ? 'background-color: #333333 !important; background: #333333 !important;' : ''">
