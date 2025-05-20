@@ -115,6 +115,18 @@ export const useAffiliateClient = () => {
         },
         getNetworkCampaigns: async () => {
             return api.authRequest("affiliate/campaigns-networks/network-campaigns", "GET");
+        },
+        getNetworkCampaignsById: async (networkId: string) => {
+            return api.authRequest(`affiliate/campaigns-networks/network-campaigns/${networkId}`, "GET");
+        },
+        getNetworkCampaignsList: async (networkId: string) => {
+            return api.authRequest(`affiliate/campaigns-networks/network-campaigns-list/${networkId}`, "GET");
+        }
+    }
+
+    const deeplink = {
+        getDeeplink: async (accountId: string, campaignId: string, link: string) => {
+            return api.authRequest(`affiliate/deeplink/${accountId}/${campaignId}?link=${encodeURIComponent(link)}`, "GET");
         }
     }
 
@@ -124,6 +136,7 @@ export const useAffiliateClient = () => {
         coupons,
         accounts,
         categories,
-        campaignsNetworks
+        campaignsNetworks,
+        deeplink
     };
 };

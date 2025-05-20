@@ -411,25 +411,17 @@ export class YTChannelsServiceAdmin {
                     (video.snippet.description && video.snippet.description.toLowerCase().includes('#shorts'));
                 const isShort = durationSeconds < 60 && isMarkedAsShort;
 
-                if (isShort) {
-                    console.log(`Filtering out YouTube Short: ${video.snippet.title} (${durationSeconds}s)`);
+                if (isShort)
                     return false;
-                }
 
                 const publishDate = new Date(video.snippet.publishedAt);
                 const isRecent = publishDate >= sevenDaysAgo;
 
-                if (!isRecent) {
-                    console.log(`Filtering out old video: ${video.snippet.title} (published on ${publishDate.toISOString().split('T')[0]})`);
-                }
-
                 return isRecent;
             });
 
-            console.log(`Found ${videoData.items.length} videos, ${filteredVideos.length} after filtering shorts and old videos`);
             return filteredVideos;
         } catch (error) {
-            console.error(`Error fetching YouTube videos: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
     }

@@ -1,17 +1,15 @@
 import {
-    Service,
+    Service, Config
 } from "@cmmv/core";
 
 import {
-    Repository, MoreThan
+    Repository
 } from "@cmmv/repository";
-
 
 @Service('blog_prompts')
 export class PromptsServiceTools {
 
-    getDefaultPrompt(){
-        return `2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
+    private defaultPrompt: string = `2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
             3. Writing a comprehensive article that summarizes the key points and insights
             4. Adding context, background information, and your own analysis to enhance the content
             5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
@@ -141,9 +139,40 @@ export class PromptsServiceTools {
             - Sometimes digress briefly before returning to the main point
             - Add occasional expressions of emotion ("I was surprised to learn that..." or "It's frustrating when...")
         `;
+
+    /**
+     * Get the default prompt
+     * @returns The default prompt
+     */
+    async getDefaultPrompt(promptId: string){
+        const promptsOverride = Config.get<boolean>("blog.promptsOverride", false);
+
+        if(promptId){
+            const prompt = await this.getPromptById(promptId);
+
+            if(prompt)
+                return prompt;
+        }
+
+        if(promptsOverride)
+            return await this.getRandomPrompt(promptId);
+
+        return this.defaultPrompt;
     }
 
-    async getRandomPrompt(){
+    /**
+     * Get a random prompt from the database
+     * @returns A random prompt from the database
+     */
+    async getRandomPrompt(promptId: string){
+
+        if(promptId){
+            const prompt = await this.getPromptById(promptId);
+
+            if(prompt)
+                return prompt;
+        }
+
         const PromptsEntity = Repository.getEntity("PromptsEntity");
         const promptsData = await Repository.findAll(PromptsEntity, {
             limit: 100
@@ -161,6 +190,19 @@ export class PromptsServiceTools {
             }
         }
 
-        return promts.length > 0 ? promts[Math.floor(Math.random() * promts.length)] : this.getDefaultPrompt();
+        return promts.length > 0 ? promts[Math.floor(Math.random() * promts.length)] : this.defaultPrompt;
+    }
+
+    /**
+     * Get a prompt by ID
+     * @param promptId The ID of the prompt
+     * @returns The prompt
+     */
+    async getPromptById(promptId: string){
+        const PromptsEntity = Repository.getEntity("PromptsEntity");
+        const prompt = await Repository.findOne(PromptsEntity, {
+            id: promptId
+        });
+        return prompt ? prompt.prompt : this.defaultPrompt;
     }
 }

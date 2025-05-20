@@ -19,6 +19,13 @@ import {
 })
 export class PromptsContract extends AbstractContract {
     @ContractField({
+        protoType: 'string',
+        nullable: true,
+        index: true
+    })
+    name!: string;
+
+    @ContractField({
         protoType: 'text',
         nullable: false,
         index: true

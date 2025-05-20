@@ -100,12 +100,12 @@
                                 ID
                             </th>
                             <th
-                                @click="toggleSort('prompt')"
+                                @click="toggleSort('name')"
                                 scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white"
                             >
-                                Prompt
-                                <span v-if="filters.sortBy === 'prompt'" class="ml-1">
+                                Name
+                                <span v-if="filters.sortBy === 'name'" class="ml-1">
                                     {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
                                 </span>
                             </th>
@@ -139,7 +139,7 @@
                                 {{ prompt.id.substring(0, 6) }}...
                             </td>
                             <td class="px-6 py-4 text-sm text-white">
-                                <div class="max-w-xs truncate">{{ prompt.prompt }}</div>
+                                <div class="max-w-xs truncate font-medium">{{ prompt.name || 'Unnamed Prompt' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
                                 {{ prompt.temperature }}
@@ -201,6 +201,19 @@
                 </div>
                 <div class="p-6">
                     <form @submit.prevent="savePrompt">
+                        <div class="mb-4">
+                            <label for="promptName" class="block text-sm font-medium text-neutral-300 mb-1">Name</label>
+                            <input
+                                id="promptName"
+                                v-model="promptForm.name"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Enter a name for this prompt"
+                                required
+                            />
+                            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
+                        </div>
+
                         <div class="mb-4">
                             <label for="promptText" class="block text-sm font-medium text-neutral-300 mb-1">Prompt Text</label>
                             <textarea
@@ -347,6 +360,7 @@ const error = ref(null)
 const showDialog = ref(false)
 const isEditing = ref(false)
 const promptForm = ref({
+    name: '',
     prompt: '',
     temperature: 0.7,
     topP: 0.9,
@@ -379,7 +393,7 @@ const pagination = ref({
 
 const filters = ref({
     search: '',
-    sortBy: 'prompt',
+    sortBy: 'name',
     sortOrder: 'asc',
     page: 1
 })
@@ -430,7 +444,6 @@ const loadPrompts = async () => {
             const currentOffset = paginationData.offset || 0
             const currentLimit = paginationData.limit || 10
 
-            // Calculate current page from offset and limit
             const currentPage = Math.floor(currentOffset / currentLimit) + 1
             const lastPage = Math.ceil(totalCount / currentLimit)
 
@@ -444,7 +457,6 @@ const loadPrompts = async () => {
             }
         } else {
             prompts.value = []
-            // Reset pagination if data format is unexpected
             pagination.value = {
                 current: 1,
                 lastPage: 1,
@@ -464,25 +476,22 @@ const loadPrompts = async () => {
     }
 }
 
-// Refresh data
 const refreshData = () => {
     loadPrompts()
 }
 
-// Pagination methods
 const handlePageChange = (newPage) => {
     filters.value.page = newPage;
 }
 
-// Watch for filter changes
 watch(filters, () => {
     loadPrompts()
 }, { deep: true })
 
-// Dialog methods
 const openAddDialog = () => {
     isEditing.value = false
     promptForm.value = {
+        name: '',
         prompt: '',
         temperature: 0.7,
         topP: 0.9,
@@ -497,6 +506,7 @@ const openEditDialog = (prompt) => {
     isEditing.value = true
     promptToEdit.value = prompt
     promptForm.value = {
+        name: prompt.name || '',
         prompt: prompt.prompt,
         temperature: prompt.temperature !== undefined ? prompt.temperature : 0.7,
         topP: prompt.topP !== undefined ? prompt.topP : 0.9,
@@ -510,6 +520,7 @@ const openEditDialog = (prompt) => {
 const closeDialog = () => {
     showDialog.value = false
     promptForm.value = {
+        name: '',
         prompt: '',
         temperature: 0.7,
         topP: 0.9,
@@ -520,13 +531,17 @@ const closeDialog = () => {
     promptToEdit.value = null
 }
 
-// Save prompt
 const savePrompt = async () => {
     try {
         formLoading.value = true
         formErrors.value = {}
 
-        // Validate
+        if (!promptForm.value.name.trim()) {
+            formErrors.value.name = 'Prompt name is required'
+            formLoading.value = false
+            return
+        }
+
         if (!promptForm.value.prompt.trim()) {
             formErrors.value.prompt = 'Prompt text is required'
             formLoading.value = false
@@ -558,6 +573,7 @@ const savePrompt = async () => {
         }
 
         const promptData = {
+            name: promptForm.value.name.trim(),
             prompt: promptForm.value.prompt.trim(),
             temperature: parseFloat(promptForm.value.temperature),
             topP: parseFloat(promptForm.value.topP),
@@ -638,7 +654,6 @@ const toggleSort = (column) => {
 onMounted(() => {
     loadPrompts()
 
-    // Close search dropdown when clicking outside
     document.addEventListener('click', (e) => {
         if (showSearchDropdown.value && !e.target.closest('.relative')
             && e.target !== document.querySelector('button[data-search-toggle]')) {

@@ -7,28 +7,11 @@ import {
 
 @Service()
 export class AfilioService extends NetworkApiAbstract {
-    private async resolveShortenedUrl(shortenedUrl: string): Promise<string> {
-        try {
-            const response = await fetch(shortenedUrl, {
-                method: 'GET',
-                redirect: 'manual'
-            });
-
-            if (response.status === 301 || response.status === 302) {
-                const redirectUrl = response.headers.get('location');
-                if (redirectUrl) {
-                    const parsedUrl = new URL(redirectUrl);
-                    const cleanUrl = `${parsedUrl.protocol}//${parsedUrl.host}${parsedUrl.pathname}`;
-                    return cleanUrl;
-                }
-            }
-            return shortenedUrl;
-        } catch (error) {
-            console.error('Error resolving shortened URL:', error);
-            return shortenedUrl;
-        }
-    }
-
+    /**
+     * Get campaigns from Afilio
+     * @param urlApi
+     * @returns
+     */
     async getCampaigns(urlApi: string){
         const response = await fetch(urlApi);
         const data = (response.status === 200) ? await response.json() : {};
@@ -56,6 +39,11 @@ export class AfilioService extends NetworkApiAbstract {
         return dataReturn;
     }
 
+    /**
+     * Get coupons from Afilio
+     * @param urlApi
+     * @returns
+     */
     async getCoupons(urlApi: string){
         const response = await fetch(urlApi, {
             method: "GET",
@@ -85,5 +73,15 @@ export class AfilioService extends NetworkApiAbstract {
         }
 
         return dataReturn;
+    }
+
+    /**
+     * Get deeplink from Afilio
+     * @param urlApi
+     * @param url
+     * @returns
+     */
+    async getDeeplink(urlApi: string){
+        return await this.resolveShortenedUrl(urlApi, false);
     }
 }

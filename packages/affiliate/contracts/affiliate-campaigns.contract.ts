@@ -79,4 +79,12 @@ export class AffiliateCampaignsContract extends AbstractContract {
         nullable: true,
     })
     metadata?: string;
+
+    @ContractField({
+        protoType: 'array',
+        objectType: 'string',
+        nullable: true,
+        protoRepeated: true,
+    })
+    categories?: string[];
 }

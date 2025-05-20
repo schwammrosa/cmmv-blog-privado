@@ -157,60 +157,6 @@
                     <a href="/posts" class="text-blue-500 hover:text-blue-400 text-sm font-medium">View all posts →</a>
                 </div>
             </div>
-
-            <div class="bg-neutral-800 rounded-lg shadow-md">
-                <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
-                    <h3 class="text-lg font-medium text-white">Comments Needing Approval</h3>
-                    <span class="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800">{{
-                        pendingComments.length || 0 }} New</span>
-                </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div v-for="comment in pendingComments.slice(0, 3)" :key="comment.id"
-                            class="p-4 bg-neutral-700/50 rounded-lg">
-                            <div class="flex items-start gap-3">
-                                <div class="flex-shrink-0">
-                                    <div v-if="comment.memberInfo?.avatar" class="w-8 h-8 rounded-full overflow-hidden">
-                                        <img :src="comment.memberInfo.avatar" alt="Avatar"
-                                            class="w-full h-full object-cover">
-                                    </div>
-                                    <div v-else
-                                        class="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-white text-sm">
-                                        {{ comment.memberInfo?.name?.charAt(0) || '?' }}
-                                    </div>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <p class="text-sm font-medium text-white">{{ comment.memberInfo?.name ||
-                                            'Anonymous' }}</p>
-                                    </div>
-                                    <p class="text-sm text-neutral-300 line-clamp-2">{{ comment.content }}</p>
-                                    <div class="mt-1 text-xs text-neutral-400">On: {{ comment.postInfo?.title ||
-                                        'Unknown Post' }}</div>
-                                    <div class="flex gap-1 mt-2">
-                                        <button @click="approveComment(comment.id)"
-                                            class="px-2 py-0.5 bg-green-600 hover:bg-green-700 text-white text-xs rounded">
-                                            Approve
-                                        </button>
-                                        <button @click="rejectComment(comment.id)"
-                                            class="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white text-xs rounded">
-                                            Reject
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div v-if="pendingComments.length === 0" class="col-span-3 p-4 bg-neutral-700/20 rounded-lg">
-                            <p class="text-sm text-neutral-400 text-center">No pending comments to approve.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="px-6 py-4 border-t border-neutral-700">
-                    <a href="/comments" class="text-blue-500 hover:text-blue-400 text-sm font-medium">View all pending
-                        comments →</a>
-                </div>
-            </div>
         </div>
     </div>
 </template>

@@ -19,28 +19,37 @@ export class CampaignsNetworksControllerTools {
     @Get("/apis-supported")
     @ContentType("application/json")
     @Raw()
+    @Auth("affiliatecampaignsnetworks:get")
     async getApisSupported(){
         return this.campaignsNetworksService.getApisSupported();
     }
 
     @Get("/network-campaigns")
+    @Auth("affiliatecampaignsnetworks:get")
     async getNetworkCampaigns() {
         return this.campaignsNetworksService.getNetworkCampaigns();
     }
 
     @Get("/coupons")
+    @Auth("affiliatecampaignsnetworks:get")
     async getCoupons() {
         return this.campaignsNetworksService.getCoupons();
     }
 
     @Get("/network-campaigns/:networkId")
-    @Auth()
+    @Auth("affiliatecampaignsnetworks:get")
     async getNetworkCampaignsByNetwork(@Param("networkId") networkId: string) {
         return this.campaignsNetworksService.getNetworkCampaignsByNetwork(networkId);
     }
 
+    @Get("/network-campaigns-list/:networkId")
+    @Auth("affiliatecampaignsnetworks:get")
+    async getNetworkCampaignsList(@Param("networkId") networkId: string) {
+        return this.campaignsNetworksService.getNetworkCampaignsList(networkId);
+    }
+
     @Get("/coupons/:networkId")
-    @Auth()
+    @Auth("affiliatecampaignsnetworks:get")
     async getCouponsByNetwork(@Param("networkId") networkId: string) {
         return this.campaignsNetworksService.getCouponsByNetwork(networkId);
     }

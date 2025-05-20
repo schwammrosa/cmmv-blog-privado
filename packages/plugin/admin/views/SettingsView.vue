@@ -2431,6 +2431,24 @@
                             </div>
 
                             <div class="space-y-2">
+                                <input
+                                    id="prompts-override"
+                                    type="checkbox"
+                                    v-model="settings.promptsOverride"
+                                    class="h-4 w-4 mr-2 rounded text-blue-600 bg-neutral-700 border-neutral-600 focus:ring-blue-500"
+                                />
+                                <label
+                                    for="enable-ads"
+                                    class="text-sm text-neutral-300"
+                                >Enable prompts override</label>
+
+                                <p class="text-xs text-neutral-500">
+                                    Enable prompts override to use custom
+                                    prompts for AI services.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
                                 <label
                                     class="block text-sm font-medium text-neutral-300"
                                     >Classify Prompt</label
@@ -2538,6 +2556,8 @@
                                     </p>
                                 </div>
                             </div>
+
+
                         </div>
                     </div>
 
@@ -4538,6 +4558,7 @@ const settings = ref({
     grokApiKey: "",
     deepseekApiKey: "",
     classifyPrompt: "",
+    promptsOverride: false,
 
     // Advanced
     analyticsCode: "",
@@ -4811,6 +4832,7 @@ const tabFieldMap = {
         "grokApiKey",
         "deepseekApiKey",
         "classifyPrompt",
+        "promptsOverride",
     ],
     advanced: [
         "analyticsCode",

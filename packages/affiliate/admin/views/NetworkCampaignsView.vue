@@ -123,7 +123,10 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
                                 Status
                             </th>
-                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-300 uppercase tracking-wider w-24">
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
+                                System Campaign
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-300 uppercase tracking-wider w-36">
                                 Actions
                             </th>
                         </tr>
@@ -155,8 +158,26 @@
                                     {{ campaign.status || 'Active' }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span v-if="campaignExistsInSystem(campaign)" class="bg-green-900 text-green-200 px-2 py-0.5 rounded text-xs">
+                                    Exists
+                                </span>
+                                <span v-else class="bg-neutral-700 text-neutral-300 px-2 py-0.5 rounded text-xs">
+                                    Not created
+                                </span>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
+                                    <button
+                                        v-if="!campaignExistsInSystem(campaign) && campaign.domain"
+                                        @click="createSystemCampaign(campaign)"
+                                        title="Create System Campaign"
+                                        class="text-green-400 hover:text-green-300 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </button>
                                     <button
                                         @click="openEditDialog(campaign)"
                                         title="Edit"
@@ -423,6 +444,320 @@
             @cancel="closeDeleteDialog"
         />
 
+        <!-- Create Campaign Dialog -->
+        <div v-if="showCreateCampaignDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
+            <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-lg mx-auto">
+                <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-white">Create Campaign from Advertiser</h3>
+                    <button @click="closeCreateCampaignDialog" class="text-neutral-400 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <form @submit.prevent="saveSystemCampaign" class="max-h-[70vh] overflow-y-auto">
+                        <div class="mb-4">
+                            <label for="systemCampaignName" class="block text-sm font-medium text-neutral-300 mb-1">Campaign Name</label>
+                            <input
+                                id="systemCampaignName"
+                                v-model="systemCampaignForm.name"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Campaign name"
+                                required
+                            />
+                            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="systemCampaignUrl" class="block text-sm font-medium text-neutral-300 mb-1">URL</label>
+                            <input
+                                id="systemCampaignUrl"
+                                v-model="systemCampaignForm.url"
+                                type="url"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="https://example.com"
+                                required
+                            />
+                            <p class="mt-1 text-sm text-neutral-500">The campaign's landing page URL</p>
+                            <p v-if="formErrors.url" class="mt-1 text-sm text-red-500">{{ formErrors.url }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="systemCampaignDomain" class="block text-sm font-medium text-neutral-300 mb-1">Domain</label>
+                            <input
+                                id="systemCampaignDomain"
+                                v-model="systemCampaignForm.domain"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="example.com"
+                                required
+                            />
+                            <p class="mt-1 text-sm text-neutral-500">The campaign's landing page domain</p>
+                            <p v-if="formErrors.domain" class="mt-1 text-sm text-red-500">{{ formErrors.domain }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-neutral-300 mb-2">Logo</label>
+                            <div class="flex items-center space-x-4">
+                                <div class="w-40 h-[125px] bg-neutral-700 rounded-md overflow-hidden flex items-center justify-center border border-neutral-600">
+                                    <img v-if="systemCampaignForm.logo" :src="systemCampaignForm.logo" alt="Campaign logo" class="w-full h-full object-contain" />
+                                    <div v-else class="text-neutral-500 flex flex-col items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        <span class="text-xs">No logo</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-2">
+                                    <button
+                                        type="button"
+                                        @click="openSystemLogoUpload"
+                                        class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                    >
+                                        {{ systemCampaignForm.logo ? 'Change Logo' : 'Upload Logo' }}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        v-if="systemCampaignForm.logo"
+                                        @click="removeSystemLogo"
+                                        class="px-3 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="mt-1 text-xs text-neutral-500">Recommended size: 160 × 125 pixels</p>
+                            <p v-if="formErrors.logo" class="mt-1 text-sm text-red-500">{{ formErrors.logo }}</p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="systemCampaignDescription" class="block text-sm font-medium text-neutral-300 mb-1">Description</label>
+                            <textarea
+                                id="systemCampaignDescription"
+                                v-model="systemCampaignForm.description"
+                                rows="3"
+                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                placeholder="Campaign description"
+                            ></textarea>
+                            <p v-if="formErrors.description" class="mt-1 text-sm text-red-500">{{ formErrors.description }}</p>
+                        </div>
+
+                        <!-- Metadata Section -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-neutral-300 mb-2">Metadata</label>
+                            <div class="bg-neutral-750 p-3 rounded-md mb-2">
+                                <div class="max-h-[250px] overflow-y-auto pr-1">
+                                    <div v-for="(item, index) in systemCampaignForm.metadata" :key="index" class="mb-3 border-b border-neutral-700 pb-3">
+                                        <div class="grid grid-cols-2 gap-2 mb-2">
+                                            <div>
+                                                <label :for="`metadataKey${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Key</label>
+                                                <input
+                                                    :id="`metadataKey${index}`"
+                                                    v-model="item.key"
+                                                    type="text"
+                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                    placeholder="Key"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label :for="`metadataType${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Type</label>
+                                                <select
+                                                    :id="`metadataType${index}`"
+                                                    v-model="item.type"
+                                                    class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                >
+                                                    <option value="string">String</option>
+                                                    <option value="text">Text</option>
+                                                    <option value="number">Number</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <label :for="`metadataValue${index}`" class="block text-xs font-medium text-neutral-400 mb-1">Value</label>
+                                            <textarea
+                                                v-if="item.type === 'text'"
+                                                :id="`metadataValue${index}`"
+                                                v-model="item.value"
+                                                rows="2"
+                                                class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="Value"
+                                            ></textarea>
+                                            <input
+                                                v-else-if="item.type === 'string'"
+                                                :id="`metadataValue${index}`"
+                                                v-model="item.value"
+                                                type="text"
+                                                class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="Value"
+                                            />
+                                            <input
+                                                v-else
+                                                :id="`metadataValue${index}`"
+                                                v-model.number="item.value"
+                                                type="number"
+                                                class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                                placeholder="Value"
+                                            />
+                                        </div>
+                                        <div class="flex justify-end">
+                                            <button
+                                                type="button"
+                                                @click="removeSystemMetadataItem(index)"
+                                                class="text-xs text-red-400 hover:text-red-300"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div v-if="systemCampaignForm.metadata.length === 0" class="text-center py-3 text-sm text-neutral-500">
+                                        No metadata added yet
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    @click="addSystemMetadataItem"
+                                    class="mt-2 w-full px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md flex items-center justify-center"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                    Add Metadata
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="systemCampaignNetwork" class="block text-sm font-medium text-neutral-300 mb-1">Network</label>
+                            <div v-if="loadingNetworks" class="flex items-center py-2">
+                                <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
+                                <span class="ml-2 text-neutral-400 text-sm">Loading networks...</span>
+                            </div>
+                            <div v-else-if="availableNetworks.length === 0" class="py-2 text-sm text-neutral-400">
+                                No networks available. Please create a network first.
+                            </div>
+                            <div v-else>
+                                <select
+                                    id="systemCampaignNetwork"
+                                    v-model="systemCampaignForm.networkId"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    required
+                                >
+                                    <option value="" disabled>Select a network</option>
+                                    <option
+                                        v-for="network in availableNetworks"
+                                        :key="network.id"
+                                        :value="network.id"
+                                    >
+                                        {{ network.name }}
+                                    </option>
+                                </select>
+                            </div>
+                            <p v-if="formErrors.networkId" class="mt-1 text-sm text-red-500">{{ formErrors.networkId }}</p>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button
+                                type="button"
+                                @click="closeCreateCampaignDialog"
+                                class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                                :disabled="formLoading"
+                            >
+                                <span v-if="formLoading" class="flex items-center">
+                                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Saving...
+                                </span>
+                                <span v-else>
+                                    Create Campaign
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logo crop modal -->
+        <div v-if="systemLogoCropModalOpen" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
+            <div class="bg-neutral-800 rounded-lg max-w-md w-full p-6">
+                <h3 class="text-lg font-medium text-white mb-4">Crop Campaign Logo</h3>
+
+                <div class="relative mb-4">
+                    <div class="w-full max-w-md mx-auto bg-neutral-750 relative overflow-hidden rounded-lg border-2 border-neutral-600">
+                        <!-- Canvas for crop preview -->
+                        <canvas
+                            ref="systemLogoCropCanvas"
+                            class="mx-auto"
+                            width="320"
+                            height="250"
+                            @mousedown="startSystemLogoDrag"
+                            @mousemove="onSystemLogoDrag"
+                            @mouseup="stopSystemLogoDrag"
+                            @mouseleave="stopSystemLogoDrag"
+                            @wheel="handleSystemLogoWheel"
+                            @touchstart="startSystemLogoDrag"
+                            @touchmove="onSystemLogoDrag"
+                            @touchend="stopSystemLogoDrag"
+                        ></canvas>
+
+                        <!-- Crop overlay -->
+                        <div class="absolute top-0 left-0 right-0 bottom-0 pointer-events-none">
+                            <div class="absolute left-1/2 top-1/2 w-[160px] h-[125px] -ml-[80px] -mt-[62.5px] border-2 border-white"></div>
+                        </div>
+                    </div>
+
+                    <!-- Zoom controls -->
+                    <div class="flex items-center justify-center mt-4">
+                        <button
+                            @click="adjustSystemLogoZoom(-0.1)"
+                            class="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-l-md"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                        <div class="px-4 py-2 bg-neutral-700 text-white text-sm font-medium">
+                            Zoom: {{ Math.round(systemLogoZoomLevel * 100) }}%
+                        </div>
+                        <button
+                            @click="adjustSystemLogoZoom(0.1)"
+                            class="p-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-r-md"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="flex justify-end space-x-2">
+                    <button
+                        @click="systemLogoCropModalOpen = false"
+                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        @click="cropSystemLogo"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md"
+                    >
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Toast notifications -->
         <ToastNotification
             :show="notification.show"
@@ -430,6 +765,15 @@
             :type="notification.type"
             :duration="notification.duration"
             @close="notification.show = false"
+        />
+
+        <!-- Add file input for logo image -->
+        <input
+            type="file"
+            ref="systemLogoImageInput"
+            @change="handleSystemLogoImageSelect"
+            accept="image/*"
+            class="hidden"
         />
     </div>
 </template>
@@ -444,8 +788,35 @@ import ToastNotification from '@cmmv/blog/admin/components/ToastNotification.vue
 const affiliateClient = useAffiliateClient()
 
 const networkCampaigns = ref([])
+const systemCampaigns = ref([])
 const loading = ref(true)
 const error = ref(null)
+const loadingSystemCampaigns = ref(false)
+const creatingSystemCampaign = ref(false)
+
+// New variables for system campaign form
+const showCreateCampaignDialog = ref(false)
+const systemCampaignForm = ref({
+    name: '',
+    url: '',
+    domain: '',
+    description: '',
+    networkId: '',
+    logo: '',
+    metadata: []
+})
+const campaignToConvert = ref(null)
+
+// Logo crop state for system campaign
+const systemLogoCropModalOpen = ref(false)
+const systemLogoZoomLevel = ref(1)
+const systemLogoCropCanvas = ref(null)
+const systemLogoImageInput = ref(null)
+const selectedSystemLogoImage = ref(null)
+const systemLogoCropContext = ref(null)
+const isSystemLogoDragging = ref(false)
+const systemLogoDragStart = ref({ x: 0, y: 0 })
+const systemLogoImagePosition = ref({ x: 0, y: 0 })
 
 const availableNetworks = ref([])
 const loadingNetworks = ref(false)
@@ -584,9 +955,464 @@ const loadNetworks = async () => {
     }
 }
 
+// Load all system campaigns
+const loadSystemCampaigns = async () => {
+    try {
+        loadingSystemCampaigns.value = true
+
+        const response = await affiliateClient.campaigns.get({
+            limit: 10000 // Get all campaigns
+        })
+
+        if (response && response.data) {
+            systemCampaigns.value = response.data || []
+        } else {
+            systemCampaigns.value = []
+        }
+
+        loadingSystemCampaigns.value = false
+    } catch (err) {
+        console.error('Failed to load system campaigns:', err)
+        loadingSystemCampaigns.value = false
+        showNotification('error', 'Failed to load system campaigns')
+    }
+}
+
+// Check if a network campaign exists as a system campaign
+const campaignExistsInSystem = (networkCampaign) => {
+    if (!networkCampaign.domain) return false
+    return systemCampaigns.value.some(sysCampaign =>
+        sysCampaign.domain &&
+        networkCampaign.domain &&
+        sysCampaign.domain.toLowerCase() === networkCampaign.domain.toLowerCase()
+    )
+}
+
+// Create a system campaign from a network campaign
+const createSystemCampaign = async (networkCampaign) => {
+    if (!networkCampaign.domain) {
+        showNotification('error', 'Cannot create system campaign: No domain specified')
+        return
+    }
+
+    // Set campaign to convert
+    campaignToConvert.value = networkCampaign
+
+    // Pre-fill the form with network campaign data
+    // Using the same variable names as CampaignView for consistency
+    systemCampaignForm.value = {
+        name: networkCampaign.name,
+        url: `https://${networkCampaign.domain}`,
+        domain: networkCampaign.domain,
+        description: networkCampaign.description || '',
+        networkId: networkCampaign.network,
+        logo: '',
+        metadata: []
+    }
+
+    // Show the create campaign dialog
+    showCreateCampaignDialog.value = true
+
+    // Load networks if not available
+    if (availableNetworks.value.length === 0) {
+        await loadNetworks()
+    }
+}
+
+// Close the create campaign dialog
+const closeCreateCampaignDialog = () => {
+    showCreateCampaignDialog.value = false
+    campaignToConvert.value = null
+
+    // Reset form
+    systemCampaignForm.value = {
+        name: '',
+        url: '',
+        domain: '',
+        description: '',
+        networkId: '',
+        logo: '',
+        metadata: []
+    }
+}
+
+// Metadata methods for system campaign
+const addSystemMetadataItem = () => {
+    systemCampaignForm.value.metadata.push({
+        key: '',
+        value: '',
+        type: 'string'
+    });
+};
+
+const removeSystemMetadataItem = (index) => {
+    systemCampaignForm.value.metadata.splice(index, 1);
+};
+
+// Logo handling for system campaign
+const openSystemLogoUpload = () => {
+    systemLogoImageInput.value.click()
+}
+
+const removeSystemLogo = () => {
+    systemCampaignForm.value.logo = ''
+    showNotification('info', 'Logo removed')
+}
+
+const handleSystemLogoImageSelect = (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+        showNotification('error', 'Please select an image file')
+        event.target.value = ''
+        return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+        const img = new Image()
+        img.crossOrigin = "Anonymous"
+
+        img.onload = () => {
+            selectedSystemLogoImage.value = img
+            systemLogoCropModalOpen.value = true
+
+            // Initialize canvas after modal is open
+            setTimeout(() => {
+                initSystemLogoCropCanvas()
+            }, 100)
+        }
+
+        img.onerror = (err) => {
+            console.error('Logo image loading error', err)
+            showNotification('error', 'Failed to load logo image')
+        }
+
+        img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+
+    // Reset file input
+    event.target.value = ''
+}
+
+// Initialize logo crop canvas
+const initSystemLogoCropCanvas = () => {
+    if (!systemLogoCropCanvas.value || !selectedSystemLogoImage.value) return
+
+    const canvas = systemLogoCropCanvas.value
+    const ctx = canvas.getContext('2d')
+    systemLogoCropContext.value = ctx
+
+    // Reset zoom and position
+    systemLogoZoomLevel.value = 1
+    systemLogoImagePosition.value = { x: 0, y: 0 }
+
+    // Draw initial image
+    drawSystemLogoImageOnCanvas()
+}
+
+// Draw logo image on canvas
+const drawSystemLogoImageOnCanvas = () => {
+    if (!systemLogoCropCanvas.value || !selectedSystemLogoImage.value || !systemLogoCropContext.value) return
+
+    const canvas = systemLogoCropCanvas.value
+    const ctx = systemLogoCropContext.value
+    const img = selectedSystemLogoImage.value
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+    // Calculate dimensions for centered, zoomed image
+    const scale = Math.max(canvas.width / img.width, canvas.height / img.height) * systemLogoZoomLevel.value
+    const scaledWidth = img.width * scale
+    const scaledHeight = img.height * scale
+
+    // Use position for x,y coordinates (for dragging)
+    const x = systemLogoImagePosition.value.x + (canvas.width - scaledWidth) / 2
+    const y = systemLogoImagePosition.value.y + (canvas.height - scaledHeight) / 2
+
+    // Draw image
+    ctx.drawImage(img, x, y, scaledWidth, scaledHeight)
+
+    // Draw overlay to highlight crop area (160x125)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)'
+
+    // Top overlay
+    ctx.fillRect(0, 0, canvas.width, canvas.height / 2 - 62.5)
+    // Bottom overlay
+    ctx.fillRect(0, canvas.height / 2 + 62.5, canvas.width, canvas.height / 2 - 62.5)
+    // Left overlay
+    ctx.fillRect(0, canvas.height / 2 - 62.5, canvas.width / 2 - 80, 125)
+    // Right overlay
+    ctx.fillRect(canvas.width / 2 + 80, canvas.height / 2 - 62.5, canvas.width / 2 - 80, 125)
+
+    // Draw border around crop area
+    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 2
+    ctx.strokeRect(canvas.width / 2 - 80, canvas.height / 2 - 62.5, 160, 125)
+}
+
+// Logo dragging
+const startSystemLogoDrag = (e) => {
+    isSystemLogoDragging.value = true
+
+    // Get initial position
+    if (e.type.includes('mouse')) {
+        systemLogoDragStart.value = { x: e.clientX, y: e.clientY }
+    } else { // touch event
+        systemLogoDragStart.value = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+    }
+}
+
+const onSystemLogoDrag = (e) => {
+    if (!isSystemLogoDragging.value) return
+
+    // Prevent default to avoid scrolling on touch devices
+    e.preventDefault()
+
+    let currentX, currentY
+    if (e.type.includes('mouse')) {
+        currentX = e.clientX
+        currentY = e.clientY
+    } else { // touch event
+        currentX = e.touches[0].clientX
+        currentY = e.touches[0].clientY
+    }
+
+    // Calculate the distance moved
+    const deltaX = currentX - systemLogoDragStart.value.x
+    const deltaY = currentY - systemLogoDragStart.value.y
+
+    // Update image position
+    systemLogoImagePosition.value = {
+        x: systemLogoImagePosition.value.x + deltaX,
+        y: systemLogoImagePosition.value.y + deltaY
+    }
+
+    // Update drag start for next movement
+    systemLogoDragStart.value = { x: currentX, y: currentY }
+
+    // Redraw canvas
+    drawSystemLogoImageOnCanvas()
+}
+
+const stopSystemLogoDrag = () => {
+    isSystemLogoDragging.value = false
+}
+
+const handleSystemLogoWheel = (e) => {
+    e.preventDefault()
+    const delta = e.deltaY > 0 ? -0.1 : 0.1
+    adjustSystemLogoZoom(delta)
+}
+
+const adjustSystemLogoZoom = (delta) => {
+    systemLogoZoomLevel.value = Math.max(0.5, Math.min(3, systemLogoZoomLevel.value + delta))
+    drawSystemLogoImageOnCanvas()
+}
+
+// Crop the logo and save
+const cropSystemLogo = async () => {
+    if (!systemLogoCropCanvas.value || !selectedSystemLogoImage.value || !systemLogoCropContext.value) return
+
+    const canvas = systemLogoCropCanvas.value
+
+    // Create a temporary canvas for the crop
+    const tempCanvas = document.createElement('canvas')
+    const tempCtx = tempCanvas.getContext('2d')
+
+    // Set output dimensions (target size is 160x125)
+    tempCanvas.width = 160
+    tempCanvas.height = 125
+
+    // Calculate the crop area (center of the canvas)
+    const cropArea = {
+        x: canvas.width / 2 - 80,
+        y: canvas.height / 2 - 62.5,
+        width: 160,
+        height: 125
+    }
+
+    // Scale factor of the image
+    const scale = Math.max(canvas.width / selectedSystemLogoImage.value.width, canvas.height / selectedSystemLogoImage.value.height) * systemLogoZoomLevel.value
+    const scaledWidth = selectedSystemLogoImage.value.width * scale
+    const scaledHeight = selectedSystemLogoImage.value.height * scale
+
+    const x = systemLogoImagePosition.value.x + (canvas.width - scaledWidth) / 2
+    const y = systemLogoImagePosition.value.y + (canvas.height - scaledHeight) / 2
+
+    const srcX = (cropArea.x - x) / scale
+    const srcY = (cropArea.y - y) / scale
+    const srcWidth = cropArea.width / scale
+    const srcHeight = cropArea.height / scale
+
+    tempCtx.drawImage(
+        selectedSystemLogoImage.value,
+        srcX, srcY, srcWidth, srcHeight,
+        0, 0, 160, 125
+    )
+
+    try {
+        const webpData = await convertToWebP(tempCanvas, 0.8)
+        systemCampaignForm.value.logo = webpData
+        systemLogoCropModalOpen.value = false
+
+        showNotification('success', 'Logo updated')
+    } catch (err) {
+        console.error('Failed to convert image to WebP:', err)
+        const jpegData = tempCanvas.toDataURL('image/jpeg', 0.8)
+        systemCampaignForm.value.logo = jpegData
+
+        systemLogoCropModalOpen.value = false
+        showNotification('success', 'Logo updated (as JPEG)')
+    }
+}
+
+// Convert canvas to WebP
+const convertToWebP = (canvas, quality = 0.8) => {
+    return new Promise((resolve, reject) => {
+        if (typeof canvas.toBlob === 'function') {
+            canvas.toBlob(
+                (blob) => {
+                    if (blob) {
+                        const reader = new FileReader()
+                        reader.onloadend = () => resolve(reader.result)
+                        reader.onerror = reject
+                        reader.readAsDataURL(blob)
+                    } else {
+                        reject(new Error('Failed to create WebP blob'))
+                    }
+                },
+                'image/webp',
+                quality
+            )
+        } else {
+            try {
+                const dataUrl = canvas.toDataURL('image/webp', quality)
+                resolve(dataUrl)
+            } catch (err) {
+                reject(err)
+            }
+        }
+    })
+}
+
+const saveSystemCampaign = async () => {
+    try {
+        formLoading.value = true
+        formErrors.value = {}
+
+        if (!systemCampaignForm.value.name.trim()) {
+            formErrors.value.name = 'Campaign name is required'
+            formLoading.value = false
+            return
+        }
+
+        if (!systemCampaignForm.value.url.trim()) {
+            formErrors.value.url = 'Campaign URL is required'
+            formLoading.value = false
+            return
+        }
+
+        if (!systemCampaignForm.value.domain.trim()) {
+            formErrors.value.domain = 'Campaign domain is required'
+            formLoading.value = false
+            return
+        }
+
+        if (!systemCampaignForm.value.networkId) {
+            formErrors.value.networkId = 'Please select a network'
+            formLoading.value = false
+            return
+        }
+
+        const metadataObject = {};
+        systemCampaignForm.value.metadata.forEach(item => {
+            if (item.key.trim()) {
+                let value = item.value;
+                if (item.type === 'number' && !isNaN(Number(value))) {
+                    value = Number(value);
+                }
+                metadataObject[item.key.trim()] = value;
+            }
+        });
+
+        const campaignData = {
+            name: systemCampaignForm.value.name.trim(),
+            url: systemCampaignForm.value.url.trim(),
+            domain: systemCampaignForm.value.domain.trim(),
+            description: systemCampaignForm.value.description?.trim() || '',
+            network: systemCampaignForm.value.networkId,
+            networkCampaignId: campaignToConvert.value.id,
+            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null
+        }
+
+        if (systemCampaignForm.value.logo && systemCampaignForm.value.logo.startsWith('data:')) {
+            try {
+                const logoBackup = systemCampaignForm.value.logo;
+                campaignData.logo = '';
+
+                const campaign = await affiliateClient.campaigns.insert(campaignData);
+                const campaignId = campaign.data.id;
+
+                if (!campaignId)
+                    throw new Error('Unable to update logo: Missing campaign ID');
+
+                await affiliateClient.campaigns.updateLogo(campaignId, logoBackup);
+
+                showNotification('success', 'Campaign created successfully');
+                await loadSystemCampaigns();
+
+                closeCreateCampaignDialog();
+                formLoading.value = false;
+
+            } catch (err) {
+                console.error('Error creating campaign with logo:', err);
+                formLoading.value = false;
+
+                if (err.response?.data?.errors)
+                    formErrors.value = err.response.data.errors;
+                else
+                    showNotification('error', err.message || 'Failed to save campaign');
+
+                return;
+            }
+        } else {
+            try {
+                console.log('Creating campaign without special logo handling:', campaignData);
+                await affiliateClient.campaigns.insert(campaignData);
+                showNotification('success', 'Campaign created successfully');
+
+                await loadSystemCampaigns();
+                closeCreateCampaignDialog();
+                formLoading.value = false;
+            } catch (err) {
+                console.error('Error creating campaign without logo:', err);
+                formLoading.value = false;
+
+                if (err.response?.data?.errors)
+                    formErrors.value = err.response.data.errors;
+                else
+                    showNotification('error', err.message || 'Failed to create campaign');
+            }
+        }
+    } catch (err) {
+        console.error('Failed to create system campaign:', err)
+        formLoading.value = false
+
+        if (err.response?.data?.errors)
+            formErrors.value = err.response.data.errors
+        else
+            showNotification('error', err.message || 'Failed to create system campaign')
+    }
+}
+
 // Refresh data
 const refreshData = () => {
     loadNetworkCampaigns()
+    loadSystemCampaigns()
 }
 
 // Pagination methods
@@ -842,5 +1668,6 @@ onMounted(() => {
 
     loadNetworkCampaigns()
     loadNetworks()
+    loadSystemCampaigns()
 })
 </script>

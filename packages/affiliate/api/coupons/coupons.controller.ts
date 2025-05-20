@@ -21,7 +21,7 @@ export class CouponsControllerTools {
     constructor(private readonly couponsService: CouponsServiceTools){}
 
     @Get("ai/:campaignId")
-    @Auth({ rootOnly: true })
+    @Auth("affiliatecoupons:get")
     async getCouponsWithAI(@Param("campaignId") campaignId: string) {
         return this.couponsService.getCouponsWithAI(campaignId);
     }
@@ -31,6 +31,7 @@ export class CouponsControllerTools {
     @CacheControl({ maxAge: 3600, public: true })
     @ContentType('application/json')
     @Raw()
+    @Auth("affiliatecoupons:get")
     async getCoupons(@Param("campaignId") campaignId: string) {
         return await this.couponsService.getCoupons(campaignId);
     }

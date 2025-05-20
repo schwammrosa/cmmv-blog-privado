@@ -411,6 +411,75 @@
                             <p v-if="formErrors.networkId" class="mt-1 text-sm text-red-500">{{ formErrors.networkId }}</p>
                         </div>
 
+                        <!-- Categories Section -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-neutral-300 mb-2">Categories</label>
+                            <div v-if="loadingCategories" class="flex items-center py-2">
+                                <div class="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500"></div>
+                                <span class="ml-2 text-neutral-400 text-sm">Loading categories...</span>
+                            </div>
+                            <div v-else-if="availableCategories.length === 0" class="py-2 text-sm text-neutral-400">
+                                No categories available. Please create categories first.
+                            </div>
+                            <div v-else class="bg-neutral-750 p-3 rounded-md mb-2">
+                                <div class="mb-2">
+                                    <input
+                                        type="text"
+                                        v-model="categorySearch"
+                                        placeholder="Search categories..."
+                                        class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div class="max-h-[200px] overflow-y-auto pr-1 grid grid-cols-2 gap-2">
+                                    <div
+                                        v-for="category in filteredCategories"
+                                        :key="category.id"
+                                        class="flex items-center space-x-2"
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            :id="`category-${category.id}`"
+                                            :value="category.id"
+                                            v-model="campaignForm.categories"
+                                            class="rounded bg-neutral-700 border-neutral-600 text-blue-500 focus:ring-blue-500 focus:ring-offset-neutral-800"
+                                        />
+                                        <label :for="`category-${category.id}`" class="text-sm text-neutral-300">
+                                            {{ category.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div v-if="campaignForm.categories.length > 0" class="mt-3">
+                                    <div class="flex flex-wrap gap-2 mb-2">
+                                        <span class="text-xs text-neutral-400">Selected ({{ campaignForm.categories.length }}): </span>
+                                        <button
+                                            type="button"
+                                            @click="campaignForm.categories = []"
+                                            class="text-xs text-red-400 hover:text-red-300"
+                                        >
+                                            Clear all
+                                        </button>
+                                    </div>
+                                    <div class="flex flex-wrap gap-1">
+                                        <span
+                                            v-for="categoryId in campaignForm.categories"
+                                            :key="categoryId"
+                                            class="inline-flex items-center px-2 py-1 rounded-md text-xs bg-blue-900/40 text-blue-200 border border-blue-800"
+                                        >
+                                            {{ getCategoryName(categoryId) }}
+                                            <button
+                                                type="button"
+                                                @click="removeCategory(categoryId)"
+                                                class="ml-1 text-blue-300 hover:text-blue-100"
+                                            >
+                                                ×
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p v-if="formErrors.categories" class="mt-1 text-sm text-red-500">{{ formErrors.categories }}</p>
+                        </div>
+
                         <div class="flex justify-end space-x-3 mt-6">
                             <button
                                 type="button"
@@ -559,6 +628,8 @@ const error = ref(null)
 
 const availableNetworks = ref([])
 const loadingNetworks = ref(false)
+const availableCategories = ref([])
+const loadingCategories = ref(false)
 
 const showDialog = ref(false)
 const isEditing = ref(false)
@@ -569,11 +640,13 @@ const campaignForm = ref({
     description: '',
     networkId: '',
     metadata: [],
-    domain: ''
+    domain: '',
+    categories: []
 })
 const campaignToEdit = ref(null)
 const formErrors = ref({})
 const formLoading = ref(false)
+const categorySearch = ref('')
 
 const showDeleteDialog = ref(false)
 const campaignToDelete = ref(null)
@@ -703,6 +776,30 @@ const loadNetworks = async () => {
     }
 }
 
+const loadCategories = async () => {
+    try {
+        loadingCategories.value = true
+
+        const response = await affiliateClient.categories.get({
+            limit: 1000,
+            sortBy: 'name',
+            sort: 'asc'
+        })
+
+        if (response && response.data) {
+            availableCategories.value = response.data || []
+        } else {
+            availableCategories.value = []
+        }
+
+        loadingCategories.value = false
+    } catch (err) {
+        console.error('Failed to load categories:', err)
+        loadingCategories.value = false
+        showNotification('error', 'Failed to load available categories')
+    }
+}
+
 // Refresh data
 const refreshData = () => {
     loadCampaigns()
@@ -728,13 +825,19 @@ const openAddDialog = async () => {
         description: '',
         networkId: '',
         metadata: [],
-        domain: ''
+        domain: '',
+        categories: []
     }
     formErrors.value = {}
+    categorySearch.value = ''
     showDialog.value = true
 
     if (availableNetworks.value.length === 0) {
         await loadNetworks()
+    }
+
+    if (availableCategories.value.length === 0) {
+        await loadCategories()
     }
 }
 
@@ -752,25 +855,33 @@ const openEditDialog = async (campaign) => {
         description: campaign.description || '',
         networkId: campaign.network || '',
         metadata: parsedMetadata,
-        domain: campaign.domain || ''
+        domain: campaign.domain || '',
+        categories: campaign.categories || []
     }
     formErrors.value = {}
+    categorySearch.value = ''
     showDialog.value = true
 
     if (availableNetworks.value.length === 0) {
         await loadNetworks()
     }
+
+    if (availableCategories.value.length === 0) {
+        await loadCategories()
+    }
 }
 
 const closeDialog = () => {
     showDialog.value = false
+    categorySearch.value = ''
     campaignForm.value = {
         name: '',
         url: '',
         logo: '',
         description: '',
         networkId: '',
-        metadata: []
+        metadata: [],
+        categories: []
     }
     formErrors.value = {}
     campaignToEdit.value = null
@@ -819,7 +930,8 @@ const saveCampaign = async () => {
             description: campaignForm.value.description?.trim(),
             network: campaignForm.value.networkId,
             domain: campaignForm.value.domain,
-            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null
+            metadata: Object.keys(metadataObject).length > 0 ? JSON.stringify(metadataObject) : null,
+            categories: campaignForm.value.categories
         }
 
         if (campaignForm.value.logo && campaignForm.value.logo.startsWith('data:')) {
@@ -1299,6 +1411,28 @@ const clearSearch = () => {
     showSearchDropdown.value = false
 }
 
+const getCategoryName = (categoryId) => {
+    const category = availableCategories.value.find(c => c.id === categoryId)
+    return category ? category.name : 'Unknown Category'
+}
+
+const removeCategory = (categoryId) => {
+    const index = campaignForm.value.categories.indexOf(categoryId)
+    if (index !== -1) {
+        campaignForm.value.categories.splice(index, 1)
+    }
+}
+
+const filteredCategories = computed(() => {
+    if (!categorySearch.value.trim()) {
+        return availableCategories.value
+    }
+    const searchLower = categorySearch.value.toLowerCase()
+    return availableCategories.value.filter(category =>
+        category.name.toLowerCase().includes(searchLower)
+    )
+})
+
 onMounted(() => {
     document.addEventListener('click', (event) => {
         const target = event.target
@@ -1309,5 +1443,6 @@ onMounted(() => {
 
     loadCampaigns()
     loadNetworks()
+    loadCategories()
 })
 </script>

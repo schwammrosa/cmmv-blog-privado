@@ -125,7 +125,7 @@ useNavbar().addItems([
         label: 'Prompts',
         icon: 'fas fa-robot',
         to: '/prompts',
-        group: 'CMS'
+        group: 'Settings'
     },
     {
         label: 'Authors',
@@ -143,43 +143,43 @@ useNavbar().addItems([
         label: 'Imports',
         icon: 'fas fa-file-import',
         to: '/imports',
-        group: 'CMS'
+        group: 'Settings'
     },
     {
         label: 'Themes',
         icon: 'fas fa-palette',
         to: '/themes',
-        group: 'CMS'
+        group: 'Settings'
     },
     {
         label: 'Cover',
         icon: 'fas fa-image',
         to: '/cover',
-        group: 'CMS'
+        group: 'Settings'
     },
     {
         label: 'Whitelabels',
         icon: 'fas fa-globe',
         to: '/whitelabel',
-        group: 'CMS'
+        group: 'Settings'
     },
     {
         label: 'Access',
         icon: 'fas fa-key',
         to: '/whitelabel-access',
-        group: 'CMS'
+        group: 'Settings'
     },
     {
         label: 'Backup',
         icon: 'fas fa-database',
         to: '/backup',
-        group: 'CMS'
+        group: 'Settings'
     },
     {
         label: 'Settings',
         icon: 'fas fa-cog',
         to: '/settings',
-        group: 'CMS'
+        group: 'Settings'
     },
 ])
 

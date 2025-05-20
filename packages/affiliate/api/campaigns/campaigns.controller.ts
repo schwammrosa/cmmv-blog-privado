@@ -17,7 +17,7 @@ export class CampaignsControllerTools {
     constructor(private readonly campaignsService: CampaignsServiceTools){}
 
     @Put(":campaignId/logo")
-    @Auth({ rootOnly: true })
+    @Auth("affiliatecampaigns:update")
     async updateCampaignLogo(@Param("campaignId") campaignId: string, @Body() data: { logo: string }) {
         return await this.campaignsService.updateCampaignLogo(campaignId, data.logo);
     }

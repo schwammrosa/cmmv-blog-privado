@@ -27,6 +27,7 @@ export class AnalyticsController {
     @Post("access")
     @ContentType("text/plain")
     @Raw()
+    @Auth("analytics:get")
     async getAnalyticsAccess(@Req() req: any){
 
         const ip = req.headers['cf-connecting-ip'] ||
@@ -51,6 +52,7 @@ export class AnalyticsController {
     @Post("unload")
     @ContentType("text/plain")
     @Raw()
+    @Auth("analytics:get")
     async getAnalyticsUnload(@Req() req: any){
         const ip = req.headers['cf-connecting-ip'] ||
             req.headers['X-Real-IP'] ||
@@ -63,14 +65,14 @@ export class AnalyticsController {
     }
 
     @Get("report")
-    @Auth()
+    @Auth("analytics:get")
     async getAnalyticsReport(){
         await this.analyticsService.generateReport();
         return Buffer.from([0x00]);
     }
 
     @Get("summary")
-    @Auth()
+    @Auth("analytics:get")
     async getSummary(){
         return await this.analyticsService.getSummary();
     }
@@ -78,6 +80,7 @@ export class AnalyticsController {
     @Get("posts-most-accessed")
     @ContentType("application/json")
     @Raw()
+    @Auth("analytics:get")
     async getPostsMostAccessed(){
         return await this.analyticsService.getPostsMostAccessedWeek();
     }
@@ -85,6 +88,7 @@ export class AnalyticsController {
     @Get("dashboard")
     @ContentType("application/json")
     @Raw()
+    @Auth("analytics:get")
     async getDashboard(){
         return await this.analyticsService.getDashboardData();
     }

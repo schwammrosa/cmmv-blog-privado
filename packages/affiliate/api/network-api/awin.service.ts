@@ -71,4 +71,8 @@ export class AwinService extends NetworkApiAbstract {
 
         return allCoupons;
     }
+
+    async getDeeplink(urlApi: string){
+        return urlApi;
+    }
 }
