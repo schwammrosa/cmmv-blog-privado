@@ -54,4 +54,11 @@ export class AffiliateAccountsContract extends AbstractContract {
         nullable: true,
     })
     metadata!: string;
+
+    @ContractField({
+        protoType: 'boolean',
+        nullable: true,
+        defaultValue: true,
+    })
+    active!: boolean;
 }

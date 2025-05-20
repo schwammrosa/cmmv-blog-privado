@@ -9,6 +9,7 @@ import CouponView from './views/CouponView.vue';
 import AccountView from './views/AccountView.vue';
 import CategoryView from './views/CategoryView.vue';
 import NetworkCampaignsView from './views/NetworkCampaignsView.vue';
+import DeeplinkGeneratorView from './views/DeeplinkGeneratorView.vue';
 
 export const affiliateRoutes: RouteRecordRaw[] = [
     {
@@ -44,6 +45,11 @@ export const affiliateRoutes: RouteRecordRaw[] = [
                 path: 'network-campaigns',
                 component: NetworkCampaignsView,
                 name: 'affiliate.network-campaigns'
+            },
+            {
+                path: 'deeplink-generator',
+                component: DeeplinkGeneratorView,
+                name: 'affiliate.deeplink-generator'
             }
         ]
     },
@@ -84,6 +90,12 @@ useNavbar().addItems([
         label: 'Coupons',
         icon: 'fas fa-ticket-alt',
         to: '/affiliate/coupons',
+        group: 'Affiliate'
+    },
+    {
+        label: 'Deeplink',
+        icon: 'fas fa-link',
+        to: '/affiliate/deeplink-generator',
         group: 'Affiliate'
     }
 ])

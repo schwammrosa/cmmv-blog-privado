@@ -1279,7 +1279,7 @@ export class PostsPublicService {
 
             1. Translating it to ${language} if needed
 
-            ${promptService.getDefaultPrompt()}
+            ${await promptService.getDefaultPrompt()}
 
             IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
             It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
@@ -1435,7 +1435,7 @@ export class PostsPublicService {
         try {
             const PostsEntity = Repository.getEntity("PostsEntity");
             const currentTimestamp = new Date().getTime();
-            
+
             // Buscar todos os posts agendados
             const posts = await Repository.findAll(PostsEntity, {
                 status: "cron",
@@ -1444,12 +1444,12 @@ export class PostsPublicService {
 
             if (posts && posts.data.length > 0) {
                 //console.log(`[processCrons] Verificando ${posts.data.length} posts agendados. Timestamp atual: ${currentTimestamp}`);
-                
+
                 for (const post of posts.data) {
                     if (post.autoPublishAt && post.autoPublishAt <= currentTimestamp) {
                         //console.log(`[processCrons] Publicando post ${post.id} (agendado para ${new Date(post.autoPublishAt).toISOString()})`);
                         await this.publishPost(post.id);
-                    } 
+                    }
                 }
             }
         } catch (error) {

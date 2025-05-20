@@ -41,24 +41,20 @@ export class AutopostService {
     @OnEvent("posts.published")
     async onPostPublished(post: any) {
         try {
-            // Send notification if enabled
             await NotificationsService.sendPostPublishedNotification(post);
 
-            // Check if auto-posting is enabled for new content
             const autoPostOnNewContent = Config.get<boolean>("blog.autoPostOnNewContent", false);
 
             if (autoPostOnNewContent) {
-                // Check if post type should be shared
                 const isPost = post.type === 'post';
                 const isPage = post.type === 'page';
                 const sharePostsEnabled = Config.get<boolean>("blog.autoPostSharePosts", true);
                 const sharePagesEnabled = Config.get<boolean>("blog.autoPostSharePages", false);
 
-                if ((isPost && sharePostsEnabled) || (isPage && sharePagesEnabled)) {
+                if ((isPost && sharePostsEnabled) || (isPage && sharePagesEnabled))
                     await this.sendToSocialNetworks(post);
-                } else {
+                else
                     AutopostService.logger.debug(`Skipping auto-post for ${post.id} - content type '${post.type}' is not enabled for sharing`);
-                }
             } else {
                 AutopostService.logger.debug('Auto-posting for new content is disabled');
             }
@@ -69,6 +65,8 @@ export class AutopostService {
 
     /**
      * Send post to all configured social networks
+     * @param post - The post to send
+     * @returns
      */
     public async sendToSocialNetworks(post: any): Promise<void> {
         try {
@@ -113,6 +111,7 @@ export class AutopostService {
 
     /**
      * Execute posting to all configured social networks
+     * @param payload - The payload containing post details
      */
     private async executeAutoPostToNetworks(payload: SocialPostPayload): Promise<void> {
         const networks = [
@@ -156,6 +155,9 @@ export class AutopostService {
 
     /**
      * Add UTM tracking parameters to the URL
+     * @param url - The URL to add UTM parameters to
+     * @param postId - The ID of the post
+     * @returns The URL with UTM parameters
      */
     private addUtmParameters(url: string, postId: string): string {
         try {
@@ -181,6 +183,9 @@ export class AutopostService {
 
     /**
      * Format post message with template
+     * @param payload - The payload containing post details
+     * @param template - The template to use for formatting the message
+     * @returns The formatted message
      */
     private formatPostMessage(payload: SocialPostPayload, template: string): string {
         let message = template || 'New post: {title} {url}';
@@ -201,6 +206,8 @@ export class AutopostService {
 
     /**
      * Post to Facebook
+     * @param payload - The payload containing post details
+     * @returns
      */
     private async postToFacebook(payload: SocialPostPayload): Promise<void> {
         const pageId = Config.get<string>("blog.facebookPageId");
@@ -251,7 +258,6 @@ export class AutopostService {
     /**
      * Post to Twitter
      * @param payload - The payload containing post details
-     *
      */
     private async postToTwitter(payload: SocialPostPayload): Promise<void> {
         const apiKey = Config.get<string>("blog.twitterApiKey");
@@ -341,6 +347,8 @@ export class AutopostService {
 
     /**
      * Post to LinkedIn
+     * @param payload - The payload containing post details
+     * @returns
      */
     private async postToLinkedIn(payload: SocialPostPayload): Promise<void> {
         const accessToken = Config.get<string>("blog.linkedInAccessToken");

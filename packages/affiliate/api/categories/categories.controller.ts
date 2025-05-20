@@ -9,6 +9,10 @@ import {
 } from "@cmmv/cache";
 
 import {
+    Auth
+} from "@cmmv/auth";
+
+import {
     CategoriesServiceTools
 } from "./categories.service";
 
@@ -21,6 +25,7 @@ export class CategoriesControllerTools {
     @CacheControl({ maxAge: 3600, public: true })
     @ContentType('application/json')
     @Raw()
+    @Auth("affiliatecategories:get")
     async getCoupons() {
         return await this.categoriesService.getCategories();
     }

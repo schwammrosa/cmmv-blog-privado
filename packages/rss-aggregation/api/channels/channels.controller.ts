@@ -17,13 +17,13 @@ export class ChannelsController {
     constructor(private readonly channelsService: ChannelsService){}
 
     @Get("processFeeds", {exclude: true })
-    @Auth()
+    @Auth("feedchannels:update")
     async processFeeds() {
         return await this.channelsService.processFeeds(true);
     }
 
     @Get("processFeed/:channelId", {exclude: true })
-    @Auth()
+    @Auth("feedchannels:update")
     async processFeed(@Param("channelId") channelId: string) {
         return await this.channelsService.processFeed(channelId);
     }

@@ -25,6 +25,14 @@ import {
     AffiliateCampaignsNetworksModule
 } from './campaigns-network/campaigns-nentwork.module';
 
+import {
+    AffiliateNetworkApiModule
+} from './network-api/network-api.module';
+
+import {
+    AffiliateDeeplinkModule
+} from './deeplink/deeplink.module';
+
 export const AffiliateModule = new Module('affiliate', {
     contracts: [
         AffiliateNetworksContract,
@@ -38,6 +46,8 @@ export const AffiliateModule = new Module('affiliate', {
         AffiliateCouponsModule,
         AffiliateCategoriesModule,
         AffiliateCampaignsModule,
-        AffiliateCampaignsNetworksModule
+        AffiliateCampaignsNetworksModule,
+        AffiliateNetworkApiModule,
+        AffiliateDeeplinkModule
     ]
 });

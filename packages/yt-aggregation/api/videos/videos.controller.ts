@@ -22,7 +22,7 @@ export class YTVideosController {
      * @returns Videos list
      */
     @Get("/")
-    @Auth("videos:read")
+    @Auth("ytvideos:get")
     async getVideos(@Queries() queries: any) {
         return this.ytVideosService.getVideos(queries);
     }
@@ -34,7 +34,7 @@ export class YTVideosController {
      * @returns AI generated content
      */
     @Post("/ai/:id")
-    @Auth("videos:read")
+    @Auth("ytvideos:get")
     async getAIVideo(@Param("id") id: string, @Body() data?: any) {
         return this.ytVideosService.getAIVideo(id, data);
     }
@@ -46,7 +46,7 @@ export class YTVideosController {
      * @returns Update result
      */
     @Put("/:id")
-    @Auth("videos:update")
+    @Auth("ytvideos:update")
     async updateVideo(@Param("id") id: string, @Body() data: any) {
         return this.ytVideosService.updateVideo(id, data);
     }
@@ -58,7 +58,7 @@ export class YTVideosController {
      * @returns Rejection result
      */
     @Delete("/reject/:id")
-    @Auth("videos:update")
+    @Auth("ytvideos:update")
     async rejectVideo(@Param("id") id: string, @Body() data: any) {
         return this.ytVideosService.rejectVideo(id, data);
     }

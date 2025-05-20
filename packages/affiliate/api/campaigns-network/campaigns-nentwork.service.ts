@@ -3,6 +3,7 @@ import { Repository } from "@cmmv/repository";
 
 import { AwinService } from "../network-api/awin.service";
 import { AfilioService } from "../network-api/afilio.service";
+import { CityadsService } from "../network-api/cityads.service";
 
 @Service()
 export class CampaignsNetworksToolsService {
@@ -34,8 +35,23 @@ export class CampaignsNetworksToolsService {
                 docs: "https://drive.google.com/file/d/1WBZPKidGY1EtjnJE0fIeg1Uk48_Y56gs/view",
                 version: "3.0.0",
                 service: () => Application.resolveProvider(AfilioService)
+            },
+            "Cityads": {
+                docs: "https://cityads.com/publisher/api/description",
+                version: "2.0.0",
+                service: () => Application.resolveProvider(CityadsService)
             }
         }
+    }
+
+    /**
+     * Get the network API
+     * @param network - The network
+     * @returns {Object} The network API
+     */
+    async getNetworkAPI(network: string){
+        const supportedApis: any = await this.getApisSupported();
+        return (network in supportedApis) ? supportedApis[network].service() : null;
     }
 
     /**
@@ -164,6 +180,26 @@ export class CampaignsNetworksToolsService {
                 }
             }
         }
+
+        return { success: true };
+    }
+
+    /**
+     * Get the network campaigns list
+     * @param networkId - The network ID
+     * @returns {Object} The network campaigns list
+     */
+    async getNetworkCampaignsList(networkId: string){
+        const AffiliateCampaignsNetworksEntity = Repository.getEntity("AffiliateCampaignsNetworksEntity");
+
+        const affiliateCampaignsNetworks = await Repository.findAll(AffiliateCampaignsNetworksEntity, {
+            network: networkId,
+            limit: 1000000
+        }, [], {
+            select: ["id", "campaignId", "network", "domain", "name", "active", "currencyCode", "sector"]
+        });
+
+        return (affiliateCampaignsNetworks) ? affiliateCampaignsNetworks : {};
     }
 
     /**

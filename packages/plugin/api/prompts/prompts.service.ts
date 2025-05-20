@@ -1,17 +1,15 @@
 import {
-    Service,
+    Service, Config
 } from "@cmmv/core";
 
 import {
-    Repository, MoreThan
+    Repository
 } from "@cmmv/repository";
-
 
 @Service('blog_prompts')
 export class PromptsServiceTools {
 
-    getDefaultPrompt(){
-        return `2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
+    private defaultPrompt: string = `2. Creating an engaging title that captures the essence of the content (keep it under 80 characters)
             3. Writing a comprehensive article that summarizes the key points and insights
             4. Adding context, background information, and your own analysis to enhance the content
             5. Preserving important links to sources and reference pages, but adding rel="noindex nofollow" attributes to all links
@@ -141,8 +139,24 @@ export class PromptsServiceTools {
             - Sometimes digress briefly before returning to the main point
             - Add occasional expressions of emotion ("I was surprised to learn that..." or "It's frustrating when...")
         `;
+
+    /**
+     * Get the default prompt
+     * @returns The default prompt
+     */
+    async getDefaultPrompt(){
+        const promptsOverride = Config.get<boolean>("blog.promptsOverride", false);
+
+        if(promptsOverride)
+            return await this.getDefaultPrompt();
+
+        return this.defaultPrompt;
     }
 
+    /**
+     * Get a random prompt from the database
+     * @returns A random prompt from the database
+     */
     async getRandomPrompt(){
         const PromptsEntity = Repository.getEntity("PromptsEntity");
         const promptsData = await Repository.findAll(PromptsEntity, {
@@ -161,6 +175,6 @@ export class PromptsServiceTools {
             }
         }
 
-        return promts.length > 0 ? promts[Math.floor(Math.random() * promts.length)] : this.getDefaultPrompt();
+        return promts.length > 0 ? promts[Math.floor(Math.random() * promts.length)] : this.defaultPrompt;
     }
 }

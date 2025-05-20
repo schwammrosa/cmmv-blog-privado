@@ -129,7 +129,7 @@ export class RawService {
 
             Please transform the following content by:
             1. Translating it to ${language}
-            ${promptService.getDefaultPrompt()}
+            ${await promptService.getDefaultPrompt()}
 
             IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
             It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
@@ -344,7 +344,7 @@ export class RawService {
 
             Please transform the following content by:
             1. Translating it to ${language}
-            ${promptService.getDefaultPrompt()}
+            ${await promptService.getDefaultPrompt()}
 
             IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
             It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
@@ -363,9 +363,7 @@ export class RawService {
               "title": "translated and rewritten title",
               "content": "HTML-formatted content with proper tags",
               "suggestedTags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
-            }
-
-            `;
+            }`;
 
             const generatedText = await this.aiContentService.generateContent(prompt);
 
@@ -397,7 +395,7 @@ export class RawService {
                 1. Translating it to ${language}
 
                 Original prompt:
-                ${promptService.getDefaultPrompt()}
+                ${await promptService.getDefaultPrompt()}
 
                 Original Title: ${contentToProcess.title}
                 Category: ${contentToProcess.category || 'General'}

@@ -16,21 +16,21 @@ export class ParserController {
     constructor(private readonly parserService: ParserService){}
 
     @Get("parseURL")
-    @Auth()
+    @Auth("feedparser:get")
     async parseURL(@Query("url") url: string) {
         const urlDecoded = decodeURIComponent(url);
         return await this.parserService.parseURL(urlDecoded);
     }
 
     @Get("parseContent/:parserId")
-    @Auth()
+    @Auth("feedparser:get")
     async parseContent(@Param("parserId") parserId: string, @Query("url") url: string) {
         const urlDecoded = decodeURIComponent(url);
         return await this.parserService.parseContent(parserId, urlDecoded);
     }
 
     @Get("parseContentAll")
-    @Auth()
+    @Auth("feedparser:get")
     async parseContentAll(@Query("url") url: string) {
         const urlDecoded = decodeURIComponent(url);
         return await this.parserService.parseContent(null, urlDecoded);
