@@ -27,6 +27,7 @@ import { PromptsServiceTools } from "../prompts/prompts.service";
 interface AIJob {
     id: string;
     url: string;
+    promptId: string;
     status: 'pending' | 'processing' | 'completed' | 'error';
     result?: any;
     error?: string;
@@ -1056,23 +1057,19 @@ export class PostsPublicService {
      * @param url The URL to fetch content from
      * @returns Job ID that can be used to check status
      */
-    async startGenerateJob(url: string): Promise<string> {
-        // Generate unique job ID
+    async startGenerateJob(url: string, promptId: string): Promise<string> {
         const jobId = `ai-job-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
-        // Create job record
         const job: AIJob = {
             id: jobId,
             url,
+            promptId,
             status: 'pending',
             startTime: new Date()
         };
 
-        // Store job
         this.aiJobs.set(jobId, job);
-
-        // Process in background
-        setTimeout(() => this.processGenerateJob(jobId), 0);
+        setTimeout(() => this.processGenerateJob(jobId), 10);
 
         return jobId;
     }
@@ -1083,6 +1080,7 @@ export class PostsPublicService {
      */
     private async processGenerateJob(jobId: string): Promise<void> {
         const job = this.aiJobs.get(jobId);
+
         if (!job) {
             this.logger.error(`Job ${jobId} not found`);
             return;
@@ -1095,9 +1093,8 @@ export class PostsPublicService {
             this.logger.log(`Processing AI generation job ${jobId} for URL ${job.url}`);
 
             try {
-                const result = await this.generatePostFromUrlInternal(job.url);
+                const result = await this.generatePostFromUrlInternal(job.url, job.promptId);
 
-                // Store the result in the job object
                 job.result = result;
                 job.status = 'completed';
                 this.aiJobs.set(jobId, job);
@@ -1167,8 +1164,8 @@ export class PostsPublicService {
      * @returns Processed post content ready for frontend
      * @deprecated Use startGenerateJob and getGenerateJobStatus instead
      */
-    async generatePostFromUrl(url: string) {
-        const jobId = await this.startGenerateJob(url);
+    async generatePostFromUrl(url: string, promptId: string) {
+        const jobId = await this.startGenerateJob(url, promptId);
 
         let result;
         let attempts = 0;
@@ -1200,7 +1197,7 @@ export class PostsPublicService {
      * @param url The URL to fetch content from
      * @returns Processed post content ready for frontend
      */
-    private async generatePostFromUrlInternal(url: string) {
+    private async generatePostFromUrlInternal(url: string, promptId: string) {
         try {
             const promptService:any = Application.resolveProvider(PromptsServiceTools);
             this.logger.log(`Generating post from URL: ${url}`);
@@ -1279,7 +1276,7 @@ export class PostsPublicService {
 
             1. Translating it to ${language} if needed
 
-            ${await promptService.getDefaultPrompt()}
+            ${await promptService.getDefaultPrompt(promptId)}
 
             IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
             It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
@@ -1338,7 +1335,7 @@ export class PostsPublicService {
                 1. Translating it to ${language} if needed
 
                 Original prompt:
-                ${await promptService.getRandomPrompt()}
+                ${await promptService.getRandomPrompt(promptId)}
 
                 Original Title: ${parsedContent.title}
                 Original URL: ${url}

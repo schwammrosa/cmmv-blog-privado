@@ -22,6 +22,7 @@ interface AIJob {
     error?: string;
     startTime: Date;
     customContent?: string;
+    promptId?: string;
 }
 
 @Service()
@@ -62,9 +63,10 @@ export class RawService {
      * Start an asynchronous AI content generation job
      * @param id The ID of the raw feed item
      * @param customContent Optional custom content to process instead of the original
+     * @param promptId Optional prompt ID to use for the AI job
      * @returns Job ID for tracking the processing status
      */
-    async startAIJob(id: string, customContent?: string): Promise<string> {
+    async startAIJob(id: string, customContent?: string, promptId?: string): Promise<string> {
         const FeedRawEntity = Repository.getEntity("FeedRawEntity");
         const raw = await Repository.findOne(FeedRawEntity, { id });
 
@@ -75,19 +77,16 @@ export class RawService {
         // Generate unique job ID
         const jobId = `ai-job-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
-        // Create job record
         const job: AIJob = {
             id: jobId,
             rawId: id,
             status: 'pending',
             startTime: new Date(),
-            customContent
+            customContent,
+            promptId
         };
 
-        // Store job
         this.aiJobs.set(jobId, job);
-
-        // Process in background
         setTimeout(() => this.processAIJob(jobId), 0);
 
         return jobId;
@@ -129,7 +128,7 @@ export class RawService {
 
             Please transform the following content by:
             1. Translating it to ${language}
-            ${await promptService.getDefaultPrompt()}
+            ${await promptService.getDefaultPrompt(job.promptId)}
 
             IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
             It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
@@ -150,9 +149,7 @@ export class RawService {
               "title": "translated and rewritten title",
               "content": "HTML-formatted content with proper tags",
               "suggestedTags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
-            }
-
-            `;
+            }`;
 
             this.logger.log(`Processing AI job ${jobId} for raw ${job.rawId}`);
             const generatedText = await this.aiContentService.generateContent(prompt);
@@ -186,7 +183,7 @@ export class RawService {
                 - ONLY use images that exist in the original post - DO NOT create or generate new images that don't exist
 
                 Original prompt:
-                ${await promptService.getRandomPrompt()}
+                ${await promptService.getRandomPrompt(job.promptId)}
 
                 Original Title: ${contentToProcess.title}
                 Category: ${contentToProcess.category || 'General'}
@@ -321,7 +318,7 @@ export class RawService {
      * @param customContent Optional custom content to process instead of the original
      * @returns The AI processed raw feed item
      */
-    async getAIRaw(id: string, customContent?: string) {
+    async getAIRaw(id: string, customContent?: string, promptId?: string) {
         try {
             const promptService:any = Application.resolveProvider(PromptsServiceTools);
             const language = Config.get("blog.language");
@@ -344,7 +341,7 @@ export class RawService {
 
             Please transform the following content by:
             1. Translating it to ${language}
-            ${await promptService.getDefaultPrompt()}
+            ${await promptService.getDefaultPrompt(promptId)}
 
             IMPORTANT: DO NOT write any conclusion or summary paragraph. The article should feel unfinished and open-ended.
             It should not wrap up the discussion or provide closing thoughts. Avoid phrases like "In conclusion," "To summarize,"
@@ -395,7 +392,7 @@ export class RawService {
                 1. Translating it to ${language}
 
                 Original prompt:
-                ${await promptService.getDefaultPrompt()}
+                ${await promptService.getDefaultPrompt(promptId)}
 
                 Original Title: ${contentToProcess.title}
                 Category: ${contentToProcess.category || 'General'}

@@ -12,6 +12,13 @@
                     </svg>
                     Add New
                 </a>
+                <button @click="openBulkScheduleDialog"
+                    class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Bulk Schedule
+                </button>
                 <!-- Add search button with dropdown -->
                 <div class="relative">
                     <button @click="toggleSearchDropdown" data-search-toggle
@@ -333,6 +340,165 @@
         :duration="notification.duration"
         @close="notification.show = false"
     />
+
+    <!-- Bulk Schedule Dialog -->
+    <div v-if="showBulkScheduleDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
+        <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-2xl mx-auto">
+            <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-white">Bulk Schedule Posts</h3>
+                <button @click="closeBulkScheduleDialog" class="text-neutral-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-md font-medium text-white">Select Draft Posts</h4>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="selectAllDrafts" v-model="selectAllDrafts" @change="toggleSelectAllDrafts" class="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-neutral-600 bg-neutral-700">
+                            <label for="selectAllDrafts" class="text-sm text-neutral-300">Select All</label>
+                        </div>
+                    </div>
+                    <div v-if="loadingDraftPosts" class="py-4 flex justify-center">
+                        <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                    <div v-else-if="draftPosts.length === 0" class="py-4 text-center text-neutral-400">
+                        No draft posts available for scheduling
+                    </div>
+                    <div v-else class="max-h-64 overflow-y-auto border border-neutral-700 rounded-md">
+                        <div class="divide-y divide-neutral-700">
+                            <div v-for="post in draftPosts" :key="post.id" class="flex items-center p-3 hover:bg-neutral-750">
+                                <input
+                                    type="checkbox"
+                                    :id="'post-' + post.id"
+                                    v-model="selectedDraftPosts"
+                                    :value="post.id"
+                                    class="mr-3 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-neutral-600 bg-neutral-700"
+                                >
+                                <label :for="'post-' + post.id" class="text-sm text-white cursor-pointer flex-1 truncate mr-3">
+                                    {{ post.title }}
+                                </label>
+                                <div class="flex-shrink-0 w-56">
+                                    <input
+                                        type="datetime-local"
+                                        v-model="postScheduleTimes[post.id]"
+                                        class="w-full px-2 py-1 text-sm bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        :disabled="!selectedDraftPosts.includes(post.id)"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-neutral-300 mb-2">Scheduling Interval</label>
+                    <div class="flex space-x-2">
+                        <select
+                            v-model="scheduleInterval"
+                            class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                            <option value="30">Every 30 minutes</option>
+                            <option value="60">Every 1 hour</option>
+                            <option value="120">Every 2 hours</option>
+                        </select>
+                        <button
+                            @click="updateAllScheduleTimes"
+                            class="px-3 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors flex items-center"
+                            title="Recalculate all scheduling times"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-xs text-neutral-400 mt-1">
+                        First post will be scheduled 30 minutes from now. Subsequent posts will follow the selected interval.
+                    </p>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button
+                        type="button"
+                        @click="closeBulkScheduleDialog"
+                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
+                        :disabled="bulkScheduleLoading"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type="button"
+                        @click="applyBulkSchedule"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                        :disabled="selectedDraftPosts.length === 0 || bulkScheduleLoading"
+                    >
+                        <span v-if="bulkScheduleLoading" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </span>
+                        <span v-else>Schedule {{ selectedDraftPosts.length }} Posts</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduling Progress Overlay -->
+        <div
+            v-if="bulkScheduleLoading"
+            class="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10 px-6"
+        >
+            <div class="bg-neutral-800 rounded-lg shadow-lg max-w-md w-full p-6">
+                <div class="text-center mb-4">
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-3"></div>
+                    <h3 class="text-lg font-medium text-white">Scheduling Posts</h3>
+                    <p class="text-neutral-400 mt-1">Please wait while your posts are being scheduled</p>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="w-full bg-neutral-700 rounded-full h-4 mb-3">
+                    <div
+                        class="bg-blue-600 h-4 rounded-full transition-all duration-300 ease-out"
+                        :style="{ width: `${(schedulingProgress.completed / schedulingProgress.total) * 100}%` }"
+                    ></div>
+                </div>
+
+                <div class="text-center text-sm text-neutral-300 mb-4">
+                    <span>{{ schedulingProgress.completed }} of {{ schedulingProgress.total }} posts processed</span>
+                </div>
+
+                <!-- Current post being processed -->
+                <div v-if="schedulingProgress.currentPost" class="mb-4">
+                    <p class="text-sm text-neutral-400">Currently processing:</p>
+                    <p class="text-sm font-medium text-white truncate">{{ schedulingProgress.currentPost }}</p>
+                </div>
+
+                <!-- Recently processed posts -->
+                <div v-if="schedulingProgress.processedPosts.length > 0" class="mt-4">
+                    <p class="text-sm text-neutral-400 mb-2">Recently processed:</p>
+                    <div class="max-h-32 overflow-y-auto">
+                        <div v-for="(post, index) in schedulingProgress.processedPosts.slice().reverse().slice(0, 5)" :key="index"
+                            class="flex items-center py-1 border-b border-neutral-700 last:border-b-0">
+                            <div :class="post.success ? 'text-green-500' : 'text-red-500'" class="mr-2">
+                                <svg v-if="post.success" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                            <div class="flex-1 truncate text-sm">
+                                <span v-if="post.success" class="text-neutral-300">{{ post.title }}</span>
+                                <span v-else class="text-red-400">{{ post.title }} - {{ post.error }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
@@ -742,5 +908,219 @@ function clearSearch() {
     searchQuery.value = ''
     updateUrlParams()
     loadPosts()
+}
+
+// Add new variables for bulk scheduling
+const showBulkScheduleDialog = ref(false)
+const draftPosts = ref([])
+const loadingDraftPosts = ref(false)
+const selectedDraftPosts = ref([])
+const selectAllDrafts = ref(false)
+const scheduleInterval = ref('60')
+const bulkScheduleLoading = ref(false)
+const postScheduleTimes = ref({})
+const schedulingProgress = ref({
+    total: 0,
+    completed: 0,
+    currentPost: null,
+    processedPosts: []
+})
+
+// Add these new functions for bulk scheduling
+function openBulkScheduleDialog() {
+    showBulkScheduleDialog.value = true
+    loadingDraftPosts.value = true
+    selectedDraftPosts.value = []
+    selectAllDrafts.value = false
+    postScheduleTimes.value = {}
+    loadDraftPosts()
+}
+
+function closeBulkScheduleDialog() {
+    showBulkScheduleDialog.value = false
+    draftPosts.value = []
+    selectedDraftPosts.value = []
+}
+
+async function loadDraftPosts() {
+    try {
+        loadingDraftPosts.value = true
+
+        const response = await adminClient.posts.get({
+            limit: 100,
+            status: 'draft',
+            sortBy: 'createdAt',
+            sort: 'asc'
+        })
+
+        if (response && response.posts) {
+            draftPosts.value = response.posts
+
+            // Initialize scheduled times
+            updateAllScheduleTimes()
+        } else {
+            draftPosts.value = []
+        }
+
+        loadingDraftPosts.value = false
+    } catch (error) {
+        console.error('Failed to load draft posts:', error)
+        draftPosts.value = []
+        loadingDraftPosts.value = false
+        showNotification('error', 'Failed to load draft posts')
+    }
+}
+
+function toggleSelectAllDrafts() {
+    if (selectAllDrafts.value) {
+        selectedDraftPosts.value = draftPosts.value.map(post => post.id)
+    } else {
+        selectedDraftPosts.value = []
+    }
+}
+
+// Watch selectedDraftPosts to update selectAllDrafts state
+watch(selectedDraftPosts, (newVal) => {
+    selectAllDrafts.value = newVal.length > 0 && newVal.length === draftPosts.value.length
+})
+
+async function applyBulkSchedule() {
+    if (selectedDraftPosts.value.length === 0) return
+
+    try {
+        bulkScheduleLoading.value = true
+
+        // Reset and initialize progress tracking
+        schedulingProgress.value = {
+            total: selectedDraftPosts.value.length,
+            completed: 0,
+            currentPost: null,
+            processedPosts: []
+        }
+
+        const results = []
+
+        for (const postId of selectedDraftPosts.value) {
+            try {
+                // Update current post in progress
+                const post = draftPosts.value.find(p => p.id === postId)
+                schedulingProgress.value.currentPost = post ? post.title : postId
+
+                // Get the post details
+                const postDetails = await adminClient.posts.getById(postId)
+
+                // Get the scheduled time from our stored values
+                const scheduledTimeStr = postScheduleTimes.value[postId]
+                const scheduledTime = new Date(scheduledTimeStr)
+
+                // Update the post to scheduled status with the calculated time
+                const updateData = {
+                    post: {
+                        ...postDetails,
+                        status: 'cron',
+                        autoPublishAt: scheduledTime.getTime()
+                    }
+                }
+
+                await adminClient.posts.save(updateData)
+
+                const result = {
+                    id: postId,
+                    title: postDetails.title,
+                    scheduledTime: scheduledTime.toLocaleString(),
+                    success: true
+                }
+
+                results.push(result)
+
+                // Update progress
+                schedulingProgress.value.completed++
+                schedulingProgress.value.processedPosts.push(result)
+            } catch (err) {
+                console.error(`Failed to schedule post ${postId}:`, err)
+                const failedResult = {
+                    id: postId,
+                    title: draftPosts.value.find(p => p.id === postId)?.title || postId,
+                    error: err.message,
+                    success: false
+                }
+                results.push(failedResult)
+                schedulingProgress.value.completed++
+                schedulingProgress.value.processedPosts.push(failedResult)
+            }
+        }
+
+        // Count successes
+        const successCount = results.filter(r => r.success).length
+
+        if (successCount === selectedDraftPosts.value.length) {
+            showNotification('success', `Successfully scheduled ${successCount} posts`)
+        } else {
+            showNotification('warning', `Scheduled ${successCount} out of ${selectedDraftPosts.value.length} posts`)
+        }
+
+        bulkScheduleLoading.value = false
+        closeBulkScheduleDialog()
+        loadPosts() // Refresh the main posts list
+    } catch (error) {
+        console.error('Failed to apply bulk scheduling:', error)
+        bulkScheduleLoading.value = false
+        showNotification('error', 'Failed to apply bulk scheduling: ' + error.message)
+    }
+}
+
+// Let's modify the updateAllScheduleTimes function to correctly update times
+function updateAllScheduleTimes() {
+    // Start 30 minutes from now
+    let baseTime = new Date()
+    baseTime.setMinutes(baseTime.getMinutes() + 30)
+
+    const intervalMinutes = parseInt(scheduleInterval.value)
+    const newScheduleTimes = {}
+
+    // Track which posts have been manually edited
+    const manuallyEdited = {}
+    const oldTimes = {...postScheduleTimes.value}
+
+    // Calculate time for each post
+    draftPosts.value.forEach((post, index) => {
+        // Calculate new time based on position in the list
+        const postTime = new Date(baseTime.getTime() + (index * intervalMinutes * 60 * 1000))
+        newScheduleTimes[post.id] = formatDateTimeForInput(postTime)
+    })
+
+    postScheduleTimes.value = newScheduleTimes
+}
+
+// Let's also make the watch function more explicit
+watch(scheduleInterval, (newInterval, oldInterval) => {
+    console.log(`Interval changed from ${oldInterval} to ${newInterval}`)
+    // When interval changes, recalculate all times
+    updateAllScheduleTimes()
+}, { immediate: false })
+
+// Add a watch for selectedDraftPosts to ensure times are updated when posts are selected
+watch(selectedDraftPosts, () => {
+    // Make sure all selected posts have times
+    for (const postId of selectedDraftPosts.value) {
+        if (!postScheduleTimes.value[postId]) {
+            updateAllScheduleTimes()
+            break
+        }
+    }
+})
+
+// Add a helper function to format dates for datetime-local input
+function formatDateTimeForInput(date) {
+    if (!date) return ''
+
+    // Format to YYYY-MM-DDThh:mm
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+
+    return `${year}-${month}-${day}T${hours}:${minutes}`
 }
 </script>

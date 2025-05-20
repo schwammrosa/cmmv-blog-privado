@@ -24,13 +24,13 @@ export class RawController {
     @Post("getAIRaw/:id", {exclude: true })
     @Auth("feedraw:get")
     async getAIRaw(@Param("id") id: string, @Body() data?: any) {
-        return await this.rawService.getAIRaw(id, data?.content);
+        return await this.rawService.getAIRaw(id, data?.content, data?.promptId);
     }
 
     @Post("startAIJob/:id", {exclude: true })
     @Auth("feedraw:get")
     async startAIJob(@Param("id") id: string, @Body() data?: any) {
-        const jobId = await this.rawService.startAIJob(id, data?.content);
+        const jobId = await this.rawService.startAIJob(id, data?.content, data?.promptId);
         return { jobId };
     }
 

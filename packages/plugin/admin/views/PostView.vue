@@ -6,8 +6,8 @@
             <!-- Top Toolbar -->
             <div class="bg-neutral-900 border-b border-neutral-900 p-2 flex justify-between items-center">
                 <div class="flex items-center space-x-4">
-                    <a href="/posts" class="text-neutral-400 hover:text-white">
-                        <i class="fas fa-arrow-left h-6 w-6"></i>
+                    <a href="/posts" class="text-neutral-400 hover:text-white flex items-center justify-center">
+                        <i class="fas fa-arrow-left"></i>
                     </a>
                     <div class="flex items-center">
                         <div class="relative">
@@ -1073,8 +1073,26 @@
                             v-model="aiGenerateUrl"
                             type="url"
                             placeholder="https://example.com/article"
-                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                         />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-neutral-400 mb-1">Prompt Template</label>
+                        <div v-if="loadingPrompts" class="flex items-center py-2">
+                            <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500"></div>
+                            <span class="ml-2 text-neutral-400 text-sm">Loading prompts...</span>
+                        </div>
+                        <select
+                            v-else
+                            v-model="aiGeneratePrompt"
+                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                            <option value="default">Default</option>
+                            <option v-for="prompt in promptsList" :key="prompt.id" :value="prompt.id">
+                                {{ prompt.name || 'Unnamed Prompt' }}
+                            </option>
+                        </select>
                     </div>
                 </div>
 
@@ -1824,6 +1842,8 @@ onMounted(async () => {
     loadCategories()
     loadTags()
     loadBlogUrl();
+    loadPrompts();
+
     document.addEventListener('click', handleGlobalClick)
     document.addEventListener('click', handleImageClick)
 
@@ -2260,7 +2280,6 @@ function saveDraft() {
 
         if (scheduleDateComponents) {
             const [_, year, month, day, hours, minutes] = scheduleDateComponents;
-            // Criar a data baseada nos componentes (no fuso horário local)
             const dt = new Date();
             dt.setFullYear(parseInt(year));
             dt.setMonth(parseInt(month) - 1); // Mês é base 0 em JS
@@ -2272,7 +2291,6 @@ function saveDraft() {
 
             postData.autoPublishAt = dt.getTime();
         } else {
-            // Fallback para o método anterior se o formato não corresponder
             const originalDate = new Date(scheduleDate.value);
             postData.autoPublishAt = originalDate.getTime();
         }
@@ -2327,8 +2345,8 @@ function showNotification(type, message) {
 
 async function loadPost(postId) {
     try {
-        fullPageLoading.value = true; // Adicionado para cobrir o carregamento inicial
-        loadingMessage.value = 'Loading post...'; // Mensagem de carregamento
+        fullPageLoading.value = true;
+        loadingMessage.value = 'Loading post...';
 
         const response = await adminClient.posts.getById(postId)
 
@@ -2373,9 +2391,7 @@ async function loadPost(postId) {
                 editor.commands.setContent(post.value.content)
 
             if (post.value.status === 'cron' && post.value.autoPublishAt) {
-                // Manter a data/hora original do post
                 const date = new Date(post.value.autoPublishAt)
-                // Formato ISO para datetime-local (YYYY-MM-DDTHH:MM)
                 const year = date.getFullYear()
                 const month = String(date.getMonth() + 1).padStart(2, '0')
                 const day = String(date.getDate()).padStart(2, '0')
@@ -2402,13 +2418,8 @@ async function loadPost(postId) {
                     scheduleDate.value = `${year}-${month}-${day}T${hours}:${minutes}`;
                     post.value.status = 'cron';
 
-                    // Opcional: Salvar imediatamente o post com o novo horário agendado
-                    // await saveDraft(); // Descomente se desejar salvar automaticamente ao chegar
-
-                    // Limpar o query param para não aplicar novamente em refresh/navegação
                     const currentQuery = { ...route.query };
                     delete currentQuery.scheduleTime;
-                    // Usar router.replace para não adicionar ao histórico
                     router.replace({ query: currentQuery });
                 }
             }
@@ -2460,7 +2471,6 @@ watch(() => expandedSections.value.advanced, (newValue) => {
 
 watch(scheduleDate, (newDate) => {
     if (newDate) {
-        // Validar se a data é realmente uma data válida antes de salvar
         try {
             const dateObj = new Date(newDate);
             if (!isNaN(dateObj.getTime())) {
@@ -2476,14 +2486,11 @@ watch(scheduleDate, (newDate) => {
     } else {
         localStorage.removeItem(LOCAL_STORAGE_SCHEDULE_KEY);
     }
-}, { immediate: true }); // Usar immediate para salvar a data inicial se houver uma
+}, { immediate: true });
 
-// Observar mudanças no status do post
 watch(() => post.value.status, (newStatus) => {
-    // Quando o status mudar para "Scheduled" (cron) e não houver data definida
-    if (newStatus === 'cron' && !scheduleDate.value) {
+    if (newStatus === 'cron' && !scheduleDate.value)
         loadSavedScheduleDate();
-    }
 });
 
 function addOneHourToSchedule() {
@@ -3074,9 +3081,53 @@ function insertReddit() {
 
 const showAIGenerateDialog = ref(false)
 const aiGenerateUrl = ref('')
+const aiGeneratePrompt = ref('default')
 const aiGenerateLoading = ref(false)
 const aiGenerateJobId = ref('')
 const aiGeneratePollingInterval = ref(null)
+const promptsList = ref([])
+const loadingPrompts = ref(false)
+
+async function loadPrompts() {
+    try {
+        loadingPrompts.value = true
+
+        const response = await adminClient.prompts.get({
+            limit: 1000
+        })
+
+        if (response && response.data) {
+            promptsList.value = response.data || []
+
+            // If there are no prompts, ensure we have at least the default option
+            if (promptsList.value.length === 0) {
+                promptsList.value = [{ id: 'default', name: 'Default' }]
+            }
+
+            // Check if there's already a selected prompt, if not select the first one
+            if (!aiGeneratePrompt.value || !promptsList.value.find(p => p.id === aiGeneratePrompt.value)) {
+                aiGeneratePrompt.value = promptsList.value[0].id
+            }
+        } else {
+            promptsList.value = [{ id: 'default', name: 'Default' }]
+        }
+
+        loadingPrompts.value = false
+    } catch (err) {
+        console.error('Failed to load prompts:', err)
+        loadingPrompts.value = false
+        promptsList.value = [{ id: 'default', name: 'Default' }]
+    }
+}
+
+function openAIGenerateDialog() {
+    aiGenerateUrl.value = ''
+    aiGeneratePrompt.value = 'default'
+    aiGenerateJobId.value = ''
+    showAIGenerateDialog.value = true
+
+    loadPrompts()
+}
 
 async function generateFromUrl() {
     if (!aiGenerateUrl.value) {
@@ -3089,7 +3140,8 @@ async function generateFromUrl() {
 
         // Start the job
         const response = await adminClient.posts.startGenerate({
-            url: aiGenerateUrl.value
+            url: aiGenerateUrl.value,
+            prompt: aiGeneratePrompt.value
         })
 
         if (!response || !response.jobId) {
@@ -3173,14 +3225,12 @@ async function checkGenerateJobStatus() {
     }
 }
 
-// Clean up polling on component unmount
 onBeforeUnmount(() => {
     if (aiGeneratePollingInterval.value) {
         clearInterval(aiGeneratePollingInterval.value)
     }
 })
 
-// Add this function near the generateFromUrl function
 function cancelGeneration() {
     if (aiGeneratePollingInterval.value) {
         clearInterval(aiGeneratePollingInterval.value);
@@ -3191,9 +3241,8 @@ function cancelGeneration() {
 }
 
 const handleNextScheduledPostLoading = ref(false);
-const hasDraftPosts = ref(true); // Novo estado para controlar disponibilidade de drafts
+const hasDraftPosts = ref(true);
 
-// Adicionar nova função aqui
 async function handleNextScheduledPost() {
     if (!scheduleDate.value) {
         showNotification('error', 'Please set a schedule time first.');
@@ -3205,38 +3254,31 @@ async function handleNextScheduledPost() {
     }
 
     handleNextScheduledPostLoading.value = true;
-    // fullPageLoading será gerenciado por saveDraft e explicitamente depois
 
     try {
-        // 1. Salvar o post atual. saveDraft() atualiza autoPublishAt e retorna uma promessa.
         await saveDraft();
-        // post.value.id deve ter sido atualizado por saveDraft se for um novo post.
 
-        // 2. Buscar o próximo post draft
-        fullPageLoading.value = true; // Ativar para a busca e navegação
+        fullPageLoading.value = true;
         loadingMessage.value = 'Finding next draft post...';
 
         const draftPostsResponse = await adminClient.posts.get({
-            limit: 5, // Pega alguns para ter mais chance de achar um diferente do atual
+            limit: 5,
             sort: 'asc',
             sortBy: 'createdAt',
-            status: 'draft' // Modificado: Tentar passar o status diretamente
+            status: 'draft'
         });
 
         let nextPostToLoad = null;
-        // Corrigir aqui para acessar a lista de posts corretamente
+
         const postsList = draftPostsResponse.posts || (draftPostsResponse.data && draftPostsResponse.data.posts);
 
         if (postsList && postsList.length > 0) {
-            // Tenta encontrar um post draft que NÃO seja o atual.
             nextPostToLoad = postsList.find(p => p.id !== post.value.id);
 
-            if (!nextPostToLoad && postsList.length > 0) { // Se não encontrou um diferente, e ainda há posts
+            if (!nextPostToLoad && postsList.length > 0) {
                 if (postsList[0].id !== post.value.id) {
-                    // Se o primeiro da lista já é diferente, usa ele
                     nextPostToLoad = postsList[0];
                 } else if (postsList.length > 1) {
-                    // Se o primeiro é o atual, mas há um segundo, usa o segundo
                     nextPostToLoad = postsList[1];
                 }
             }
@@ -3263,46 +3305,33 @@ async function handleNextScheduledPost() {
 
             loadingMessage.value = `Loading post: ${nextPostToLoad.title || nextPostToLoad.id}...`;
             router.push(`/post/${nextPostToLoad.id}?scheduleTime=${nextScheduleDateTime.toISOString()}`);
-            // Não desativar fullPageLoading aqui, deixar a navegação cuidar.
         } else {
-            // Atualizar o estado de disponibilidade de posts draft quando não há mais
             hasDraftPosts.value = false;
             showNotification('success', 'No more draft posts found. All posts have been scheduled!');
-            fullPageLoading.value = false; // Desativa se não houver próximo post
+            fullPageLoading.value = false;
         }
 
     } catch (error) {
-        // Erros de saveDraft já devem ter sido mostrados e fullPageLoading tratado por ele.
-        // Erros da busca de posts precisam desativar o fullPageLoading.
         console.error('Error in handleNextScheduledPost:', error);
-        // Não mostrar notificação duplicada se saveDraft já mostrou.
         if (!(error.message && error.message.includes('Failed to save post'))) {
              showNotification('error', error.message || 'Failed to process next scheduled post.');
         }
         fullPageLoading.value = false;
     } finally {
         handleNextScheduledPostLoading.value = false;
-        // fullPageLoading é desativado se não houver navegação ou em erro aqui.
-        // Se houver navegação, o recarregamento do componente trata o fullPageLoading.
     }
 }
 
 watch(() => route.params.id, (newId, oldId) => {
     if (newId && newId !== oldId) {
-        //console.log(`[PostView] Route param id changed from ${oldId} to ${newId}. Reloading post.`);
-        // Limpar o estado do post antes de carregar um novo, se necessário
-        // resetPostState(); // Você precisaria criar essa função se quiser limpar tudo
-        editor.commands.setContent(''); // Limpa o editor
-        post.value.title = ''; // Limpa o título do post anterior
-        // Outras limpezas de estado do post podem ser necessárias aqui
-
+        editor.commands.setContent('');
+        post.value.title = '';
         loadPost(newId);
     }
 });
 
 watch(() => route.query.scheduleTime, (newScheduleTime) => {
-    if (newScheduleTime && post.value.id === route.params.id) { // Aplica apenas se o post já carregado for o da rota atual
-        //console.log(`[PostView] scheduleTime query param changed to: ${newScheduleTime}. Applying to current post.`);
+    if (newScheduleTime && post.value.id === route.params.id) {
         const queryScheduleDate = new Date(newScheduleTime);
         if (!isNaN(queryScheduleDate.getTime())) {
             const year = queryScheduleDate.getFullYear();
@@ -3314,7 +3343,6 @@ watch(() => route.query.scheduleTime, (newScheduleTime) => {
             scheduleDate.value = `${year}-${month}-${day}T${hours}:${minutes}`;
             post.value.status = 'cron';
 
-            // Limpar o query param para não aplicar novamente em refresh/navegação futura na mesma instância
             const currentQuery = { ...route.query };
             delete currentQuery.scheduleTime;
             router.replace({ query: currentQuery });
@@ -3322,12 +3350,10 @@ watch(() => route.query.scheduleTime, (newScheduleTime) => {
             console.warn('[PostView] Invalid scheduleTime in query param during watch:', newScheduleTime);
         }
     }
-}, { immediate: false }); // Não executar imediatamente na montagem inicial, pois loadPost já cuida disso
+}, { immediate: false });
 
-// Função para carregar a data salva no localStorage
 function loadSavedScheduleDate() {
     try {
-        // Primeiro tenta carregar a próxima data programada (para sequência)
         const savedNextScheduleDate = localStorage.getItem(LOCAL_STORAGE_NEXT_SCHEDULE_KEY);
 
         if (savedNextScheduleDate) {
@@ -3395,7 +3421,6 @@ function loadSavedScheduleDate() {
     }
 }
 
-// Verificar se há posts em draft disponíveis
 async function checkDraftPostsAvailability() {
     try {
         const response = await adminClient.posts.get({

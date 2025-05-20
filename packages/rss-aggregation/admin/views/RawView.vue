@@ -250,7 +250,24 @@
             <div class="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] flex flex-col overflow-hidden">
                 <div class="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
                     <div class="flex items-center space-x-4">
-                        <h3 class="text-md font-semibold text-gray-800 w-[50%] truncate">{{ previewItem?.title || 'Content Preview' }}</h3>
+                        <!-- Prompt selector dropdown -->
+                        <div class="w-64">
+                            <label class="block text-xs text-gray-500 mb-1">AI Prompt Template:</label>
+                            <div v-if="loadingPrompts" class="flex items-center py-1">
+                                <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-purple-500 mr-2"></div>
+                                <span class="text-gray-500 text-sm">Loading prompts...</span>
+                            </div>
+                            <select
+                                v-else
+                                v-model="selectedPrompt"
+                                class="w-full px-2 py-1 text-sm bg-white border border-gray-300 rounded-md text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            >
+                                <option value="default">Default</option>
+                                <option v-for="prompt in promptsList" :key="prompt.id" :value="prompt.id">
+                                    {{ prompt.name || 'Unnamed Prompt' }}
+                                </option>
+                            </select>
+                        </div>
                     </div>
                     <div class="flex items-center space-x-3">
 
@@ -766,6 +783,9 @@ const selectedTags = ref<string[]>([]);
 const coverImage = ref<string | null>(null);
 const editMode = ref<boolean>(false);
 const editedContent = ref<string | null>(null);
+const promptsList = ref<any[]>([]);
+const selectedPrompt = ref<string>('default');
+const loadingPrompts = ref<boolean>(false);
 
 const notification = ref<NotificationData>({
     show: false,
@@ -921,9 +941,13 @@ const openPreview = (item: FeedItem): void => {
     selectedTags.value = [];
     coverImage.value = null;
     selectedCategories.value = [];
+    selectedPrompt.value = 'default';
     editMode.value = false;
     editedContent.value = null;
     document.body.style.overflow = 'hidden';
+
+    // Load prompts when opening the preview
+    loadPrompts();
 };
 
 const closePreview = (): void => {
@@ -965,7 +989,10 @@ const generateAIContent = async (): Promise<void> => {
             content: contentToProcess
         };
 
-        const jobStartResponse = await feedClient.raw.startAIJob(previewItem.value.id, { content: contentToProcess });
+        const jobStartResponse = await feedClient.raw.startAIJob(previewItem.value.id, {
+            content: contentToProcess,
+            promptId: selectedPrompt.value
+        });
         const jobId = jobStartResponse.jobId;
 
         if (!jobId) {
@@ -1598,6 +1625,36 @@ onMounted(() => {
     loadFeedItems();
     loadCategories();
 });
+
+// Add a function to load prompts
+const loadPrompts = async (): Promise<void> => {
+    try {
+        loadingPrompts.value = true;
+
+        const response = await adminClient.prompts.get({
+            limit: 1000,
+            sortBy: 'name',
+            sort: 'asc'
+        });
+
+        if (response && response.data) {
+            promptsList.value = response.data || [];
+
+            // If there are no prompts, ensure we have at least the default option
+            if (promptsList.value.length === 0) {
+                promptsList.value = [{ id: 'default', name: 'Default' }];
+            }
+        } else {
+            promptsList.value = [];
+        }
+
+        loadingPrompts.value = false;
+    } catch (err: unknown) {
+        console.error('Failed to load prompts:', err);
+        loadingPrompts.value = false;
+        promptsList.value = [];
+    }
+};
 </script>
 
 <style>

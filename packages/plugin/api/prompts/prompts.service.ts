@@ -144,11 +144,18 @@ export class PromptsServiceTools {
      * Get the default prompt
      * @returns The default prompt
      */
-    async getDefaultPrompt(){
+    async getDefaultPrompt(promptId: string){
         const promptsOverride = Config.get<boolean>("blog.promptsOverride", false);
 
+        if(promptId){
+            const prompt = await this.getPromptById(promptId);
+
+            if(prompt)
+                return prompt;
+        }
+
         if(promptsOverride)
-            return await this.getDefaultPrompt();
+            return await this.getRandomPrompt(promptId);
 
         return this.defaultPrompt;
     }
@@ -157,7 +164,15 @@ export class PromptsServiceTools {
      * Get a random prompt from the database
      * @returns A random prompt from the database
      */
-    async getRandomPrompt(){
+    async getRandomPrompt(promptId: string){
+
+        if(promptId){
+            const prompt = await this.getPromptById(promptId);
+
+            if(prompt)
+                return prompt;
+        }
+
         const PromptsEntity = Repository.getEntity("PromptsEntity");
         const promptsData = await Repository.findAll(PromptsEntity, {
             limit: 100
@@ -176,5 +191,18 @@ export class PromptsServiceTools {
         }
 
         return promts.length > 0 ? promts[Math.floor(Math.random() * promts.length)] : this.defaultPrompt;
+    }
+
+    /**
+     * Get a prompt by ID
+     * @param promptId The ID of the prompt
+     * @returns The prompt
+     */
+    async getPromptById(promptId: string){
+        const PromptsEntity = Repository.getEntity("PromptsEntity");
+        const prompt = await Repository.findOne(PromptsEntity, {
+            id: promptId
+        });
+        return prompt ? prompt.prompt : this.defaultPrompt;
     }
 }

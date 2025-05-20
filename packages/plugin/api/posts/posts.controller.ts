@@ -20,12 +20,6 @@ import {
 export class PostsController {
     constructor(private readonly postsPublicService: PostsPublicService) {}
 
-    /**
-     * Get all posts for admin
-     * @param {any} queries - The queries
-     * @param {any} req - The request
-     * @returns {Promise<any>}
-     */
     @Get("posts/admin", { exclude: true })
     @Auth("posts:get")
     async getPostsAdmin(@Queries() queries: any, @Req() req: any) {
@@ -184,13 +178,13 @@ export class PostsController {
     @Post("posts/generate", { exclude: true })
     @Auth("posts:insert")
     async generatePost(@Body() body: any) {
-        return this.postsPublicService.generatePostFromUrl(body.url);
+        return this.postsPublicService.generatePostFromUrl(body.url, body.prompt);
     }
 
     @Post("posts/generate/start", { exclude: true })
     @Auth("posts:insert")
     async startGeneratePost(@Body() body: any) {
-        const jobId = await this.postsPublicService.startGenerateJob(body.url);
+        const jobId = await this.postsPublicService.startGenerateJob(body.url, body.promptId);
         return { jobId };
     }
 
