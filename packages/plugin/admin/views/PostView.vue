@@ -300,8 +300,56 @@
 
                                     <div v-if="post.status === 'cron'">
                                         <label class="block text-sm font-medium text-neutral-400 mb-1">Schedule for</label>
-                                        <input v-model="scheduleDate" type="datetime-local"
-                                            class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                                        <div class="flex space-x-2">
+                                            <input v-model="scheduleDate" type="datetime-local"
+                                                class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                                            <button
+                                                @click="setScheduleDateToNow"
+                                                class="px-2 py-1 bg-neutral-600 hover:bg-neutral-500 text-white text-xs rounded-md transition-colors"
+                                                title="Set to current time"
+                                            >
+                                                Now
+                                            </button>
+                                        </div>
+
+                                        <!-- Quick time adjustment buttons -->
+                                        <div class="grid grid-cols-5 gap-2 mt-2">
+                                            <button
+                                                @click="setScheduleDateWithOffset(30)"
+                                                class="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                                title="Current time + 30 minutes"
+                                            >
+                                                +30min
+                                            </button>
+                                            <button
+                                                @click="setScheduleDateWithOffset(60)"
+                                                class="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                                title="Current time + 1 hour"
+                                            >
+                                                +1h
+                                            </button>
+                                            <button
+                                                @click="setScheduleDateWithOffset(120)"
+                                                class="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                                title="Current time + 2 hours"
+                                            >
+                                                +2h
+                                            </button>
+                                            <button
+                                                @click="setScheduleDateWithOffset(180)"
+                                                class="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                                title="Current time + 3 hours"
+                                            >
+                                                +3h
+                                            </button>
+                                            <button
+                                                @click="setScheduleDateWithOffset(1440)"
+                                                class="px-2 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs rounded-md transition-colors"
+                                                title="Current time + 24 hours"
+                                            >
+                                                +24h
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -2822,6 +2870,57 @@ function cancelGeneration() {
     aiGenerateJobId.value = '';
     aiGenerateLoading.value = false;
     showAIGenerateDialog.value = false;
+}
+
+// Add a function to set the schedule date with an offset
+function setScheduleDateWithOffset(minutesOffset) {
+    let baseDate;
+
+    // If there's already a date in the input, use that as the base
+    if (scheduleDate.value) {
+        baseDate = new Date(scheduleDate.value);
+
+        // If the date is invalid, fallback to current time
+        if (isNaN(baseDate.getTime())) {
+            baseDate = new Date();
+        }
+    } else {
+        // If no date is set, use current time
+        baseDate = new Date();
+    }
+
+    // Add the minutes offset
+    baseDate.setMinutes(baseDate.getMinutes() + minutesOffset);
+
+    // Format for datetime-local input (YYYY-MM-DDTHH:MM)
+    const year = baseDate.getFullYear();
+    const month = String(baseDate.getMonth() + 1).padStart(2, '0');
+    const day = String(baseDate.getDate()).padStart(2, '0');
+    const hours = String(baseDate.getHours()).padStart(2, '0');
+    const minutes = String(baseDate.getMinutes()).padStart(2, '0');
+
+    scheduleDate.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+}
+
+// Watch for status change to 'cron' and set default schedule time
+watch(() => post.value.status, (newStatus) => {
+    if (newStatus === 'cron' && !scheduleDate.value) {
+        setScheduleDateWithOffset(30); // Default to current time + 30 minutes
+    }
+});
+
+// Add a function to set the schedule date to now
+function setScheduleDateToNow() {
+    const now = new Date();
+
+    // Format for datetime-local input (YYYY-MM-DDTHH:MM)
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+
+    scheduleDate.value = `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 </script>
 
