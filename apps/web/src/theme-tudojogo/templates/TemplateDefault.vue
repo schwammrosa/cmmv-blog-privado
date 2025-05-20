@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col min-h-screen bg-gray-100">
+    <div class="flex flex-col min-h-screen" :class="{ 'dark': isDarkMode }" style="background-color: var(--bg-color); color: var(--text-color);">
         <!-- Header -->
         <header class="bg-[#000000] sticky top-0 z-50 shadow-md">
             <div class="max-w-[1200px] mx-auto px-4">
@@ -78,8 +78,20 @@
                             </svg>
                         </a>
 
+                        <!-- Theme Toggle Button -->
+                        <button @click="toggleTheme" class="text-white hover:text-[#00B8D4] transition-colors mr-3" title="Alterar tema" aria-label="Alterar tema">
+                            <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <!-- Sun icon -->
+                                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <!-- Moon icon -->
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                            </svg>
+                        </button>
+                        
                         <!-- Search Button -->
-                        <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Search" aria-label="Search">
+                        <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Pesquisar" aria-label="Pesquisar">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -88,7 +100,19 @@
 
                     <!-- Mobile Menu Button -->
                     <div class="md:hidden flex items-center space-x-3">
-                        <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Search" aria-label="Search">
+                        <!-- Theme Toggle Button (Mobile) -->
+                        <button @click="toggleTheme" class="text-white hover:text-[#00B8D4] transition-colors" title="Alterar tema" aria-label="Alterar tema">
+                            <svg v-if="isDarkMode" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <!-- Sun icon -->
+                                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd" />
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <!-- Moon icon -->
+                                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                            </svg>
+                        </button>
+                        
+                        <button @click="openSearchModal" class="text-white hover:text-[#00B8D4] transition-colors" title="Pesquisar" aria-label="Pesquisar">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
@@ -161,14 +185,14 @@
         </header>
 
         <!-- Main content -->
-        <main class="flex-grow container mx-auto md:px-4 md:py-6">
+        <main class="flex-grow container mx-auto md:px-4 md:py-6" style="color: var(--text-color);">
             <div class="flex flex-col lg:flex-row gap-6">
                 <router-view />
             </div>
         </main>
 
         <!-- Newsletter Section -->
-        <section class="bg-[#000000] py-10 text-white mt-8">
+        <section class="dark-newsletter py-10 text-white mt-8" :class="{ 'dark-mode': isDarkMode }" :style="isDarkMode ? 'background-color: #1e2636 !important; background: #1e2636 !important;' : 'background-color: var(--bg-tertiary);'">
             <div class="max-w-[1200px] mx-auto px-4">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div class="md:w-1/2">
@@ -192,10 +216,10 @@
         </section>
 
         <!-- Footer -->
-        <footer class="bg-gradient-to-b from-[#222222] to-[#111111] text-white">
+        <footer class="text-white" style="background: linear-gradient(180deg, var(--bg-secondary), var(--bg-tertiary));">
             <div class="max-w-[1200px] mx-auto px-4 py-12">
                 <div class="grid grid-cols-1 gap-10">
-                    <div class="bg-black/20 p-6 rounded-lg shadow-lg border-l-4 border-[#00A079]">
+                    <div class="dark-footer-box bg-black/20 p-6 rounded-lg shadow-lg border-l-4 border-[#00A079]" :class="{ 'dark-mode': isDarkMode }" :style="isDarkMode ? 'background-color: #333333 !important; background: #333333 !important;' : ''">
                         <h3 class="text-xl font-bold mb-5 relative pb-3 flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.75 9.25a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clip-rule="evenodd" />
@@ -277,7 +301,7 @@
 
                 <div class="border-t border-gray-700 mt-8 pt-6 text-center">
                     <p class="text-gray-400 text-sm">
-                        &copy; {{ new Date().getFullYear() }} Tudo Jogo - Todos os direitos reservados.
+                        &copy; 2025 Tudo Jogo - Todos os direitos reservados.
                     </p>
                 </div>
             </div>
@@ -424,6 +448,24 @@ useHead({
 const isDarkMode = ref(false);
 const popularPosts = ref<any[]>([]);
 const loadingPopularPosts = ref(true);
+
+// Função para verificar e carregar a preferência de tema salva
+const loadSavedTheme = () => {
+    // Verificar preferência salva no localStorage
+    const savedTheme = localStorage.getItem('theme');
+    
+    // Verificar preferência do sistema se não houver tema salvo
+    if (!savedTheme && window.matchMedia) {
+        const prefersDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        isDarkMode.value = prefersDarkMode;
+    } else {
+        // Usar a preferência salva se existir
+        isDarkMode.value = savedTheme === 'dark';
+    }
+    
+    // Aplicar o tema definido
+    applyTheme();
+};
 
 const toggleTheme = () => {
     isDarkMode.value = !isDarkMode.value;
@@ -578,9 +620,8 @@ onMounted(async () => {
         })()
     ]);
 
-    isDarkMode.value = false;
-    document.documentElement.classList.remove('dark');
-    localStorage.setItem('theme', 'light');
+    // Carregar preferência de tema salva
+    loadSavedTheme();
     document.addEventListener('click', closeDropdownsOnClickOutside);
 });
 

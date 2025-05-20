@@ -1,15 +1,335 @@
 :root {
+    /* Cores básicas */
     --bg-color: #ffffff;
+    --bg-secondary: #f3f4f6;
+    --bg-tertiary: #f9f9f9;
     --text-color: #333333;
+    --text-secondary: #666666;
     --border-color: #e5e7eb;
     --muted-color: #6b7280;
+    
+    /* Cores de cartões e blocos */
+    --card-bg: #ffffff;
+    --card-border: #eaeaea;
+    --card-shadow: rgba(0, 0, 0, 0.1);
+    
+    /* Cores de destaque */
+    --accent-color: #00B8D4;
+    --accent-hover: #0095a8;
+    
+    /* Cores de post */
+    --post-bg: #ffffff;
+    --blockquote-bg: #f3f4f6;
+    --blockquote-border: #ddd;
+    --code-bg: #f5f5f5;
+    --tag-bg: #f0f9ff;
+    --category-bg: #e6f3ff;
 }
 
 .dark {
-    --bg-color: #171717;
+    /* Cores básicas */
+    --bg-color: #000000;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #111827;
     --text-color: #e5e7eb;
+    --text-secondary: #d1d5db;
     --border-color: #374151;
     --muted-color: #9ca3af;
+    
+    /* Cores de cartões e blocos */
+    --card-bg: #1f2937;
+    --card-border: #2d3748;
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    
+    /* Cores de destaque */
+    --accent-color: #00B8D4;
+    --accent-hover: #4dd0e1;
+    
+    /* Cores de post */
+    --post-bg: #1f2937;
+    --blockquote-bg: #111827;
+    --blockquote-border: #4b5563;
+    --code-bg: #2d3748;
+    --tag-bg: #0d2447;
+    --category-bg: #1e3a5f;
+}
+
+/* Estilo específico para cards no tema escuro */
+.dark article .p-4 {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+.dark article .p-4 h3 {
+    color: #ffffff;
+}
+
+.dark article .p-4 p {
+    color: #e0e0e0;
+}
+
+.dark article .p-4 .text-gray-500,
+.dark article .p-4 .text-gray-600,
+.dark article .p-4 .text-gray-800 {
+    color: #cccccc;
+}
+
+/* Estilo específico para seção Mais Populares no tema escuro */
+.dark .space-y-5 .flex.gap-4 {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+.dark .space-y-5 .flex.gap-4 h4 {
+    color: #ffffff;
+}
+
+.dark .space-y-5 .flex.gap-4:hover {
+    background-color: #444444;
+}
+
+.dark .space-y-5 .flex.gap-4 .text-gray-800,
+.dark .space-y-5 .flex.gap-4 .text-gray-600,
+.dark .space-y-5 .flex.gap-4 .text-gray-500 {
+    color: #cccccc;
+}
+
+/* Estilo específico para a página de post no tema escuro */
+.dark .lg\:col-span-2.rounded-lg.p-4 {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+.dark .lg\:col-span-2.rounded-lg.p-4 h1,
+.dark .lg\:col-span-2.rounded-lg.p-4 h2,
+.dark .lg\:col-span-2.rounded-lg.p-4 h3,
+.dark .lg\:col-span-2.rounded-lg.p-4 h4 {
+    color: #ffffff;
+}
+
+.dark .lg\:col-span-2.rounded-lg.p-4 p {
+    color: #e0e0e0;
+}
+
+.dark .lg\:col-span-2.rounded-lg.p-4 .text-gray-500,
+.dark .lg\:col-span-2.rounded-lg.p-4 .text-gray-600,
+.dark .lg\:col-span-2.rounded-lg.p-4 .text-gray-800,
+.dark .lg\:col-span-2.rounded-lg.p-4 .text-neutral-800 {
+    color: #cccccc;
+}
+
+/* Estilo específico para a página de categoria no tema escuro */
+.dark .bg-white.rounded-lg.p-6.article-container {
+    background-color: #1e2636 !important;
+    color: #ffffff;
+}
+
+.dark .bg-white.rounded-lg.p-6.article-container header h1 {
+    color: #ffffff;
+}
+
+.dark .bg-white.rounded-lg.p-6.article-container p {
+    color: #e0e0e0;
+}
+
+.dark .bg-white.rounded-lg.p-6.article-container .text-neutral-500,
+.dark .bg-white.rounded-lg.p-6.article-container .text-neutral-700,
+.dark .bg-white.rounded-lg.p-6.article-container .text-neutral-800,
+.dark .bg-white.rounded-lg.p-6.article-container .text-neutral-900,
+.dark .bg-white.rounded-lg.p-6.article-container .text-gray-500,
+.dark .bg-white.rounded-lg.p-6.article-container .text-gray-600,
+.dark .bg-white.rounded-lg.p-6.article-container .text-gray-800 {
+    color: #cccccc;
+}
+
+.dark .bg-white.rounded-lg.p-6.article-container .border-neutral-200 {
+    border-color: #444444;
+}
+
+/* Garantir que todas as laterais sejam pretas no tema escuro */
+.dark body,
+.dark html {
+    background-color: #000000;
+}
+
+.dark .w-full.relative,
+.dark .w-full.max-w-\[1400px\] {
+    background-color: #000000;
+}
+
+/* Estilo para os elementos de anúncio no tema escuro */
+.dark .ad-placeholder {
+    background-color: #333333 !important;
+}
+
+.dark .ad-placeholder span {
+    color: #333333 !important;
+}
+
+/* Todos os contêineres de anúncios no tema escuro */
+.dark .w-full.rounded-lg.mb-8.overflow-hidden.flex.justify-center,
+.dark .rounded-lg.shadow-md.p-2.mb-6.flex.justify-center,
+.dark [class*="ad-container"].flex.justify-center,
+.dark div[style*="--bg-secondary"] {
+    background-color: #333333 !important;
+}
+
+/* Substitui a variável de cor para anúncios no tema escuro */
+.dark {
+    --bg-secondary: #333333 !important;
+}
+
+/* Estilo para as tags do post (Galactus, Filmes, etc.) - seletor super específico */
+.dark .mb-4.flex.flex-wrap.gap-2 a {
+    background-color: #666666 !important;
+    color: #007bff !important;
+    border-radius: 9999px;
+}
+
+.dark .mb-4.flex.flex-wrap.gap-2 a:hover {
+    background-color: #777777 !important;
+}
+
+/* Tags do post no tema escuro (Galactus, Filmes, etc) */
+.dark .tag.bg-neutral-100 {
+    background-color: #666666 !important;
+    color: #007bff !important;
+}
+
+.dark .tag.bg-neutral-100:hover {
+    background-color: #777777 !important;
+}
+
+/* Restaurar estilo original das categorias */
+.dark a.bg-\[\#00A079\] {
+    background-color: #00A079 !important;
+    color: white !important;
+}
+
+.dark a.bg-\[\#00A079\]:hover {
+    background-color: #064019 !important;
+}
+
+/* TEMA CLARO - Estilo para rodapé e Newsletter */
+body:not(.dark) footer {
+    background-color: #f0f0f0 !important;
+    background: #f0f0f0 !important;
+}
+
+body:not(.dark) section[style*="--bg-tertiary"] {
+    background-color: #f0f0f0 !important;
+    background: #f0f0f0 !important;
+}
+
+body:not(.dark) footer h3,
+body:not(.dark) section[style*="--bg-tertiary"] h3 {
+    color: #000000 !important;
+}
+
+body:not(.dark) footer p,
+body:not(.dark) section[style*="--bg-tertiary"] p {
+    color: #333333 !important;
+}
+
+body:not(.dark) footer .text-gray-300,
+body:not(.dark) footer .text-gray-400,
+body:not(.dark) footer .text-white,
+body:not(.dark) section[style*="--bg-tertiary"] .text-white,
+body:not(.dark) section[style*="--bg-tertiary"] .text-gray-200 {
+    color: #333333 !important;
+}
+
+body:not(.dark) footer .bg-black\/20 {
+    background-color: #e8e8e8 !important;
+}
+
+body:not(.dark) footer .border-gray-700 {
+    border-color: #cccccc !important;
+}
+
+/* TEMA ESCURO - Estilo personalizado para o rodapé */
+/* Primeiro container - cor azul escura */
+.dark footer .max-w-\[1200px\],
+.dark section.py-10.text-white,
+.dark section[style*="--bg-tertiary"] {
+    background-color: #1e2636 !important;
+    background: #1e2636 !important;
+}
+
+/* Seletor direto para o bloco "Sobre o Tudo Jogo" no rodapé */
+.dark footer .grid-cols-1 > .bg-black\/20,
+.dark footer .gap-10 > .bg-black\/20,
+.dark footer .rounded-lg.shadow-lg,
+.dark footer div[class*='bg-black'] {
+    background: #333333 !important;
+    background-color: #333333 !important;
+    border-color: #00A079 !important;
+}
+
+/* Forçando mais ainda o seletor */
+.dark footer .bg-black\/20 {
+    background: #333333 !important;
+    background-color: #333333 !important;
+}
+
+/* Elementos internos do bloco de informações */
+.dark footer .bg-black\/20 h3 {
+    color: #ffffff !important;
+}
+
+.dark footer .bg-black\/20 p,
+.dark footer .bg-black\/20 .text-gray-300,
+.dark footer .bg-black\/20 ul li a {
+    color: #cccccc !important;
+}
+
+.dark footer .bg-black\/20 ul li a:hover {
+    color: #00B8D4 !important;
+}
+
+.dark footer .bg-black\/20 svg {
+    color: #00A079 !important;
+}
+
+/* Texto principal branco */
+.dark footer h3,
+.dark footer .border-t p {
+    color: #ffffff !important;
+}
+
+/* Textos secundários cinza claro */
+.dark footer p,
+.dark footer .text-gray-300,
+.dark footer .text-gray-400,
+.dark footer .text-white,
+.dark footer ul li a {
+    color: #cccccc !important;
+}
+
+/* Contêineres de anúncio com fundo cinza escuro no tema escuro */
+.dark .w-full.bg-gray-100,
+.dark .ad-container,
+.dark .ad-placeholder {
+    background-color: #333333 !important;
+    background: #333333 !important;
+}
+
+.dark .bg-gray-200 {
+    background-color: #444444 !important;
+}
+
+/* Mesmas configurações para a Newsletter */
+.dark section[style*="--bg-tertiary"] {
+    background-color: #1e2636 !important;
+}
+
+.dark section[style*="--bg-tertiary"] h3 {
+    color: #ffffff !important;
+}
+
+.dark section[style*="--bg-tertiary"] p,
+.dark section[style*="--bg-tertiary"] .text-gray-200 {
+    color: #cccccc !important;
 }
 
 .article-container {

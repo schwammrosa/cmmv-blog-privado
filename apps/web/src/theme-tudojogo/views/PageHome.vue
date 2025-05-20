@@ -1,30 +1,30 @@
 <template>
     <div class="w-full max-w-[1400px] mx-auto px-4">
-        <div v-if="error" class="text-center py-16 bg-white rounded-lg shadow-md">
+        <div v-if="error" class="text-center py-16 rounded-lg shadow-md" style="background-color: var(--card-bg); color: var(--text-color);">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 class="text-2xl font-bold mb-2 text-gray-800">Erro ao carregar posts</h2>
-            <p class="text-gray-600 mb-4">Não foi possível carregar os posts. Por favor, tente novamente.</p>
+            <h2 class="text-2xl font-bold mb-2" style="color: var(--text-color);">Erro ao carregar posts</h2>
+            <p class="mb-4" style="color: var(--text-secondary);">Não foi possível carregar os posts. Por favor, tente novamente.</p>
             <button @click="loadPosts" class="px-3 py-1 bg-[#00A079] text-white text-sm font-medium rounded-full shadow-sm hover:bg-[#064019] transition-all">
                 Tentar novamente
             </button>
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="posts.length === 0" class="text-center py-16 bg-white rounded-lg shadow-md">
+        <div v-else-if="posts.length === 0" class="text-center py-16 rounded-lg shadow-md" style="background-color: var(--card-bg); color: var(--text-color);">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 class="text-2xl font-bold mb-2 text-gray-800">Nenhum post encontrado</h2>
-            <p class="text-gray-600">Volte mais tarde para novos conteúdos!</p>
+            <h2 class="text-2xl font-bold mb-2" style="color: var(--text-color);">Nenhum post encontrado</h2>
+            <p style="color: var(--text-secondary);">Volte mais tarde para novos conteúdos!</p>
         </div>
 
         <div v-else>
             <!-- Cover Section -->
             <section v-if="posts.length > 0" class="mb-8 md:block hidden">
                 <!-- Full Layout (default) -->
-                <div v-if="coverSettings.layoutType === 'full' || !coverSettings.layoutType" class="bg-white rounded-lg overflow-hidden shadow-md">
+                <div v-if="coverSettings.layoutType === 'full' || !coverSettings.layoutType" class="rounded-lg overflow-hidden shadow-md" style="background-color: var(--card-bg);">
                     <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
                         <div class="relative h-[400px]">
                             <img
@@ -63,7 +63,7 @@
                 </div>
 
                 <!-- Carousel Layout -->
-                <div v-else-if="coverSettings.layoutType === 'carousel'" class="bg-white rounded-lg overflow-hidden shadow-md">
+                <div v-else-if="coverSettings.layoutType === 'carousel'" class="rounded-lg overflow-hidden shadow-md" style="background-color: var(--card-bg);">
                     <div class="relative h-[400px]">
                         <div v-for="(post, index) in coverPosts.carousel" :key="post.id"
                              class="absolute w-full h-full transition-opacity duration-500 ease-in-out"
@@ -134,7 +134,7 @@
 
                 <!-- Split Layout (1 large, 2 small) -->
                 <div v-else-if="coverSettings.layoutType === 'split'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="md:col-span-2 bg-white rounded-lg overflow-hidden shadow-md">
+                    <div class="md:col-span-2 rounded-lg overflow-hidden shadow-md" style="background-color: var(--card-bg);">
                         <a v-if="coverPosts.splitMain" :href="`/post/${coverPosts.splitMain.slug}`" class="block h-full">
                             <div class="relative h-full">
                                 <img
@@ -172,7 +172,7 @@
                         </a>
                     </div>
                     <div class="md:col-span-1 flex flex-col gap-4">
-                        <div v-for="(post, index) in coverPosts.splitSide" :key="post.id" class="flex-1 bg-white rounded-lg overflow-hidden shadow-md">
+                        <div v-for="(post, index) in coverPosts.splitSide" :key="post.id" class="flex-1 rounded-lg overflow-hidden shadow-md" style="background-color: var(--card-bg);">
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <div class="relative h-full">
                                     <img
@@ -246,7 +246,7 @@
             </section>
 
             <!-- Top AdSense Banner -->
-            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full rounded-lg mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                 <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
                     <div v-html="getAdHtml('header')"></div>
                 </div>
@@ -279,7 +279,7 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <!-- Left Column (Latest News) -->
                         <div class="lg:col-span-2">
-                            <h2 class="text-xl font-bold mb-6 pb-2 text-black border-b-2 border-[#00B8D4]">
+                            <h2 class="text-xl font-bold mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
                                 Últimas Notícias
                             </h2>
 
@@ -340,7 +340,7 @@
 
                             <!-- More Posts Section -->
                             <div v-if="posts.length > (featuredPost ? 5 : 4)">
-                                <h2 class="text-xl font-bold mb-6 pb-2 text-black border-b-2 border-[#00B8D4]">
+                                <h2 class="text-xl font-bold mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
                                     Mais Conteúdo
                                 </h2>
 
@@ -403,7 +403,7 @@
                             <!-- Loading More Indicator -->
                             <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
                                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
-                                <span class="ml-3 text-gray-600">Carregando mais posts...</span>
+                                <span class="ml-3" style="color: var(--text-secondary);">Carregando mais posts...</span>
                             </div>
 
                             <!-- Infinite Scroll Observer Target -->
@@ -413,7 +413,7 @@
                         <!-- Right Column (Widgets + Ads) -->
                         <div class="lg:col-span-1 hidden md:block">
                             <!-- AdSense Rectangle (Top) -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="rounded-lg shadow-md p-2 mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                                 <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                     <div v-html="getAdHtml('sidebarTop')"></div>
                                 </div>
@@ -425,8 +425,8 @@
                             </div>
 
                             <!-- Popular Posts Widget -->
-                            <div class="bg-white rounded-lg shadow-lg p-5 mb-6 border-t-4 border-[#00A079] hidden md:block">
-                                <h2 class="text-xl font-bold mb-5 pb-2 text-black border-b-2 border-[#00B8D4] flex items-center">
+                            <div class="rounded-lg shadow-lg p-5 mb-6 border-t-4 border-[#00A079] hidden md:block" style="background-color: var(--card-bg); color: var(--text-color);">
+                                <h2 class="text-xl font-bold mb-5 pb-2 border-b-2 border-[#00B8D4] flex items-center" style="color: var(--text-color);">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                     </svg>
@@ -472,7 +472,7 @@
                             </div>
 
                             <!-- AdSense Rectangle (Middle) -->
-                            <div class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                            <div class="rounded-lg shadow-md p-2 mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                                 <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
                                     <div v-html="getAdHtml('sidebarMid')"></div>
                                 </div>

@@ -1,16 +1,16 @@
 <template>
-    <div class="w-full relative bg-neutral-100">
+    <div class="w-full relative" style="background-color: var(--bg-color);">
         <div class="w-full max-w-[1400px] mx-auto px-4">
-            <div v-if="!post" class="bg-white rounded-lg p-6">
+            <div v-if="!post" class="rounded-lg p-6" style="background-color: var(--card-bg); color: var(--text-color);">
                 <div class="text-center">
-                    <h1 class="text-2xl font-bold text-neutral-800 mb-4">Post não encontrado</h1>
-                    <p class="text-neutral-600">O post que você está procurando não existe ou está indisponível.</p>
+                    <h1 class="text-2xl font-bold mb-4" style="color: var(--text-color);">Post não encontrado</h1>
+                    <p style="color: var(--text-secondary);">O post que você está procurando não existe ou está indisponível.</p>
                 </div>
             </div>
 
             <div v-else>
                 <!-- Top AdSense Banner -->
-                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full rounded-lg mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                     <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
                         <div v-html="getAdHtml('header')"></div>
                     </div>
@@ -41,9 +41,9 @@
                     <div class="flex-grow">
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <!-- Main Post Content (2 columns width) -->
-                            <div class="lg:col-span-2 bg-white rounded-lg p-4 relative">
+                            <div class="lg:col-span-2 rounded-lg p-4 relative" style="background-color: var(--post-bg); color: var(--text-color);">
                                 <div class="w-full mx-auto overflow-hidden">
-                                    <h1 class="post-title text-neutral-900 text-3xl md:text-4xl font-bold break-words mb-4">{{ post.title }}</h1>
+                                    <h1 class="post-title text-3xl md:text-4xl font-bold break-words mb-4" style="color: var(--text-color);">{{ post.title }}</h1>
 
                                     <div v-if="post.featureImage" class="post-featured-image relative overflow-hidden rounded-lg max-h-[400px]">
                                         <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
@@ -229,7 +229,7 @@
                                     </div>
 
                                     <!-- Mid-content AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full rounded-lg my-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                                         <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
                                             <div v-html="getAdHtml('inContent')"></div>
                                         </div>
@@ -242,7 +242,7 @@
 
                                     <!-- Mais Conteúdo Section -->
                                     <div class="mt-10">
-                                        <h2 class="text-xl font-bold mb-6 pb-2 text-black border-b-2 border-[#00B8D4]">
+                                        <h2 class="text-xl font-bold mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
                                             Mais Conteúdo
                                         </h2>
 
@@ -302,7 +302,7 @@
                                     </div>
 
                                     <!-- Bottom AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full rounded-lg mt-8 mb-4 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                                         <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
                                             <div v-html="getAdHtml('belowContent')"></div>
                                         </div>
@@ -320,7 +320,7 @@
                             <!-- Right Column (Widgets + Ads) -->
                             <div class="lg:col-span-1">
                                 <!-- AdSense Rectangle (Top) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center overflow-hidden">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="rounded-lg shadow-md p-2 mb-6 flex justify-center overflow-hidden" style="background-color: var(--bg-secondary);">
                                     <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                         <div v-html="getAdHtml('sidebarTop')"></div>
                                     </div>
@@ -344,8 +344,8 @@
                                 </div>
 
                                 <!-- Share Widget (oculto em dispositivos móveis) -->
-                                <div class="bg-white rounded-lg shadow-md p-5 mb-6 hidden md:block">
-                                    <h2 class="text-xl font-bold mb-4 pb-2 text-black border-b-2 border-[#00B8D4]">
+                                <div class="rounded-lg shadow-md p-5 mb-6 hidden md:block" style="background-color: var(--card-bg); color: var(--text-color);">
+                                    <h2 class="text-xl font-bold mb-4 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
                                         Compartilhar
                                     </h2>
                                     <div class="flex flex-wrap gap-2">
@@ -421,8 +421,8 @@
                                 </div>
 
                                 <!-- Popular Posts Widget -->
-                                <div v-if="popularPosts && popularPosts.length > 0" class="bg-white rounded-lg shadow-lg p-5 mb-6 border-t-4 border-[#00A079]">
-                                    <h2 class="text-xl font-bold mb-5 pb-2 text-black border-b-2 border-[#00B8D4] flex items-center">
+                                <div v-if="popularPosts && popularPosts.length > 0" class="rounded-lg shadow-lg p-5 mb-6 border-t-4 border-[#00A079]" style="background-color: var(--card-bg); color: var(--text-color);">
+                                    <h2 class="text-xl font-bold mb-5 pb-2 border-b-2 border-[#00B8D4] flex items-center" style="color: var(--text-color);">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                                         </svg>
@@ -470,7 +470,7 @@
 
 
                                 <!-- AdSense Rectangle (Bottom) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="rounded-lg shadow-md p-2 mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                                     <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
                                         <div v-html="getAdHtml('sidebarBottom')"></div>
                                     </div>
@@ -500,7 +500,7 @@
         </button>
 
         <!-- Opções de compartilhamento -->  
-        <div v-if="showShareOptions" class="absolute bottom-16 right-0 bg-white p-4 rounded-lg shadow-xl">
+        <div v-if="showShareOptions" class="absolute bottom-16 right-0 p-4 rounded-lg shadow-xl" style="background-color: var(--card-bg); color: var(--text-color);">
             <div class="flex flex-col space-y-3">
                 <!-- Facebook -->
                 <a class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -1539,21 +1539,22 @@ const sidebarLeftAdContainer = ref(null);
         display: none;
     }
 }
-/* Estilo para parágrafos de atribuição de fonte */
+/* Estilo para parágrafos de atribuição de fonte - versão mais discreta */
 .post-content :deep(.source-attribution) {
-    color: #9ca3af; /* Cor cinza clara */
-    font-size: 0.875rem;
-    padding: 0.5rem;
-    background-color: #f3f4f6;
-    border-radius: 0.25rem;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    border-left: 3px solid #00B8D4;
+    /* Usando estilo padrão de texto, sem formatação especial */
+    color: inherit;
+    font-size: inherit;
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    border-left: none;
 }
 
 .post-content :deep(.source-attribution a) {
-    color: #00B8D4;
-    font-weight: 500;
+    color: inherit;
+    font-weight: normal;
     text-decoration: none;
 }
 
