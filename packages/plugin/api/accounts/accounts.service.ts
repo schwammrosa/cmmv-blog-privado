@@ -60,7 +60,7 @@ export class AccountsService {
         const decodedToken: any = await getAuth().verifyIdToken(token);
 
         if(decodedToken){
-            const email = decodedToken.email || decodedToken.providerData[0].email;
+            const email = decodedToken.email || decodedToken.user?.providerData[0]?.email;
 
             if(email != null && email !== "" && email.indexOf("@") > -1){
                 let account = await Repository.findOne(UserEntity, {
