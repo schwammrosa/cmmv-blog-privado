@@ -43,6 +43,9 @@ export const useAdminClient = () => {
         check: () => api.checkSession(),
         login: (data: { username: string; password: string }) => api.login(data),
         logout: () => api.logout(),
+        loginWithFirebase: async (payload: any) => {
+            return await api.loginWithFirebase(payload);
+        },
     };
 
     const posts = {

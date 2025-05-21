@@ -78,6 +78,9 @@ const SENSITIVE_KEYS = [
     "blog.spacesRegion",
     "blog.spacesEndpoint",
     "blog.spacesUrl",
+    // Firebase settings
+    "blog.firebaseClientEmail",
+    "blog.firebasePrivateKey",
 ];
 
 @Service("blog_settings")
