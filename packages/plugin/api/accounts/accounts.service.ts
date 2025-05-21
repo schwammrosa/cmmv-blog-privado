@@ -77,6 +77,6 @@ export class AccountsService {
             }
         }
 
-        return { success: false, message: "Invalid token" };
+        return { success: false, message: "Invalid token", decodedToken };
     }
 }
