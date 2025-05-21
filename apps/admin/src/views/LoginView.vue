@@ -393,7 +393,7 @@ const handleSocialLogin = async (provider) => {
 }
 
 onMounted(async () => {
-    const settingsData = await adminClient.settings.get();
+    const settingsData = await adminClient.settings.get(true);
     settings.value = settingsData;
 
     const firebaseConfig = {
