@@ -29,30 +29,26 @@ interface FirebaseProviderProfile {
     uid?: string;
 }
 
+const firebaseProjectId = Config.get('blog.firebaseProjectId', "");
+const firebaseClientEmail = Config.get('blog.firebaseClientEmail', "");
+const firebasePrivateKey = Config.get('blog.firebasePrivateKey', "");
+
+admin.initializeApp({
+    credential: admin.credential.cert({
+        projectId: firebaseProjectId,
+        clientEmail: firebaseClientEmail,
+        privateKey: firebasePrivateKey.replace(/\\n/g, '\n'),
+    }),
+});
+
 @Service("accounts")
 export class AccountsService {
-    constructor(
-        private readonly authAutorizationService: AuthAutorizationService
-    ){}
-
     /**
      * Login with Firebase
      * @param payload
      * @returns
      */
     async firebaseLogin(payload: FirebaseLoginResult, req: any, res: any){
-        const firebaseProjectId = Config.get('blog.firebaseProjectId', "");
-        const firebaseClientEmail = Config.get('blog.firebaseClientEmail', "");
-        const firebasePrivateKey = Config.get('blog.firebasePrivateKey', "");
-
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: firebaseProjectId,
-                clientEmail: firebaseClientEmail,
-                privateKey: firebasePrivateKey.replace(/\\n/g, '\n'),
-            }),
-        });
-
         const UserEntity = Repository.getEntity("UserEntity");
         const { token } = payload;
 
