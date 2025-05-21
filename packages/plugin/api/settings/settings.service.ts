@@ -98,7 +98,9 @@ export class SettingsService {
             .digest('hex');
 
         await fs.writeFileSync(adminEnv, `VITE_PORT=${setupData.settings.basePort + 2}
-VITE_ALLOWED_HOSTS="0.0.0.0,${setupData.blog.adminUrl}"`);
+VITE_API_URL="${setupData.settings.apiUrl}"
+VITE_ALLOWED_HOSTS="0.0.0.0,${setupData.blog.adminUrl}"
+VITE_API_SIGNATURE="${signature}"`);
 
         await fs.writeFileSync(apiEnv, `PORT=${setupData.settings.basePort}
 API_URL="${setupData.settings.apiUrl}"
