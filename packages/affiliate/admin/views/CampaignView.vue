@@ -10,16 +10,6 @@
                     </svg>
                     Refresh
                 </button>
-                <button @click="exportCampaigns" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center" :disabled="exportLoading">
-                    <svg v-if="exportLoading" class="animate-spin h-3.5 w-3.5 mr-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Export
-                </button>
                 <!-- Add search dropdown button -->
                 <div class="relative">
                     <button @click="toggleSearchDropdown" data-search-toggle
@@ -67,6 +57,46 @@
                     </svg>
                     Add Campaign
                 </button>
+                <!-- More actions dropdown -->
+                <div class="relative" data-more-actions-toggle>
+                    <button
+                        @click="toggleMoreActionsDropdown"
+                        class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                        More
+                    </button>
+                    <!-- More actions dropdown menu -->
+                    <div v-if="showMoreActionsDropdown" class="absolute right-0 mt-2 w-48 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
+                        <div class="py-1">
+                            <button
+                                @click="exportCampaigns"
+                                class="w-full px-4 py-2 text-left text-sm text-white hover:bg-neutral-700 flex items-center"
+                                :disabled="exportLoading"
+                            >
+                                <svg v-if="exportLoading" class="animate-spin h-3.5 w-3.5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Export Campaigns
+                            </button>
+                            <button
+                                @click="openImportFileDialog"
+                                class="w-full px-4 py-2 text-left text-sm text-white hover:bg-neutral-700 flex items-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                Import Campaigns
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -635,6 +665,72 @@
             class="hidden"
         />
 
+        <!-- Hidden file input for importing JSON files -->
+        <input
+            type="file"
+            ref="importFileInput"
+            @change="handleFileSelect"
+            accept="application/json"
+            class="hidden"
+        />
+
+        <!-- Import Progress Dialog -->
+        <div v-if="showImportProgress" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
+            <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
+                <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-white">Importing Campaigns</h3>
+                    <button @click="cancelImport" class="text-neutral-400 hover:text-white" :disabled="importInProgress">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-neutral-300">Progress</span>
+                            <span class="text-sm text-neutral-300">{{ importProgress.current }} / {{ importProgress.total }}</span>
+                        </div>
+                        <div class="w-full bg-neutral-700 rounded-full h-2.5">
+                            <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${importProgress.percentage}%` }"></div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-neutral-300">Success</span>
+                            <span class="text-sm text-green-500">{{ importProgress.success }}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-sm text-neutral-300">Failed</span>
+                            <span class="text-sm text-red-500">{{ importProgress.failed }}</span>
+                        </div>
+                    </div>
+
+                    <div v-if="importProgress.currentItem" class="mb-4 text-sm text-neutral-400">
+                        <p class="truncate">Processing: {{ importProgress.currentItem }}</p>
+                    </div>
+
+                    <div v-if="importProgress.errorMessage" class="mb-4 p-3 bg-red-900/30 border border-red-800 rounded text-sm text-red-300">
+                        <p>{{ importProgress.errorMessage }}</p>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button
+                            @click="closeImportDialog"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                            :disabled="importInProgress"
+                        >
+                            {{ importInProgress ? 'Importing...' : importFinished ? 'Close' : 'Cancel' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Logo crop modal -->
         <div v-if="logoCropModalOpen" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4">
             <div class="bg-neutral-800 rounded-lg max-w-md w-full p-6">
@@ -789,6 +885,25 @@ const logoImagePosition = ref({ x: 0, y: 0 })
 
 const showSearchDropdown = ref(false)
 const searchInput = ref(null)
+
+// More actions dropdown state
+const showMoreActionsDropdown = ref(false)
+
+// Import functionality
+const importFileInput = ref(null)
+const showImportProgress = ref(false)
+const importInProgress = ref(false)
+const importFinished = ref(false)
+const importCancelled = ref(false)
+const importProgress = ref({
+    current: 0,
+    total: 0,
+    percentage: 0,
+    success: 0,
+    failed: 0,
+    currentItem: '',
+    errorMessage: ''
+})
 
 const activeTab = ref('basic')
 
@@ -1474,6 +1589,164 @@ const clearSearch = () => {
     showSearchDropdown.value = false
 }
 
+// Toggle more actions dropdown
+const toggleMoreActionsDropdown = () => {
+    showMoreActionsDropdown.value = !showMoreActionsDropdown.value;
+}
+
+// Open file input for import
+const openImportFileDialog = () => {
+    importFileInput.value.click();
+}
+
+// Handle JSON file selection
+const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Check if it's a JSON file
+    if (file.type !== 'application/json') {
+        showNotification('error', 'Please select a valid JSON file');
+        event.target.value = ''; // Clear the input
+        return;
+    }
+
+    // Read file contents
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const jsonData = JSON.parse(e.target.result);
+
+            // Validate that it's an array of campaigns
+            if (!Array.isArray(jsonData)) {
+                showNotification('error', 'Invalid JSON format. Expected an array of campaigns.');
+                return;
+            }
+
+            // Start import process
+            startImport(jsonData);
+        } catch (err) {
+            console.error('Failed to parse JSON:', err);
+            showNotification('error', 'Failed to parse JSON file');
+        }
+    };
+
+    reader.onerror = () => {
+        showNotification('error', 'Failed to read file');
+    };
+
+    reader.readAsText(file);
+    event.target.value = ''; // Clear the input
+}
+
+// Start the import process
+const startImport = (campaigns) => {
+    // Reset progress
+    importProgress.value = {
+        current: 0,
+        total: campaigns.length,
+        percentage: 0,
+        success: 0,
+        failed: 0,
+        currentItem: '',
+        errorMessage: ''
+    };
+
+    // Show progress dialog
+    showImportProgress.value = true;
+    importInProgress.value = true;
+    importFinished.value = false;
+    importCancelled.value = false;
+
+    // Start processing campaigns
+    processCampaigns(campaigns);
+}
+
+// Process campaigns one by one
+const processCampaigns = async (campaigns) => {
+    for (let i = 0; i < campaigns.length; i++) {
+        // Check if import was cancelled
+        if (importCancelled.value) {
+            break;
+        }
+
+        const campaign = campaigns[i];
+        importProgress.value.current = i + 1;
+        importProgress.value.percentage = Math.round((importProgress.value.current / importProgress.value.total) * 100);
+
+        try {
+            // Update current item being processed
+            importProgress.value.currentItem = campaign.name || `Campaign ${i + 1}`;
+            importProgress.value.errorMessage = '';
+
+            // Check if campaign has required fields
+            if (!campaign.name || !campaign.url) {
+                throw new Error('Campaign requires name and URL fields');
+            }
+
+            // Prepare campaign data for API
+            const campaignData = {
+                name: campaign.name.trim(),
+                url: campaign.url.trim(),
+                slug: campaign.slug || '',
+                logo: campaign.logo || '',
+                description: campaign.description || '',
+                network: campaign.network || campaign.networkId || '',
+                domain: campaign.domain || '',
+                metadata: campaign.metadata ? (typeof campaign.metadata === 'string' ? campaign.metadata : JSON.stringify(campaign.metadata)) : null,
+                categories: campaign.categories || [],
+                active: campaign.active !== undefined ? campaign.active : true,
+                highlight: campaign.highlight || false
+            };
+
+            // Insert campaign using API
+            await affiliateClient.campaigns.insert(campaignData);
+
+            // Update success count
+            importProgress.value.success++;
+        } catch (err) {
+            console.error(`Failed to import campaign ${i + 1}:`, err);
+            importProgress.value.failed++;
+            importProgress.value.errorMessage = err.message || 'Failed to import campaign';
+
+            // Small delay to let user see the error message
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        // Small delay to prevent UI freezing
+        await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // Import completed
+    importInProgress.value = false;
+    importFinished.value = true;
+
+    // Refresh campaign list after import
+    refreshData();
+
+    // Show notification
+    if (importCancelled.value) {
+        showNotification('info', `Import cancelled. ${importProgress.value.success} campaigns imported successfully.`);
+    } else {
+        showNotification('success', `Import completed. ${importProgress.value.success} campaigns imported successfully, ${importProgress.value.failed} failed.`);
+    }
+}
+
+// Cancel the import process
+const cancelImport = () => {
+    if (importInProgress.value) {
+        importCancelled.value = true;
+    } else {
+        closeImportDialog();
+    }
+}
+
+// Close import dialog
+const closeImportDialog = () => {
+    showImportProgress.value = false;
+    importCancelled.value = false;
+}
+
 const getCategoryName = (categoryId) => {
     const category = availableCategories.value.find(c => c.id === categoryId)
     return category ? category.name : 'Unknown Category'
@@ -1572,6 +1845,11 @@ onMounted(() => {
         const target = event.target
         if (!target.closest('[data-search-toggle]') && !target.closest('.absolute') && showSearchDropdown.value) {
             showSearchDropdown.value = false
+        }
+
+        // Handle more actions dropdown
+        if (!target.closest('[data-more-actions-toggle]') && showMoreActionsDropdown.value) {
+            showMoreActionsDropdown.value = false
         }
     })
 
