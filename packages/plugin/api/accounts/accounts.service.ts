@@ -29,20 +29,6 @@ interface FirebaseProviderProfile {
     uid?: string;
 }
 
-const firebaseProjectId = Config.get('blog.firebaseProjectId', "");
-const firebaseClientEmail = Config.get('blog.firebaseClientEmail', "");
-const firebasePrivateKey = Config.get('blog.firebasePrivateKey', "");
-
-if(firebaseProjectId && firebaseClientEmail && firebasePrivateKey){
-    admin.initializeApp({
-        credential: admin.credential.cert({
-            projectId: firebaseProjectId,
-            clientEmail: firebaseClientEmail,
-            privateKey: firebasePrivateKey.replace(/\\n/g, '\n'),
-        }),
-    });
-}
-
 @Service("accounts")
 export class AccountsService {
     /**
@@ -53,6 +39,23 @@ export class AccountsService {
     async firebaseLogin(payload: FirebaseLoginResult, req: any, res: any){
         const UserEntity = Repository.getEntity("UserEntity");
         const { token } = payload;
+
+        if (!admin.apps.length) {
+            const firebaseProjectId = Config.get('blog.firebaseProjectId', "");
+            const firebaseClientEmail = Config.get('blog.firebaseClientEmail', "");
+            const firebasePrivateKey = Config.get('blog.firebasePrivateKey', "");
+
+            if (!firebaseProjectId || !firebaseClientEmail || !firebasePrivateKey)
+                throw new Error("Firebase config not set");
+
+            admin.initializeApp({
+                credential: admin.credential.cert({
+                    projectId: firebaseProjectId,
+                    clientEmail: firebaseClientEmail,
+                    privateKey: firebasePrivateKey.replace(/\\n/g, '\n'),
+                }),
+            });
+        }
 
         const decodedToken = await getAuth().verifyIdToken(token);
 
