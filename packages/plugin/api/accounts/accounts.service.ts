@@ -57,18 +57,22 @@ export class AccountsService {
             });
         }
 
-        const decodedToken = await getAuth().verifyIdToken(token);
+        const decodedToken: any = await getAuth().verifyIdToken(token);
 
         if(decodedToken){
-            let account = await Repository.findOne(UserEntity, {
-                email: decodedToken.email
-            });
+            if(decodedToken.email != null && decodedToken.email !== "" && decodedToken.email.indexOf("@") > -1){
+                let account = await Repository.findOne(UserEntity, {
+                    email: decodedToken.email,
+                    validated: true,
+                    blocked: false
+                });
 
-            const authAutorizationService = Application.resolveProvider(AuthAutorizationService);
-            const result = await authAutorizationService.autorizeUser(account, req, res, null);
+                const authAutorizationService = Application.resolveProvider(AuthAutorizationService);
+                const result = await authAutorizationService.autorizeUser(account, req, res, null);
 
-            if(result)
-                return result.token;
+                if(result)
+                    return result.token;
+            }
         }
 
         return { success: false, message: "Invalid token" };

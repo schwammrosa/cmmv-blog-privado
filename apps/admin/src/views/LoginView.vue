@@ -78,11 +78,11 @@
                             </div>
                         </div>
 
-                        <div class="mt-6 grid grid-cols-2 gap-3">
+                        <div class="mt-6 flex flex-col gap-3">
                             <button
                                 type="button"
                                 @click="handleSocialLogin('google')"
-                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors"
+                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                                 v-if="settings['blog.firebaseProvidersGoogle'] || settings['blog.supabaseProvidersGoogle']"
                             >
                                 <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -94,7 +94,7 @@
                             <button
                                 type="button"
                                 @click="handleSocialLogin('facebook')"
-                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors"
+                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                                 v-if="settings['blog.firebaseProvidersFacebook'] || settings['blog.supabaseProvidersFacebook']"
                             >
                                 <svg class="h-5 w-5 text-[#1877F2]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -106,7 +106,7 @@
                             <button
                                 type="button"
                                 @click="handleSocialLogin('twitter')"
-                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors"
+                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                                 v-if="settings['blog.firebaseProvidersTwitter'] || settings['blog.supabaseProvidersTwitter']"
                             >
                                 <svg class="h-5 w-5 text-[#1DA1F2]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -118,7 +118,7 @@
                             <button
                                 type="button"
                                 @click="handleSocialLogin('github')"
-                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors"
+                                class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                                 v-if="settings['blog.firebaseProvidersGithub'] || settings['blog.supabaseProvidersGithub']"
                             >
                                 <svg class="h-5 w-5 text-[#24292F] dark:text-gray-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
