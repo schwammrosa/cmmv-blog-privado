@@ -11,6 +11,7 @@ export const useAdminClient = () => {
         setWhitelabel: (key: string, value: any) => api.setSettingsWhitelabel(key, value),
         update: (data: any) => api.updateSettings(data),
         saveSetup: (data: any) => api.saveSetup(data),
+        getSignature: () => api.getSignature(),
     };
 
     const profile = {

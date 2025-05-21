@@ -149,6 +149,22 @@ export function useApi() {
         return data ? data : null;
     }
 
+    const getSignature = async () => {
+        const response = await fetch(
+            "/api/get-signature",
+            {
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token.value}`
+                },
+            }
+        )
+
+        const data: any = await response.text();
+        return data ? data : null;
+    }
+
     const setSettings = async (key: string, value: any, root: boolean = true) => {
         const response = await authRequest(`settings/set`, 'PUT', { key, value }, {}, root);
         return response.data ? response.data : null;
@@ -257,6 +273,7 @@ export function useApi() {
         saveSetup,
         setWhitelabel,
         getWhitelabel,
+        getSignature,
         ...methods,
     }
 }
