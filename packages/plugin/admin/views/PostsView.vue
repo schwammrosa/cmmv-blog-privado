@@ -19,6 +19,14 @@
                     </svg>
                     Bulk Schedule
                 </button>
+                <!-- Adicionar botão para processamento em lote de imagens -->
+                <button @click="openBulkImageProcessDialog"
+                    class="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Processar Imagens
+                </button>
                 <!-- Add search button with dropdown -->
                 <div class="relative">
                     <button @click="toggleSearchDropdown" data-search-toggle
@@ -198,6 +206,17 @@
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </button>
+                        <!-- Adicionar botão para processamento individual de imagem -->
+                        <button 
+                            v-if="post.featureImage && isImageUnprocessed(post.featureImage)"
+                            @click="processImage(post.id)" 
+                            class="text-amber-400 hover:text-amber-300 p-1 cursor-pointer"
+                            title="Processar imagem"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </button>
                         <button @click="deletePost(post.id)" class="text-neutral-400 hover:text-red-500 p-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -305,6 +324,17 @@
                                                 viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <!-- Adicionar botão para processamento individual de imagem -->
+                                        <button 
+                                            v-if="post.featureImage && isImageUnprocessed(post.featureImage)"
+                                            @click="processImage(post.id)" 
+                                            class="text-amber-400 hover:text-amber-300 p-1 cursor-pointer"
+                                            title="Processar imagem"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
                                         </button>
                                         <button @click="deletePost(post.id)" class="text-neutral-400 hover:text-red-500 p-1 cursor-pointer"
@@ -495,6 +525,262 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adicionar diálogo de processamento em lote de imagens -->
+    <div v-if="showBulkImageProcessDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
+        <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-2xl mx-auto">
+            <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-white">Processamento em Lote de Imagens</h3>
+                <button @click="closeBulkImageProcessDialog" class="text-neutral-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-md font-medium text-white">Posts com Imagens Não Processadas</h4>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="selectAllImages" v-model="selectAllImages" @change="toggleSelectAllImages" class="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-neutral-600 bg-neutral-700">
+                            <label for="selectAllImages" class="text-sm text-neutral-300">Selecionar Todos</label>
+                        </div>
+                    </div>
+                    <div v-if="loadingPostsWithImages" class="py-4 flex justify-center">
+                        <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                    </div>
+                    <div v-else-if="postsWithUnprocessedImages.length === 0" class="py-4 text-center text-neutral-400">
+                        Todos os posts já possuem imagens processadas.
+                    </div>
+                    <div v-else class="max-h-64 overflow-y-auto border border-neutral-700 rounded-md">
+                        <div class="divide-y divide-neutral-700">
+                            <div v-for="post in postsWithUnprocessedImages" :key="post.id" class="flex items-center p-3 hover:bg-neutral-750">
+                                <input
+                                    type="checkbox"
+                                    :id="'image-post-' + post.id"
+                                    v-model="selectedPostsForImageProcess"
+                                    :value="post.id"
+                                    class="mr-3 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-neutral-600 bg-neutral-700"
+                                >
+                                <label :for="'image-post-' + post.id" class="text-sm text-white cursor-pointer flex-1 truncate mr-3">
+                                    {{ post.title }}
+                                </label>
+                                <div class="w-20 h-12 overflow-hidden rounded">
+                                    <img v-if="post.featureImage" :src="post.featureImage" alt="Imagem" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-6">
+                    <button
+                        type="button"
+                        @click="closeBulkImageProcessDialog"
+                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
+                        :disabled="imageProcessingLoading"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        @click="processBulkImages"
+                        class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors"
+                        :disabled="selectedPostsForImageProcess.length === 0 || imageProcessingLoading"
+                    >
+                        <span v-if="imageProcessingLoading" class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processando...
+                        </span>
+                        <span v-else>Processar {{ selectedPostsForImageProcess.length }} Imagens</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Overlay de Progresso de Processamento -->
+            <div
+                v-if="imageProcessingLoading"
+                class="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10 px-6"
+            >
+                <div class="bg-neutral-800 rounded-lg shadow-lg max-w-md w-full p-6">
+                    <div class="text-center mb-4">
+                        <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mb-3"></div>
+                        <h3 class="text-lg font-medium text-white">Processando Imagens</h3>
+                        <p class="text-neutral-400 mt-1">Aguarde enquanto as imagens estão sendo processadas</p>
+                    </div>
+
+                    <!-- Barra de progresso -->
+                    <div class="w-full bg-neutral-700 rounded-full h-4 mb-3">
+                        <div
+                            class="bg-amber-600 h-4 rounded-full transition-all duration-300 ease-out"
+                            :style="{ width: `${(imageProcessingProgress.completed / imageProcessingProgress.total) * 100}%` }"
+                        ></div>
+                    </div>
+
+                    <div class="text-center text-sm text-neutral-300 mb-4">
+                        <span>{{ imageProcessingProgress.completed }} de {{ imageProcessingProgress.total }} imagens processadas</span>
+                    </div>
+
+                    <!-- Post sendo processado atualmente -->
+                    <div v-if="imageProcessingProgress.currentPost" class="mb-4">
+                        <p class="text-sm text-neutral-400">Processando post:</p>
+                        <p class="text-sm font-medium text-white truncate">{{ imageProcessingProgress.currentPost }}</p>
+                    </div>
+
+                    <!-- Posts processados recentemente -->
+                    <div v-if="imageProcessingProgress.processedPosts.length > 0" class="mt-4">
+                        <p class="text-sm text-neutral-400 mb-2">Processados recentemente:</p>
+                        <div class="max-h-32 overflow-y-auto">
+                            <div v-for="(post, index) in imageProcessingProgress.processedPosts.slice().reverse().slice(0, 5)" :key="index"
+                                class="flex items-center py-1 border-b border-neutral-700 last:border-b-0">
+                                <div :class="post.success ? 'text-green-500' : 'text-red-500'" class="mr-2">
+                                    <svg v-if="post.success" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 truncate text-sm">
+                                    <span v-if="post.success" class="text-neutral-300">{{ post.title }}</span>
+                                    <span v-else class="text-amber-400">{{ post.title }} - Imagem original preservada</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Adicionar resumo de falhas -->
+                    <div v-if="imageProcessingProgress.failedPosts && imageProcessingProgress.failedPosts.length > 0" class="mt-4 bg-neutral-750 border border-amber-900/50 rounded-md p-3">
+                        <p class="text-sm text-amber-400 font-medium mb-2">Atenção: Imagens preservadas</p>
+                        <p class="text-xs text-neutral-300 mb-2">
+                            {{ imageProcessingProgress.failedPosts.length }} imagens não puderam ser processadas, 
+                            mas foram preservadas em seus formatos originais.
+                        </p>
+                        <p class="text-xs text-neutral-400">
+                            As imagens antigas ou em formatos especiais foram mantidas para evitar a perda de conteúdo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Adicionar diálogo de resultados do processamento -->
+    <div v-if="showImageProcessingResultsDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
+        <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-2xl mx-auto">
+            <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-white">Resultados do Processamento de Imagens</h3>
+                <button @click="showImageProcessingResultsDialog = false" class="text-neutral-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <div class="flex items-center mb-4">
+                        <div class="w-1/2 flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white font-bold mr-3">
+                                <span>{{ processingResults.success.length }}</span>
+                            </div>
+                            <span class="text-white">Imagens processadas com sucesso</span>
+                        </div>
+                        <div class="w-1/2 flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold mr-3">
+                                <span>{{ processingResults.failed.length }}</span>
+                            </div>
+                            <span class="text-white">Imagens originais preservadas</span>
+                        </div>
+                    </div>
+
+                    <!-- Tabs para alternar entre processados e preservados -->
+                    <div class="border-b border-neutral-700 mb-4">
+                        <div class="flex">
+                            <button 
+                                @click="activeResultTab = 'success'"
+                                class="px-4 py-2 font-medium text-sm"
+                                :class="activeResultTab === 'success' ? 'text-white border-b-2 border-green-500' : 'text-neutral-400 hover:text-white'"
+                            >
+                                Processados
+                            </button>
+                            <button 
+                                @click="activeResultTab = 'failed'"
+                                class="px-4 py-2 font-medium text-sm"
+                                :class="activeResultTab === 'failed' ? 'text-white border-b-2 border-amber-500' : 'text-neutral-400 hover:text-white'"
+                            >
+                                Preservados
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de imagens processadas com sucesso -->
+                    <div v-if="activeResultTab === 'success'" class="max-h-96 overflow-y-auto">
+                        <div v-if="processingResults.success.length === 0" class="text-center py-6 text-neutral-400">
+                            Nenhuma imagem foi processada com sucesso.
+                        </div>
+                        <div v-else class="space-y-3">
+                            <div v-for="(post, index) in processingResults.success" :key="index" class="bg-neutral-750 p-3 rounded-md">
+                                <div class="flex items-center">
+                                    <div class="mr-3 w-16 h-12 bg-neutral-700 rounded overflow-hidden flex-shrink-0">
+                                        <img v-if="post.newImage" :src="post.newImage" class="w-full h-full object-cover" alt="Nova imagem">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-sm font-medium text-white truncate">{{ post.title }}</h4>
+                                        <p class="text-xs text-green-400">Processada com sucesso</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de imagens originais preservadas -->
+                    <div v-if="activeResultTab === 'failed'" class="max-h-96 overflow-y-auto">
+                        <div v-if="processingResults.failed.length === 0" class="text-center py-6 text-neutral-400">
+                            Todas as imagens foram processadas com sucesso.
+                        </div>
+                        <div v-else>
+                            <div class="bg-amber-900/20 border border-amber-900/30 rounded-md p-3 mb-4">
+                                <p class="text-sm text-amber-400 font-medium">Informação importante</p>
+                                <p class="text-xs text-neutral-300 mt-1">
+                                    As imagens abaixo foram preservadas em seu formato original para evitar perda de conteúdo.
+                                    Elas continuarão funcionando normalmente, mas podem não se beneficiar de otimizações.
+                                </p>
+                            </div>
+                            <div class="space-y-3">
+                                <div v-for="(post, index) in processingResults.failed" :key="index" class="bg-neutral-750 p-3 rounded-md">
+                                    <div class="flex items-center">
+                                        <div class="mr-3 w-16 h-12 bg-neutral-700 rounded overflow-hidden flex-shrink-0">
+                                            <img v-if="post.originalImage" :src="post.originalImage" class="w-full h-full object-cover" alt="Imagem original">
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="text-sm font-medium text-white truncate">{{ post.title }}</h4>
+                                            <p class="text-xs text-amber-400">Imagem original preservada</p>
+                                            <p v-if="post.error && post.error !== 'Processamento falhou - imagem original preservada'" class="text-xs text-neutral-500 truncate mt-1">
+                                                Motivo: {{ post.error }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button
+                        type="button"
+                        @click="showImageProcessingResultsDialog = false"
+                        class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
+                    >
+                        Fechar
+                    </button>
                 </div>
             </div>
         </div>
@@ -1123,4 +1409,340 @@ function formatDateTimeForInput(date) {
 
     return `${year}-${month}-${day}T${hours}:${minutes}`
 }
+
+// Add new variables for bulk image processing
+const showBulkImageProcessDialog = ref(false)
+const postsWithUnprocessedImages = ref([])
+const loadingPostsWithImages = ref(false)
+const selectedPostsForImageProcess = ref([])
+const selectAllImages = ref(false)
+const imageProcessingLoading = ref(false)
+const imageProcessingProgress = ref({
+    total: 0,
+    completed: 0,
+    currentPost: null,
+    processedPosts: [],
+    failedPosts: [] // Adicionar lista de posts que falharam
+})
+
+// Add these new functions for bulk image processing
+function openBulkImageProcessDialog() {
+    showBulkImageProcessDialog.value = true
+    loadingPostsWithImages.value = true
+    selectedPostsForImageProcess.value = []
+    selectAllImages.value = false
+    loadPostsWithUnprocessedImages()
+}
+
+function closeBulkImageProcessDialog() {
+    showBulkImageProcessDialog.value = false
+    postsWithUnprocessedImages.value = []
+    selectedPostsForImageProcess.value = []
+}
+
+async function loadPostsWithUnprocessedImages() {
+    try {
+        loadingPostsWithImages.value = true;
+
+        const response = await adminClient.posts.get({
+            limit: 100, // Aumentar o limite ou implementar paginação se necessário
+            // status: 'published', // Removido para buscar de todos os status
+            status: 'draft' || 'cron',
+            sortBy: 'createdAt',
+            sort: 'desc'
+        });
+
+        if (response && response.posts) {
+            // Filtrar posts que têm imagens não processadas
+            postsWithUnprocessedImages.value = response.posts.filter(post => 
+                post.featureImage && isImageUnprocessed(post.featureImage)
+            ).map(post => ({
+                ...post,
+                author: typeof post.author === 'object' ? post.author.name : post.author,
+                authorImage: typeof post.author === 'object' ? post.author.image : null,
+            }));
+        } else {
+            postsWithUnprocessedImages.value = [];
+        }
+
+        loadingPostsWithImages.value = false;
+    } catch (error) {
+        console.error('Falha ao carregar posts com imagens não processadas:', error);
+        postsWithUnprocessedImages.value = [];
+        loadingPostsWithImages.value = false;
+        showNotification('error', 'Falha ao carregar posts com imagens não processadas');
+    }
+}
+
+function toggleSelectAllImages() {
+    if (selectAllImages.value) {
+        selectedPostsForImageProcess.value = postsWithUnprocessedImages.value.map(post => post.id)
+    } else {
+        selectedPostsForImageProcess.value = []
+    }
+}
+
+// Watch selectedPostsForImageProcess to update selectAllImages state
+watch(selectedPostsForImageProcess, (newVal) => {
+    selectAllImages.value = newVal.length > 0 && newVal.length === postsWithUnprocessedImages.value.length
+})
+
+// Update the processImage function to implement safety mechanisms
+async function processImage(postId) {
+    try {
+        // Buscar o post por ID
+        const postResponse = await adminClient.posts.getById(postId);
+        
+        if (!postResponse || !postResponse.featureImage) {
+            throw new Error('Post ou imagem não encontrada');
+        }
+        
+        const post = postResponse;
+        const originalImageUrl = post.featureImage;
+        
+        // Verificar se a imagem precisa ser processada
+        if (!isImageUnprocessed(originalImageUrl)) {
+            return; // Imagem já processada, nada a fazer
+        }
+        
+        let processedImageUrl = '';
+        let success = false;
+        
+        try {
+            // Processar a imagem de acordo com seu tipo
+            if (originalImageUrl.startsWith('data:')) {
+                // Converter imagem base64 para blob
+                const formData = new FormData();
+                try {
+                    const blob = await fetch(originalImageUrl).then(r => r.blob());
+                    formData.append('file', blob, 'feature-image.jpg');
+                    
+                    // Fazer upload para o servidor
+                    const response = await adminClient.medias.upload(formData);
+                    
+                    if (response && response.url) {
+                        processedImageUrl = response.url;
+                        success = true;
+                    } else {
+                        console.warn('Resultado de upload sem URL, usando imagem original');
+                    }
+                } catch (uploadError) {
+                    console.error('Erro ao processar imagem base64:', uploadError);
+                    // Mantém a imagem original
+                }
+            } else if (originalImageUrl.includes('://')) {
+                try {
+                    // Importar imagem de URL externa
+                    const response = await adminClient.medias.importFromUrl({
+                        url: originalImageUrl,
+                        alt: post.featureImageAlt || '',
+                        caption: post.featureImageCaption || ''
+                    });
+                    
+                    if (response && response.url) {
+                        processedImageUrl = response.url;
+                        success = true;
+                    } else {
+                        console.warn('Resultado de importação sem URL, usando imagem original');
+                    }
+                } catch (importError) {
+                    console.error('Erro ao importar imagem externa:', importError);
+                    // Mantém a imagem original
+                }
+            }
+            
+            // Verificar resultado do processamento
+            if (!success || !processedImageUrl) {
+                console.warn(`Processamento falhou para imagem: ${originalImageUrl.substring(0, 50)}... - Mantendo original`);
+                // Registramos a falha mas não atualizamos a imagem para não perder a referência original
+                return false;
+            }
+            
+            // Atualizar o post com a nova URL da imagem apenas se o processamento foi bem-sucedido
+            const updateData = {
+                post: {
+                    ...post,
+                    featureImage: processedImageUrl,
+                    // Guardar a URL original como backup em um campo de metadados
+                    originalFeatureImage: originalImageUrl,
+                    // Garantir que categories e tags estejam no formato correto
+                    categories: post.categories
+                        ? post.categories.map(cat => (typeof cat === 'object' && cat.id != null) ? cat.id : cat).filter(id => id != null)
+                        : [],
+                    tags: post.tags
+                        ? post.tags.map(tag => (typeof tag === 'object' && tag.name != null) ? tag.name : tag).filter(name => name != null)
+                        : []
+                }
+            };
+            
+            await adminClient.posts.save(updateData);
+            
+            showNotification('success', 'Imagem processada com sucesso');
+            
+            // Atualizar a lista de posts
+            const postIndex = posts.value.findIndex(p => p.id === postId);
+            if (postIndex !== -1) {
+                posts.value[postIndex].featureImage = processedImageUrl;
+            }
+            
+            return true;
+        } catch (processingError) {
+            console.error('Erro no processamento de imagem:', processingError);
+            // Não alterar a imagem original em caso de erro no processamento
+            return false;
+        }
+    } catch (err) {
+        console.error(`Falha ao processar imagem para o post ${postId}:`, err);
+        showNotification('error', `Falha ao processar imagem: ${err.message}`);
+        // Não lançar erro para evitar interrupção do processamento em lote
+        return false;
+    }
+}
+
+// Process multiple images in bulk with safety mechanisms
+async function processBulkImages() {
+    if (selectedPostsForImageProcess.value.length === 0) return;
+
+    try {
+        imageProcessingLoading.value = true;
+
+        // Reset and initialize progress tracking
+        imageProcessingProgress.value = {
+            total: selectedPostsForImageProcess.value.length,
+            completed: 0,
+            currentPost: null,
+            processedPosts: [],
+            failedPosts: [] // Adicionar lista de posts que falharam
+        };
+
+        // Reset dos resultados
+        processingResults.value = {
+            success: [],
+            failed: []
+        };
+
+        const results = [];
+        const failedImages = []; // Lista para registrar imagens que não puderam ser processadas
+
+        for (const postId of selectedPostsForImageProcess.value) {
+            try {
+                // Update current post in progress
+                const post = postsWithUnprocessedImages.value.find(p => p.id === postId);
+                imageProcessingProgress.value.currentPost = post ? post.title : postId;
+
+                // Process the image
+                const processResult = await processImage(postId);
+
+                // Se processou com sucesso, obter a nova URL da imagem
+                if (processResult === true) {
+                    const updatedPost = await adminClient.posts.getById(postId);
+                    const result = {
+                        id: postId,
+                        title: post.title,
+                        newImage: updatedPost.featureImage,
+                        success: true
+                    };
+                    results.push(result);
+                    processingResults.value.success.push(result);
+                    imageProcessingProgress.value.processedPosts.push(result);
+                } else {
+                    // Registrar falha mas preservar a imagem original
+                    const failedResult = {
+                        id: postId,
+                        title: post.title,
+                        originalImage: post.featureImage,
+                        error: "Processamento falhou - imagem original preservada",
+                        success: false
+                    };
+                    failedImages.push(failedResult);
+                    processingResults.value.failed.push(failedResult);
+                    results.push(failedResult);
+                    imageProcessingProgress.value.processedPosts.push(failedResult);
+                    imageProcessingProgress.value.failedPosts.push(failedResult);
+                }
+
+                // Update progress
+                imageProcessingProgress.value.completed++;
+            } catch (err) {
+                console.error(`Falha ao processar imagem para o post ${postId}:`, err);
+                const failedResult = {
+                    id: postId,
+                    title: postsWithUnprocessedImages.value.find(p => p.id === postId)?.title || postId,
+                    originalImage: postsWithUnprocessedImages.value.find(p => p.id === postId)?.featureImage,
+                    error: err.message,
+                    success: false
+                };
+                results.push(failedResult);
+                processingResults.value.failed.push(failedResult);
+                failedImages.push(failedResult);
+                imageProcessingProgress.value.completed++;
+                imageProcessingProgress.value.processedPosts.push(failedResult);
+                imageProcessingProgress.value.failedPosts.push(failedResult);
+            }
+        }
+
+        // Count successes
+        const successCount = results.filter(r => r.success).length;
+        const failedCount = failedImages.length;
+
+        if (successCount === selectedPostsForImageProcess.value.length) {
+            showNotification('success', `${successCount} imagens processadas com sucesso`);
+        } else if (failedCount === selectedPostsForImageProcess.value.length) {
+            showNotification('error', `Nenhuma imagem pôde ser processada. As imagens originais foram preservadas.`);
+        } else {
+            showNotification('warning', `Processadas ${successCount} de ${selectedPostsForImageProcess.value.length} imagens. ${failedCount} imagens não puderam ser processadas mas foram preservadas.`);
+        }
+
+        // Registrar no console as imagens que falharam para referência
+        if (failedImages.length > 0) {
+            console.log('Imagens que não puderam ser processadas (preservadas):', failedImages);
+        }
+
+        imageProcessingLoading.value = false;
+        closeBulkImageProcessDialog();
+        
+        // Mostrar o diálogo de resultados
+        if (processingResults.value.success.length > 0 || processingResults.value.failed.length > 0) {
+            activeResultTab.value = processingResults.value.failed.length > 0 ? 'failed' : 'success';
+            showImageProcessingResultsDialog.value = true;
+        }
+        
+        loadPosts(); // Refresh the main posts list
+    } catch (error) {
+        console.error('Falha ao processar imagens em lote:', error);
+        imageProcessingLoading.value = false;
+        showNotification('error', 'Falha ao processar imagens em lote: ' + error.message);
+    }
+}
+
+// Add a helper function to check if an image is unprocessed
+function isImageUnprocessed(imageUrl) {
+    if(!imageUrl)
+        return false;
+
+    if(imageUrl.startsWith("https://static") || imageUrl.startsWith("https://cdn"))
+        return false;
+
+    if(!imageUrl.includes(window.location.hostname) &&
+        !imageUrl.includes(blogUrl.value))
+        return true;
+
+    if (imageUrl && (
+        imageUrl.startsWith('data:') ||
+        (imageUrl.startsWith('/') && !imageUrl.includes('://')) ||
+        imageUrl.includes('imageProxy')
+    )) {
+        return true;
+    }
+
+    return false;
+}
+
+// Adicionar variáveis para o diálogo de resultados
+const showImageProcessingResultsDialog = ref(false)
+const activeResultTab = ref('success')
+const processingResults = ref({
+    success: [],
+    failed: []
+})
 </script>
