@@ -5,12 +5,6 @@
             <h1 class="text-2xl font-bold text-white">Feed Raws</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
                 <!-- Add search dropdown button -->
-                <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Refresh
-                </button>
                 <div class="relative">
                     <button @click="toggleSearchDropdown" data-search-toggle
                         class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
@@ -97,11 +91,17 @@
                     </svg>
                     {{ classifyLoading ? 'Classifying...' : 'Classify with AI' }}
                 </button>
-                <button @click="openBulkReprocessDialog" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
+                <button @click="openBulkReprocessDialog" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
-                    Batch Reprocess
+                    Reprocessar em Lote
                 </button>
             </div>
         </div>
@@ -708,7 +708,7 @@
         <div v-if="showBulkReprocessDialog" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4" style="backdrop-filter: blur(4px);">
             <div class="bg-neutral-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
                 <div class="flex justify-between items-center mb-4 border-b border-neutral-700 pb-3">
-                    <h3 class="text-xl font-semibold text-white">Batch Reprocess Feed Items</h3>
+                    <h3 class="text-xl font-semibold text-white">Bulk Reprocess Feed Items</h3>
                     <button @click="closeBulkReprocessDialog" class="text-neutral-400 hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -728,7 +728,7 @@
                         <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
                     </div>
                     <div v-else-if="feedItems.length === 0" class="py-4 text-center text-neutral-400">
-                        No feed items to reprocess.
+                        No items in the feed to reprocess.
                     </div>
                     <div v-else class="max-h-80 overflow-y-auto border border-neutral-700 rounded-md">
                         <div class="divide-y divide-neutral-700">
@@ -747,7 +747,7 @@
                             </div>
                         </div>
                     </div>
-                     <p class="text-xs text-neutral-500 mt-2">Only items currently visible in the main list are shown here. Use the main page filters to refine the selection if needed.</p>
+                     <p class="text-xs text-neutral-500 mt-2">Only items currently visible in the main list are shown here. Use the main page filters to refine the selection if necessary.</p>
                 </div>
 
                 <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-neutral-700">
@@ -760,7 +760,7 @@
                     </button>
                     <button
                         @click="startBulkReprocess"
-                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors"
                         :disabled="selectedItemsForReprocess.length === 0 || bulkReprocessLoading"
                     >
                         <span v-if="bulkReprocessLoading" class="flex items-center">
@@ -780,14 +780,14 @@
         <div v-if="bulkReprocessLoading" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" style="backdrop-filter: blur(4px);">
             <div class="bg-neutral-800 rounded-lg shadow-xl max-w-md w-full p-6">
                 <div class="text-center mb-4">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-3"></div>
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mb-3"></div>
                     <h3 class="text-lg font-medium text-white">Reprocessing Feed Items</h3>
                     <p class="text-neutral-400 mt-1">Please wait...</p>
                 </div>
 
                 <div class="w-full bg-neutral-700 rounded-full h-4 mb-3">
                     <div
-                        class="bg-blue-600 h-4 rounded-full transition-all duration-300 ease-out"
+                        class="bg-orange-600 h-4 rounded-full transition-all duration-300 ease-out"
                         :style="{ width: `${(bulkReprocessProgress.completed / bulkReprocessProgress.total) * 100}%` }"
                     ></div>
                 </div>
@@ -852,6 +852,7 @@ interface FeedItem {
     channel: string;
     postRef?: string;
     suggestedTags?: string[];
+    suggestedCategories?: string[];
     relevance?: number;
 }
 
@@ -912,6 +913,12 @@ const editedContent = ref<string | null>(null);
 const promptsList = ref<any[]>([]);
 const selectedPrompt = ref<string>('default');
 const loadingPrompts = ref<boolean>(false);
+
+// Helper function to remove accents
+const removeAccents = (str: string): string => {
+    if (!str) return '';
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
 
 const notification = ref<NotificationData>({
     show: false,
@@ -1018,7 +1025,7 @@ const loadChannels = async (): Promise<void> => {
 
         if (response && response.data) {
             channels.value = response.data || [];
-            console.log(`Loaded ${channels.value.length} channels`);
+            //console.log(`Loaded ${channels.value.length} channels`);
         }
     } catch (err: unknown) {
         console.error('Failed to load channels:', err);
@@ -1036,7 +1043,7 @@ const loadCategories = async (): Promise<void> => {
 
         if (response && response.data) {
             categories.value = response.data || [];
-            console.log(`Loaded ${categories.value.length} categories`);
+            //console.log(`Loaded ${categories.value.length} categories`);
         }
         loadingCategories.value = false;
     } catch (err: unknown) {
@@ -1139,11 +1146,67 @@ const generateAIContent = async (): Promise<void> => {
                             ...previewItem.value,
                             title: response.title,
                             content: response.content,
-                            suggestedTags: response.suggestedTags || []
+                            suggestedTags: response.suggestedTags || [],
+                            suggestedCategories: response.suggestedCategories || []
                         };
 
-                        if (response.suggestedTags && response.suggestedTags.length > 0)
+                        if (response.suggestedTags && response.suggestedTags.length > 0) {
                             selectedTags.value = [...response.suggestedTags];
+                        }
+
+                        // Auto-select categories based on AI suggestion
+                        if (response.suggestedCategories && response.suggestedCategories.length > 0 && categories.value.length > 0) {
+                            const suggestedCategoryNames = response.suggestedCategories.map((cat: string) => cat.toLowerCase());
+                            //console.log('[DEBUG] Suggested Category Names (AI):', suggestedCategoryNames);
+                            //console.log('[DEBUG] Available Categories (System):', JSON.parse(JSON.stringify(categories.value)));
+
+                            const matchingCategoryIds = categories.value
+                                .filter(category => {
+                                    const systemCategoryNameLower = removeAccents(category.name.toLowerCase());
+                                    const normalizedSuggestedCategories = suggestedCategoryNames.map((sc: string) => removeAccents(sc));
+
+                                    // Check if the exact system category name is included in any AI suggestion string
+                                    let isMatch = normalizedSuggestedCategories.some((aiSuggest: string) => aiSuggest.includes(systemCategoryNameLower));
+
+                                    // If not, check if any word from the system category name is in any AI suggestion word list
+                                    if (!isMatch) {
+                                        const systemWords = systemCategoryNameLower.split(/\s+/);
+                                        isMatch = normalizedSuggestedCategories.some((aiSuggest: string) => {
+                                            const aiWords = aiSuggest.split(/\s+/);
+                                            // Check for partial matches between individual words
+                                            return systemWords.some(sysWord => 
+                                                aiWords.some(aiWord => {
+                                                    let partMatch = false;
+                                                    if (sysWord.length < 3 || aiWord.length < 3) {
+                                                        partMatch = sysWord === aiWord;
+                                                    } else {
+                                                        partMatch = sysWord.includes(aiWord) || aiWord.includes(sysWord);
+                                                    }
+                                                    
+                                                    //if (partMatch) {
+                                                    //    console.log(`[DEBUG] Word match: sysWord="${sysWord}", aiWord="${aiWord}" from aiSuggest="${aiSuggest}"`);
+                                                    //}
+                                                    return partMatch;
+                                                })
+                                            );
+                                        });
+                                    }
+                                    
+                                    // Also check if any AI suggested category name is included in the system category name (for shorter AI suggestions)
+                                    if (!isMatch) {
+                                        isMatch = normalizedSuggestedCategories.some((aiSuggest: string) => systemCategoryNameLower.includes(aiSuggest));
+                                    }
+
+                                    //if (isMatch) {
+                                    //    console.log(`[DEBUG] Match found: AI Suggs: "${normalizedSuggestedCategories.join(", ")}" vs System-"${category.name}" (Normalized: "${systemCategoryNameLower}") (ID: ${category.id})`);
+                                    //}
+                                    return isMatch;
+                                })
+                                .map(category => category.id);
+
+                            //console.log('[DEBUG] Matching Category IDs for auto-selection:', matchingCategoryIds);
+                            selectedCategories.value = [...new Set([...selectedCategories.value, ...matchingCategoryIds])];
+                        }
 
                         if (previewItem.value.featureImage) {
                             try {
@@ -1356,7 +1419,7 @@ const handleImageError = (event: Event): void => {
 
     if (!originalSrc.includes('/feed/raw/imageProxy')) {
         const proxyUrl = `/feed/raw/imageProxy?url=${encodeURIComponent(originalSrc)}`;
-        console.log('Tentando carregar imagem via proxy:', proxyUrl);
+        //console.log('Tentando carregar imagem via proxy:', proxyUrl);
 
         target.onerror = () => {
             console.error('Falha ao carregar imagem mesmo usando proxy:', originalSrc);
@@ -1867,9 +1930,9 @@ const startBulkReprocess = async (): Promise<void> => {
 
     const successCount = bulkReprocessProgress.value.processedItems.filter(r => r.success).length;
     if (successCount === bulkReprocessProgress.value.total) {
-        showNotification('success', `Todos os ${successCount} itens foram reprocessados com sucesso.`);
+        showNotification('success', `All ${successCount} items were reprocessed successfully.`);
     } else {
-        showNotification('warning', `${successCount} de ${bulkReprocessProgress.value.total} itens reprocessados com sucesso. Verifique o console para erros.`);
+        showNotification('warning', `${successCount} of ${bulkReprocessProgress.value.total} items reprocessed successfully. Check console for errors.`);
     }
 
     bulkReprocessLoading.value = false;
