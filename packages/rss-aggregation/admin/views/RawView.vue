@@ -5,6 +5,12 @@
             <h1 class="text-2xl font-bold text-white">Feed Raws</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
                 <!-- Add search dropdown button -->
+                <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh
+                </button>
                 <div class="relative">
                     <button @click="toggleSearchDropdown" data-search-toggle
                         class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
@@ -91,17 +97,11 @@
                     </svg>
                     {{ classifyLoading ? 'Classifying...' : 'Classify with AI' }}
                 </button>
-                <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Refresh
-                </button>
-                <button @click="openBulkReprocessDialog" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                <button @click="openBulkReprocessDialog" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
-                    Reprocessar em Lote
+                    Batch Reprocess
                 </button>
             </div>
         </div>
@@ -708,7 +708,7 @@
         <div v-if="showBulkReprocessDialog" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4" style="backdrop-filter: blur(4px);">
             <div class="bg-neutral-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
                 <div class="flex justify-between items-center mb-4 border-b border-neutral-700 pb-3">
-                    <h3 class="text-xl font-semibold text-white">Reprocessar Itens do Feed em Lote</h3>
+                    <h3 class="text-xl font-semibold text-white">Batch Reprocess Feed Items</h3>
                     <button @click="closeBulkReprocessDialog" class="text-neutral-400 hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -718,17 +718,17 @@
 
                 <div class="mb-4">
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="text-md font-medium text-white">Selecionar Itens para Reprocessar</h4>
+                        <h4 class="text-md font-medium text-white">Select Items to Reprocess</h4>
                         <div class="flex items-center">
                             <input type="checkbox" id="selectAllItemsForReprocess" v-model="selectAllForReprocess" @change="toggleSelectAllForReprocess" class="mr-2 h-4 w-4 rounded text-blue-600 focus:ring-blue-500 border-neutral-600 bg-neutral-700">
-                            <label for="selectAllItemsForReprocess" class="text-sm text-neutral-300">Selecionar Todos Visíveis</label>
+                            <label for="selectAllItemsForReprocess" class="text-sm text-neutral-300">Select All Visible</label>
                         </div>
                     </div>
                     <div v-if="loading" class="py-4 flex justify-center">
                         <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
                     </div>
                     <div v-else-if="feedItems.length === 0" class="py-4 text-center text-neutral-400">
-                        Nenhum item no feed para reprocessar.
+                        No feed items to reprocess.
                     </div>
                     <div v-else class="max-h-80 overflow-y-auto border border-neutral-700 rounded-md">
                         <div class="divide-y divide-neutral-700">
@@ -747,7 +747,7 @@
                             </div>
                         </div>
                     </div>
-                     <p class="text-xs text-neutral-500 mt-2">Apenas os itens atualmente visíveis na lista principal são mostrados aqui. Use os filtros da página principal para refinar a seleção, se necessário.</p>
+                     <p class="text-xs text-neutral-500 mt-2">Only items currently visible in the main list are shown here. Use the main page filters to refine the selection if needed.</p>
                 </div>
 
                 <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-neutral-700">
@@ -756,11 +756,11 @@
                         class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded-md transition-colors"
                         :disabled="bulkReprocessLoading"
                     >
-                        Cancelar
+                        Cancel
                     </button>
                     <button
                         @click="startBulkReprocess"
-                        class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md transition-colors"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
                         :disabled="selectedItemsForReprocess.length === 0 || bulkReprocessLoading"
                     >
                         <span v-if="bulkReprocessLoading" class="flex items-center">
@@ -768,9 +768,9 @@
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
-                            Reprocessando...
+                            Reprocessing...
                         </span>
-                        <span v-else>Reprocessar {{ selectedItemsForReprocess.length }} Itens</span>
+                        <span v-else>Reprocess {{ selectedItemsForReprocess.length }} Items</span>
                     </button>
                 </div>
             </div>
@@ -780,29 +780,29 @@
         <div v-if="bulkReprocessLoading" class="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4" style="backdrop-filter: blur(4px);">
             <div class="bg-neutral-800 rounded-lg shadow-xl max-w-md w-full p-6">
                 <div class="text-center mb-4">
-                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500 mb-3"></div>
-                    <h3 class="text-lg font-medium text-white">Reprocessando Itens do Feed</h3>
-                    <p class="text-neutral-400 mt-1">Por favor, aguarde...</p>
+                    <div class="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mb-3"></div>
+                    <h3 class="text-lg font-medium text-white">Reprocessing Feed Items</h3>
+                    <p class="text-neutral-400 mt-1">Please wait...</p>
                 </div>
 
                 <div class="w-full bg-neutral-700 rounded-full h-4 mb-3">
                     <div
-                        class="bg-orange-600 h-4 rounded-full transition-all duration-300 ease-out"
+                        class="bg-blue-600 h-4 rounded-full transition-all duration-300 ease-out"
                         :style="{ width: `${(bulkReprocessProgress.completed / bulkReprocessProgress.total) * 100}%` }"
                     ></div>
                 </div>
 
                 <div class="text-center text-sm text-neutral-300 mb-4">
-                    <span>{{ bulkReprocessProgress.completed }} de {{ bulkReprocessProgress.total }} itens reprocessados</span>
+                    <span>{{ bulkReprocessProgress.completed }} of {{ bulkReprocessProgress.total }} items reprocessed</span>
                 </div>
 
                 <div v-if="bulkReprocessProgress.currentItem" class="mb-4">
-                    <p class="text-sm text-neutral-400">Reprocessando atualmente:</p>
+                    <p class="text-sm text-neutral-400">Currently reprocessing:</p>
                     <p class="text-sm font-medium text-white truncate">{{ bulkReprocessProgress.currentItem }}</p>
                 </div>
 
                 <div v-if="bulkReprocessProgress.processedItems.length > 0" class="mt-4">
-                    <p class="text-sm text-neutral-400 mb-2">Reprocessados recentemente:</p>
+                    <p class="text-sm text-neutral-400 mb-2">Recently reprocessed:</p>
                     <div class="max-h-32 overflow-y-auto">
                         <div v-for="(item, index) in bulkReprocessProgress.processedItems.slice().reverse().slice(0, 5)" :key="index"
                             class="flex items-center py-1 border-b border-neutral-700 last:border-b-0">
