@@ -411,10 +411,12 @@
                             <input
                                 id="campaignDomain"
                                 v-model="campaignForm.domain"
+                                @input="cleanDomain(campaignForm)"
                                 type="text"
                                 class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 placeholder="example.com"
                             />
+                            <p class="mt-1 text-sm text-neutral-500">The advertiser's domain (without www. or https://)</p>
                             <p v-if="formErrors.domain" class="mt-1 text-sm text-red-500">{{ formErrors.domain }}</p>
                         </div>
 
@@ -679,12 +681,13 @@
                                 <input
                                     id="systemCampaignDomain"
                                     v-model="systemCampaignForm.domain"
+                                    @input="cleanDomain(systemCampaignForm)"
                                     type="text"
                                     class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     placeholder="example.com"
                                     required
                                 />
-                                <p class="mt-1 text-sm text-neutral-500">The campaign's landing page domain</p>
+                                <p class="mt-1 text-sm text-neutral-500">The campaign's landing page domain (without www. or https://)</p>
                                 <p v-if="formErrors.domain" class="mt-1 text-sm text-red-500">{{ formErrors.domain }}</p>
                             </div>
 
@@ -1707,6 +1710,9 @@ const saveSystemCampaign = async () => {
             return
         }
 
+        // Clean domain before saving
+        cleanDomain(systemCampaignForm.value)
+
         const metadataObject = {};
         systemCampaignForm.value.metadata.forEach(item => {
             if (item.key.trim()) {
@@ -1888,6 +1894,9 @@ const saveCampaign = async () => {
             formLoading.value = false
             return
         }
+
+        // Clean domain before saving
+        cleanDomain(campaignForm.value)
 
         const campaignData = {
             name: campaignForm.value.name.trim(),
@@ -2290,5 +2299,20 @@ const cancelImport = () => {
 const closeImportDialog = () => {
     showImportProgress.value = false;
     importCancelled.value = false;
+}
+
+// Add the cleanDomain function somewhere in the script
+// Add this near other utility functions like generateSlug
+const cleanDomain = (form) => {
+    if (form.domain) {
+        // Remove http:// or https:// protocol
+        let cleanedDomain = form.domain.replace(/^https?:\/\//, '');
+        // Remove www.
+        cleanedDomain = cleanedDomain.replace(/^www\./, '');
+        // Remove trailing slashes
+        cleanedDomain = cleanedDomain.replace(/\/+$/, '');
+
+        form.domain = cleanedDomain;
+    }
 }
 </script>

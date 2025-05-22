@@ -401,12 +401,13 @@
                                 <input
                                     id="campaignDomain"
                                     v-model="campaignForm.domain"
+                                    @input="cleanDomain"
                                     type="text"
                                     class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     placeholder="example.com"
                                     required
                                 />
-                                <p class="mt-1 text-sm text-neutral-500">The campaign's landing page domain</p>
+                                <p class="mt-1 text-sm text-neutral-500">The campaign's landing page domain (without www. or https://)</p>
                                 <p v-if="formErrors.domain" class="mt-1 text-sm text-red-500">{{ formErrors.domain }}</p>
                             </div>
 
@@ -1131,6 +1132,9 @@ const saveCampaign = async () => {
             formLoading.value = false
             return
         }
+
+        // Clean domain before saving
+        cleanDomain();
 
         const metadataObject = {};
         campaignForm.value.metadata.forEach(item => {
@@ -1857,4 +1861,18 @@ onMounted(() => {
     loadNetworks()
     loadCategories()
 })
+
+// Add this to the script section, somewhere before the saveCampaign method
+const cleanDomain = () => {
+    if (campaignForm.value.domain) {
+        // Remove http:// or https:// protocol
+        let cleanedDomain = campaignForm.value.domain.replace(/^https?:\/\//, '');
+        // Remove www.
+        cleanedDomain = cleanedDomain.replace(/^www\./, '');
+        // Remove trailing slashes
+        cleanedDomain = cleanedDomain.replace(/\/+$/, '');
+
+        campaignForm.value.domain = cleanedDomain;
+    }
+}
 </script>
