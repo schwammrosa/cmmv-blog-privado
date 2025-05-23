@@ -4,7 +4,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 class="text-2xl font-bold mb-2" style="color: var(--text-color);">Erro ao carregar posts</h2>
+            <h2 class="text-xl sm:text-2xl font-bold mb-2" style="color: var(--text-color);">Erro ao carregar posts</h2>
             <p class="mb-4" style="color: var(--text-secondary);">Não foi possível carregar os posts. Por favor, tente novamente.</p>
             <button @click="loadPosts" class="px-3 py-1 bg-[#00A079] text-white text-sm font-medium rounded-full shadow-sm hover:bg-[#064019] transition-all">
                 Tentar novamente
@@ -16,13 +16,13 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <h2 class="text-2xl font-bold mb-2" style="color: var(--text-color);">Nenhum post encontrado</h2>
+            <h2 class="text-xl sm:text-2xl font-bold mb-2" style="color: var(--text-color);">Nenhum post encontrado</h2>
             <p style="color: var(--text-secondary);">Volte mais tarde para novos conteúdos!</p>
         </div>
 
         <div v-else>
             <!-- Cover Section -->
-            <section v-if="posts.length > 0" class="mb-8 md:block hidden">
+            <section v-if="posts.length > 0" class="mb-4 sm:mb-6 md:mb-8 md:block hidden">
                 <!-- Full Layout (default) -->
                 <div v-if="coverSettings.layoutType === 'full' || !coverSettings.layoutType" class="rounded-lg overflow-hidden shadow-md" style="background-color: var(--card-bg);">
                     <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
@@ -246,7 +246,7 @@
             </section>
 
             <!-- Top AdSense Banner -->
-            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full rounded-lg mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
+            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full rounded-lg mb-4 sm:mb-6 md:mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                 <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
                     <div v-html="getAdHtml('header')"></div>
                 </div>
@@ -258,7 +258,7 @@
             </div>
 
             <!-- Main Content Layout -->
-            <div class="flex flex-col lg:flex-row gap-8">
+            <div class="flex flex-col lg:flex-row gap-4 sm:gap-6 md:gap-8">
                 <!-- Left AdSense Sidebar -->
                 <aside class="xl:w-[160px] shrink-0 hidden xl:block" v-if="adSettings.enableAds">
                     <div class="sticky top-24">
@@ -276,7 +276,7 @@
                 <!-- Main Content Area -->
                 <div class="flex-grow">
                     <!-- Main Content in 2 Columns -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                         <!-- Left Column (Latest News) -->
                         <div class="lg:col-span-2">
                             <h2 class="text-xl font-bold mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
@@ -288,6 +288,7 @@
                                     v-for="post in posts.slice(featuredPost ? 1 : 0, featuredPost ? 5 : 4)"
                                     :key="post.id"
                                     class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                    style="border: 1px solid rgba(0, 160, 121, 0.3);"
                                 >
                                     <a :href="`/post/${post.slug}`" class="block">
                                         <div class="h-48 overflow-hidden relative">
@@ -349,6 +350,7 @@
                                         v-for="post in posts.slice(featuredPost ? 5 : 4)"
                                         :key="post.id"
                                         class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                        style="border: 1px solid rgba(0, 160, 121, 0.3);"
                                     >
                                         <a :href="`/post/${post.slug}`" class="block">
                                             <div class="h-48 overflow-hidden relative">
@@ -411,21 +413,21 @@
                         </div>
 
                         <!-- Right Column (Widgets + Ads) -->
-                        <div class="lg:col-span-1 hidden md:block">
+                        <div class="lg:col-span-1 w-full md:block">
                             <!-- AdSense Rectangle (Top) -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="rounded-lg shadow-md p-2 mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                                 <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                     <div v-html="getAdHtml('sidebarTop')"></div>
                                 </div>
                                 <div class="ad-container ad-sidebar-top" v-else>
-                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                    <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                         <span>Anúncio</span>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Popular Posts Widget -->
-                            <div class="rounded-lg shadow-lg p-5 mb-6 border-t-4 border-[#00A079] hidden md:block" style="background-color: var(--card-bg); color: var(--text-color);">
+                            <div class="rounded-lg shadow-lg p-3 sm:p-4 md:p-5 mb-4 sm:mb-6 border-t-4 border-[#00A079] md:block" style="background-color: var(--card-bg); color: var(--text-color);">
                                 <h2 class="text-xl font-bold mb-5 pb-2 border-b-2 border-[#00B8D4] flex items-center" style="color: var(--text-color);">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -437,7 +439,8 @@
                                     <div
                                         v-for="post in popularPosts"
                                         :key="post.id"
-                                        class="flex gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0 hover:bg-gray-50 p-2 rounded-lg transition-colors"
+                                        class="flex gap-4 pb-4 border-b border-gray-100 last:border-0 last:pb-0 hover:bg-gray-50 p-2 rounded-lg transition-colors relative z-10"
+                                        style="border: 1px solid rgba(0, 160, 121, 0.3);"
                                     >
                                         <div class="w-24 h-20 flex-shrink-0 overflow-hidden rounded-lg shadow-sm">
                                             <a :href="`/post/${post.slug}`" class="block h-full">
@@ -477,7 +480,7 @@
                                     <div v-html="getAdHtml('sidebarMid')"></div>
                                 </div>
                                 <div class="ad-container ad-sidebar-mid" v-else>
-                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                    <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                         <span>Anúncio</span>
                                     </div>
                                 </div>
@@ -491,7 +494,7 @@
                                     <div v-html="getAdHtml('sidebarBottom')"></div>
                                 </div>
                                 <div class="ad-container ad-sidebar-bottom" v-else>
-                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                    <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                         <span>Anúncio</span>
                                     </div>
                                 </div>

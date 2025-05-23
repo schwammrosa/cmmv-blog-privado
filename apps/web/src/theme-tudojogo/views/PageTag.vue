@@ -1,14 +1,14 @@
 <template>
-    <div class="w-full relative bg-neutral-100">
+    <div class="w-full relative" style="background-color: var(--bg-color);">
         <div class="lg:max-w-[1400px] mx-auto px-4">
-            <div v-if="!data.tag" class="bg-white rounded-lg p-6">
+            <div v-if="!data.tag" class="rounded-lg p-6" style="background-color: var(--card-bg); color: var(--text-color);">
                 <div class="text-center">
-                    <h1 class="text-2xl font-bold text-neutral-800 mb-4">Tag não encontrada</h1>
-                    <p class="text-neutral-600">A tag que você está procurando não existe ou está indisponível.</p>
+                    <h1 class="text-2xl font-bold mb-4" style="color: var(--text-color);">Tag não encontrada</h1>
+                    <p style="color: var(--text-secondary);">A tag que você está procurando não existe ou está indisponível.</p>
                 </div>
             </div>
 
-            <div v-else class="flex flex-col xl:flex-row gap-8">
+            <div v-else class="flex flex-col xl:flex-row gap-3 sm:gap-5 md:gap-6 lg:gap-8 px-0 sm:px-2">
                 <!-- Left AdSense Sidebar -->
                 <aside class="xl:w-[160px] shrink-0 hidden xl:block" v-if="adSettings.enableAds">
                     <div class="sticky top-24">
@@ -16,7 +16,7 @@
                             <div ref="sidebarLeftAdContainer"></div>
                         </div>
                         <div class="ad-container ad-sidebar-left mb-6" v-else>
-                            <div class="ad-placeholder h-[600px] w-[160px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                            <div class="ad-placeholder h-[600px] w-[160px] flex items-center justify-center text-sm" style="background-color: var(--bg-secondary); color: var(--text-secondary);">
                                 <span>Anúncio</span>
                             </div>
                         </div>
@@ -24,15 +24,15 @@
                 </aside>
 
                 <!-- Main Content -->
-                <div class="bg-white rounded-lg p-6 article-container overflow-hidden flex-grow">
-                    <header class="border-b border-neutral-200 pb-4 mb-6 pr-4 pt-4">
-                        <h1 class="text-3xl font-bold text-neutral-900 mb-3">Tag: {{ data.tag.name }}</h1>
-                        <p v-if="data.tag.description" class="text-neutral-600 mb-4">{{ data.tag.description }}</p>
-                        <div class="text-sm text-neutral-500">{{ data.tag.postCount }} posts com esta tag</div>
+                <div class="rounded-lg p-2 sm:p-3 md:p-5 lg:p-6 article-container overflow-hidden flex-grow w-full" style="background-color: var(--card-bg); color: var(--text-color); border: 1px solid rgba(0, 160, 121, 0.3);">
+                    <header class="border-b border-neutral-200 pb-2 sm:pb-4 mb-3 sm:mb-6 pr-2 sm:pr-4 pt-2 sm:pt-4">
+                        <h1 class="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3" style="color: var(--text-color);">Tag: {{ data.tag.name }}</h1>
+                        <p v-if="data.tag.description" class="mb-4" style="color: var(--text-secondary);">{{ data.tag.description }}</p>
+                        <div class="text-sm" style="color: var(--text-secondary);">{{ data.tag.postCount }} posts com esta tag</div>
                     </header>
 
                     <!-- Top AdSense Banner -->
-                    <div v-if="adSettings.enableAds" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+                    <div v-if="adSettings.enableAds" class="w-full rounded-lg mb-4 sm:mb-6 md:mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                         <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
                             <div v-html="getAdHtml('header')"></div>
                         </div>
@@ -49,24 +49,24 @@
                     </div>
 
                     <!-- Posts List -->
-                    <div v-else-if="posts.length > 0" class="space-y-10 post-content prose prose-sm sm:prose prose-neutral max-w-none">
-                        <article v-for="(post, index) in posts" :key="post.id" class="border-b border-neutral-200 pb-8 last:border-0">
+                    <div v-else-if="posts.length > 0" class="space-y-6 sm:space-y-8 md:space-y-10 post-content prose prose-sm sm:prose max-w-none" style="color: var(--text-color);">
+                        <article v-for="(post, index) in posts" :key="post.id" class="border-b border-neutral-200 pb-4 sm:pb-6 md:pb-8 last:border-0">
                             <!-- Feature Image -->
-                            <a :href="`/post/${post.slug}`" class="block mb-4" aria-label="Ler mais sobre este post">
+                            <a :href="`/post/${post.slug}`" class="block mb-2 sm:mb-3 md:mb-4" aria-label="Ler mais sobre este post">
                                 <div v-if="post.featureImage" class="relative aspect-video overflow-hidden rounded-lg">
-                                    <img :src="post.featureImage" :alt="post.featureImageAlt || post.title" class="w-full h-full object-cover" />
+                                    <img :src="post.featureImage" :alt="post.featureImageAlt || post.title" class="w-full h-full object-cover" loading="lazy" />
                                 </div>
                             </a>
 
                             <!-- Post Title -->
-                            <h2 class="text-2xl font-bold text-neutral-900 mb-3">
-                                <a :href="`/post/${post.slug}`" class="hover:text-[#0a5d28] transition-colors" aria-label="Ler mais sobre este post">
+                            <h2 class="text-base sm:text-lg md:text-xl lg:text-2xl font-bold mb-2 sm:mb-3 break-words" style="color: var(--text-color);">
+                                <a :href="`/post/${post.slug}`" class="hover:text-[#00A079] transition-colors" style="color: var(--text-color);" aria-label="Ler mais sobre este post">
                                     {{ post.title }}
                                 </a>
                             </h2>
 
                             <!-- Post Meta -->
-                            <div class="flex items-center mb-4 text-sm text-neutral-600">
+                            <div class="flex items-center mb-2 sm:mb-3 md:mb-4 text-xs sm:text-sm text-neutral-600">
                                 <div class="flex items-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -76,25 +76,25 @@
                             </div>
 
                             <!-- Post Excerpt -->
-                            <div v-if="post.excerpt" class="text-neutral-700 mb-4">
+                            <div v-if="post.excerpt" class="mb-2 sm:mb-3 md:mb-4 text-sm sm:text-base" style="color: var(--text-secondary);">
                                 {{ post.excerpt }}
                             </div>
-                            <div v-else-if="post.content" class="text-neutral-700 mb-4">
+                            <div v-else-if="post.content" class="mb-2 sm:mb-3 md:mb-4 text-sm sm:text-base" style="color: var(--text-secondary);">
                                 {{ stripHtml(post.content).substring(0, 200) }}{{ stripHtml(post.content).length > 200 ? '...' : '' }}
                             </div>
 
                             <!-- Tags -->
-                            <div v-if="post.tags && post.tags.length > 0" class="mb-4 flex flex-wrap gap-2">
+                            <div v-if="post.tags && post.tags.length > 0" class="mb-3 sm:mb-4 flex flex-wrap gap-1 sm:gap-2">
                                 <a v-for="tag in post.tags" :key="tag" :href="`/tag/${tag.slug}`"
-                                class="bg-neutral-100 text-neutral-700 text-sm px-3 py-1 rounded-full hover:bg-neutral-200 transition-colors">
+                                class="text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full transition-colors" style="background-color: var(--tag-bg, #333333); color: var(--tag-color, #aaaaaa);">
                                     {{ tag.name }}
                                 </a>
                             </div>
 
                             <!-- Read More Button -->
-                            <div class="mt-4">
+                            <div class="mt-2 sm:mt-3 md:mt-4">
                                 <a :href="`/post/${post.slug}`"
-                                class="inline-flex items-center text-[#0a5d28] font-medium hover:text-[#064019] transition-colors">
+                                class="inline-flex items-center text-[#0a5d28] font-medium hover:text-[#064019] transition-colors text-sm sm:text-base">
                                     Ler mais
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -103,7 +103,7 @@
                             </div>
 
                             <!-- Mid-content AdSense Banner (after every 3 posts) -->
-                            <div v-if="adSettings.enableAds && adSettings.tagPageInContent && (index + 1) % 3 === 0 && index < posts.length - 1" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
+                            <div v-if="adSettings.enableAds && adSettings.tagPageInContent && (index + 1) % 3 === 0 && index < posts.length - 1" class="w-full rounded-lg my-4 sm:my-6 md:my-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                                 <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
                                     <div v-html="getAdHtml('inContent')"></div>
                                 </div>
@@ -118,12 +118,12 @@
 
                     <!-- No posts state -->
                     <div v-else-if="!loading && posts.length === 0" class="text-center py-16">
-                        <h2 class="text-2xl font-bold mb-2 text-neutral-800">Nenhum post encontrado com esta tag</h2>
-                        <p class="text-neutral-600">Volte mais tarde para novos conteúdos!</p>
+                        <h2 class="text-2xl font-bold mb-2" style="color: var(--text-color);">Nenhum post encontrado com esta tag</h2>
+                        <p style="color: var(--text-secondary);">Volte mais tarde para novos conteúdos!</p>
                     </div>
 
                     <!-- Bottom AdSense Banner -->
-                    <div v-if="adSettings.enableAds && adSettings.tagPageAfterContent" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
+                    <div v-if="adSettings.enableAds && adSettings.tagPageAfterContent" class="w-full rounded-lg my-4 sm:my-6 md:my-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                         <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
                             <div v-html="getAdHtml('belowContent')"></div>
                         </div>
@@ -144,39 +144,39 @@
                 </div>
 
                 <!-- Right Sidebar with AdSense spaces -->
-                <aside class="lg:w-80 shrink-0">
-                    <div class="sticky top-24 space-y-6">
+                <aside class="w-full md:w-72 lg:w-80 shrink-0 mt-4 md:mt-0">
+                    <div class="sticky top-16 sm:top-20 md:top-24 space-y-4 sm:space-y-6">
                         <!-- AdSense Rectangle (Top) -->
-                        <div v-if="adSettings.enableAds && adSettings.tagPageSidebarTop" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                        <div v-if="adSettings.enableAds && adSettings.tagPageSidebarTop" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                             <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                 <div v-html="getAdHtml('sidebarTop')"></div>
                             </div>
                             <div class="ad-container ad-sidebar-top" v-else>
-                                <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                     <span>Anúncio</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- AdSense Rectangle (Middle) -->
-                        <div v-if="adSettings.enableAds && adSettings.tagPageSidebarMid" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                        <div v-if="adSettings.enableAds && adSettings.tagPageSidebarMid" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                             <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
                                 <div v-html="getAdHtml('sidebarMid')"></div>
                             </div>
                             <div class="ad-container ad-sidebar-mid" v-else>
-                                <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                     <span>Anúncio</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- AdSense Rectangle (Bottom) -->
-                        <div v-if="adSettings.enableAds && adSettings.tagPageSidebarBottom" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
+                        <div v-if="adSettings.enableAds && adSettings.tagPageSidebarBottom" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                             <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
                                 <div v-html="getAdHtml('sidebarBottom')"></div>
                             </div>
                             <div class="ad-container ad-sidebar-bottom" v-else>
-                                <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                     <span>Anúncio</span>
                                 </div>
                             </div>

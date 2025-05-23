@@ -7,7 +7,7 @@
                     <!-- Logo -->
                     <div class="flex-shrink-0">
                         <a href="/" class="text-2xl font-bold text-white">
-                            <img src="/src/theme-tudojogo/Logo.png" width="147" height="32" alt="Logo" title="Logo">
+                            <img src="/src/theme-tudojogo/assets/Logo.png" width="147" height="32" alt="Logo" title="Logo">
                         </a>
                     </div>
 
@@ -195,13 +195,13 @@
                             Sobre o Tudo Jogo
                             <span class="absolute bottom-0 left-0 w-16 h-1 bg-[#00A079]"></span>
                         </h3>
-                        <p class="text-gray-300 text-sm mb-5 leading-relaxed">
+                        <p class="text-sm mb-5 leading-relaxed" style="color: var(--footer-text, #bbbbbb)">
                             Portal especializado em notícias, reviews e conteúdo sobre o mundo dos games.
                             Trazendo as informações mais atualizadas do universo gamer.
                         </p>
                         <ul class="space-y-3 mb-5">
                             <li class="transition-transform hover:translate-x-1">
-                                <a href="/" class="text-gray-300 hover:text-[#00B8D4] flex items-center">
+                                <a href="/" class="hover:text-[#00B8D4] flex items-center" style="color: var(--footer-text, #bbbbbb)">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                         <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                                     </svg>
@@ -209,7 +209,7 @@
                                 </a>
                             </li>
                             <li class="transition-transform hover:translate-x-1">
-                                <a href="/terms-of-service" class="text-gray-300 hover:text-[#00B8D4] flex items-center">
+                                <a href="/terms-of-service" class="hover:text-[#00B8D4] flex items-center" style="color: var(--footer-text, #bbbbbb)">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zM1 10a1 1 0 012 0v6a1 1 0 11-2 0V10zm2 0a1 1 0 012 0v2a1 1 0 11-2 0V10zM1 7a1 1 0 012 0v3a1 1 0 11-2 0V7zM5 7a1 1 0 012 0v3a1 1 0 11-2 0V7z" clip-rule="evenodd" />
                                     </svg>
@@ -217,7 +217,7 @@
                                 </a>
                             </li>
                             <li class="transition-transform hover:translate-x-1">
-                                <a href="/terms-of-privacy" class="text-gray-300 hover:text-[#00B8D4] flex items-center">
+                                <a href="/terms-of-privacy" class="hover:text-[#00B8D4] flex items-center" style="color: var(--footer-text, #bbbbbb)">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                     </svg>
@@ -232,15 +232,16 @@
                               :settings="settings" 
                               size="md"
                               spacing="md"
-                              text-color="text-white"
+                              text-color="text-gray-100"
                               hover-color="hover:text-[#00B8D4]"
                               :show-labels="false"
+                              style="color: #ffffff;"
                             />
                         </div>
                     </div>
 
                 <div class="border-t border-gray-700 mt-8 pt-6 text-center">
-                    <p class="text-gray-400 text-sm">
+                    <p class="text-sm" style="color: var(--footer-text, #bbbbbb)">
                         &copy; 2025 Tudo Jogo - Todos os direitos reservados.
                     </p>
                 </div>
@@ -381,7 +382,7 @@ useHead({
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-tudojogo/favicon.ico?v=2'
+            href: '/src/theme-tudojogo/assets/favicon.ico?v=2'
         },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com/' },

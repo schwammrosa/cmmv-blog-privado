@@ -1,8 +1,20 @@
 <!doctype html>
-<html lang="en" prefix="og: http://ogp.me/ns#" prefix="og: https://ogp.me/ns#" class="dark">
+<html lang="en" prefix="og: http://ogp.me/ns#" prefix="og: https://ogp.me/ns#">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+            // Aplicar o tema antes da renderização para evitar flash
+            (function() {
+                const savedTheme = localStorage.getItem('theme');
+                const prefersDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                
+                // Verificar tema salvo ou preferência do sistema
+                if (savedTheme === 'dark' || (!savedTheme && prefersDarkMode)) {
+                    document.documentElement.classList.add('dark');
+                }
+            })();
+        </script>
         <title>CMMV</title>
         <meta name="robots" content="index, follow, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />

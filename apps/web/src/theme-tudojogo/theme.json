@@ -2,7 +2,7 @@
     "name": "TudoJogo",
     "description": "TudoJogo",
     "author": "TudoJogo",
-    "version": "0.5.0",
-    "preview": "",
+    "version": "0.6.0",
+    "preview": "/src/theme-tudojogo/assets/preview.png",
     "url": "https://tudojogo.com.br"
 }

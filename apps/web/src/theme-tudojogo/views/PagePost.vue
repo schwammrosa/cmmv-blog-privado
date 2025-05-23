@@ -10,7 +10,7 @@
 
             <div v-else>
                 <!-- Top AdSense Banner -->
-                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full rounded-lg mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
+                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full rounded-lg mb-4 sm:mb-6 md:mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                     <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
                         <div v-html="getAdHtml('header')"></div>
                     </div>
@@ -22,7 +22,7 @@
                 </div>
 
                 <!-- Main Content Layout -->
-                <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex flex-col lg:flex-row gap-3 sm:gap-5 md:gap-6 lg:gap-8">
                     <!-- Left AdSense Sidebar -->
                     <aside class="xl:w-[160px] shrink-0 hidden xl:block" v-if="adSettings.enableAds">
                         <div class="sticky top-24">
@@ -39,11 +39,11 @@
 
                     <!-- Main Content Area -->
                     <div class="flex-grow">
-                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
                             <!-- Main Post Content (2 columns width) -->
-                            <div class="lg:col-span-2 rounded-lg p-4 relative" style="background-color: var(--post-bg); color: var(--text-color);">
+                            <div class="lg:col-span-2 rounded-lg p-3 sm:p-4 relative" style="background-color: var(--post-bg); color: var(--text-color); border: 1px solid rgba(0, 160, 121, 0.3);">
                                 <div class="w-full mx-auto overflow-hidden">
-                                    <h1 class="post-title text-3xl md:text-4xl font-bold break-words mb-4" style="color: var(--text-color);">{{ post.title }}</h1>
+                                    <h1 class="post-title text-2xl sm:text-3xl md:text-4xl font-bold break-words mb-3 sm:mb-4" style="color: var(--text-color);">{{ post.title }}</h1>
 
                                     <div v-if="post.featureImage" class="post-featured-image relative overflow-hidden rounded-lg max-h-[400px]">
                                         <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
@@ -69,7 +69,7 @@
                                     </div>
 
                                     <!-- After Title Ad -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterTitle" class="w-full bg-gray-100 rounded-lg my-6 overflow-hidden flex justify-center">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterTitle" class="w-full bg-gray-100 rounded-lg my-3 sm:my-4 md:my-6 overflow-hidden flex justify-center">
                                         <div class="ad-container ad-after-title py-2 px-4" v-if="getAdHtml('afterTitle')">
                                             <div v-html="getAdHtml('afterTitle')"></div>
                                         </div>
@@ -81,7 +81,7 @@
                                     </div>
 
                                     <!-- Post Header -->
-                                    <header class="post-header my-6">
+                                    <header class="post-header my-3 sm:my-4 md:my-6">
                                         <div class="post-meta flex items-center">
                                             <div class="flex items-center text-neutral-600 text-sm">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
@@ -99,7 +99,7 @@
                                     </header>
 
                                     <!-- Post Content -->
-                                    <div class="post-content text-neutral-800 prose prose-sm sm:prose prose-neutral max-w-none overflow-hidden">
+                                    <div class="post-content prose prose-xs sm:prose-sm md:prose max-w-none overflow-hidden" style="color: var(--text-color);">
                                         <div v-html="processPostContent(post.content)"></div>
                                     </div>
 
@@ -108,7 +108,7 @@
                                         <div v-if="post.tags && post.tags.length > 0" class="post-tags">
                                             <div class="tags-list flex flex-wrap gap-2">
                                                 <a v-for="tag in post.tags" :key="tag" :href="`/tag/${tag.slug}`"
-                                                    class="tag bg-neutral-100 text-neutral-700 hover:bg-neutral-200 px-3 py-1 rounded-full text-sm">
+                                                    class="tag px-3 py-1 rounded-full text-sm transition-colors" style="background-color: var(--tag-bg, #333333); color: var(--tag-color, #aaaaaa);">
                                                     {{ tag.name }}
                                                 </a>
                                             </div>
@@ -116,16 +116,16 @@
                                     </div>
 
                                     <!-- Comments Section -->
-                                    <div id="comments-container" ref="commentsObserver" class="mt-6 mb-6 min-h-[100px]">
-                                        <h3 class="text-xl font-bold mb-4 text-neutral-800">Comentários</h3>
-                                        <div v-if="!commentsLoaded" class="text-center py-4 text-gray-600">
+                                    <div id="comments-container" ref="commentsObserver" class="mt-4 sm:mt-5 md:mt-6 mb-4 sm:mb-5 md:mb-6 min-h-[100px]">
+                                        <h3 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4" style="color: var(--text-color);">Comentários</h3>
+                                        <div v-if="!commentsLoaded" class="text-center py-4" style="color: var(--text-secondary);">
                                             Os comentários serão carregados quando você rolar até aqui.
                                         </div>
                                     </div>
 
                                     <!-- Author Box -->
                                     <div v-if="author"
-                                        class="mb-10 p-6 bg-neutral-50 rounded-lg border border-neutral-200 mt-6">
+                                        class="mb-6 sm:mb-8 md:mb-10 p-3 sm:p-4 md:p-6 rounded-lg border border-neutral-200 mt-4 sm:mt-5 md:mt-6" style="background-color: var(--bg-secondary); color: var(--text-color);">
                                         <div class="flex items-center mb-4">
                                             <!-- Author Avatar -->
                                             <div
@@ -154,13 +154,13 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                                     </svg>
-                                                    <span class="truncate">{{ author.location }}</span>
+                                                    <span class="truncate" style="color: var(--text-secondary);">{{ author.location }}</span>
                                                 </p>
                                             </div>
                                         </div>
 
                                         <!-- Author Bio -->
-                                        <div v-if="author.bio" class="text-sm leading-relaxed text-neutral-700 mb-4">
+                                        <div v-if="author.bio" class="text-sm leading-relaxed mb-4" style="color: var(--text-secondary);">
                                             {{ author.bio }}
                                         </div>
 
@@ -229,7 +229,7 @@
                                     </div>
 
                                     <!-- Mid-content AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full rounded-lg my-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full rounded-lg my-4 sm:my-6 md:my-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                                         <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
                                             <div v-html="getAdHtml('inContent')"></div>
                                         </div>
@@ -241,15 +241,15 @@
                                     </div>
 
                                     <!-- Mais Conteúdo Section -->
-                                    <div class="mt-10">
-                                        <h2 class="text-xl font-bold mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
+                                    <div class="mt-6 sm:mt-8 md:mt-10">
+                                        <h2 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 md:mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
                                             Mais Conteúdo
                                         </h2>
 
                                         <div ref="relatedPostsObserver" class="min-h-[200px]">
                                             <div v-if="!relatedPostsLoaded" class="flex justify-center items-center py-6">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
-                                                <span class="ml-3 text-gray-600">Carregando posts relacionados...</span>
+                                                <span class="ml-3" style="color: var(--text-secondary);">Carregando posts relacionados...</span>
                                             </div>
 
                                             <div v-else-if="relatedPosts.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -295,14 +295,14 @@
                                                 </article>
                                             </div>
 
-                                            <div v-else class="text-center py-4 text-gray-600">
+                                            <div v-else class="text-center py-4" style="color: var(--text-secondary);">
                                                 Nenhum post relacionado encontrado.
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Bottom AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full rounded-lg mt-8 mb-4 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full rounded-lg mt-4 sm:mt-6 md:mt-8 mb-3 sm:mb-4 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
                                         <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
                                             <div v-html="getAdHtml('belowContent')"></div>
                                         </div>
@@ -320,12 +320,12 @@
                             <!-- Right Column (Widgets + Ads) -->
                             <div class="lg:col-span-1">
                                 <!-- AdSense Rectangle (Top) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="rounded-lg shadow-md p-2 mb-6 flex justify-center overflow-hidden" style="background-color: var(--bg-secondary);">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center overflow-hidden" style="background-color: var(--bg-secondary);">
                                     <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                         <div v-html="getAdHtml('sidebarTop')"></div>
                                     </div>
                                     <div class="ad-container ad-sidebar-top" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                             <span>Anúncio</span>
                                         </div>
                                     </div>
@@ -337,14 +337,14 @@
                                         <div v-html="getAdHtml('sidebarMid')"></div>
                                     </div>
                                     <div class="ad-container ad-sidebar-mid" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                             <span>Anúncio</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Share Widget (oculto em dispositivos móveis) -->
-                                <div class="rounded-lg shadow-md p-5 mb-6 hidden md:block" style="background-color: var(--card-bg); color: var(--text-color);">
+                                <div class="rounded-lg shadow-md p-3 sm:p-4 md:p-5 mb-4 sm:mb-6 hidden md:block" style="background-color: var(--card-bg); color: var(--text-color);">
                                     <h2 class="text-xl font-bold mb-4 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
                                         Compartilhar
                                     </h2>
@@ -421,7 +421,7 @@
                                 </div>
 
                                 <!-- Popular Posts Widget -->
-                                <div v-if="popularPosts && popularPosts.length > 0" class="rounded-lg shadow-lg p-5 mb-6 border-t-4 border-[#00A079]" style="background-color: var(--card-bg); color: var(--text-color);">
+                                <div v-if="popularPosts && popularPosts.length > 0" class="rounded-lg shadow-lg p-3 sm:p-4 md:p-5 mb-4 sm:mb-6 border-t-4 border-[#00A079]" style="background-color: var(--card-bg); color: var(--text-color);">
                                     <h2 class="text-xl font-bold mb-5 pb-2 border-b-2 border-[#00B8D4] flex items-center" style="color: var(--text-color);">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
                                             <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -470,12 +470,12 @@
 
 
                                 <!-- AdSense Rectangle (Bottom) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="rounded-lg shadow-md p-2 mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
                                     <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
                                         <div v-html="getAdHtml('sidebarBottom')"></div>
                                     </div>
                                     <div class="ad-container ad-sidebar-bottom" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
                                             <span>Anúncio</span>
                                         </div>
                                     </div>
@@ -491,78 +491,7 @@
     <!-- Código do Taboola removido completamente para evitar duplicação do rodapé -->
 
     <!-- Botão flutuante de compartilhamento para dispositivos móveis -->
-    <div class="fixed bottom-6 right-6 z-50 md:hidden">
-        <button @click="showShareOptions = !showShareOptions" 
-            class="bg-[#00B8D4] w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-        </button>
-
-        <!-- Opções de compartilhamento -->  
-        <div v-if="showShareOptions" class="absolute bottom-16 right-0 p-4 rounded-lg shadow-xl" style="background-color: var(--card-bg); color: var(--text-color);">
-            <div class="flex flex-col space-y-3">
-                <!-- Facebook -->
-                <a class="flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                    rel="nofollow noopener"
-                    :href="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl)"
-                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"
-                    title="Compartilhar no Facebook">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                        fill="currentColor">
-                        <path
-                            d="M9.19795 21.5H13.198V13.4901H16.8021L17.198 9.50977H13.198V7.5C13.198 6.94772 13.6457 6.5 14.198 6.5H17.198V2.5H14.198C11.4365 2.5 9.19795 4.73858 9.19795 7.5V9.50977H7.19795L6.80206 13.4901H9.19795V21.5Z" />
-                    </svg>
-                    <span>Facebook</span>
-                </a>
-
-                <!-- Twitter -->
-                <a class="flex items-center gap-2 px-3 py-2 bg-sky-500 text-white rounded-md hover:bg-sky-600 transition-colors"
-                    rel="nofollow noopener"
-                    :href="'https://twitter.com/share?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent(pageUrl)"
-                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"
-                    title="Compartilhar no Twitter">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                        fill="currentColor">
-                        <path
-                            d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723 10.054 10.054 0 01-3.127 1.184 4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                    </svg>
-                    <span>Twitter</span>
-                </a>
-
-                <!-- WhatsApp -->
-                <a class="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
-                    rel="nofollow noopener"
-                    :href="whatsappShareUrl"
-                    target="_blank"
-                    data-action="share/whatsapp/share"
-                    title="Compartilhar no WhatsApp">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                        fill="currentColor">
-                        <path
-                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                    </svg>
-                    <span>WhatsApp</span>
-                </a>
-
-                <!-- Copy link button -->
-                <button @click="copyPageUrl"
-                    class="flex items-center gap-2 px-3 py-2 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-colors relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                    </svg>
-                    <span>Copiar link</span>
-                    <span v-if="linkCopied"
-                        class="absolute right-2 bg-green-600 text-white text-xs py-1 px-2 rounded">
-                        Copiado!
-                    </span>
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Botão de compartilhar no celular removido -->
 </template>
 
 <script setup lang="ts">
@@ -1047,8 +976,9 @@ const loadComments = () => {
             loadFacebookComments();
         } else {
             const commentsTitle = document.createElement('h3');
-            commentsTitle.className = 'text-xl font-bold mb-4 text-neutral-800';
+            commentsTitle.className = 'text-xl font-bold mb-4';
             commentsTitle.textContent = 'Comentários';
+            commentsTitle.style.color = 'var(--text-color)';
             commentsContainer.appendChild(commentsTitle);
 
             setTimeout(() => {
@@ -1083,8 +1013,9 @@ const loadFacebookComments = () => {
         commentsContainer.innerHTML = '';
 
         const commentsTitle = document.createElement('h3');
-        commentsTitle.className = 'text-xl font-bold mb-4 text-neutral-800';
+        commentsTitle.className = 'text-xl font-bold mb-4';
         commentsTitle.textContent = 'Comentários';
+        commentsTitle.style.color = 'var(--text-color)';
         commentsContainer.appendChild(commentsTitle);
 
         const fbCommentsDiv = document.createElement('div');
@@ -1093,7 +1024,9 @@ const loadFacebookComments = () => {
         fbCommentsDiv.setAttribute('data-width', '100%');
         fbCommentsDiv.setAttribute('data-numposts', '5');
         fbCommentsDiv.setAttribute('data-order-by', 'social');
-        fbCommentsDiv.setAttribute('data-colorscheme', 'light');
+        // Detectar o tema atual e definir o esquema de cores do Facebook Comments
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        fbCommentsDiv.setAttribute('data-colorscheme', isDarkMode ? 'dark' : 'light');
         commentsContainer.appendChild(fbCommentsDiv);
 
         const facebookAppId = settings.value['blog.facebookAppId'];
