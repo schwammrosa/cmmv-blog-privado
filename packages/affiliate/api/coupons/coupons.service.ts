@@ -210,17 +210,21 @@ export class CouponsServiceTools {
         const campaignMap = new Map(campaigns.data.map((campaign: any) => [campaign.id, campaign]));
         let dataResponse: any[] = [];
 
-        if (coupons) {
-            dataResponse = coupons.data;
-            coupons.data.forEach((coupon: any, index: number) => {
-                const campaign: any = campaignMap.get(coupon.campaign);
-
-                if (campaign) {
-                    dataResponse[index].campaignName = campaign.name;
-                    dataResponse[index].campaignSlug = campaign.slug;
-                    dataResponse[index].campaignLogo = campaign.logo;
+        if (coupons && coupons.data) {
+            dataResponse = coupons.data.map((coupon: any) => {
+                if (coupon.campaign && typeof coupon.campaign === 'string' && coupon.campaign.trim() !== '') {
+                    const campaignDetails: any = campaignMap.get(coupon.campaign);
+                    if (campaignDetails) {
+                        return {
+                            ...coupon,
+                            campaignName: campaignDetails.name,
+                            campaignSlug: campaignDetails.slug,
+                            campaignLogo: campaignDetails.logo
+                        };
+                    }
                 }
-            });
+                return null;
+            }).filter((coupon: any) => coupon !== null && coupon.campaignName && coupon.campaignName !== 'N/A');
         }
 
         return (dataResponse.length > 0) ? dataResponse : [];
