@@ -101,7 +101,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                     </svg>
-                    Reprocessar em Lote
+                    Bulk Reprocess
                 </button>
             </div>
         </div>
@@ -453,12 +453,39 @@
                                     <div
                                         v-for="(tag, index) in aiContent.suggestedTags"
                                         :key="index"
-                                        class="bg-purple-100 text-purple-800 px-3 py-1 rounded text-sm flex items-center"
+                                        class="bg-purple-100 text-purple-800 px-3 py-1 rounded text-sm flex items-center cursor-pointer hover:bg-purple-200 transition-colors"
                                         :class="{'bg-green-100 text-green-800': selectedTags.includes(tag)}"
                                         @click="toggleTagSelection(tag)"
                                     >
                                         <span>{{ tag }}</span>
                                         <svg v-if="selectedTags.includes(tag)" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AI Suggested Categories -->
+                            <div v-if="aiContent.suggestedCategories && aiContent.suggestedCategories.length > 0" class="mt-6 mb-8">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-3">AI Suggested Categories</h3>
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <div
+                                        v-for="(suggestedCategory, index) in aiContent.suggestedCategories"
+                                        :key="index"
+                                        class="bg-orange-100 text-orange-800 px-3 py-1 rounded text-sm flex items-center"
+                                    >
+                                        <span>{{ suggestedCategory }}</span>
+                                        <button
+                                            v-if="!categoryExists(suggestedCategory)"
+                                            @click="openCreateCategoryDialog(suggestedCategory)"
+                                            class="ml-2 text-orange-600 hover:text-orange-800 transition-colors"
+                                            title="Create this category"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                        </button>
+                                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                         </svg>
                                     </div>
@@ -728,7 +755,7 @@
                         <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
                     </div>
                     <div v-else-if="feedItems.length === 0" class="py-4 text-center text-neutral-400">
-                        No items in the feed to reprocess.
+                        No feed items to reprocess.
                     </div>
                     <div v-else class="max-h-80 overflow-y-auto border border-neutral-700 rounded-md">
                         <div class="divide-y divide-neutral-700">
@@ -747,7 +774,7 @@
                             </div>
                         </div>
                     </div>
-                     <p class="text-xs text-neutral-500 mt-2">Only items currently visible in the main list are shown here. Use the main page filters to refine the selection if necessary.</p>
+                     <p class="text-xs text-neutral-500 mt-2">Only items currently visible in the main list are shown here. Use the main page filters to refine the selection if needed.</p>
                 </div>
 
                 <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-neutral-700">
@@ -766,7 +793,7 @@
                         <span v-if="bulkReprocessLoading" class="flex items-center">
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                             Reprocessing...
                         </span>
@@ -821,6 +848,100 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Create Category Dialog -->
+        <div v-if="showCreateCategoryDialog" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4" style="backdrop-filter: blur(4px);">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Create New Category</h3>
+                    <button @click="closeCreateCategoryDialog" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <form @submit.prevent="createCategory">
+                    <div class="mb-4">
+                        <label for="newCategoryName" class="block text-sm font-medium text-gray-700 mb-1">Category Name</label>
+                        <input
+                            id="newCategoryName"
+                            v-model="newCategoryForm.name"
+                            @input="updateCategorySlug"
+                            type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="Category name"
+                            required
+                        />
+                        <p v-if="categoryFormErrors.name" class="mt-1 text-sm text-red-500">{{ categoryFormErrors.name }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="newCategorySlug" class="block text-sm font-medium text-gray-700 mb-1">Slug</label>
+                        <input
+                            id="newCategorySlug"
+                            v-model="newCategoryForm.slug"
+                            type="text"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                            placeholder="category-slug"
+                            required
+                        />
+                        <p class="mt-1 text-sm text-gray-500">URL: /category/<span class="text-blue-600">{{ newCategoryForm.slug || 'your-slug' }}</span></p>
+                        <p v-if="categoryFormErrors.slug" class="mt-1 text-sm text-red-500">{{ categoryFormErrors.slug }}</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="newCategoryParent" class="block text-sm font-medium text-gray-700 mb-1">Parent Category (optional)</label>
+                        <select
+                            id="newCategoryParent"
+                            v-model="newCategoryForm.parentCategory"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-900 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                        >
+                            <option value="">None</option>
+                            <option v-for="category in categories" :key="category.id" :value="category.id">
+                                {{ category.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="flex items-center">
+                            <input
+                                type="checkbox"
+                                v-model="newCategoryForm.active"
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            />
+                            <span class="ml-2 text-sm text-gray-700">Active category</span>
+                        </label>
+                    </div>
+
+                    <div class="flex justify-end space-x-3">
+                        <button
+                            type="button"
+                            @click="closeCreateCategoryDialog"
+                            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition-colors"
+                            :disabled="createCategoryLoading"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors"
+                            :disabled="createCategoryLoading"
+                        >
+                            <span v-if="createCategoryLoading" class="flex items-center">
+                                <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Creating...
+                            </span>
+                            <span v-else>Create Category</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1857,10 +1978,21 @@ const bulkReprocessProgress = ref({
     processedItems: [] as { id: string; title: string; success: boolean; error?: string }[]
 });
 
+// New refs for category creation
+const showCreateCategoryDialog = ref<boolean>(false);
+const createCategoryLoading = ref<boolean>(false);
+const newCategoryForm = ref({
+    name: '',
+    slug: '',
+    parentCategory: '',
+    active: true
+});
+const categoryFormErrors = ref<Record<string, string>>({});
+
 const openBulkReprocessDialog = (): void => {
     selectedItemsForReprocess.value = [];
     selectAllForReprocess.value = false;
-    // Itens para o diálogo serão os `feedItems` atuais, já filtrados pela view principal
+    // Items for the dialog will be the current `feedItems`, already filtered by the main view
     showBulkReprocessDialog.value = true;
 };
 
@@ -1938,6 +2070,117 @@ const startBulkReprocess = async (): Promise<void> => {
     bulkReprocessLoading.value = false;
     closeBulkReprocessDialog();
     await refreshData(); // Atualizar a lista principal
+};
+
+// Category creation functions
+const categoryExists = (categoryName: string): boolean => {
+    return categories.value.some(cat => 
+        cat.name.toLowerCase() === categoryName.toLowerCase()
+    );
+};
+
+const openCreateCategoryDialog = (suggestedName: string): void => {
+    newCategoryForm.value = {
+        name: suggestedName,
+        slug: generateCategorySlug(suggestedName),
+        parentCategory: '',
+        active: true
+    };
+    categoryFormErrors.value = {};
+    showCreateCategoryDialog.value = true;
+};
+
+const closeCreateCategoryDialog = (): void => {
+    showCreateCategoryDialog.value = false;
+    newCategoryForm.value = {
+        name: '',
+        slug: '',
+        parentCategory: '',
+        active: true
+    };
+    categoryFormErrors.value = {};
+};
+
+const updateCategorySlug = (): void => {
+    newCategoryForm.value.slug = generateCategorySlug(newCategoryForm.value.name);
+};
+
+const generateCategorySlug = (text: string): string => {
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/\s+/g, '-')        // Replace spaces with -
+        .replace(/&/g, '-and-')      // Replace & with 'and'
+        .replace(/[^\w\-]+/g, '')    // Remove all non-word characters
+        .replace(/\-\-+/g, '-')      // Replace multiple - with single -
+        .replace(/^-+/, '')          // Trim - from start of text
+        .replace(/-+$/, '');         // Trim - from end of text
+};
+
+const createCategory = async (): Promise<void> => {
+    try {
+        createCategoryLoading.value = true;
+        categoryFormErrors.value = {};
+
+        // Validate
+        if (!newCategoryForm.value.name.trim()) {
+            categoryFormErrors.value.name = 'Category name is required';
+            createCategoryLoading.value = false;
+            return;
+        }
+
+        if (!newCategoryForm.value.slug.trim()) {
+            categoryFormErrors.value.slug = 'Category slug is required';
+            createCategoryLoading.value = false;
+            return;
+        }
+
+        const categoryData = {
+            name: newCategoryForm.value.name.trim(),
+            slug: newCategoryForm.value.slug.trim(),
+            active: newCategoryForm.value.active,
+            parentCategory: newCategoryForm.value.parentCategory || null,
+            navigationLabel: newCategoryForm.value.name.trim(),
+            mainNav: false,
+            mainNavGroup: null,
+            mainNavIndex: 0
+        };
+
+        await adminClient.categories.insert(categoryData);
+        
+        showNotification('success', 'Category created successfully!');
+        closeCreateCategoryDialog();
+        
+        // Reload categories to update the list
+        await loadCategories();
+        
+        // Auto-select the newly created category
+        const newCategory = categories.value.find(cat => 
+            cat.name.toLowerCase() === categoryData.name.toLowerCase()
+        );
+        if (newCategory && !selectedCategories.value.includes(newCategory.id)) {
+            selectedCategories.value.push(newCategory.id);
+        }
+        
+    } catch (err: unknown) {
+        createCategoryLoading.value = false;
+        
+        if (err && typeof err === 'object' && 'response' in err) {
+            const errorResponse = err as any;
+            if (errorResponse.response?.data?.errors) {
+                categoryFormErrors.value = errorResponse.response.data.errors;
+            } else {
+                showNotification('error', errorResponse.message || 'Failed to create category');
+            }
+        } else {
+            showNotification('error', err instanceof Error ? err.message : 'Failed to create category');
+        }
+    } finally {
+        createCategoryLoading.value = false;
+    }
 };
 </script>
 
