@@ -49,6 +49,10 @@ export const useAffiliate = () => {
         getAll: async () => {
             const { data } = await api.get<any[]>("affiliate/campaigns/public", "campaigns");
             return data.value || [];
+        },
+        getAllWithCouponCounts: async () => {
+            const { data } = await api.get<any[]>("affiliate/campaigns/public-with-counts", "campaigns_with_counts");
+            return data.value || [];
         }
     };
 
