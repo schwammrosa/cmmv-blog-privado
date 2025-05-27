@@ -256,7 +256,7 @@
                 </div>
             </section>
 
-            <!-- Top Cupons -->
+            <!-- Top Cupons Carrossel -->
             <section class="container card-carousel mb-12">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-gray-800">Top cupons</h2>
@@ -309,6 +309,64 @@
                             @click="currentCouponIndex = (i-1) * couponSlidesVisible" 
                             class="w-2.5 h-2.5 rounded-full bg-gray-300 hover:bg-gray-400 focus:outline-none transition-colors"
                             :class="{'bg-indigo-600': Math.floor(currentCouponIndex / couponSlidesVisible) === i-1}"></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top 25 Cupons da Semana -->
+            <section class="mb-12">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Os 25 melhores Cupons de Desconto da semana!</h2>
+                    <!-- Pode adicionar um link "Ver todos" se houver uma página dedicada -->
+                </div>
+
+                <div v-if="loading" class="flex justify-center items-center py-10">
+                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-600"></div>
+                </div>
+                <div v-else-if="error" class="text-center py-10 text-red-500">
+                    Ocorreu um erro ao carregar os cupons. Tente novamente mais tarde.
+                </div>
+                <div v-else-if="top25Coupons.length === 0" class="text-center py-10 text-gray-500">
+                    Nenhum cupom encontrado esta semana.
+                </div>
+                <div v-else class="space-y-4">
+                    <div v-for="coupon in top25Coupons" :key="coupon.id"
+                         class="bg-white border border-gray-200 rounded-lg p-4 md:p-6 flex flex-col md:flex-row items-center hover:shadow-lg transition-shadow duration-300">
+                        
+                        <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
+                            <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
+                                 class="max-w-full max-h-full object-contain rounded">
+                            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow text-center md:text-left">
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-1">{{ coupon.title }}</h3>
+                            <!-- Placeholder para Cashback -->
+                            <p v-if="coupon.cashbackPercentage" class="text-sm text-green-600 font-medium mb-1">
+                                + {{ coupon.cashbackPercentage }}% de cashback 
+                                <span v-if="coupon.oldCashbackPercentage" class="text-gray-500 line-through">(era {{coupon.oldCashbackPercentage}}%)</span>
+                            </p>
+                            <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ coupon.description }}</p>
+                            <!-- Placeholder para Verificado/Usado -->
+                            <p class="text-xs text-gray-500">
+                                <span v-if="coupon.verifiedToday">Verificado hoje</span>
+                                <span v-if="coupon.verifiedToday && coupon.usesToday" class="mx-1">•</span>
+                                <span v-if="coupon.usesToday">{{ coupon.usesToday }} usados hoje</span>
+                            </p>
+                        </div>
+
+                        <div class="mt-4 md:mt-0 md:ml-6 flex-shrink-0">
+                            <a :href="coupon.linkRef || (coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#')"
+                               target="_blank"
+                               class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
+                                {{ coupon.code ? 'Desbloquear' : 'Ver Desconto' }}
+                                <span v-if="coupon.code" class="ml-1">···{{ coupon.code.slice(-3) }}</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -385,6 +443,7 @@ const settings = computed<Record<string, any>>(() => {
 const posts = ref<any[]>(postsStore.getPosts || []);
 const campaigns = ref<any[]>([]);
 const featuredCoupons = ref<any[]>([]);
+const top25Coupons = ref<any[]>([]);
 const loading = ref(true);
 const error = ref(null);
 const searchQuery = ref('');
@@ -570,11 +629,12 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // Parallel loading of posts, campaigns and coupons
-        const [postsResponse, campaignsData, couponsResponse] = await Promise.all([
+        // Parallel loading of posts, campaigns, featured coupons (antigo carrossel) and top 25 weekly coupons
+        const [postsResponse, campaignsData, couponsResponse, weeklyTopCouponsResponse] = await Promise.all([
             blogAPI.posts.getAll(0),
             affiliateAPI.campaigns.getAllWithCouponCounts(),
-            affiliateAPI.coupons.getMostViewed()
+            affiliateAPI.coupons.getMostViewed(), // Para o carrossel antigo
+            affiliateAPI.coupons.getTop25WeeklyCoupons() // Novo endpoint
         ]);
 
         if (postsResponse) {
@@ -587,14 +647,21 @@ const loadData = async () => {
             campaigns.value = [];
         }
 
-        if (couponsResponse) {
+        if (couponsResponse) { // Para o carrossel antigo
             featuredCoupons.value = couponsResponse;
         } else {
             featuredCoupons.value = [];
         }
 
+        if (weeklyTopCouponsResponse) { // Novos Top 25
+            top25Coupons.value = weeklyTopCouponsResponse;
+        } else {
+            top25Coupons.value = [];
+        }
+
     } catch (err: any) {
         error.value = err;
+        console.error("Erro ao carregar dados da Home:", err); // Log de erro
     } finally {
         loading.value = false;
     }

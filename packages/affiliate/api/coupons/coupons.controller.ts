@@ -53,6 +53,15 @@ export class CouponsControllerTools {
         return await this.couponsService.getCouponsWithViews();
     }
 
+    @Get("top25weekly")
+    @Cache("coupons_top25weekly:")
+    @CacheControl({ maxAge: 60 * 60 * 4, public: true })
+    @ContentType('application/json')
+    @Raw()
+    async getTop25WeeklyCoupons() {
+        return await this.couponsService.getTop25WeeklyCoupons();
+    }
+
     @Get("export")
     async export(@Res() response: any, @Query("token") token: string){
         if(token !== process.env.API_SIGNATURE)

@@ -74,6 +74,15 @@ export const useAffiliate = () => {
                 console.error(`Failed to fetch coupon count for campaign ${campaignId}:`, error);
                 return { count: 0 }; // Return default count on error
             }
+        },
+        getTop25WeeklyCoupons: async () => {
+            try {
+                const { data } = await api.get<any[]>("affiliate/coupons/top25weekly", "coupons_top25weekly");
+                return data.value || [];
+            } catch (error) {
+                console.error("Failed to fetch top 25 weekly coupons:", error);
+                return []; // Retorna array vazio em caso de erro
+            }
         }
     };
 
