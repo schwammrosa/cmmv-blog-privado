@@ -21,12 +21,12 @@
                         ref="scratchCanvas"
                         class="absolute inset-0 w-full h-full bg-gray-300 rounded-md z-20"
                         @mousedown="startScratch"
-                        @touchstart.prevent="startScratch"
+                        @touchstart="startScratch"
                         @mousemove="scratch"
-                        @touchmove.prevent="scratch"
+                        @touchmove="scratch"
                         @mouseup="stopScratch"
                         @mouseleave="stopScratch"
-                        @touchend.prevent="stopScratch">
+                        @touchend="stopScratch">
                     </canvas>
                     
                     <div 
@@ -91,7 +91,7 @@ const initCanvas = () => {
     }
     
     const canvas = scratchCanvas.value;
-    const canvasCtx = canvas.getContext('2d');
+    const canvasCtx = canvas.getContext('2d', { willReadFrequently: true });
     if (!canvasCtx) {
         return;
     }
@@ -128,7 +128,9 @@ const getScratchPosition = (event: MouseEvent | TouchEvent) => {
 
 const startScratch = (event: MouseEvent | TouchEvent) => {
     if (!ctx.value || isRevealed.value) return;
-    event.preventDefault(); 
+    if (event.cancelable) {
+        event.preventDefault();
+    }
     isDrawing.value = true;
     isScratching.value = true; 
     showRevealHint.value = true; 
@@ -141,7 +143,9 @@ const startScratch = (event: MouseEvent | TouchEvent) => {
 
 const scratch = (event: MouseEvent | TouchEvent) => {
     if (!isDrawing.value || !ctx.value || isRevealed.value) return;
-    event.preventDefault();
+    if (event.cancelable) {
+        event.preventDefault();
+    }
     const pos = getScratchPosition(event);
     if (pos) {
         ctx.value.lineWidth = 20; 
@@ -167,7 +171,7 @@ const checkRevealPercentage = () => {
     if (!ctx.value || !scratchCanvas.value || isRevealed.value) return;
 
     const canvas = scratchCanvas.value;
-    const currentCtx = canvas.getContext('2d');
+    const currentCtx = canvas.getContext('2d', { willReadFrequently: true });
     if (!currentCtx) {
         return;
     }
