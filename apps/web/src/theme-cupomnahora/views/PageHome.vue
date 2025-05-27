@@ -233,7 +233,7 @@
                 </div>
 
                 <div v-if="loading" class="flex justify-center items-center py-10">
-                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-600"></div>
+                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-indigo-600"></div>
                 </div>
 
                 <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -317,11 +317,10 @@
             <section class="mb-12">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-gray-800">Os 25 melhores Cupons de Desconto da semana!</h2>
-                    <!-- Pode adicionar um link "Ver todos" se houver uma página dedicada -->
                 </div>
 
                 <div v-if="loading" class="flex justify-center items-center py-10">
-                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-green-600"></div>
+                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-green-600"></div>
                 </div>
                 <div v-else-if="error" class="text-center py-10 text-red-500">
                     Ocorreu um erro ao carregar os cupons. Tente novamente mais tarde.
@@ -345,13 +344,11 @@
 
                         <div class="flex-grow text-center md:text-left">
                             <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-1">{{ coupon.title }}</h3>
-                            <!-- Placeholder para Cashback -->
                             <p v-if="coupon.cashbackPercentage" class="text-sm text-green-600 font-medium mb-1">
                                 + {{ coupon.cashbackPercentage }}% de cashback 
                                 <span v-if="coupon.oldCashbackPercentage" class="text-gray-500 line-through">(era {{coupon.oldCashbackPercentage}}%)</span>
                             </p>
                             <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ coupon.description }}</p>
-                            <!-- Placeholder para Verificado/Usado -->
                             <p class="text-xs text-gray-500">
                                 <span v-if="coupon.verifiedToday">Verificado hoje</span>
                                 <span v-if="coupon.verifiedToday && coupon.usesToday" class="mx-1">•</span>
@@ -360,11 +357,16 @@
                         </div>
 
                         <div class="mt-4 md:mt-0 md:ml-6 flex-shrink-0">
-                            <a :href="coupon.linkRef || (coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#')"
+                            <button v-if="coupon.code"
+                                @click="openScratchModal(coupon)"
+                                class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
+                                Desbloquear <span class="ml-1">···{{ coupon.code.slice(-3) }}</span>
+                            </button>
+                            <a v-else
+                               :href="coupon.linkRef || (coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#')"
                                target="_blank"
-                               class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
-                                {{ coupon.code ? 'Desbloquear' : 'Ver Desconto' }}
-                                <span v-if="coupon.code" class="ml-1">···{{ coupon.code.slice(-3) }}</span>
+                               class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
+                                Ver Desconto
                             </a>
                         </div>
                     </div>
@@ -410,6 +412,12 @@
             </section>
         </div>
     </div>
+
+    <CouponScratchModal 
+        :visible="isScratchModalOpen" 
+        :coupon="selectedCouponForScratch"
+        @close="closeScratchModal" />
+
 </template>
 
 <script setup lang="ts">
@@ -420,6 +428,7 @@ import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useSettingsStore } from '../../store/settings';
 import { usePostsStore } from '../../store/posts';
 import { formatDate, stripHtml } from '../../composables/useUtils';
+import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 const settingsStore = useSettingsStore();
 const postsStore = usePostsStore();
@@ -453,6 +462,21 @@ const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
 const currentCouponIndex = ref(0);
 const couponSlidesVisible = ref(3);
+
+// Estado para o Modal de Raspadinha
+const isScratchModalOpen = ref(false);
+const selectedCouponForScratch = ref<any | null>(null);
+
+// Funções para o Modal de Raspadinha
+const openScratchModal = (coupon: any) => {
+    selectedCouponForScratch.value = coupon;
+    isScratchModalOpen.value = true;
+};
+
+const closeScratchModal = () => {
+    isScratchModalOpen.value = false;
+    selectedCouponForScratch.value = null;
+};
 
 // Cover settings from the blog settings
 const coverSettings = computed(() => {
@@ -591,9 +615,6 @@ const featuredCampaigns = computed(() => {
     // We just need to filter out campaigns with no coupons.
     return campaigns.value.filter(campaign => campaign.couponCount > 0);
 });
-
-// Computed properties for different sections
-// We've removed featuredStores as it's no longer needed since we removed "Ofertas por Loja" section
 
 // Helper functions
 const validUntil = () => {
