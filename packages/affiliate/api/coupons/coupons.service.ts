@@ -146,7 +146,7 @@ export class CouponsServiceTools {
         const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
 
         const coupons = await Repository.findAll(AffiliateCouponsEntity, {
-            limit: 100,
+            limit: 10000,
             active: true,
             campaign: campaignId
         }, [], {
@@ -160,6 +160,22 @@ export class CouponsServiceTools {
     }
 
     /**
+     * Get the count of active coupons for a campaign
+     * @param campaignId The ID of the campaign to get coupons for
+     * @returns The count of coupons
+     */
+    async getCouponsCountByCampaignId(campaignId: string) {
+        const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
+
+        const count = await Repository.count(AffiliateCouponsEntity, {
+            active: true,
+            campaign: campaignId
+        });
+
+        return { count: count || 0 };
+    }
+
+    /**
      * Get all coupons for a campaign with views
      * @param campaignId The ID of the campaign to get coupons for
      * @returns Array of coupon objects
@@ -169,7 +185,7 @@ export class CouponsServiceTools {
         const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
 
         const coupons = await Repository.findAll(AffiliateCouponsEntity, {
-            limit: 100,
+            limit: 10000,
             active: true,
             campaign: Not(IsNull()),
             expiration: MoreThan(new Date())

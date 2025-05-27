@@ -250,7 +250,7 @@
                                 </div>
                             </div>
                             <h3 class="text-sm font-medium text-gray-800">{{ campaign.name }}</h3>
-                            <p class="text-xs text-gray-500">{{ Math.floor(Math.random() * 50) + 10 }} cupons</p>
+                            <p class="text-xs text-gray-500">{{ campaign.couponCount }} cupons</p>
                         </div>
                     </a>
                 </div>
@@ -575,12 +575,24 @@ const prevCarouselSlide = () => {
 const featuredCampaigns = computed(() => {
     if (!campaigns.value.length) return [];
 
-    // Sort to put highlighted campaigns first
-    return [...campaigns.value].sort((a, b) => {
-        if (a.highlight && !b.highlight) return -1;
-        if (!a.highlight && b.highlight) return 1;
-        return 0;
-    });
+    // Filter out campaigns with no coupons, then sort to put highlighted campaigns first
+    return [...campaigns.value]
+        .filter(campaign => campaign.couponCount > 0)
+        .sort((a, b) => {
+            // Prioritize highlighted campaigns
+            if (a.highlight && !b.highlight) return -1;
+            if (!a.highlight && b.highlight) return 1;
+
+            // If highlight status is the same, sort by couponCount descending
+            if (b.couponCount !== a.couponCount) {
+                return b.couponCount - a.couponCount;
+            }
+
+            // Optional: if coupon counts are also the same, you might add a secondary sort criteria, e.g., by name
+            // return a.name.localeCompare(b.name);
+
+            return 0;
+        });
 });
 
 // Computed properties for different sections
@@ -621,7 +633,7 @@ const loadData = async () => {
         error.value = null;
 
         // Parallel loading of posts, campaigns and coupons
-        const [postsResponse, campaignsResponse, couponsResponse] = await Promise.all([
+        const [postsResponse, campaignsData, couponsResponse] = await Promise.all([
             blogAPI.posts.getAll(0),
             affiliateAPI.campaigns.getAll(),
             affiliateAPI.coupons.getMostViewed()
@@ -631,8 +643,28 @@ const loadData = async () => {
             posts.value = postsResponse.posts;
         }
 
-        if (campaignsResponse) {
-            campaigns.value = campaignsResponse;
+        if (campaignsData && campaignsData.length > 0) {
+            const campaignsWithCounts = await Promise.all(
+                campaignsData.map(async (campaign: any) => {
+                    try {
+                        // Fetch coupon count for each campaign.
+                        const couponCountResponse = await affiliateAPI.coupons.getCountByCampaignId(campaign.id);
+                        return {
+                            ...campaign,
+                            couponCount: couponCountResponse?.count || 0
+                        };
+                    } catch (err) {
+                        console.error(`Failed to load coupon count for campaign ${campaign.id}:`, err);
+                        return {
+                            ...campaign,
+                            couponCount: 0 // Default to 0 if fetching count fails
+                        };
+                    }
+                })
+            );
+            campaigns.value = campaignsWithCounts;
+        } else {
+            campaigns.value = []; // Ensure campaigns is an empty array if no data
         }
 
         // Load featured coupons from the API

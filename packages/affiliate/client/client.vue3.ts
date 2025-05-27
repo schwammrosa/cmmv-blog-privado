@@ -56,6 +56,20 @@ export const useAffiliate = () => {
         getMostViewed: async () => {
             const { data } = await api.get<any[]>("affiliate/coupons/campaign/views", "coupons");
             return data.value || [];
+        },
+        getCountByCampaignId: async (campaignId: string) => {
+            // Ensure campaignId is provided
+            if (!campaignId) {
+                console.warn('Campaign ID is required to get coupon count.');
+                return { count: 0 }; // Return a default count or handle as an error
+            }
+            try {
+                const { data } = await api.get<{ count: number }>(`affiliate/coupons/count/${campaignId}`, `coupon_count_${campaignId}`);
+                return data.value || { count: 0 };
+            } catch (error) {
+                console.error(`Failed to fetch coupon count for campaign ${campaignId}:`, error);
+                return { count: 0 }; // Return default count on error
+            }
         }
     };
 
