@@ -33,7 +33,7 @@
                             <p v-if="coverPosts.full" class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                 {{ coverPosts.full.excerpt || stripHtml(coverPosts.full.content).substring(0, 150) + '...' }}
                             </p>
-                            <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                            <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                 Continuar lendo
                             </span>
                         </div>
@@ -75,7 +75,7 @@
                                 <p class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                     {{ post.excerpt || stripHtml(post.content).substring(0, 150) + '...' }}
                                 </p>
-                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                     Continuar lendo
                                 </span>
                             </div>
@@ -143,7 +143,7 @@
                                 <p v-if="coverPosts.splitMain" class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                     {{ coverPosts.splitMain.excerpt || stripHtml(coverPosts.splitMain.content).substring(0, 150) + '...' }}
                                 </p>
-                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                     Continuar lendo
                                 </span>
                             </div>
@@ -214,7 +214,7 @@
                                 <p class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                     {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
                                 </p>
-                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                     Continuar lendo
                                 </span>
                             </div>
