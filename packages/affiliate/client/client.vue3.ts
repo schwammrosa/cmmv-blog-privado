@@ -83,6 +83,19 @@ export const useAffiliate = () => {
                 console.error("Failed to fetch top 25 weekly coupons:", error);
                 return []; // Retorna array vazio em caso de erro
             }
+        },
+        getByCampaignId: async (campaignId: string) => {
+            if (!campaignId) {
+                console.warn('Campaign ID is required to get coupons.');
+                return [];
+            }
+            try {
+                const { data } = await api.get<any[]>(`affiliate/coupons/campaign/${campaignId}`, `coupons_campaign_${campaignId}`);
+                return data.value || [];
+            } catch (error) {
+                console.error(`Failed to fetch coupons for campaign ${campaignId}:`, error);
+                return []; // Retorna array vazio em caso de erro
+            }
         }
     };
 

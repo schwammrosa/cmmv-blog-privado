@@ -7,7 +7,7 @@
                     <!-- Logo -->
                     <div class="flex items-center">
                         <a href="/" class="text-2xl font-bold text-white">
-                            <img src="/src/theme-cupomnahora/assets/Logo.png" width="147" height="32" alt="Logo" title="Logo">
+                            <img src="/src/theme-cupomnahora/assets/Logo-1.png" width="147" height="32" alt="Logo" title="Logo">
                         </a>
                     </div>
 

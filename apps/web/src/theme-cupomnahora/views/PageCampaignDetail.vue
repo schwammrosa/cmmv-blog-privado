@@ -69,6 +69,13 @@
                         >
                             Ofertas ({{ offersCount }})
                         </button>
+                        <button 
+                            @click="setFilter('expired')" 
+                            class="px-3 py-1.5 rounded-md text-sm font-medium"
+                            :class="activeFilter === 'expired' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                        >
+                            Expirados ({{ expiredCount }})
+                        </button>
                     </div>
                 </div>
 
@@ -115,7 +122,8 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <span>Válido até {{ formatDate(coupon.expiration) }}</span>
+                                            <span v-if="new Date(coupon.expiration) < new Date()" class="text-red-500 font-medium">Expirado em {{ formatDate(coupon.expiration) }}</span>
+                                            <span v-else>Válido até {{ formatDate(coupon.expiration) }}</span>
                                         </div>
                                         <div class="flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -200,7 +208,7 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 
 // Estado para filtros
-const activeFilter = ref('all'); // 'all', 'codes', 'offers'
+const activeFilter = ref('all'); // 'all', 'codes', 'offers', 'expired'
 
 // Estado para modal de cupom
 const showCouponModal = ref(false);
@@ -210,12 +218,14 @@ const codeCopied = ref(false);
 // Contadores para os filtros
 const codesCount = computed(() => coupons.value.filter(coupon => coupon.code).length);
 const offersCount = computed(() => coupons.value.filter(coupon => !coupon.code).length);
+const expiredCount = computed(() => coupons.value.filter(coupon => new Date(coupon.expiration) < new Date()).length);
 
 // Filtrar cupons baseado no filtro ativo
 const filteredCoupons = computed(() => {
     if (activeFilter.value === 'all') return coupons.value;
     if (activeFilter.value === 'codes') return coupons.value.filter(coupon => coupon.code);
     if (activeFilter.value === 'offers') return coupons.value.filter(coupon => !coupon.code);
+    if (activeFilter.value === 'expired') return coupons.value.filter(coupon => new Date(coupon.expiration) < new Date());
     return coupons.value;
 });
 
@@ -280,9 +290,21 @@ const loadData = async () => {
         
         campaign.value = foundCampaign;
         
-        // Gerar dados simulados de cupons (já que não temos um endpoint específico para buscar por slug)
-        // Idealmente, você teria um endpoint como affiliateAPI.coupons.getByCampaignId(campaign.value.id)
-        generateDummyCoupons();
+        // Carregar cupons reais da API
+        try {
+            const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaign.value.id);
+            if (realCoupons && realCoupons.length > 0) {
+                console.log("Cupons reais carregados:", realCoupons.length);
+                coupons.value = realCoupons;
+            } else {
+                console.warn("Nenhum cupom real encontrado, gerando dados simulados.");
+                generateDummyCoupons();
+            }
+        } catch (couponError) {
+            console.error("Erro ao carregar cupons reais:", couponError);
+            console.warn("Gerando dados simulados como fallback.");
+            generateDummyCoupons();
+        }
         
         loading.value = false;
     } catch (err: any) {
@@ -305,9 +327,20 @@ const generateDummyCoupons = () => {
     for (let i = 0; i < numCoupons; i++) {
         const hasCode = Math.random() > 0.3; // 70% dos cupons terão código
         const discountValue = Math.floor(Math.random() * 60) + 5; // Desconto entre 5% e 65%
-        const randomDaysValid = Math.floor(Math.random() * 30) + 1;
-        const expirationDate = new Date();
-        expirationDate.setDate(expirationDate.getDate() + randomDaysValid);
+        
+        // Determina se é um cupom expirado (30% de chance)
+        const isExpired = Math.random() > 0.7;
+        let expirationDate = new Date();
+        
+        if (isExpired) {
+            // Data no passado (1-30 dias atrás)
+            const randomDaysExpired = Math.floor(Math.random() * 30) + 1;
+            expirationDate.setDate(expirationDate.getDate() - randomDaysExpired);
+        } else {
+            // Data no futuro (1-30 dias à frente)
+            const randomDaysValid = Math.floor(Math.random() * 30) + 1;
+            expirationDate.setDate(expirationDate.getDate() + randomDaysValid);
+        }
         
         const couponTitles = [
             `Aproveite até ${discountValue}% OFF utilizando cupom ${campaignName}`,
@@ -324,7 +357,7 @@ const generateDummyCoupons = () => {
             `Válido para seleção do link. Aplique o cupom na página de pagamento.`,
             `Desconto válido na seleção do link.`
         ];
-        
+        /*
         dummyCoupons.push({
             id: `coup-${i}-${Date.now()}`,
             title: couponTitles[i % couponTitles.length],
@@ -337,6 +370,7 @@ const generateDummyCoupons = () => {
             oldCashbackPercentage: Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : null,
             linkRef: `https://${campaign.value.domain || 'example.com'}`
         });
+        */
     }
     
     coupons.value = dummyCoupons;
