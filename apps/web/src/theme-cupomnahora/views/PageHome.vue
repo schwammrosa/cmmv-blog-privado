@@ -33,7 +33,7 @@
                             <p v-if="coverPosts.full" class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                 {{ coverPosts.full.excerpt || stripHtml(coverPosts.full.content).substring(0, 150) + '...' }}
                             </p>
-                            <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                            <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                 Continuar lendo
                             </span>
                         </div>
@@ -75,7 +75,7 @@
                                 <p class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                     {{ post.excerpt || stripHtml(post.content).substring(0, 150) + '...' }}
                                 </p>
-                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                     Continuar lendo
                                 </span>
                             </div>
@@ -143,7 +143,7 @@
                                 <p v-if="coverPosts.splitMain" class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                     {{ coverPosts.splitMain.excerpt || stripHtml(coverPosts.splitMain.content).substring(0, 150) + '...' }}
                                 </p>
-                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                     Continuar lendo
                                 </span>
                             </div>
@@ -214,7 +214,7 @@
                                 <p class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
                                     {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
                                 </p>
-                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                <span class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md transition-colors">
                                     Continuar lendo
                                 </span>
                             </div>
@@ -233,7 +233,7 @@
                 </div>
 
                 <div v-if="loading" class="flex justify-center items-center py-10">
-                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-600"></div>
+                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-indigo-600"></div>
                 </div>
 
                 <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -250,85 +250,125 @@
                                 </div>
                             </div>
                             <h3 class="text-sm font-medium text-gray-800">{{ campaign.name }}</h3>
-                            <p class="text-xs text-gray-500">{{ Math.floor(Math.random() * 50) + 10 }} cupons</p>
+                            <p class="text-xs text-gray-500">{{ campaign.couponCount }} cupons</p>
                         </div>
                     </a>
                 </div>
             </section>
 
-            <!-- Categorias Populares -->
-            <section class="mb-12">
+            <!-- Top Cupons Carrossel -->
+            <section class="container card-carousel mb-12">
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800">Categorias Populares</h2>
-                    <a href="#" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver todas</a>
+                    <h2 class="text-2xl font-bold text-gray-800">Top cupons</h2>
+                    <a href="/descontos" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver todos</a>
                 </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                    <!-- Categoria Dinâmicas -->
-                    <a v-for="(category, index) in categoriesWithIcons" :key="category.id" :href="`/category/${category.slug}`"
-                        class="bg-gray-50 rounded-lg p-4 flex flex-col items-center justify-center hover:bg-indigo-50 transition-all">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mb-3">
-                            <i :class="category.icon"></i>
-                        </div>
-                        <h3 class="text-sm font-medium text-gray-800">{{ category.name }}</h3>
-                        <p class="text-xs text-gray-500">{{ category.postCount || Math.floor(Math.random() * 100) + 20 }} cupons</p>
-                    </a>
-                </div>
-            </section>
-
-            <!-- Cupons em Destaque -->
-            <section class="container card-carousel">
-                <h2 class="card-carousel-title text-2xl font-bold text-gray-800 mb-8">Top cupons</h2>
                 <div id="coupon-cards" class="relative">
                     <div class="overflow-hidden">
                         <div class="flex transition-transform duration-300 ease-in-out"
                             :style="`transform: translateX(-${currentCouponIndex * (100 / couponSlidesVisible)}%);`">
                             <div v-for="coupon in featuredCoupons.slice(0, 10)" :key="coupon.id"
-                                class="coupon-card-container w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 flex-shrink-0">
-                                <div class="coupon-card bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col">
-                                    <div class="coupon-card-store-logo-container p-4  flex justify-center items-center h-24">
+                                class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 flex-shrink-0">
+                                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col p-4">
+                                    <div class="flex-shrink-0 mb-2 h-16 flex items-center justify-center">
                                         <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
-                                            class="coupon-card-store-logo max-h-16 max-w-full">
-                                        <div v-else class="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
+                                            class="max-h-12 max-w-full object-contain">
+                                        <div v-else class="w-16 h-12 bg-gray-200 flex items-center justify-center rounded-md">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                             </svg>
                                         </div>
                                     </div>
-                                    <div class="coupon-card-infos p-4 flex-1 flex flex-col">
-                                        <p class="coupon-card-overview text-sm line-clamp-2 flex-grow">{{ coupon.description }}</p>
+                                    <h4 class="text-sm font-medium text-gray-700 text-center mb-2 truncate" :title="coupon.campaignName">{{ coupon.campaignName }}</h4>
+                                    <div class="flex-1 flex flex-col text-center">
+                                        <p class="text-base font-bold text-gray-800 mb-1 line-clamp-2 h-12">{{ coupon.title }}</p>
+                                        <p v-if="coupon.code" class="text-xs text-gray-500 mb-3">{{ coupon.code.length > 3 ? '****' + coupon.code.substring(coupon.code.length - 3) : coupon.code }}</p>
+                                        <p v-else class="text-xs text-gray-500 mb-3">Oferta especial</p>
                                     </div>
-                                    <div class="border-t border-gray-200 p-4">
-                                        <div class="flex justify-between items-center">
-                                            <div class="bg-gray-100 text-gray-800 py-2 px-3 rounded-md font-mono text-xs">
-                                                {{ coupon.code ? '****' + (coupon.code.length > 3 ? coupon.code.substring(coupon.code.length - 3) : coupon.code) : '********' }}
-                                            </div>
-                                            <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs py-2 px-3 rounded-md">
-                                                Pegar cupom
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#'" 
+                                       class="mt-auto block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm text-center py-2 px-3 rounded-md transition-colors">
+                                        Ver Oferta
+                                    </a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Carousel Controls -->
-                    <button @click="prevCouponSlide" class="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full w-10 h-10 p-2 z-10 -ml-3"
-                        :class="{'opacity-50 cursor-not-allowed': currentCouponIndex === 0}">
-                        <i class="fas fa-chevron-left text-gray-600"></i>
+                    <button @click="prevCouponSlide" 
+                            class="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full w-10 h-10 p-2 z-10 -ml-3 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors">
+                        <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button @click="nextCouponSlide" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full  w-10 h-10 p-2 z-10 -mr-3"
-                        :class="{'opacity-50 cursor-not-allowed': currentCouponIndex >= Math.max(0, featuredCoupons.length - couponSlidesVisible)}">
-                        <i class="fas fa-chevron-right text-gray-600"></i>
+                    <button @click="nextCouponSlide" 
+                            class="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full w-10 h-10 p-2 z-10 -mr-3 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors">
+                        <i class="fas fa-chevron-right"></i>
                     </button>
 
                     <!-- Carousel Bullets -->
-                    <div class="flex justify-center mt-4 space-x-2">
-                        <button v-for="i in Math.ceil(10 / couponSlidesVisible)" :key="i"
-                            @click="currentCouponIndex = i-1"
-                            class="w-2 h-2 rounded-full bg-gray-300 focus:outline-none"
-                            :class="{'bg-indigo-600': Math.floor(currentCouponIndex) === i-1}"></button>
+                    <div class="flex justify-center mt-6 space-x-2">
+                        <button v-for="i in Math.ceil(Math.min(10, featuredCoupons.length) / couponSlidesVisible)" :key="i"
+                            @click="currentCouponIndex = (i-1) * couponSlidesVisible" 
+                            class="w-2.5 h-2.5 rounded-full bg-gray-300 hover:bg-gray-400 focus:outline-none transition-colors"
+                            :class="{'bg-indigo-600': Math.floor(currentCouponIndex / couponSlidesVisible) === i-1}"></button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top 25 Cupons da Semana -->
+            <section class="mb-12">
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800">Os 25 melhores Cupons de Desconto da semana!</h2>
+                </div>
+
+                <div v-if="loading" class="flex justify-center items-center py-10">
+                    <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-green-600"></div>
+                </div>
+                <div v-else-if="error" class="text-center py-10 text-red-500">
+                    Ocorreu um erro ao carregar os cupons. Tente novamente mais tarde.
+                </div>
+                <div v-else-if="top25Coupons.length === 0" class="text-center py-10 text-gray-500">
+                    Nenhum cupom encontrado esta semana.
+                </div>
+                <div v-else class="space-y-4">
+                    <div v-for="coupon in top25Coupons" :key="coupon.id"
+                         class="bg-white border border-gray-200 rounded-lg p-4 md:p-6 flex flex-col md:flex-row items-center hover:shadow-lg transition-shadow duration-300">
+                        
+                        <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
+                            <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
+                                 class="max-w-full max-h-full object-contain rounded">
+                            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                </svg>
+                            </div>
+                        </div>
+
+                        <div class="flex-grow text-center md:text-left">
+                            <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-1">{{ coupon.title }}</h3>
+                            <p v-if="coupon.cashbackPercentage" class="text-sm text-green-600 font-medium mb-1">
+                                + {{ coupon.cashbackPercentage }}% de cashback 
+                                <span v-if="coupon.oldCashbackPercentage" class="text-gray-500 line-through">(era {{coupon.oldCashbackPercentage}}%)</span>
+                            </p>
+                            <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ coupon.description }}</p>
+                            <p class="text-xs text-gray-500">
+                                <span v-if="coupon.verifiedToday">Verificado hoje</span>
+                                <span v-if="coupon.verifiedToday && coupon.usesToday" class="mx-1">•</span>
+                                <span v-if="coupon.usesToday">{{ coupon.usesToday }} usados hoje</span>
+                            </p>
+                        </div>
+
+                        <div class="mt-4 md:mt-0 md:ml-6 flex-shrink-0">
+                            <button v-if="coupon.code"
+                                @click="openScratchModal(coupon)"
+                                class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
+                                Desbloquear <span class="ml-1">···{{ coupon.code.slice(-3) }}</span>
+                            </button>
+                            <a v-else
+                               :href="coupon.linkRef || (coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#')"
+                               target="_blank"
+                               class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
+                                Ver Desconto
+                            </a>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -372,6 +412,12 @@
             </section>
         </div>
     </div>
+
+    <CouponScratchModal 
+        :visible="isScratchModalOpen" 
+        :coupon="selectedCouponForScratch"
+        @close="closeScratchModal" />
+
 </template>
 
 <script setup lang="ts">
@@ -380,12 +426,11 @@ import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useSettingsStore } from '../../store/settings';
-import { useCategoriesStore } from '../../store/categories';
 import { usePostsStore } from '../../store/posts';
 import { formatDate, stripHtml } from '../../composables/useUtils';
+import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 const settingsStore = useSettingsStore();
-const categoriesStore = useCategoriesStore();
 const postsStore = usePostsStore();
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
@@ -404,10 +449,10 @@ const settings = computed<Record<string, any>>(() => {
     });
     return blogSettings;
 });
-const categories = ref<any[]>(categoriesStore.getCategories || []);
 const posts = ref<any[]>(postsStore.getPosts || []);
 const campaigns = ref<any[]>([]);
-const featuredCoupons = ref<any[]>([]); // Will store coupons from useAffiliate().coupons.getMostViewed()
+const featuredCoupons = ref<any[]>([]);
+const top25Coupons = ref<any[]>([]);
 const loading = ref(true);
 const error = ref(null);
 const searchQuery = ref('');
@@ -418,29 +463,20 @@ const carouselInterval = ref<number | null>(null);
 const currentCouponIndex = ref(0);
 const couponSlidesVisible = ref(3);
 
-// Icons for categories
-const categoryIcons = [
-    'fas fa-tshirt',
-    'fas fa-laptop',
-    'fas fa-utensils',
-    'fas fa-home',
-    'fas fa-plane',
-    'fas fa-gamepad',
-    'fas fa-shopping-basket',
-    'fas fa-baby',
-    'fas fa-book',
-    'fas fa-graduation-cap',
-    'fas fa-car',
-    'fas fa-paw'
-];
+// Estado para o Modal de Raspadinha
+const isScratchModalOpen = ref(false);
+const selectedCouponForScratch = ref<any | null>(null);
 
-const categoriesWithIcons = computed(() => {
-    if (!categories.value.length) return [];
-    return categories.value.slice(0, 6).map((category, index) => ({
-        ...category,
-        icon: categoryIcons[index % categoryIcons.length]
-    }));
-});
+// Funções para o Modal de Raspadinha
+const openScratchModal = (coupon: any) => {
+    selectedCouponForScratch.value = coupon;
+    isScratchModalOpen.value = true;
+};
+
+const closeScratchModal = () => {
+    isScratchModalOpen.value = false;
+    selectedCouponForScratch.value = null;
+};
 
 // Cover settings from the blog settings
 const coverSettings = computed(() => {
@@ -573,18 +609,12 @@ const prevCarouselSlide = () => {
 
 // Sort campaigns to prioritize highlighted ones
 const featuredCampaigns = computed(() => {
-    if (!campaigns.value.length) return [];
+    if (!campaigns.value || campaigns.value.length === 0) return [];
 
-    // Sort to put highlighted campaigns first
-    return [...campaigns.value].sort((a, b) => {
-        if (a.highlight && !b.highlight) return -1;
-        if (!a.highlight && b.highlight) return 1;
-        return 0;
-    });
+    // Data from campaigns.value is already sorted by the backend.
+    // We just need to filter out campaigns with no coupons.
+    return campaigns.value.filter(campaign => campaign.couponCount > 0);
 });
-
-// Computed properties for different sections
-// We've removed featuredStores as it's no longer needed since we removed "Ofertas por Loja" section
 
 // Helper functions
 const validUntil = () => {
@@ -620,40 +650,39 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // Parallel loading of posts, campaigns and coupons
-        const [postsResponse, campaignsResponse, couponsResponse] = await Promise.all([
+        // Parallel loading of posts, campaigns, featured coupons (antigo carrossel) and top 25 weekly coupons
+        const [postsResponse, campaignsData, couponsResponse, weeklyTopCouponsResponse] = await Promise.all([
             blogAPI.posts.getAll(0),
-            affiliateAPI.campaigns.getAll(),
-            affiliateAPI.coupons.getMostViewed()
+            affiliateAPI.campaigns.getAllWithCouponCounts(),
+            affiliateAPI.coupons.getMostViewed(), // Para o carrossel antigo
+            affiliateAPI.coupons.getTop25WeeklyCoupons() // Novo endpoint
         ]);
 
         if (postsResponse) {
             posts.value = postsResponse.posts;
         }
 
-        if (campaignsResponse) {
-            campaigns.value = campaignsResponse;
+        if (campaignsData && campaignsData.length > 0) {
+            campaigns.value = campaignsData;
+        } else {
+            campaigns.value = [];
         }
 
-        // Load featured coupons from the API
-        if (couponsResponse) {
-            console.log('Featured coupons loaded:', couponsResponse);
+        if (couponsResponse) { // Para o carrossel antigo
             featuredCoupons.value = couponsResponse;
+        } else {
+            featuredCoupons.value = [];
         }
 
-        if (!categories.value.length) {
-            try {
-                const categoriesResponse = await blogAPI.categories.getAll();
-                if (categoriesResponse) {
-                    categories.value = categoriesResponse;
-                }
-            } catch (err) {
-                console.error('Failed to load categories:', err);
-            }
+        if (weeklyTopCouponsResponse) { // Novos Top 25
+            top25Coupons.value = weeklyTopCouponsResponse;
+        } else {
+            top25Coupons.value = [];
         }
+
     } catch (err: any) {
-        console.error('Failed to load data:', err);
         error.value = err;
+        console.error("Erro ao carregar dados da Home:", err); // Log de erro
     } finally {
         loading.value = false;
     }
@@ -664,14 +693,34 @@ const openSearchModal = () => {
 };
 
 const prevCouponSlide = () => {
+    const numDisplayableCoupons = Math.min(10, featuredCoupons.value.length);
+    if (couponSlidesVisible.value >= numDisplayableCoupons) {
+        currentCouponIndex.value = 0;
+        return; 
+    }
+
+    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+
     if (currentCouponIndex.value > 0) {
         currentCouponIndex.value--;
+    } else {
+        currentCouponIndex.value = maxStartIndex;
     }
 };
 
 const nextCouponSlide = () => {
-    if (currentCouponIndex.value < featuredCoupons.value.length - couponSlidesVisible.value) {
+    const numDisplayableCoupons = Math.min(10, featuredCoupons.value.length);
+    if (couponSlidesVisible.value >= numDisplayableCoupons) {
+        currentCouponIndex.value = 0;
+        return;
+    }
+
+    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+
+    if (currentCouponIndex.value < maxStartIndex) {
         currentCouponIndex.value++;
+    } else {
+        currentCouponIndex.value = 0;
     }
 };
 
@@ -706,7 +755,7 @@ watch(() => settings.value['blog.cover'], () => {
 }
 
 .h-18 {
-    height: 4.5rem; /* 72px - equivalent to 3 lines of text */
+    height: 4.5rem;
 }
 </style>
 

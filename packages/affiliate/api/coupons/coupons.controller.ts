@@ -35,6 +35,15 @@ export class CouponsControllerTools {
         return await this.couponsService.getCoupons(campaignId);
     }
 
+    @Get("count/:campaignId")
+    @Cache("coupons_count:")
+    @CacheControl({ maxAge: 1800, public: true })
+    @ContentType('application/json')
+    @Raw()
+    async getCouponsCountByCampaignId(@Param("campaignId") campaignId: string) {
+        return await this.couponsService.getCouponsCountByCampaignId(campaignId);
+    }
+
     @Get("campaign/views")
     @Cache("coupons:")
     @CacheControl({ maxAge: 3600, public: true })
@@ -42,6 +51,15 @@ export class CouponsControllerTools {
     @Raw()
     async getCouponsWithViews() {
         return await this.couponsService.getCouponsWithViews();
+    }
+
+    @Get("top25weekly")
+    @Cache("coupons_top25weekly:")
+    @CacheControl({ maxAge: 60 * 60 * 4, public: true })
+    @ContentType('application/json')
+    @Raw()
+    async getTop25WeeklyCoupons() {
+        return await this.couponsService.getTop25WeeklyCoupons();
     }
 
     @Get("export")

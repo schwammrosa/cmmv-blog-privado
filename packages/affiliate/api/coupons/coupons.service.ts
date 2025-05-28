@@ -146,17 +146,33 @@ export class CouponsServiceTools {
         const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
 
         const coupons = await Repository.findAll(AffiliateCouponsEntity, {
-            limit: 100,
+            limit: 10000,
             active: true,
             campaign: campaignId
         }, [], {
             order: {
                 expiration: "DESC"
             },
-            select: ["title", "code", "description", "expiration", "type", "typeDiscount"]
+            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "linkRef"]
         });
 
         return (coupons) ? coupons.data : [];
+    }
+
+    /**
+     * Get the count of active coupons for a campaign
+     * @param campaignId The ID of the campaign to get coupons for
+     * @returns The count of coupons
+     */
+    async getCouponsCountByCampaignId(campaignId: string) {
+        const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
+
+        const count = await Repository.count(AffiliateCouponsEntity, {
+            active: true,
+            campaign: campaignId
+        });
+
+        return { count: count || 0 };
     }
 
     /**
@@ -169,7 +185,7 @@ export class CouponsServiceTools {
         const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
 
         const coupons = await Repository.findAll(AffiliateCouponsEntity, {
-            limit: 100,
+            limit: 10000,
             active: true,
             campaign: Not(IsNull()),
             expiration: MoreThan(new Date())
@@ -194,18 +210,93 @@ export class CouponsServiceTools {
         const campaignMap = new Map(campaigns.data.map((campaign: any) => [campaign.id, campaign]));
         let dataResponse: any[] = [];
 
-        if (coupons) {
-            dataResponse = coupons.data;
-            coupons.data.forEach((coupon: any, index: number) => {
-                const campaign: any = campaignMap.get(coupon.campaign);
-
-                if (campaign) {
-                    dataResponse[index].campaignName = campaign.name;
-                    dataResponse[index].campaignSlug = campaign.slug;
-                    dataResponse[index].campaignLogo = campaign.logo;
+        if (coupons && coupons.data) {
+            dataResponse = coupons.data.map((coupon: any) => {
+                if (coupon.campaign && typeof coupon.campaign === 'string' && coupon.campaign.trim() !== '') {
+                    const campaignDetails: any = campaignMap.get(coupon.campaign);
+                    if (campaignDetails) {
+                        return {
+                            ...coupon,
+                            campaignName: campaignDetails.name,
+                            campaignSlug: campaignDetails.slug,
+                            campaignLogo: campaignDetails.logo
+                        };
+                    }
                 }
-            });
+                return null;
+            }).filter((coupon: any) => coupon !== null && coupon.campaignName && coupon.campaignName !== 'N/A');
         }
+
+        return (dataResponse.length > 0) ? dataResponse : [];
+    }
+
+    /**
+     * Get the top 25 weekly coupons based on views
+     * @returns Array of top 25 coupon objects
+     */
+    async getTop25WeeklyCoupons() {
+        const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
+        const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
+
+        const couponsResult = await Repository.findAll(AffiliateCouponsEntity, {
+            active: true,
+            campaign: Not(IsNull()),
+            expiration: MoreThan(new Date())
+        },
+        [], // relations
+        {
+            order: {
+                views: "DESC"
+            },
+            take: 25, // Changed from limit to take as per TypeORM standards for FindManyOptions
+            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "views", "campaign", "linkRef"]
+        });
+
+        if (!couponsResult || !couponsResult.data || couponsResult.data.length === 0) {
+            return [];
+        }
+
+        const campaignIds = couponsResult.data.map((coupon: any) => coupon.campaign);
+        
+        const campaigns = await Repository.findAll(AffiliateCampaignsEntity, {
+            id: In(campaignIds)
+        }, [], {
+            select: ["id", "name", "slug", "logo"]
+        });
+
+        if (!campaigns || !campaigns.data) {
+            // It's possible that some campaigns are not found, but we should still process the coupons for which we found campaigns
+            console.warn(`Not all campaigns with IDs ${campaignIds} were found`);
+        }
+
+        const campaignMap = new Map(campaigns && campaigns.data ? campaigns.data.map((campaign: any) => [campaign.id, campaign]) : []);
+        
+        let dataResponse: any[] = [];
+
+        dataResponse = couponsResult.data.map((coupon: any) => {
+            if (coupon.campaign && typeof coupon.campaign === 'string' && coupon.campaign.trim() !== '') {
+                const campaignDetails: any = campaignMap.get(coupon.campaign);
+                if (campaignDetails) {
+                    return {
+                        ...coupon,
+                        campaignName: campaignDetails.name,
+                        campaignSlug: campaignDetails.slug,
+                        campaignLogo: campaignDetails.logo
+                    };
+                } else {
+                    // If campaign details are not found, we might still want to return the coupon without them
+                    // Or filter it out, depending on requirements. Here, returning without campaign details.
+                    return {
+                        ...coupon,
+                        campaignName: "N/A", // Or some default value
+                        campaignSlug: "",
+                        campaignLogo: ""
+                    };
+                }
+            }
+            return null; // Or handle as an error/log
+        }).filter((coupon: any) => coupon !== null);
+
 
         return (dataResponse.length > 0) ? dataResponse : [];
     }
