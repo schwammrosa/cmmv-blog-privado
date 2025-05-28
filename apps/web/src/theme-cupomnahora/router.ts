@@ -13,6 +13,7 @@ import PagePage from './views/PagePage.vue';
 import PageAuthor from './views/PageAuthor.vue';
 import PageTermsOfService from './views/TermsOfService.vue';
 import PageTermsOfPrivacy from './views/TermsOfPrivacy.vue';
+import PageDiscount from './views/PageDiscount.vue';
 
 export function createRouter() {
     return _createRouter({
@@ -30,7 +31,8 @@ export function createRouter() {
                     { path: '/tag/:slug', component: PageTag },
                     { path: '/author/:slug', component: PageAuthor },
                     { path: '/terms-of-service', component: PageTermsOfService },
-                    { path: '/terms-of-privacy', component: PageTermsOfPrivacy }
+                    { path: '/terms-of-privacy', component: PageTermsOfPrivacy },
+                    { path: '/desconto', component: PageDiscount }
                 ]
             }
         ]
