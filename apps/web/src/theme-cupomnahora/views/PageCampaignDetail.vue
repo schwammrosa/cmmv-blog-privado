@@ -21,9 +21,9 @@
 
             <div v-else class="bg-white rounded-lg p-6">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
-                    <div class="w-32 h-32 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg p-4">
-                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="max-w-full max-h-full">
-                        <div v-else class="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-full">
+                    <div class="w-32 h-32 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="w-full h-full object-cover">
+                        <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
@@ -57,22 +57,34 @@
                         </button>
                         <button 
                             @click="setFilter('codes')" 
+                            :disabled="codesCount === 0"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
-                            :class="activeFilter === 'codes' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            :class="[
+                                activeFilter === 'codes' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                                codesCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                            ]"
                         >
                             Códigos ({{ codesCount }})
                         </button>
                         <button 
                             @click="setFilter('offers')" 
+                            :disabled="offersCount === 0"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
-                            :class="activeFilter === 'offers' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            :class="[
+                                activeFilter === 'offers' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                                offersCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                            ]"
                         >
                             Ofertas ({{ offersCount }})
                         </button>
                         <button 
                             @click="setFilter('expired')" 
+                            :disabled="expiredCount === 0"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
-                            :class="activeFilter === 'expired' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            :class="[
+                                activeFilter === 'expired' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                                expiredCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                            ]"
                         >
                             Expirados ({{ expiredCount }})
                         </button>
@@ -87,11 +99,25 @@
                 
                 <div v-else class="space-y-6">
                     <div v-for="coupon in filteredCoupons" :key="coupon.id" 
-                        class="border border-gray-200 rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow duration-300 bg-white relative">
+                        class="border border-gray-200 rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow duration-300 bg-white relative"
+                        :class="{'expired-coupon': new Date(coupon.expiration) < new Date()}">
                         
-                        <!-- Etiqueta de desconto -->
-                        <div class="absolute top-0 left-0 bg-green-600 text-white px-4 py-2 rounded-tr-lg rounded-bl-lg font-bold">
-                            {{ coupon.typeDiscount }}% OFF
+                        <!-- Etiqueta de desconto ou etiqueta de expirado -->
+                        <div v-if="new Date(coupon.expiration) < new Date()" 
+                            class="absolute top-0 left-0 bg-gray-500 text-white px-4 py-2 rounded-tr-lg rounded-bl-lg font-bold">
+                            Expirado
+                        </div>
+                        <div v-else
+                            class="absolute top-0 left-0 bg-indigo-600 text-white px-4 py-2 rounded-tr-lg rounded-bl-lg font-bold">
+                            <template v-if="isCurrencyDiscount(coupon.title)">
+                                {{ extractDiscountValue(coupon.title) + ' OFF' }}
+                            </template>
+                            <template v-else-if="extractDiscountPercentage(coupon.title)">
+                                {{ extractDiscountPercentage(coupon.title) }} OFF
+                            </template>
+                            <template v-else>
+                                Produto
+                            </template>
                         </div>
                         
                         <div class="mt-6 md:ml-6">
@@ -100,7 +126,7 @@
                                     <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2">{{ coupon.title }}</h3>
                                     
                                     <!-- Cashback info -->
-                                    <div v-if="coupon.cashbackPercentage" class="text-sm text-green-600 font-medium mb-2 flex items-center">
+                                    <div v-if="coupon.cashbackPercentage" class="text-sm text-indigo-600 font-medium mb-2 flex items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                         </svg>
@@ -138,12 +164,15 @@
                                 <div class="md:w-48 flex-shrink-0 flex justify-center mt-4 md:mt-0">
                                     <button v-if="coupon.code"
                                         @click="openCouponModal(coupon)"
-                                        class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 text-center flex flex-col items-center">
+                                        class="w-full font-semibold py-3 px-6 rounded-lg transition-colors duration-300 text-center flex flex-col items-center"
+                                        :class="[new Date(coupon.expiration) < new Date() ? 
+                                            'bg-gray-700 hover:bg-gray-800 text-white' : 
+                                            'bg-indigo-600 hover:bg-indigo-700 text-white']">
                                         <span class="block mb-1">VER CUPOM</span>
                                         <span class="text-xs">···{{ coupon.code.slice(-3) }}</span>
                                     </button>
                                     <a v-else
-                                        :href="coupon.linkRef || '#'"
+                                        :href="coupon.link || coupon.linkRef || '#'"
                                         target="_blank"
                                         class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 text-center">
                                         VER OFERTA
@@ -174,10 +203,10 @@
                             </svg>
                         </button>
                     </div>
-                    <p v-if="codeCopied" class="text-sm text-green-600 mt-2">Copiado!</p>
+                    <p v-if="codeCopied" class="text-sm text-indigo-600 mt-2">Copiado!</p>
                 </div>
-                <a :href="selectedCoupon?.linkRef || '#'" target="_blank" 
-                   class="block w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
+                <a :href="selectedCoupon?.link || selectedCoupon?.linkRef || '#'" target="_blank" 
+                   class="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                     IR PARA A LOJA
                 </a>
                 <button @click="closeCouponModal" class="mt-4 text-gray-600 hover:text-gray-800">
@@ -294,16 +323,11 @@ const loadData = async () => {
         try {
             const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaign.value.id);
             if (realCoupons && realCoupons.length > 0) {
-                console.log("Cupons reais carregados:", realCoupons.length);
+                //console.log("Cupons reais carregados:", realCoupons.length);
                 coupons.value = realCoupons;
-            } else {
-                console.warn("Nenhum cupom real encontrado, gerando dados simulados.");
-                generateDummyCoupons();
             }
         } catch (couponError) {
             console.error("Erro ao carregar cupons reais:", couponError);
-            console.warn("Gerando dados simulados como fallback.");
-            generateDummyCoupons();
         }
         
         loading.value = false;
@@ -313,7 +337,7 @@ const loadData = async () => {
         loading.value = false;
     }
 };
-
+/*
 // Função auxiliar para gerar cupons simulados baseados na campanha
 const generateDummyCoupons = () => {
     if (!campaign.value) return;
@@ -357,7 +381,7 @@ const generateDummyCoupons = () => {
             `Válido para seleção do link. Aplique o cupom na página de pagamento.`,
             `Desconto válido na seleção do link.`
         ];
-        /*
+        
         dummyCoupons.push({
             id: `coup-${i}-${Date.now()}`,
             title: couponTitles[i % couponTitles.length],
@@ -370,7 +394,7 @@ const generateDummyCoupons = () => {
             oldCashbackPercentage: Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : null,
             linkRef: `https://${campaign.value.domain || 'example.com'}`
         });
-        */
+        
     }
     
     coupons.value = dummyCoupons;
@@ -385,7 +409,7 @@ const generateRandomCode = (length: number) => {
     }
     return result;
 };
-
+*/
 // Formatar data para exibição
 const formatDate = (date: Date | string) => {
     if (!date) return '';
@@ -425,6 +449,53 @@ const copyCouponCode = () => {
         });
 };
 
+// Função para extrair percentual de desconto do título
+const extractDiscountPercentage = (title: string) => {
+    if (!title) return null;
+    
+    // Procura por padrões como "10%" ou "10 %" ou "10 por cento" ou "10 porcento"
+    const percentRegex = /(\d+)(\s*)(%|\spor\scento|\sporcento)/i;
+    const match = title.match(percentRegex);
+    
+    if (match && match[1]) {
+        return match[1] + '%';
+    }
+    
+    // Procura por padrões como "10 de desconto" ou "desconto de 10"
+    const discountRegex = /(\d+)(\s*)(de\sdesconto|desconto)/i;
+    const discountMatch = title.match(discountRegex);
+    
+    if (discountMatch && discountMatch[1]) {
+        return discountMatch[1] + '%';
+    }
+    
+    return null;
+};
+
+// Função para verificar se o desconto é em valor monetário
+const isCurrencyDiscount = (title: string) => {
+    if (!title) return false;
+    
+    // Procura por padrões como "R$49,99" ou "R$ 49,99"
+    const currencyRegex = /R\$\s*\d+[\.,]?\d*/i;
+    return currencyRegex.test(title);
+};
+
+// Função para extrair valor monetário do título
+const extractDiscountValue = (title: string) => {
+    if (!title) return 'Oferta';
+    
+    // Procura por padrões como "R$49,99" ou "R$ 49,99"
+    const currencyRegex = /(R\$\s*\d+[\.,]?\d*)/i;
+    const match = title.match(currencyRegex);
+    
+    if (match && match[1]) {
+        return match[1];
+    }
+    
+    return 'Oferta';
+};
+
 // Carregar dados quando a página é montada ou o slug muda
 onMounted(() => {
     loadData();
@@ -439,4 +510,19 @@ watch(() => route.params.slug, (newSlug, oldSlug) => {
 
 <style scoped>
 /* Estilos adicionais se necessário */
+.expired-coupon {
+    background-color: #f8f8f8;
+    opacity: 0.8;
+    border-color: #ddd;
+}
+
+.expired-coupon h3,
+.expired-coupon p {
+    color: #999;
+}
+
+.expired-coupon button,
+.expired-coupon a {
+    opacity: 0.7;
+}
 </style> 

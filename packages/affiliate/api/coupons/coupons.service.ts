@@ -153,7 +153,7 @@ export class CouponsServiceTools {
             order: {
                 expiration: "DESC"
             },
-            select: ["title", "code", "description", "expiration", "type", "typeDiscount"]
+            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "linkRef"]
         });
 
         return (coupons) ? coupons.data : [];
