@@ -14,6 +14,8 @@ import PageAuthor from './views/PageAuthor.vue';
 import PageTermsOfService from './views/TermsOfService.vue';
 import PageTermsOfPrivacy from './views/TermsOfPrivacy.vue';
 import PageDiscount from './views/PageDiscount.vue';
+import PageCoupon from './views/PageCoupon.vue';
+import PageCampaignDetail from './views/PageCampaignDetail.vue';
 
 export function createRouter() {
     return _createRouter({
@@ -32,7 +34,9 @@ export function createRouter() {
                     { path: '/author/:slug', component: PageAuthor },
                     { path: '/terms-of-service', component: PageTermsOfService },
                     { path: '/terms-of-privacy', component: PageTermsOfPrivacy },
-                    { path: '/desconto', component: PageDiscount }
+                    { path: '/desconto', component: PageDiscount },
+                    { path: '/desconto/:slug', component: PageCampaignDetail },
+                    { path: '/cupom', component: PageCoupon }
                 ]
             }
         ]

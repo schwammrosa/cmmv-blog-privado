@@ -7,14 +7,14 @@
                     <!-- Logo -->
                     <div class="flex items-center">
                         <a href="/" class="text-2xl font-bold text-white">
-                            CupomNaHora
+                            <img src="/src/theme-cupomnahora/assets/Logo.png" width="147" height="32" alt="Logo" title="Logo">
                         </a>
                     </div>
 
                     <!-- Search Bar -->
                     <div class="hidden md:block flex-grow max-w-xl mx-8">
                         <div class="relative">
-                            <input type="text" placeholder="Buscar lojas..."
+                            <input type="text" placeholder="Buscar lojas ou cupons..."
                                    class="w-full py-2 px-4 border bg-white border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                    v-model="searchQuery"
                                    @input="debouncedSearch">
