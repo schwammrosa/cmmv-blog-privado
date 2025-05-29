@@ -97,18 +97,41 @@
                     </svg>
                     Refresh
                 </button>
-                <button @click="openBulkReprocessDialog" class="px-2.5 py-1 bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-                    </svg>
-                    Bulk Reprocess
-                </button>
-                <button @click="openBulkDeleteDialog" class="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Mass Exclusion
-                </button>
+                <!-- More actions dropdown -->
+                <div class="relative" data-more-actions-toggle>
+                    <button
+                        @click="toggleMoreActionsDropdown"
+                        class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                        </svg>
+                        More
+                    </button>
+                    <!-- More actions dropdown menu -->
+                    <div v-if="showMoreActionsDropdown" class="absolute right-0 mt-2 w-48 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
+                        <div class="py-1">
+                            <button
+                                @click="openBulkReprocessDialog"
+                                class="w-full px-4 py-2 text-left text-sm text-white hover:bg-neutral-700 flex items-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                </svg>
+                                Bulk Reprocess
+                            </button>
+                            <button
+                                @click="openBulkDeleteDialog"
+                                class="w-full px-4 py-2 text-left text-sm text-white hover:bg-neutral-700 flex items-center"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Mass Exclusion
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -2039,18 +2062,24 @@ const classifyWithAI = async (): Promise<void> => {
     }
 };
 
-onMounted(async () => {
+onMounted(() => {
     // Add click-outside handling for search dropdown
     document.addEventListener('click', (event) => {
         const target = event.target as HTMLElement;
         if (!target.closest('[data-search-toggle]') && !target.closest('.absolute') && showSearchDropdown.value) {
             showSearchDropdown.value = false;
         }
+
+        // Add click-outside handling for more actions dropdown
+        if (!target.closest('[data-more-actions-toggle]') && showMoreActionsDropdown.value) {
+            showMoreActionsDropdown.value = false;
+        }
     });
 
-    await loadChannels();
-    await loadFeedItems();
-    await loadCategories();
+    // Load initial data
+    loadChannels();
+    loadFeedItems();
+    loadCategories();
 });
 
 const getRelevanceClass = (relevance: number): string => {
@@ -2452,6 +2481,12 @@ const startBulkDelete = async (): Promise<void> => {
         showBulkDeleteConfirmation.value = false;
         closeBulkDeleteDialog();
     }
+};
+
+const showMoreActionsDropdown = ref<boolean>(false);
+
+const toggleMoreActionsDropdown = (): void => {
+    showMoreActionsDropdown.value = !showMoreActionsDropdown.value;
 };
 </script>
 
