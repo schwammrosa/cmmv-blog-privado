@@ -463,24 +463,13 @@ const couponSlidesVisible = ref(3);
 const isScratchModalOpen = ref(false);
 const selectedCouponForScratch = ref<any | null>(null);
 
-// Funções para o Modal de Raspadinha
-const openScratchModal = (coupon: any) => {
-    selectedCouponForScratch.value = coupon;
-    isScratchModalOpen.value = true;
-};
-
-const closeScratchModal = () => {
-    isScratchModalOpen.value = false;
-    selectedCouponForScratch.value = null;
-};
-
 // Cover settings from the blog settings
 const coverSettings = computed(() => {
     try {
         const config = settings.value.cover;
         return config ? JSON.parse(config) : { layoutType: 'full' };
     } catch (err) {
-        console.error('Error parsing cover settings:', err);
+        //console.error('Error parsing cover settings:', err);
         return { layoutType: 'full' };
     }
 });
@@ -672,13 +661,17 @@ const loadData = async () => {
 
         if (weeklyTopCouponsResponse) { // Novos Top 25
             top25Coupons.value = weeklyTopCouponsResponse;
+            
+            // Verificar se o campo deeplink está presente
+            const hasSomeDeeplinks = top25Coupons.value.some(coupon => coupon.deeplink);
+           
         } else {
             top25Coupons.value = [];
         }
 
     } catch (err: any) {
         error.value = err;
-        console.error("Erro ao carregar dados da Home:", err); // Log de erro
+        //console.error("Erro ao carregar dados da Home:", err); // Log de erro
     } finally {
         loading.value = false;
     }
@@ -718,6 +711,81 @@ const nextCouponSlide = () => {
     } else {
         currentCouponIndex.value = 0;
     }
+};
+
+// Função para abrir deeplink em nova aba
+const openDeepLink = (url: string) => {
+    window.open(url, '_blank');
+};
+
+// Cria um iframe invisível para abrir o deeplink sem mudar o foco
+const openDeeplinkInBackground = (url: string) => {
+    // Criar um iframe invisível
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    try {
+        // Definir o src do iframe para o deeplink
+        iframe.src = url;
+        
+        // Limpar o iframe após um curto período
+        setTimeout(() => {
+            if (iframe && iframe.parentNode) {
+                iframe.parentNode.removeChild(iframe);
+            }
+        }, 1000);
+    } catch (e) {
+        //console.error('Erro ao abrir deeplink via iframe:', e);
+        if (iframe && iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+        }
+    }
+};
+
+// Funções para o Modal de Raspadinha
+const openScratchModal = (coupon: any) => {
+    // Primeiro mostrar o modal
+    selectedCouponForScratch.value = coupon;
+    isScratchModalOpen.value = true;
+    
+    // Abrir o deeplink em uma nova aba e tentar manter o foco
+    if (coupon && coupon.deeplink) {
+        //console.log('Abrindo deeplink:', coupon.deeplink);
+        
+        // Atrasar a abertura para garantir que o modal esteja visível
+        setTimeout(() => {
+            // Guardar referência ao elemento com foco atual
+            const activeElement = document.activeElement;
+            
+            // Abrir o deeplink em uma nova aba
+            const newWindow = window.open(coupon.deeplink, '_blank');
+            
+            // Retornar o foco para a janela atual
+            window.focus();
+            
+            // Tentar restaurar o foco para o elemento ativo
+            if (activeElement && 'focus' in activeElement) {
+                try {
+                    // @ts-ignore
+                    activeElement.focus();
+                } catch (e) {
+                    // Ignorar erros
+                }
+            }
+            
+            // Como último recurso, tentar focar no documento
+            setTimeout(() => {
+                window.focus();
+                document.body.focus();
+            }, 100);
+        }, 200);
+    }
+};
+
+const closeScratchModal = () => {
+    isScratchModalOpen.value = false;
+    selectedCouponForScratch.value = null;
 };
 
 onMounted(async () => {
