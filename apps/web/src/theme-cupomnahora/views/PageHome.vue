@@ -260,7 +260,7 @@
             <section class="container card-carousel mb-12">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-gray-800">Top cupons</h2>
-                    <a href="/descontos" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver todos</a>
+                    <a href="#top-25-cupons" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver todos</a>
                 </div>
                 <div id="coupon-cards" class="relative">
                     <div class="overflow-hidden">
@@ -268,27 +268,23 @@
                             :style="`transform: translateX(-${currentCouponIndex * (100 / couponSlidesVisible)}%);`">
                             <div v-for="coupon in featuredCoupons.slice(0, 10)" :key="coupon.id"
                                 class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 flex-shrink-0">
-                                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col p-4">
-                                    <div class="flex-shrink-0 mb-2 h-16 flex items-center justify-center">
-                                        <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
-                                            class="max-h-12 max-w-full object-contain">
-                                        <div v-else class="w-16 h-12 bg-gray-200 flex items-center justify-center rounded-md">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                            </svg>
+                                <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" 
+                                   class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col p-0 block">
+                                    <div class="p-4 pb-3">
+                                        <div class="flex-shrink-0 h-24 flex items-center justify-center">
+                                            <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
+                                                class="max-h-20 max-w-full object-contain">
+                                            <div v-else class="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-md">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
-                                    <h4 class="text-sm font-medium text-gray-700 text-center mb-2 truncate" :title="coupon.campaignName">{{ coupon.campaignName }}</h4>
-                                    <div class="flex-1 flex flex-col text-center">
+                                    <div class="bg-gray-200 flex-1 flex flex-col text-center p-4 pt-3 mt-auto">
                                         <p class="text-base font-bold text-gray-800 mb-1 line-clamp-2 h-12">{{ coupon.title }}</p>
-                                        <p v-if="coupon.code" class="text-xs text-gray-500 mb-3">{{ coupon.code.length > 3 ? '****' + coupon.code.substring(coupon.code.length - 3) : coupon.code }}</p>
-                                        <p v-else class="text-xs text-gray-500 mb-3">Oferta especial</p>
                                     </div>
-                                    <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#'" 
-                                       class="mt-auto block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm text-center py-2 px-3 rounded-md transition-colors">
-                                        Ver Oferta
-                                    </a>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -314,7 +310,7 @@
             </section>
 
             <!-- Top 25 Cupons da Semana -->
-            <section class="mb-12">
+            <section id="top-25-cupons" class="mb-12">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-gray-800">Os 25 melhores Cupons de Desconto da semana!</h2>
                 </div>
