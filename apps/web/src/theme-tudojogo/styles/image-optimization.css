@@ -1,0 +1,63 @@
+/* Estilos para otimização de imagens e prevenção de layout shift */
+
+/* Reservar espaço para imagens antes do carregamento (previne CLS) */
+img.reserve-space {
+  min-height: 1px;
+  aspect-ratio: attr(width) / attr(height);
+}
+
+/* Estilos para substituição de imagens e placeholders */
+.image-placeholder {
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* Imagem LCP (Largest Contentful Paint) - estilos prioritários */
+img.lcp-image {
+  content-visibility: auto;
+}
+
+/* Efeito de desfoque para carregamento progressivo */
+.blur-load {
+  background-size: cover;
+  background-position: center;
+}
+
+.blur-load.loaded > img {
+  opacity: 1;
+}
+
+.blur-load > img {
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+}
+
+/* Otimizações para diferentes tipos de dispositivos */
+@media (max-width: 640px) {
+  .mobile-optimize-height {
+    max-height: 40vh;
+    object-fit: cover;
+  }
+}
+
+/* Correções para imagens de tamanhos definidos */
+img[width][height] {
+  height: auto; /* Manter proporção mesmo com width/height definidos */
+}
+
+/* Garantir que todas as imagens de capa usem toda a largura disponível */
+.cover-image {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Imagens fora da tela só carregam quando necessário */
+img.offscreen-image {
+  content-visibility: auto;
+}

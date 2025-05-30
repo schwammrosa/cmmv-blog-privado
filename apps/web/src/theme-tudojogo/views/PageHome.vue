@@ -29,17 +29,20 @@
                         <div class="relative h-[400px]">
                             <img
                                 v-if="coverPosts.full && coverPosts.full.featureImage"
-                                :src="optimizeImageUrl(coverPosts.full.featureImage, 890)"
-                                :srcset="`${optimizeImageUrl(coverPosts.full.featureImage, 480)} 480w, ${optimizeImageUrl(coverPosts.full.featureImage, 768)} 768w, ${optimizeImageUrl(coverPosts.full.featureImage, 1024)} 1024w`"
+                                :src="optimizeImageUrl(coverPosts.full.featureImage, {width: 890, quality: 80, format: 'webp'})"
+                                :srcset="`${optimizeImageUrl(coverPosts.full.featureImage, {width: 480, quality: 80, format: 'webp'})} 480w, 
+                                          ${optimizeImageUrl(coverPosts.full.featureImage, {width: 768, quality: 80, format: 'webp'})} 768w, 
+                                          ${optimizeImageUrl(coverPosts.full.featureImage, {width: 1024, quality: 80, format: 'webp'})} 1024w`"
                                 sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 33vw"
                                 :alt="coverPosts.full.title"
-                                class="w-full h-full object-cover"
+                                class="w-full h-full object-cover lcp-image cover-image"
                                 loading="eager"
                                 width="890"
                                 height="606"
                                 :title="coverPosts.full.title"
                                 aria-label="Cover Image"
                                 fetchpriority="high"
+                                ref="lcpImage"
                             />
                             <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -512,7 +515,9 @@ import { vue3 } from '@cmmv/blog/client';
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
 import { usePostsStore } from '../../store/posts';
-import { vIntersect, optimizeImageUrl, resourceLoader } from '../utils/performance';
+import { vIntersect, resourceLoader } from '../utils/performance';
+import { optimizeImageUrl, preloadLCPImage, optimizeAllImages } from '../utils/imageOptimizer';
+import '../styles/image-optimization.css';
 import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import { useAds } from '../../composables/useAds';
@@ -569,18 +574,46 @@ const directives = {
 const onAdVisible = (element) => {
     const adSlot = element.dataset.adSlot;
     if (adSlot && !visibleAdSlots.value.includes(adSlot)) {
+        // Verificar se o elemento já possui um anúncio carregado
+        const insElements = element.querySelectorAll('ins.adsbygoogle[data-ad-status="filled"]');
+        if (insElements.length > 0) {
+            console.log(`Ad slot ${adSlot} já possui anúncios. Ignorando.`);
+            return;
+        }
+        
         // Adicionar um pequeno atraso para não bloquear a renderização principal
         setTimeout(() => {
             visibleAdSlots.value.push(adSlot);
+            
+            // Garantir que os anúncios sejam carregados apenas uma vez
+            setTimeout(() => {
+                try {
+                    // Selecionar apenas elementos que ainda não foram processados
+                    const pendingAds = element.querySelectorAll('ins.adsbygoogle:not([data-ad-status])');
+                    if (pendingAds.length > 0) {
+                        (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    }
+                } catch (err) {
+                    console.error('Erro ao carregar anúncio:', err);
+                }
+            }, 100);
         }, 200);
     }
 };
 
 // Função para carregar Taboola quando a página estiver completamente carregada
 const loadTaboola = () => {
+    // Verificar se Taboola já foi carregado
+    if (taboolaLoaded.value) return;
+    
     // Carregue Taboola apenas depois que o conteúdo principal for renderizado
     setTimeout(() => {
         taboolaLoaded.value = true;
+        
+        // Limpar instâncias anteriores do Taboola se existirem
+        if (window._taboola && typeof window._taboola.push === 'function') {
+            window._taboola.push({flush: true});
+        }
     }, 2000);
 };
 
@@ -590,6 +623,19 @@ onMounted(() => {
     
     // Contar o número total de imagens para acompanhar o carregamento
     nextTick(() => {
+        // Aplicar otimizações avançadas para imagens
+        optimizeAllImages();
+        
+        // Pré-carregar a imagem principal para melhorar o LCP
+        if (coverPosts.value.full && coverPosts.value.full.featureImage) {
+            preloadLCPImage(coverPosts.value.full.featureImage, {
+                width: 1024,
+                quality: 90,
+                format: 'webp',
+                priority: true
+            });
+        }
+        
         const images = document.querySelectorAll('img');
         totalImagesToLoad.value = images.length;
         
@@ -607,8 +653,36 @@ onMounted(() => {
             }
         });
         
+        // Converter imagens para WebP quando possível
+        if ('createImageBitmap' in window && 'HTMLCanvasElement' in window) {
+            const convertImagesToWebP = async () => {
+                try {
+                    const nonWebPImages = Array.from(document.querySelectorAll('img:not([src*="webp"])'))
+                        .filter(img => img.src.match(/\.(jpe?g|png)$/i));
+                    
+                    // Processar apenas algumas imagens para não sobrecarregar o navegador
+                    const imagesToProcess = nonWebPImages.slice(0, 5);
+                    
+                    for (const img of imagesToProcess) {
+                        // Adicionar parâmetro de formato WebP à URL
+                        const currentSrc = img.src;
+                        if (currentSrc.includes('?')) {
+                            img.src = `${currentSrc}&format=webp`;
+                        } else {
+                            img.src = `${currentSrc}?format=webp`;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Erro ao converter imagens para WebP:', err);
+                }
+            };
+            
+            // Executar após a renderização inicial
+            setTimeout(convertImagesToWebP, 1000);
+        }
+        
         // Carregar Taboola após um tempo máximo, mesmo que as imagens não carreguem
-        setTimeout(loadTaboola, 5000);
+        setTimeout(loadTaboola, 3000);
     });
 });
 
