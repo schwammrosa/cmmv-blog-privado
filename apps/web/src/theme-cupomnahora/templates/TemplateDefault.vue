@@ -7,7 +7,7 @@
                     <!-- Logo -->
                     <div class="flex items-center">
                         <a href="/" class="text-2xl font-bold text-white">
-                            CupomNaHora
+                            <img src="/src/theme-cupomnahora/assets/Logo-1.png" width="147" height="32" alt="Logo" title="Logo">
                         </a>
                     </div>
 
@@ -231,7 +231,7 @@
                                         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-600"></div>
                                     </div>
 
-                                    <div v-else-if="searchResults.length === 0 && searchQuery.length > 1" class="py-8 text-center text-gray-600">
+                                    <div v-else-if="searchResults.length === 0 && searchCampaigns.length === 0 && searchQuery.length > 1" class="py-8 text-center text-gray-600">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
@@ -239,33 +239,62 @@
                                     </div>
 
                                     <div v-else-if="searchQuery.length > 1" class="space-y-4">
-                                        <p v-if="searchResults.length > 0" class="text-sm text-gray-500 mb-2">
-                                            {{ searchResults.length }} resultado{{ searchResults.length !== 1 ? 's' : '' }} encontrado{{ searchResults.length !== 1 ? 's' : '' }}
+                                        <p v-if="searchResults.length > 0 || searchCampaigns.length > 0" class="text-sm text-gray-500 mb-2">
+                                            {{ searchResults.length + searchCampaigns.length }} resultado{{ (searchResults.length + searchCampaigns.length) !== 1 ? 's' : '' }} encontrado{{ (searchResults.length + searchCampaigns.length) !== 1 ? 's' : '' }}
                                         </p>
-                                        <a
-                                            v-for="post in searchResults"
-                                            :key="post.id"
-                                            :href="`/post/${post.slug}`"
-                                            class="block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-                                        >
-                                            <div class="flex flex-col sm:flex-row">
-                                                <div v-if="post.featureImage" class="w-full sm:w-32 h-40 sm:h-24 flex-shrink-0">
-                                                    <img :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover" loading="lazy" />
-                                                </div>
-                                                <div class="p-4 flex-grow">
-                                                    <h4 class="font-bold text-gray-900 mb-1">{{ post.title }}</h4>
-                                                    <p v-if="post.excerpt" class="text-sm text-gray-600 line-clamp-2">
-                                                        {{ post.excerpt }}
-                                                    </p>
-                                                    <div class="mt-2 text-xs text-gray-500 flex items-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                        </svg>
-                                                        {{ formatDate(post.publishedAt || post.updatedAt) }}
+                                        
+                                        <!-- Resultados de Lojas -->
+                                        <div v-if="searchCampaigns.length > 0" class="mb-6">
+                                            <h4 class="text-lg font-medium text-gray-700 mb-3 border-b pb-2">Lojas</h4>
+                                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                                <a v-for="campaign in searchCampaigns" :key="campaign.id" 
+                                                   :href="`/desconto/${campaign.slug}`"
+                                                   class="store-card bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center hover:shadow-md transition-all"
+                                                   :class="{'border-indigo-200 bg-indigo-50': campaign.highlight}">
+                                                    <div class="text-center">
+                                                        <div class="w-12 h-12 mx-auto mb-2 flex items-center justify-center">
+                                                            <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="max-w-full max-h-full">
+                                                            <div v-else class="w-12 h-12 bg-gray-200 flex items-center justify-center rounded-full">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        <h3 class="text-sm font-medium text-gray-800 line-clamp-2">{{ campaign.name }}</h3>
+                                                        <p class="text-xs text-gray-500">{{ campaign.couponCount || 0 }} cupons</p>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Resultados de Posts -->
+                                        <div v-if="searchResults.length > 0" class="mb-6">
+                                            <h4 class="text-lg font-medium text-gray-700 mb-3 border-b pb-2">Artigos do Blog</h4>
+                                            <a
+                                                v-for="post in searchResults"
+                                                :key="post.id"
+                                                :href="`/post/${post.slug}`"
+                                                class="block bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow mb-3"
+                                            >
+                                                <div class="flex flex-col sm:flex-row">
+                                                    <div v-if="post.featureImage" class="w-full sm:w-32 h-40 sm:h-24 flex-shrink-0">
+                                                        <img :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover" loading="lazy" />
+                                                    </div>
+                                                    <div class="p-4 flex-grow">
+                                                        <h4 class="font-bold text-gray-900 mb-1">{{ post.title }}</h4>
+                                                        <p v-if="post.excerpt" class="text-sm text-gray-600 line-clamp-2">
+                                                            {{ post.excerpt }}
+                                                        </p>
+                                                        <div class="mt-2 text-xs text-gray-500 flex items-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                            {{ formatDate(post.publishedAt || post.updatedAt) }}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </a>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -285,10 +314,12 @@ import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
+import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 
 import CookieConsent from '../../components/CookieConsent.vue';
 
 const blogAPI = vue3.useBlog();
+const affiliateAPI = affiliateVue3.useAffiliate();
 const categoriesStore = useCategoriesStore();
 const settingsStore = useSettingsStore();
 
@@ -335,6 +366,7 @@ useHead({
 const searchModalOpen = ref(false);
 const searchQuery = ref('');
 const searchResults = ref<any[]>([]);
+const searchCampaigns = ref<any[]>([]);
 const isSearching = ref(false);
 const searchTimeout = ref<any>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
@@ -391,6 +423,7 @@ const closeSearchModal = () => {
     searchModalOpen.value = false;
     searchQuery.value = '';
     searchResults.value = [];
+    searchCampaigns.value = [];
 };
 
 const debouncedSearch = () => {
@@ -406,25 +439,58 @@ const debouncedSearch = () => {
 const performSearch = async () => {
     if (searchQuery.value.trim().length < 2) {
         searchResults.value = [];
+        searchCampaigns.value = [];
         return;
     }
 
     isSearching.value = true;
 
     try {
-        const response = await blogAPI.posts.search(searchQuery.value);
-
-        if (Array.isArray(response)) {
-            searchResults.value = response;
-        } else if (response && typeof response === 'object') {
-            const typedResponse = response as { posts?: any[] };
+        // Buscar posts do blog
+        const postPromise = blogAPI.posts.search(searchQuery.value);
+        
+        // Buscar todas as campanhas
+        const campaignsPromise = affiliateAPI.campaigns.getAllWithCouponCounts();
+        
+        const [postResponse, allCampaigns] = await Promise.all([postPromise, campaignsPromise]);
+        
+        // Processar resultados dos posts
+        if (Array.isArray(postResponse)) {
+            searchResults.value = postResponse;
+        } else if (postResponse && typeof postResponse === 'object') {
+            const typedResponse = postResponse as { posts?: any[] };
             searchResults.value = Array.isArray(typedResponse.posts) ? typedResponse.posts : [];
         } else {
             searchResults.value = [];
         }
+        
+        // Processar resultados das campanhas
+        if (allCampaigns && Array.isArray(allCampaigns)) {
+            const query = searchQuery.value.toLowerCase().trim();
+            
+            // Filtragem de campanhas
+            const filtered: any[] = [];
+            
+            for (const campaign of allCampaigns) {
+                if (!campaign || !campaign.name) continue;
+                
+                const campName = campaign.name.toLowerCase();
+                const campSlug = campaign.slug ? campaign.slug.toLowerCase() : '';
+                const campDescription = campaign.description ? campaign.description.toLowerCase() : '';
+                
+                // Verificação normal
+                if (campName.includes(query) || campSlug.includes(query) || campDescription.includes(query)) {
+                    filtered.push(campaign);
+                }
+            }
+            
+            searchCampaigns.value = filtered;
+        } else {
+            searchCampaigns.value = [];
+        }
     } catch (error) {
-        console.error('Search error:', error);
         searchResults.value = [];
+        searchCampaigns.value = [];
     } finally {
         isSearching.value = false;
     }
