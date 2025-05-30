@@ -1,0 +1,110 @@
+/* CSS Crítico para renderização rápida dos elementos acima da dobra */
+:root {
+    /* Cores básicas */
+    --bg-color: #ffffff;
+    --bg-secondary: #f3f4f6;
+    --bg-tertiary: #f9f9f9;
+    --text-color: #333333;
+    --text-secondary: #666666;
+    --border-color: #e5e7eb;
+    --accent-color: #00B8D4;
+    --card-bg: #ffffff;
+}
+
+.dark {
+    --bg-color: #000000;
+    --bg-secondary: #1f2937;
+    --bg-tertiary: #111827;
+    --text-color: #e5e7eb;
+    --text-secondary: #d1d5db;
+    --border-color: #374151;
+    --card-bg: #1f2937;
+}
+
+/* Estilos para prevenir layout shift */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+img[width][height] {
+    aspect-ratio: attr(width) / attr(height);
+}
+
+/* Espaço reservado para imagens */
+.bg-gray-300 {
+    background-color: #e5e7eb;
+}
+
+/* Classes para espaçamento e layout */
+.w-full {
+    width: 100%;
+}
+
+.max-w-\[1400px\] {
+    max-width: 1400px;
+}
+
+.mx-auto {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+.rounded-lg {
+    border-radius: 0.5rem;
+}
+
+.overflow-hidden {
+    overflow: hidden;
+}
+
+.shadow-md {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.object-cover {
+    object-fit: cover;
+}
+
+.relative {
+    position: relative;
+}
+
+.h-\[400px\] {
+    height: 400px;
+}
+
+.absolute {
+    position: absolute;
+}
+
+.bottom-0 {
+    bottom: 0;
+}
+
+.left-0 {
+    left: 0;
+}
+
+.right-0 {
+    right: 0;
+}
+
+.text-white {
+    color: white;
+}
+
+/* Espaço reservado para anúncios */
+.ad-placeholder {
+    background-color: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}

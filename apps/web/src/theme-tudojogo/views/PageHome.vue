@@ -29,10 +29,12 @@
                         <div class="relative h-[400px]">
                             <img
                                 v-if="coverPosts.full && coverPosts.full.featureImage"
-                                :src="coverPosts.full.featureImage"
+                                :src="optimizeImageUrl(coverPosts.full.featureImage, 890)"
+                                :srcset="`${optimizeImageUrl(coverPosts.full.featureImage, 480)} 480w, ${optimizeImageUrl(coverPosts.full.featureImage, 768)} 768w, ${optimizeImageUrl(coverPosts.full.featureImage, 1024)} 1024w`"
+                                sizes="(max-width: 480px) 100vw, (max-width: 768px) 50vw, 33vw"
                                 :alt="coverPosts.full.title"
                                 class="w-full h-full object-cover"
-                                loading="lazy"
+                                loading="eager"
                                 width="890"
                                 height="606"
                                 :title="coverPosts.full.title"
@@ -71,7 +73,9 @@
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <img
                                     v-if="post.featureImage"
-                                    :src="post.featureImage"
+                                    :src="optimizeImageUrl(post.featureImage, 768)"
+                                    :srcset="`${optimizeImageUrl(post.featureImage, 480)} 480w, ${optimizeImageUrl(post.featureImage, 768)} 768w`"
+                                    sizes="(max-width: 480px) 100vw, 50vw"
                                     :alt="post.title"
                                     class="w-full h-full object-cover"
                                     loading="lazy"
@@ -177,9 +181,12 @@
                                 <div class="relative h-full">
                                     <img
                                         v-if="post.featureImage"
-                                        :src="post.featureImage"
+                                        :src="optimizeImageUrl(post.featureImage, 480)"
                                         :alt="post.title"
                                         class="w-full h-full object-cover"
+                                        loading="lazy"
+                                        width="480"
+                                        height="320"
                                     />
                                     <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -210,7 +217,9 @@
                             <div class="relative h-[350px]">
                                 <img
                                     v-if="post.featureImage"
-                                    :src="post.featureImage"
+                                    :src="optimizeImageUrl(post.featureImage, 768)"
+                                    :srcset="`${optimizeImageUrl(post.featureImage, 480)} 480w, ${optimizeImageUrl(post.featureImage, 768)} 768w`"
+                                    sizes="(max-width: 480px) 100vw, 50vw"
                                     :alt="post.title"
                                     class="w-full h-full object-cover"
                                     loading="lazy"
@@ -247,12 +256,10 @@
 
             <!-- Top AdSense Banner -->
             <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full rounded-lg mb-4 sm:mb-6 md:mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
-                <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
-                    <div v-html="getAdHtml('header')"></div>
-                </div>
-                <div class="ad-container ad-banner-top py-2 px-4" v-else>
-                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                        <span>Anúncio</span>
+                <div class="ad-container ad-banner-top py-2 px-4" v-intersect="onAdVisible" data-ad-slot="header">
+                    <div v-if="visibleAdSlots.includes('header')" v-html="getAdHtml('header')"></div>
+                    <div v-else class="ad-placeholder w-full h-[90px] flex items-center justify-center">
+                        <span class="text-sm text-gray-400">Publicidade</span>
                     </div>
                 </div>
             </div>
@@ -329,12 +336,10 @@
 
                             <!-- Mid-content AdSense Banner -->
                             <div v-if="adSettings.enableAds" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
-                                <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
-                                    <div v-html="getAdHtml('inContent')"></div>
-                                </div>
-                                <div class="ad-container ad-banner-mid py-2 px-4" v-else>
-                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
+                                <div class="ad-container ad-banner-mid py-2 px-4" v-intersect="onAdVisible" data-ad-slot="inContent">
+                                    <div v-if="visibleAdSlots.includes('inContent')" v-html="getAdHtml('inContent')"></div>
+                                    <div v-else class="ad-placeholder w-full h-[90px] flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">Publicidade</span>
                                     </div>
                                 </div>
                             </div>
@@ -392,12 +397,10 @@
 
                             <!-- Bottom AdSense Banner -->
                             <div v-if="adSettings.enableAds && adSettings.homePageAfterPosts" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
-                                <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
-                                    <div v-html="getAdHtml('belowContent')"></div>
-                                </div>
-                                <div class="ad-container ad-banner-bottom py-2 px-4" v-else>
-                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
+                                <div class="ad-container ad-banner-bottom py-2 px-4" v-intersect="onAdVisible" data-ad-slot="belowContent">
+                                    <div v-if="visibleAdSlots.includes('belowContent')" v-html="getAdHtml('belowContent')"></div>
+                                    <div v-else class="ad-placeholder w-full h-[90px] flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">Publicidade</span>
                                     </div>
                                 </div>
                             </div>
@@ -416,12 +419,10 @@
                         <div class="lg:col-span-1 w-full md:block">
                             <!-- AdSense Rectangle (Top) -->
                             <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
-                                <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
-                                    <div v-html="getAdHtml('sidebarTop')"></div>
-                                </div>
-                                <div class="ad-container ad-sidebar-top" v-else>
-                                    <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
+                                <div class="ad-container ad-sidebar-top" v-intersect="onAdVisible" data-ad-slot="sidebarTop">
+                                    <div v-if="visibleAdSlots.includes('sidebarTop')" v-html="getAdHtml('sidebarTop')"></div>
+                                    <div v-else class="ad-placeholder w-full h-[250px] flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">Publicidade</span>
                                     </div>
                                 </div>
                             </div>
@@ -476,26 +477,20 @@
 
                             <!-- AdSense Rectangle (Middle) -->
                             <div class="rounded-lg shadow-md p-2 mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
-                                <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
-                                    <div v-html="getAdHtml('sidebarMid')"></div>
-                                </div>
-                                <div class="ad-container ad-sidebar-mid" v-else>
-                                    <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
+                                <div class="ad-container ad-sidebar-mid" v-intersect="onAdVisible" data-ad-slot="sidebarMid">
+                                    <div v-if="visibleAdSlots.includes('sidebarMid')" v-html="getAdHtml('sidebarMid')"></div>
+                                    <div v-else class="ad-placeholder w-full h-[250px] flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">Publicidade</span>
                                     </div>
                                 </div>
                             </div>
 
-
-
                             <!-- AdSense Rectangle (Bottom) -->
                             <div v-if="adSettings.enableAds && adSettings.homePageSidebarBottom" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
-                                <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
-                                    <div v-html="getAdHtml('sidebarBottom')"></div>
-                                </div>
-                                <div class="ad-container ad-sidebar-bottom" v-else>
-                                    <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
+                                <div class="ad-container ad-sidebar-bottom" v-intersect="onAdVisible" data-ad-slot="sidebarBottom">
+                                    <div v-if="visibleAdSlots.includes('sidebarBottom')" v-html="getAdHtml('sidebarBottom')"></div>
+                                    <div v-else class="ad-placeholder w-full h-[250px] flex items-center justify-center">
+                                        <span class="text-sm text-gray-400">Publicidade</span>
                                     </div>
                                 </div>
                             </div>
@@ -507,16 +502,17 @@
     </div>
 
     <!-- Taboola JS Code -->
-    <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
+    <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode && taboolaLoaded" v-html="adSettings.taboolaJsCode"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
 import { usePostsStore } from '../../store/posts';
+import { vIntersect, optimizeImageUrl, resourceLoader } from '../utils/performance';
 import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import { useAds } from '../../composables/useAds';
@@ -552,13 +548,68 @@ const categories = ref<any[]>(categoriesStore.getCategories || []);
 
 // Detectar dispositivo móvel
 const isMobile = ref(false);
+const isLoading = ref(false);
+const visibleAdSlots = ref([]);
+const taboolaLoaded = ref(false);
+const imagesLoaded = ref(0);
+const totalImagesToLoad = ref(0);
 const checkIfMobile = () => {
     isMobile.value = window.innerWidth < 768; // Considera mobile se a largura for menor que 768px
+};
+
+// Utilizamos as funções do arquivo de utilitários de desempenho
+
+// Registrar a diretiva v-intersect localmente se não estiver disponível globalmente
+const directives = {
+    intersect: vIntersect
+};
+
+
+// Função para carregar anúncios quando visíveis
+const onAdVisible = (element) => {
+    const adSlot = element.dataset.adSlot;
+    if (adSlot && !visibleAdSlots.value.includes(adSlot)) {
+        // Adicionar um pequeno atraso para não bloquear a renderização principal
+        setTimeout(() => {
+            visibleAdSlots.value.push(adSlot);
+        }, 200);
+    }
+};
+
+// Função para carregar Taboola quando a página estiver completamente carregada
+const loadTaboola = () => {
+    // Carregue Taboola apenas depois que o conteúdo principal for renderizado
+    setTimeout(() => {
+        taboolaLoaded.value = true;
+    }, 2000);
 };
 
 onMounted(() => {
     checkIfMobile();
     window.addEventListener('resize', checkIfMobile);
+    
+    // Contar o número total de imagens para acompanhar o carregamento
+    nextTick(() => {
+        const images = document.querySelectorAll('img');
+        totalImagesToLoad.value = images.length;
+        
+        // Adicionar ouvintes para acompanhar o carregamento da imagem
+        images.forEach(img => {
+            if (img.complete) {
+                imagesLoaded.value++;
+            } else {
+                img.addEventListener('load', () => {
+                    imagesLoaded.value++;
+                    if (imagesLoaded.value >= totalImagesToLoad.value * 0.7) {
+                        loadTaboola();
+                    }
+                });
+            }
+        });
+        
+        // Carregar Taboola após um tempo máximo, mesmo que as imagens não carreguem
+        setTimeout(loadTaboola, 5000);
+    });
 });
 
 onUnmounted(() => {
