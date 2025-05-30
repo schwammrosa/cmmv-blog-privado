@@ -285,7 +285,7 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <article
-                                    v-for="post in posts.slice(featuredPost ? 1 : 0, featuredPost ? 5 : 4)"
+                                    v-for="post in posts.slice(isMobile ? 0 : (featuredPost ? 3 : 0), isMobile ? 4 : (featuredPost ? 7 : 4))"
                                     :key="post.id"
                                     class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
                                     style="border: 1px solid rgba(0, 160, 121, 0.3);"
@@ -340,14 +340,14 @@
                             </div>
 
                             <!-- More Posts Section -->
-                            <div v-if="posts.length > (featuredPost ? 5 : 4)">
+                            <div v-if="posts.length > (isMobile ? 4 : (featuredPost ? 7 : 4))">
                                 <h2 class="text-xl font-bold mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
                                     Mais Conteúdo
                                 </h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                     <article
-                                        v-for="post in posts.slice(featuredPost ? 5 : 4)"
+                                        v-for="post in posts.slice(isMobile ? 4 : (featuredPost ? 7 : 4))"
                                         :key="post.id"
                                         class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
                                         style="border: 1px solid rgba(0, 160, 121, 0.3);"
@@ -549,6 +549,21 @@ const settings = computed<Record<string, any>>(() => {
     return blogSettings;
 });
 const categories = ref<any[]>(categoriesStore.getCategories || []);
+
+// Detectar dispositivo móvel
+const isMobile = ref(false);
+const checkIfMobile = () => {
+    isMobile.value = window.innerWidth < 768; // Considera mobile se a largura for menor que 768px
+};
+
+onMounted(() => {
+    checkIfMobile();
+    window.addEventListener('resize', checkIfMobile);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('resize', checkIfMobile);
+});
 const posts = ref<any[]>(postsStore.getPosts || []);
 const popularPosts = ref<any[]>(mostAccessedStore.getMostAccessedPosts || []);
 const loading = ref(true);

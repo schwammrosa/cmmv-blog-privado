@@ -219,11 +219,20 @@
                             <li class="transition-transform hover:translate-x-1">
                                 <a href="/terms-of-privacy" class="hover:text-[#00B8D4] flex items-center" style="color: var(--footer-text, #bbbbbb)">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm.5 0a11.954 11.954 0 017.834 3.056 11.954 11.954 0 008.334 0c.109-.652.166-1.32.166-2.001a10.004 10.004 0 00-10-10c-5.523 0-10 4.477-10 10 0 .681.057 1.35.166 2.001zm3.937 6.534c.22-.375.494-.792.904-1.206a8.001 8.001 0 0110.963-.75.75.75 0 10.74-1.303 9.501 9.501 0 00-13.362 1.489.75.75 0 10.904 1.204l-.149.16z" clip-rule="evenodd" />
                                     </svg>
                                     Política de Privacidade
                                 </a>
-                                </li>
+                            </li>
+                            <li class="transition-transform hover:translate-x-1">
+                                <a href="/contato" class="hover:text-[#00B8D4] flex items-center" style="color: var(--footer-text, #bbbbbb)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-[#00A079]" viewBox="0 0 20 20" fill="currentColor">
+                                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                    </svg>
+                                    Fale Conosco
+                                </a>
+                            </li>
                             </ul>
                         </div>
                         

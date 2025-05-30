@@ -243,20 +243,17 @@
                                     <!-- Mais Conteúdo Section -->
                                     <div class="mt-6 sm:mt-8 md:mt-10">
                                         <h2 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 md:mb-6 pb-2 border-b-2 border-[#00B8D4]" style="color: var(--text-color);">
-                                            Mais Conteúdo
+                                            Notícias Relacionadas
                                         </h2>
 
-                                        <div ref="relatedPostsObserver" class="min-h-[200px]">
-                                            <div v-if="!relatedPostsLoaded" class="flex justify-center items-center py-6">
-                                                <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
-                                                <span class="ml-3" style="color: var(--text-secondary);">Carregando posts relacionados...</span>
-                                            </div>
-
-                                            <div v-else-if="relatedPosts.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                        <div class="min-h-[200px]">
+                                            <!-- Conteúdo dos posts relacionados -->
+                                            <div v-if="relatedPosts && relatedPosts.length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <article
                                                     v-for="relatedPost in relatedPosts"
                                                     :key="relatedPost.id"
-                                                    class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                                    class="rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                                    style="background-color: var(--card-bg); color: var(--text-color);"
                                                 >
                                                     <a :href="`/post/${relatedPost.slug}`" class="block">
                                                         <div class="h-48 overflow-hidden relative">
@@ -280,14 +277,14 @@
                                                     </a>
                                                     <div class="p-4">
                                                         <a :href="`/post/${relatedPost.slug}`" class="block">
-                                                            <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                            <h3 class="text-lg font-bold mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2" style="color: var(--text-color);">
                                                                 {{ relatedPost.title }}
                                                             </h3>
                                                         </a>
-                                                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                                                        <p class="text-sm mb-3 line-clamp-2" style="color: var(--text-secondary);">
                                                             {{ relatedPost.excerpt || stripHtml(relatedPost.content).substring(0, 120) + '...' }}
                                                         </p>
-                                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                                        <div class="flex justify-between items-center text-xs" style="color: var(--text-secondary);">
                                                             <span v-if="getAuthor(relatedPost)">Por {{ getAuthor(relatedPost).name }}</span>
                                                             <span>{{ formatDate(relatedPost.publishedAt || relatedPost.updatedAt) }}</span>
                                                         </div>
@@ -1121,7 +1118,7 @@ const loadDisqusComments = () => {
 };
 
 const relatedPostsObserver = ref<HTMLElement | null>(null)
-const commentsObserver = ref<HTMLElement | null>(null)
+const commentsObserver = ref<any>(null)
 const relatedPostsLoaded = ref(false)
 const commentsLoaded = ref(false)
 const relatedPostsObserverInstance = ref<IntersectionObserver | null>(null)
@@ -1131,15 +1128,18 @@ const isMounted = ref(false);
 
 onMounted(() => {
     isMounted.value = true;
-    isDesktop.value = window.innerWidth > 768;
 
-    window.addEventListener('resize', () => {
-        if (isMounted.value)
+    if (typeof window !== 'undefined') {
+        isDesktop.value = window.innerWidth > 768;
+
+        window.addEventListener('resize', () => {
             isDesktop.value = window.innerWidth > 768;
-    });
+        });
 
-    window.addEventListener('scroll', handleScroll);
-    setupLazyLoading();
+        commentsLoaded.value = false;
+        // Garantir que relatedPostsLoaded começa como true para evitar carregar duas vezes
+        relatedPostsLoaded.value = true;
+    }
     loadAdScripts();
 });
 
@@ -1163,23 +1163,11 @@ onUnmounted(() => {
 });
 
 const setupLazyLoading = () => {
-    if (relatedPostsObserver.value) {
-        relatedPostsObserverInstance.value = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && !relatedPostsLoaded.value) {
-                    if (document.body.contains(relatedPostsObserver.value)) {
-                        loadRelatedPosts();
-                    }
-                }
-            },
-            {
-                rootMargin: '200px',
-                threshold: 0.1
-            }
-        );
-
-        relatedPostsObserverInstance.value.observe(relatedPostsObserver.value);
-    }
+    // Carregando os posts relacionados imediatamente ao montar o componente
+    // em vez de usar o IntersectionObserver
+    setTimeout(() => {
+        loadRelatedPosts();
+    }, 500);
 
     if (commentsObserver.value) {
         commentsObserverInstance.value = new IntersectionObserver(
@@ -1202,27 +1190,40 @@ const setupLazyLoading = () => {
 };
 
 const loadRelatedPosts = async () => {
-    if (!document.body.contains(relatedPostsObserver.value))
-        return;
-
+    // Verificação adicional para evitar chamadas duplicadas
+    if (relatedPostsLoaded.value) return;
+    
+    console.log('Carregando posts relacionados...');
+    
     try {
         if (post.value && post.value.id) {
             const storePosts = postsStore.getPosts || [];
-
+            
+            // Forçar o estado para carregado imediatamente
+            relatedPostsLoaded.value = true;
+            
             if (storePosts.length > 0) {
                 const filteredPosts = storePosts.filter(p => p.id !== post.value.id);
 
                 if (filteredPosts.length > 0) {
-                    if (document.body.contains(relatedPostsObserver.value))
-                        relatedPosts.value = shuffleArray(filteredPosts).slice(0, 3);
+                    // Usar slice para pegar apenas 2 posts sem embaralhar para depuração
+                    relatedPosts.value = filteredPosts.slice(0, 2);
+                    console.log('Posts relacionados carregados com sucesso:', relatedPosts.value.length);
+                    
+                    // Logar detalhes para depuração
+                    relatedPosts.value.forEach((post, index) => {
+                        console.log(`Post ${index + 1}:`, post.title, 'ID:', post.id, 'Slug:', post.slug);
+                    });
+                } else {
+                    console.log('Nenhum post relacionado encontrado após filtragem');
                 }
+            } else {
+                console.log('Nenhum post disponível no store');
             }
-
-            if (document.body.contains(relatedPostsObserver.value))
-                relatedPostsLoaded.value = true;
         }
     } catch (error) {
-        console.error('Error loading related posts:', error);
+        console.error('Erro ao carregar posts relacionados:', error);
+        relatedPostsLoaded.value = true; // Garantir que está definido como carregado mesmo em caso de erro
     }
 };
 
@@ -1319,6 +1320,14 @@ const loadAdScripts = () => {
 
 // Elements references
 const sidebarLeftAdContainer = ref(null);
+
+// Executar loadRelatedPosts imediatamente na inicialização do componente
+// se post.value já estiver disponível e relatedPostsLoaded for false
+if (post.value && !relatedPostsLoaded.value) {
+    relatedPostsLoaded.value = true;
+    relatedPosts.value = postsStore.getPosts?.filter(p => p.id !== post.value.id)?.slice(0, 2) || [];
+    console.log('Posts relacionados carregados na inicialização:', relatedPosts.value.length);
+}
 </script>
 
 <style scoped>
