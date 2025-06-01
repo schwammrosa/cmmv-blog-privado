@@ -423,13 +423,18 @@ import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useSettingsStore } from '../../store/settings';
 import { usePostsStore } from '../../store/posts';
+import { useCampaignsStore } from '../../store/campaigns';
+import { useCouponsStore } from '../../store/coupons';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 const settingsStore = useSettingsStore();
 const postsStore = usePostsStore();
+const campaignsStore = useCampaignsStore();
+const couponsStore = useCouponsStore();
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
+const isSSR = typeof window === 'undefined';
 
 // State
 const rawSettings = computed(() => settingsStore.getSettings);
@@ -446,9 +451,9 @@ const settings = computed<Record<string, any>>(() => {
     return blogSettings;
 });
 const posts = ref<any[]>(postsStore.getPosts || []);
-const campaigns = ref<any[]>([]);
-const featuredCoupons = ref<any[]>([]);
-const top25Coupons = ref<any[]>([]);
+const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
+const featuredCoupons = ref<any[]>(couponsStore.getFeaturedCoupons || []);
+const top25Coupons = ref<any[]>(couponsStore.getTop25Coupons || []);
 const loading = ref(true);
 const error = ref(null);
 const searchQuery = ref('');
@@ -635,43 +640,72 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // Parallel loading of posts, campaigns, featured coupons (antigo carrossel) and top 25 weekly coupons
-        const [postsResponse, campaignsData, couponsResponse, weeklyTopCouponsResponse] = await Promise.all([
-            blogAPI.posts.getAll(0),
-            affiliateAPI.campaigns.getAllWithCouponCounts(),
-            affiliateAPI.coupons.getMostViewed(), // Para o carrossel antigo
-            affiliateAPI.coupons.getTop25WeeklyCoupons() // Novo endpoint
-        ]);
+        // Verificar se já temos dados nas stores antes de fazer chamadas à API
+        let needToFetchPosts = posts.value.length === 0;
+        let needToFetchCampaigns = campaigns.value.length === 0;
+        let needToFetchFeaturedCoupons = featuredCoupons.value.length === 0;
+        let needToFetchTop25Coupons = top25Coupons.value.length === 0;
 
-        if (postsResponse) {
-            posts.value = postsResponse.posts;
+        const promises: Promise<any>[] = [];
+
+        // Só fazer chamadas se necessário
+        if (needToFetchPosts) {
+            promises.push(
+                blogAPI.posts.getAll(0).then(postsResponse => {
+                    if (postsResponse) {
+                        posts.value = postsResponse.posts;
+                        postsStore.setPosts(postsResponse.posts);
+                    }
+                })
+            );
         }
 
-        if (campaignsData && campaignsData.length > 0) {
-            campaigns.value = campaignsData;
-        } else {
-            campaigns.value = [];
+        if (needToFetchCampaigns) {
+            promises.push(
+                affiliateAPI.campaigns.getAllWithCouponCounts().then(campaignsData => {
+                    if (campaignsData && campaignsData.length > 0) {
+                        campaigns.value = campaignsData;
+                        campaignsStore.setCampaigns(campaignsData);
+                    } else {
+                        campaigns.value = [];
+                    }
+                })
+            );
         }
 
-        if (couponsResponse) { // Para o carrossel antigo
-            featuredCoupons.value = couponsResponse;
-        } else {
-            featuredCoupons.value = [];
+        if (needToFetchFeaturedCoupons) {
+            promises.push(
+                affiliateAPI.coupons.getMostViewed().then(couponsResponse => {
+                    if (couponsResponse) {
+                        featuredCoupons.value = couponsResponse;
+                        couponsStore.setFeaturedCoupons(couponsResponse);
+                    } else {
+                        featuredCoupons.value = [];
+                    }
+                })
+            );
         }
 
-        if (weeklyTopCouponsResponse) { // Novos Top 25
-            top25Coupons.value = weeklyTopCouponsResponse;
-            
-            // Verificar se o campo deeplink está presente
-            const hasSomeDeeplinks = top25Coupons.value.some(coupon => coupon.deeplink);
-           
-        } else {
-            top25Coupons.value = [];
+        if (needToFetchTop25Coupons) {
+            promises.push(
+                affiliateAPI.coupons.getTop25WeeklyCoupons().then(weeklyTopCouponsResponse => {
+                    if (weeklyTopCouponsResponse) {
+                        top25Coupons.value = weeklyTopCouponsResponse;
+                        couponsStore.setTop25Coupons(weeklyTopCouponsResponse);
+                    } else {
+                        top25Coupons.value = [];
+                    }
+                })
+            );
+        }
+
+        if (promises.length > 0) {
+            await Promise.all(promises);
         }
 
     } catch (err: any) {
         error.value = err;
-        //console.error("Erro ao carregar dados da Home:", err); // Log de erro
+        console.error("Erro ao carregar dados da Home:", err);
     } finally {
         loading.value = false;
     }

@@ -193,18 +193,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onServerPrefetch } from 'vue';
 import { useHead } from '@unhead/vue';
 import { useRoute } from 'vue-router';
 import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useSettingsStore } from '../../store/settings';
+import { useCampaignsStore } from '../../store/campaigns';
+import { useCouponsStore } from '../../store/coupons';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 const route = useRoute();
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const settingsStore = useSettingsStore();
+const campaignsStore = useCampaignsStore();
+const couponsStore = useCouponsStore();
+const isSSR = typeof window === 'undefined';
 
 const settings = ref<any>(settingsStore.getSettings);
 const campaign = ref<any>(null);
@@ -274,17 +279,25 @@ const loadData = async () => {
             return;
         }
         
-        // Carregar todas as campanhas
-        const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
+        // Primeiro verificar se temos as campanhas na store
+        let allCampaigns = campaignsStore.getCampaigns;
         
-        if (!campaignsData || campaignsData.length === 0) {
+        // Se não temos, buscar da API
+        if (!allCampaigns || allCampaigns.length === 0) {
+            allCampaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
+            if (allCampaigns && allCampaigns.length > 0) {
+                campaignsStore.setCampaigns(allCampaigns);
+            }
+        }
+        
+        if (!allCampaigns || allCampaigns.length === 0) {
             error.value = 'Não foi possível carregar as lojas';
             loading.value = false;
             return;
         }
         
         // Encontrar a campanha pelo slug
-        const foundCampaign = campaignsData.find((c: any) => c.slug === slug);
+        const foundCampaign = allCampaigns.find((c: any) => c.slug === slug);
         
         if (!foundCampaign) {
             error.value = 'Loja não encontrada';
@@ -296,10 +309,21 @@ const loadData = async () => {
         
         // Carregar cupons reais da API
         try {
-            const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaign.value.id);
-            if (realCoupons && realCoupons.length > 0) {
-                //console.log("Cupons reais carregados:", realCoupons.length);
-                coupons.value = realCoupons;
+            // Verificar se já temos cupons para essa campanha na store
+            const campaignId = campaign.value.id;
+            let campaignCoupons = couponsStore.getCampaignCoupons(campaignId);
+            
+            // Se já temos cupons na store, usar eles
+            if (campaignCoupons && campaignCoupons.length > 0) {
+                coupons.value = campaignCoupons;
+            } else {
+                // Caso contrário, carregar da API
+                const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaignId);
+                if (realCoupons && realCoupons.length > 0) {
+                    coupons.value = realCoupons;
+                    // Salvar na store para uso futuro
+                    couponsStore.setCampaignCoupons(campaignId, realCoupons);
+                }
             }
         } catch (couponError) {
             console.error("Erro ao carregar cupons reais:", couponError);
@@ -312,6 +336,11 @@ const loadData = async () => {
         loading.value = false;
     }
 };
+
+// Pré-carregar dados no SSR
+onServerPrefetch(async () => {
+    await loadData();
+});
 
 // Formatar data para exibição
 const formatDate = (dateString: string | Date) => {

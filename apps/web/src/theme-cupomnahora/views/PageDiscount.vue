@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onServerPrefetch } from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
@@ -106,12 +106,12 @@ const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const settingsStore = useSettingsStore();
 const campaignsStore = useCampaignsStore();
+const isSSR = typeof window === 'undefined';
 
 const settings = ref<any>(settingsStore.getSettings);
 const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
 const loading = ref(true);
 const error = ref(null);
-const isSSR = typeof window === 'undefined';
 
 // Busca
 const searchQuery = ref('');
@@ -228,7 +228,7 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // Carregar campanhas se ainda não foram carregadas
+        // Verificar se já temos campanhas na store
         if (!campaigns.value || campaigns.value.length === 0) {
             const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
             
@@ -247,9 +247,20 @@ const loadData = async () => {
     }
 };
 
-// Carregar dados ao montar o componente
-onMounted(() => {
-    loadData();
+// Pré-carregar dados no SSR
+onServerPrefetch(async () => {
+    await loadData();
+});
+
+// Carregar dados ao montar o componente, apenas se necessário
+onMounted(async () => {
+    // Se não temos dados na store, carregá-los
+    if (!campaigns.value || campaigns.value.length === 0) {
+        await loadData();
+    } else {
+        // Se já temos os dados, apenas marcar como carregado
+        loading.value = false;
+    }
 });
 
 // Observar mudanças na consulta de pesquisa

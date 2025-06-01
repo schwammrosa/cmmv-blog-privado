@@ -315,11 +315,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount, onServerPrefetch } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
+import { useCampaignsStore } from '../../store/campaigns';
+import { useCouponsStore } from '../../store/coupons';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useRoute } from 'vue-router';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
@@ -330,8 +332,10 @@ const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const categoriesStore = useCategoriesStore();
 const settingsStore = useSettingsStore();
+const campaignsStore = useCampaignsStore();
+const couponsStore = useCouponsStore();
 const route = useRoute();
-
+const isSSR = typeof window === 'undefined';
 const settings = ref<any>(settingsStore.getSettings);
 
 const scripts = computed(() => {
@@ -560,21 +564,54 @@ const closeScratchModal = () => {
     selectedCouponForScratch.value = null;
 };
 
-onMounted(async () => {
-    await Promise.all([
-        (async () => {
-            if (!categories.value.length) {
-                try {
-                    const categoriesResponse = await blogAPI.categories.getAll();
-                    if (categoriesResponse) {
-                        categories.value = categoriesResponse;
-                    }
-                } catch (err) {
-                    console.error('Failed to load categories:', err);
-                }
+// Carregar dados da API e salvar na store
+const loadInitialData = async () => {
+    try {
+        // Carregar categorias se ainda não estiverem na store
+        if (!categories.value.length) {
+            const categoriesResponse = await blogAPI.categories.getAll();
+            if (categoriesResponse) {
+                categories.value = categoriesResponse;
+                categoriesStore.setCategories(categoriesResponse);
             }
-        })()
-    ]);
+        }
+
+        // Carregar campanhas se ainda não estiverem na store
+        if (!campaignsStore.getCampaigns) {
+            const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
+            if (campaignsData && campaignsData.length > 0) {
+                campaignsStore.setCampaigns(campaignsData);
+            }
+        }
+
+        // Carregar cupons em destaque se ainda não estiverem na store
+        if (couponsStore.getFeaturedCoupons.length === 0) {
+            const featuredCouponsData = await affiliateAPI.coupons.getMostViewed();
+            if (featuredCouponsData && featuredCouponsData.length > 0) {
+                couponsStore.setFeaturedCoupons(featuredCouponsData);
+            }
+        }
+
+        // Carregar top 25 cupons se ainda não estiverem na store
+        if (couponsStore.getTop25Coupons.length === 0) {
+            const top25CouponsData = await affiliateAPI.coupons.getTop25WeeklyCoupons();
+            if (top25CouponsData && top25CouponsData.length > 0) {
+                couponsStore.setTop25Coupons(top25CouponsData);
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao carregar dados iniciais:", error);
+    }
+};
+
+// No SSR, carregamos os dados para que estejam disponíveis no HTML inicial
+onServerPrefetch(async () => {
+    await loadInitialData();
+});
+
+onMounted(async () => {
+    // Carregar dados iniciais se ainda não foram carregados
+    await loadInitialData();
 
     document.addEventListener('click', closeDropdownsOnClickOutside);
     
