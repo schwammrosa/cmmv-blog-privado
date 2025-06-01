@@ -260,7 +260,7 @@
             <section class="container card-carousel mb-12">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-gray-800">Top cupons</h2>
-                    <a href="/descontos" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver todos</a>
+                    <a href="#top-25-cupons" class="text-indigo-600 hover:text-indigo-800 font-medium">Ver todos</a>
                 </div>
                 <div id="coupon-cards" class="relative">
                     <div class="overflow-hidden">
@@ -268,27 +268,23 @@
                             :style="`transform: translateX(-${currentCouponIndex * (100 / couponSlidesVisible)}%);`">
                             <div v-for="coupon in featuredCoupons.slice(0, 10)" :key="coupon.id"
                                 class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 flex-shrink-0">
-                                <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col p-4">
-                                    <div class="flex-shrink-0 mb-2 h-16 flex items-center justify-center">
-                                        <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
-                                            class="max-h-12 max-w-full object-contain">
-                                        <div v-else class="w-16 h-12 bg-gray-200 flex items-center justify-center rounded-md">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                            </svg>
+                                <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" 
+                                   class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col p-0 block">
+                                    <div class="p-4 pb-3">
+                                        <div class="flex-shrink-0 h-24 flex items-center justify-center">
+                                            <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
+                                                class="max-h-20 max-w-full object-contain">
+                                            <div v-else class="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-md">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
-                                    <h4 class="text-sm font-medium text-gray-700 text-center mb-2 truncate" :title="coupon.campaignName">{{ coupon.campaignName }}</h4>
-                                    <div class="flex-1 flex flex-col text-center">
+                                    <div class="bg-gray-200 flex-1 flex flex-col text-center p-4 pt-3 mt-auto">
                                         <p class="text-base font-bold text-gray-800 mb-1 line-clamp-2 h-12">{{ coupon.title }}</p>
-                                        <p v-if="coupon.code" class="text-xs text-gray-500 mb-3">{{ coupon.code.length > 3 ? '****' + coupon.code.substring(coupon.code.length - 3) : coupon.code }}</p>
-                                        <p v-else class="text-xs text-gray-500 mb-3">Oferta especial</p>
                                     </div>
-                                    <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#'" 
-                                       class="mt-auto block w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm text-center py-2 px-3 rounded-md transition-colors">
-                                        Ver Oferta
-                                    </a>
-                                </div>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -314,7 +310,7 @@
             </section>
 
             <!-- Top 25 Cupons da Semana -->
-            <section class="mb-12">
+            <section id="top-25-cupons" class="mb-12">
                 <div class="flex items-center justify-between mb-8">
                     <h2 class="text-2xl font-bold text-gray-800">Os 25 melhores Cupons de Desconto da semana!</h2>
                 </div>
@@ -421,19 +417,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, onServerPrefetch } from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useSettingsStore } from '../../store/settings';
 import { usePostsStore } from '../../store/posts';
+import { useCampaignsStore } from '../../store/campaigns';
+import { useCouponsStore } from '../../store/coupons';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 const settingsStore = useSettingsStore();
 const postsStore = usePostsStore();
+const campaignsStore = useCampaignsStore();
+const couponsStore = useCouponsStore();
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
+const isSSR = typeof window === 'undefined';
 
 // State
 const rawSettings = computed(() => settingsStore.getSettings);
@@ -450,9 +451,9 @@ const settings = computed<Record<string, any>>(() => {
     return blogSettings;
 });
 const posts = ref<any[]>(postsStore.getPosts || []);
-const campaigns = ref<any[]>([]);
-const featuredCoupons = ref<any[]>([]);
-const top25Coupons = ref<any[]>([]);
+const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
+const featuredCoupons = ref<any[]>(couponsStore.getFeaturedCoupons || []);
+const top25Coupons = ref<any[]>(couponsStore.getTop25Coupons || []);
 const loading = ref(true);
 const error = ref(null);
 const searchQuery = ref('');
@@ -467,24 +468,13 @@ const couponSlidesVisible = ref(3);
 const isScratchModalOpen = ref(false);
 const selectedCouponForScratch = ref<any | null>(null);
 
-// Funções para o Modal de Raspadinha
-const openScratchModal = (coupon: any) => {
-    selectedCouponForScratch.value = coupon;
-    isScratchModalOpen.value = true;
-};
-
-const closeScratchModal = () => {
-    isScratchModalOpen.value = false;
-    selectedCouponForScratch.value = null;
-};
-
 // Cover settings from the blog settings
 const coverSettings = computed(() => {
     try {
         const config = settings.value.cover;
         return config ? JSON.parse(config) : { layoutType: 'full' };
     } catch (err) {
-        console.error('Error parsing cover settings:', err);
+        //console.error('Error parsing cover settings:', err);
         return { layoutType: 'full' };
     }
 });
@@ -650,39 +640,72 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // Parallel loading of posts, campaigns, featured coupons (antigo carrossel) and top 25 weekly coupons
-        const [postsResponse, campaignsData, couponsResponse, weeklyTopCouponsResponse] = await Promise.all([
-            blogAPI.posts.getAll(0),
-            affiliateAPI.campaigns.getAllWithCouponCounts(),
-            affiliateAPI.coupons.getMostViewed(), // Para o carrossel antigo
-            affiliateAPI.coupons.getTop25WeeklyCoupons() // Novo endpoint
-        ]);
+        // Verificar se já temos dados nas stores antes de fazer chamadas à API
+        let needToFetchPosts = posts.value.length === 0;
+        let needToFetchCampaigns = campaigns.value.length === 0;
+        let needToFetchFeaturedCoupons = featuredCoupons.value.length === 0;
+        let needToFetchTop25Coupons = top25Coupons.value.length === 0;
 
-        if (postsResponse) {
-            posts.value = postsResponse.posts;
+        const promises: Promise<any>[] = [];
+
+        // Só fazer chamadas se necessário
+        if (needToFetchPosts) {
+            promises.push(
+                blogAPI.posts.getAll(0).then(postsResponse => {
+                    if (postsResponse) {
+                        posts.value = postsResponse.posts;
+                        postsStore.setPosts(postsResponse.posts);
+                    }
+                })
+            );
         }
 
-        if (campaignsData && campaignsData.length > 0) {
-            campaigns.value = campaignsData;
-        } else {
-            campaigns.value = [];
+        if (needToFetchCampaigns) {
+            promises.push(
+                affiliateAPI.campaigns.getAllWithCouponCounts().then(campaignsData => {
+                    if (campaignsData && campaignsData.length > 0) {
+                        campaigns.value = campaignsData;
+                        campaignsStore.setCampaigns(campaignsData);
+                    } else {
+                        campaigns.value = [];
+                    }
+                })
+            );
         }
 
-        if (couponsResponse) { // Para o carrossel antigo
-            featuredCoupons.value = couponsResponse;
-        } else {
-            featuredCoupons.value = [];
+        if (needToFetchFeaturedCoupons) {
+            promises.push(
+                affiliateAPI.coupons.getMostViewed().then(couponsResponse => {
+                    if (couponsResponse) {
+                        featuredCoupons.value = couponsResponse;
+                        couponsStore.setFeaturedCoupons(couponsResponse);
+                    } else {
+                        featuredCoupons.value = [];
+                    }
+                })
+            );
         }
 
-        if (weeklyTopCouponsResponse) { // Novos Top 25
-            top25Coupons.value = weeklyTopCouponsResponse;
-        } else {
-            top25Coupons.value = [];
+        if (needToFetchTop25Coupons) {
+            promises.push(
+                affiliateAPI.coupons.getTop25WeeklyCoupons().then(weeklyTopCouponsResponse => {
+                    if (weeklyTopCouponsResponse) {
+                        top25Coupons.value = weeklyTopCouponsResponse;
+                        couponsStore.setTop25Coupons(weeklyTopCouponsResponse);
+                    } else {
+                        top25Coupons.value = [];
+                    }
+                })
+            );
+        }
+
+        if (promises.length > 0) {
+            await Promise.all(promises);
         }
 
     } catch (err: any) {
         error.value = err;
-        console.error("Erro ao carregar dados da Home:", err); // Log de erro
+        console.error("Erro ao carregar dados da Home:", err);
     } finally {
         loading.value = false;
     }
@@ -723,6 +746,62 @@ const nextCouponSlide = () => {
         currentCouponIndex.value = 0;
     }
 };
+
+// Função para abrir deeplink em nova aba
+const openDeepLink = (url: string) => {
+    window.open(url, '_blank');
+};
+
+// Cria um iframe invisível para abrir o deeplink sem mudar o foco
+const openDeeplinkInBackground = (url: string) => {
+    // Criar um iframe invisível
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    try {
+        // Definir o src do iframe para o deeplink
+        iframe.src = url;
+        
+        // Limpar o iframe após um curto período
+        setTimeout(() => {
+            if (iframe && iframe.parentNode) {
+                iframe.parentNode.removeChild(iframe);
+            }
+        }, 1000);
+    } catch (e) {
+        //console.error('Erro ao abrir deeplink via iframe:', e);
+        if (iframe && iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+        }
+    }
+};
+
+// Funções para o Modal de Raspadinha
+const openScratchModal = (coupon: any) => {
+    // Primeiro mostrar o modal
+    selectedCouponForScratch.value = coupon;
+    isScratchModalOpen.value = true;
+    
+    // Abrir uma nova janela com o código do cupom
+    if (coupon && coupon.code) {
+        window.open(window.location.href + `?display=${coupon.code}`, '_blank');
+    }
+    
+    // Redirecionar para o deeplink
+    if (coupon && coupon.deeplink) {
+        window.location.href = coupon.deeplink;
+    }
+};
+
+const closeScratchModal = () => {
+    isScratchModalOpen.value = false;
+    selectedCouponForScratch.value = null;
+};
+
+onServerPrefetch(async () => {
+    await loadData();
+})
 
 onMounted(async () => {
     await loadData();

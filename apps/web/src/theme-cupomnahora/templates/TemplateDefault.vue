@@ -7,7 +7,7 @@
                     <!-- Logo -->
                     <div class="flex items-center">
                         <a href="/" class="text-2xl font-bold text-white">
-                            <img src="/src/theme-cupomnahora/assets/Logo-1.png" width="147" height="32" alt="Logo" title="Logo">
+                            <img src="/src/theme-cupomnahora/assets/Logo-1.png" width="100" height="24" alt="Logo" title="Logo">
                         </a>
                     </div>
 
@@ -303,18 +303,28 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Cupom Modal -->
+        <CouponScratchModal 
+            :visible="isScratchModalOpen" 
+            :coupon="selectedCouponForScratch"
+            @close="closeScratchModal" />
     </div>
 
     <CookieConsent />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount, onServerPrefetch } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
+import { useCampaignsStore } from '../../store/campaigns';
+import { useCouponsStore } from '../../store/coupons';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
+import { useRoute } from 'vue-router';
+import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 import CookieConsent from '../../components/CookieConsent.vue';
 
@@ -322,7 +332,10 @@ const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const categoriesStore = useCategoriesStore();
 const settingsStore = useSettingsStore();
-
+const campaignsStore = useCampaignsStore();
+const couponsStore = useCouponsStore();
+const route = useRoute();
+const isSSR = typeof window === 'undefined';
 const settings = ref<any>(settingsStore.getSettings);
 
 const scripts = computed(() => {
@@ -517,23 +530,98 @@ const categoriesColumns = computed(() => {
     ];
 });
 
-onMounted(async () => {
-    await Promise.all([
-        (async () => {
-            if (!categories.value.length) {
-                try {
-                    const categoriesResponse = await blogAPI.categories.getAll();
-                    if (categoriesResponse) {
-                        categories.value = categoriesResponse;
-                    }
-                } catch (err) {
-                    console.error('Failed to load categories:', err);
-                }
+// Estado para o Modal de Raspadinha
+const isScratchModalOpen = ref(false);
+const selectedCouponForScratch = ref<any | null>(null);
+
+// Checar se há um código de cupom na URL
+const checkCouponInUrl = async () => {
+    const displayCode = route.query.display;
+    
+    if (displayCode && typeof displayCode === 'string') {
+        try {
+            // Como não temos um método getByCode na API, vamos criar um cupom temporário
+            // Em um caso real, você precisaria implementar getByCode na API ou buscar todos os cupons e filtrar
+            const tempCoupon = {
+                id: 'temp-' + Date.now(),
+                code: displayCode,
+                title: 'Cupom de desconto',
+                campaignName: 'Loja',
+                description: 'Use este cupom para obter desconto em sua compra.'
+            };
+            
+            // Exibir o modal com as informações do cupom
+            selectedCouponForScratch.value = tempCoupon;
+            isScratchModalOpen.value = true;
+        } catch (error) {
+            console.error('Erro ao processar código do cupom:', error);
+        }
+    }
+};
+
+const closeScratchModal = () => {
+    isScratchModalOpen.value = false;
+    selectedCouponForScratch.value = null;
+};
+
+// Carregar dados da API e salvar na store
+const loadInitialData = async () => {
+    try {
+        // Carregar categorias se ainda não estiverem na store
+        if (!categories.value.length) {
+            const categoriesResponse = await blogAPI.categories.getAll();
+            if (categoriesResponse) {
+                categories.value = categoriesResponse;
+                categoriesStore.setCategories(categoriesResponse);
             }
-        })()
-    ]);
+        }
+
+        // Carregar campanhas se ainda não estiverem na store
+        if (!campaignsStore.getCampaigns) {
+            const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
+            if (campaignsData && campaignsData.length > 0) {
+                campaignsStore.setCampaigns(campaignsData);
+            }
+        }
+
+        // Carregar cupons em destaque se ainda não estiverem na store
+        if (couponsStore.getFeaturedCoupons.length === 0) {
+            const featuredCouponsData = await affiliateAPI.coupons.getMostViewed();
+            if (featuredCouponsData && featuredCouponsData.length > 0) {
+                couponsStore.setFeaturedCoupons(featuredCouponsData);
+            }
+        }
+
+        // Carregar top 25 cupons se ainda não estiverem na store
+        if (couponsStore.getTop25Coupons.length === 0) {
+            const top25CouponsData = await affiliateAPI.coupons.getTop25WeeklyCoupons();
+            if (top25CouponsData && top25CouponsData.length > 0) {
+                couponsStore.setTop25Coupons(top25CouponsData);
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao carregar dados iniciais:", error);
+    }
+};
+
+// No SSR, carregamos os dados para que estejam disponíveis no HTML inicial
+onServerPrefetch(async () => {
+    await loadInitialData();
+});
+
+onMounted(async () => {
+    // Carregar dados iniciais se ainda não foram carregados
+    await loadInitialData();
 
     document.addEventListener('click', closeDropdownsOnClickOutside);
+    
+    // Verificar se há código de cupom na URL quando o componente for montado
+    await checkCouponInUrl();
+});
+
+// Observar mudanças na URL para verificar se há um novo código de cupom
+watch(() => route.query.display, async () => {
+    await checkCouponInUrl();
 });
 
 onBeforeUnmount(() => {

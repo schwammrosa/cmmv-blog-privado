@@ -4,7 +4,7 @@
             <div class="bg-white rounded-lg p-6">
                 <h1 class="text-3xl font-bold text-gray-800 mb-8">Encontre cupons de desconto em nossas principais categorias</h1>
 
-                <!-- Barra de Busca -->
+                <!-- Barra de Busca 
                 <div class="mb-10 w-full max-w-2xl mx-auto">
                     <div class="relative">
                         <input 
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                 </div>
-
+                -->
                 <!-- Top 20 Categorias -->
                 <div v-if="!isSearching && searchQuery.length < 2">
                     <h2 class="text-2xl font-bold text-gray-800 mb-6">Top 20 Categorias</h2>
@@ -139,25 +139,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, onServerPrefetch } from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useSettingsStore } from '../../store/settings';
 import { useCampaignsStore } from '../../store/campaigns';
+import { useCategoriesStore } from '../../store/categories';
 
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const settingsStore = useSettingsStore();
 const campaignsStore = useCampaignsStore();
+const categoriesStore = useCategoriesStore();
+const isSSR = typeof window === 'undefined';
 
 const settings = ref<any>(settingsStore.getSettings);
-const categories = ref<any[]>([]);
+const categories = ref<any[]>(categoriesStore.getAffiliateCategories || []);
 const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
 const loading = ref(true);
 const loadingCampaigns = ref(true);
 const error = ref(null);
-const isSSR = typeof window === 'undefined';
 
 // Busca
 const searchQuery = ref('');
@@ -277,45 +279,76 @@ const scrollToLetter = (letter: string) => {
 
 const loadData = async () => {
     try {
-        // Carregar categorias
-        loading.value = true;
-        error.value = null;
-        const categoriesData = await affiliateAPI.categories.getAll();
+        const promises: Promise<any>[] = [];
         
-        if (categoriesData && categoriesData.length > 0) {
-            // Ordenar categorias por nome
-            categories.value = categoriesData.sort((a, b) => {
-                return a.name.localeCompare(b.name, 'pt-BR');
-            });
+        // Carregar categorias se necessário
+        if (categories.value.length === 0) {
+            loading.value = true;
+            promises.push(
+                affiliateAPI.categories.getAll().then(categoriesData => {
+                    if (categoriesData && categoriesData.length > 0) {
+                        // Ordenar categorias por nome
+                        const sortedCategories = categoriesData.sort((a, b) => {
+                            return a.name.localeCompare(b.name, 'pt-BR');
+                        });
+                        categories.value = sortedCategories;
+                        categoriesStore.setAffiliateCategories(sortedCategories);
+                    } else {
+                        categories.value = [];
+                    }
+                }).catch(err => {
+                    console.error("Erro ao carregar categorias:", err);
+                    error.value = err;
+                }).finally(() => {
+                    loading.value = false;
+                })
+            );
         } else {
-            categories.value = [];
+            loading.value = false;
         }
-        loading.value = false;
 
-        // Carregar campanhas se ainda não foram carregadas
-        loadingCampaigns.value = true;
-        if (!campaigns.value || campaigns.value.length === 0) {
-            const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
-            
-            if (campaignsData && campaignsData.length > 0) {
-                campaigns.value = campaignsData;
-                campaignsStore.setCampaigns(campaignsData);
-            } else {
-                campaigns.value = [];
-            }
+        // Carregar campanhas se necessário
+        if (campaigns.value.length === 0) {
+            loadingCampaigns.value = true;
+            promises.push(
+                affiliateAPI.campaigns.getAllWithCouponCounts().then(campaignsData => {
+                    if (campaignsData && campaignsData.length > 0) {
+                        campaigns.value = campaignsData;
+                        campaignsStore.setCampaigns(campaignsData);
+                    } else {
+                        campaigns.value = [];
+                    }
+                }).catch(err => {
+                    console.error("Erro ao carregar campanhas:", err);
+                    error.value = err;
+                }).finally(() => {
+                    loadingCampaigns.value = false;
+                })
+            );
+        } else {
+            loadingCampaigns.value = false;
         }
-        loadingCampaigns.value = false;
+
+        // Esperar que todas as promessas sejam resolvidas
+        if (promises.length > 0) {
+            await Promise.all(promises);
+        }
     } catch (err: any) {
         error.value = err;
-        console.error("Erro ao carregar dados:", err);
+        console.error("Erro geral ao carregar dados:", err);
         loading.value = false;
         loadingCampaigns.value = false;
     }
 };
 
+// Pré-carregar dados no SSR
+onServerPrefetch(async () => {
+    await loadData();
+});
+
 // Carregar dados ao montar o componente
-onMounted(() => {
-    loadData();
+onMounted(async () => {
+    await loadData();
 });
 
 // Observar mudanças na consulta de pesquisa
