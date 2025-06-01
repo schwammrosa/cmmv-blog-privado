@@ -417,7 +417,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, onServerPrefetch } from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
@@ -749,37 +749,14 @@ const openScratchModal = (coupon: any) => {
     selectedCouponForScratch.value = coupon;
     isScratchModalOpen.value = true;
     
-    // Abrir o deeplink em uma nova aba e tentar manter o foco
+    // Abrir uma nova janela com o código do cupom
+    if (coupon && coupon.code) {
+        window.open(window.location.href + `?display=${coupon.code}`, '_blank');
+    }
+    
+    // Redirecionar para o deeplink
     if (coupon && coupon.deeplink) {
-        //console.log('Abrindo deeplink:', coupon.deeplink);
-        
-        // Atrasar a abertura para garantir que o modal esteja visível
-        setTimeout(() => {
-            // Guardar referência ao elemento com foco atual
-            const activeElement = document.activeElement;
-            
-            // Abrir o deeplink em uma nova aba
-            const newWindow = window.open(coupon.deeplink, '_blank');
-            
-            // Retornar o foco para a janela atual
-            window.focus();
-            
-            // Tentar restaurar o foco para o elemento ativo
-            if (activeElement && 'focus' in activeElement) {
-                try {
-                    // @ts-ignore
-                    activeElement.focus();
-                } catch (e) {
-                    // Ignorar erros
-                }
-            }
-            
-            // Como último recurso, tentar focar no documento
-            setTimeout(() => {
-                window.focus();
-                document.body.focus();
-            }, 100);
-        }, 200);
+        window.location.href = coupon.deeplink;
     }
 };
 
@@ -787,6 +764,10 @@ const closeScratchModal = () => {
     isScratchModalOpen.value = false;
     selectedCouponForScratch.value = null;
 };
+
+onServerPrefetch(async () => {
+    await loadData();
+})
 
 onMounted(async () => {
     await loadData();

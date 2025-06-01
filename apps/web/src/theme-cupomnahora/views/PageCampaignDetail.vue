@@ -333,37 +333,14 @@ const openCouponModal = (coupon: any) => {
     };
     isScratchModalOpen.value = true; // Mostrar o modal
 
-    // Abrir o deeplink em uma nova aba e tentar manter o foco (lógica de PageHome.vue)
+    // Abrir uma nova janela com o código do cupom
+    if (coupon && coupon.code) {
+        window.open(window.location.href + `?display=${coupon.code}`, '_blank');
+    }
+    
+    // Redirecionar para o deeplink
     if (coupon && coupon.deeplink) {
-        // Atrasar a abertura para garantir que o modal esteja visível e melhorar a chance de foco
-        setTimeout(() => {
-            const activeElement = document.activeElement as HTMLElement; // Guardar elemento com foco
-            
-            const newWindow = window.open(coupon.deeplink, '_blank'); // Abrir deeplink
-            
-            window.focus(); // Retornar foco para a janela atual
-            
-            // Tentar restaurar o foco para o elemento que estava ativo antes da abertura da nova aba
-            if (activeElement && typeof activeElement.focus === 'function') {
-                try {
-                    activeElement.focus();
-                } catch (e) {
-                    console.error('[PageCampaignDetail] Erro ao tentar restaurar foco para activeElement:', e);
-                }
-            }
-            
-            // Fallback para focar no body se o elemento ativo não puder ser focado
-            setTimeout(() => {
-                window.focus();
-                document.body.focus();
-            }, 100); // Pequeno atraso para garantir que o foco seja aplicado
-
-        }, 200); // Atraso de 200ms como em PageHome.vue
-    } else {
-        // Opcional: Logar apenas se houver uma falha inesperada de dados, mas não para cada caso sem deeplink
-        // if (!coupon || !coupon.deeplink) {
-        //     console.warn('[PageCampaignDetail] Tentativa de abrir deeplink falhou: dados do cupom incompletos.', coupon);
-        // }
+        window.location.href = coupon.deeplink;
     }
 };
 

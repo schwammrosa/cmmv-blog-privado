@@ -20,12 +20,27 @@
                 </div>
                 <p v-else class="text-gray-600 mb-4">Este cupom não possui código.</p>
 
-                <button 
-                    v-if="coupon.code"
-                    @click="copyCode"
-                    class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
-                    {{ copyButtonText }}
-                </button>
+                <div class="flex flex-col gap-3">
+                    <button 
+                        v-if="coupon.code"
+                        @click="copyCode"
+                        class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
+                        {{ copyButtonText }}
+                    </button>
+                    
+                    <button
+                        v-if="coupon.deeplink"
+                        @click="visitStore"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none">
+                        Ir para a loja
+                    </button>
+                    
+                    <button
+                        @click="closeModal"
+                        class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none mt-2">
+                        Fechar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -33,6 +48,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
     visible: Boolean,
@@ -41,9 +57,17 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 const copyButtonText = ref('Copiar Código');
+const router = useRouter();
 
 const closeModal = () => {
     emit('close');
+    
+    // Se o modal foi aberto via parâmetro URL, remover o parâmetro ao fechar
+    if (router.currentRoute.value.query.display) {
+        router.replace({
+            query: { ...router.currentRoute.value.query, display: undefined }
+        });
+    }
 };
 
 const copyCode = async () => {
@@ -59,6 +83,12 @@ const copyCode = async () => {
         setTimeout(() => {
             copyButtonText.value = 'Copiar Código';
         }, 2000);
+    }
+};
+
+const visitStore = () => {
+    if (props.coupon && props.coupon.deeplink) {
+        window.open(props.coupon.deeplink, '_blank');
     }
 };
 </script>

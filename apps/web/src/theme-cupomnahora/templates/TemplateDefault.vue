@@ -7,7 +7,7 @@
                     <!-- Logo -->
                     <div class="flex items-center">
                         <a href="/" class="text-2xl font-bold text-white">
-                            <img src="/src/theme-cupomnahora/assets/Logo-1.png" width="147" height="32" alt="Logo" title="Logo">
+                            <img src="/src/theme-cupomnahora/assets/Logo-1.png" width="100" height="24" alt="Logo" title="Logo">
                         </a>
                     </div>
 
@@ -303,6 +303,12 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Cupom Modal -->
+        <CouponScratchModal 
+            :visible="isScratchModalOpen" 
+            :coupon="selectedCouponForScratch"
+            @close="closeScratchModal" />
     </div>
 
     <CookieConsent />
@@ -315,6 +321,8 @@ import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
+import { useRoute } from 'vue-router';
+import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 import CookieConsent from '../../components/CookieConsent.vue';
 
@@ -322,6 +330,7 @@ const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const categoriesStore = useCategoriesStore();
 const settingsStore = useSettingsStore();
+const route = useRoute();
 
 const settings = ref<any>(settingsStore.getSettings);
 
@@ -517,6 +526,40 @@ const categoriesColumns = computed(() => {
     ];
 });
 
+// Estado para o Modal de Raspadinha
+const isScratchModalOpen = ref(false);
+const selectedCouponForScratch = ref<any | null>(null);
+
+// Checar se há um código de cupom na URL
+const checkCouponInUrl = async () => {
+    const displayCode = route.query.display;
+    
+    if (displayCode && typeof displayCode === 'string') {
+        try {
+            // Como não temos um método getByCode na API, vamos criar um cupom temporário
+            // Em um caso real, você precisaria implementar getByCode na API ou buscar todos os cupons e filtrar
+            const tempCoupon = {
+                id: 'temp-' + Date.now(),
+                code: displayCode,
+                title: 'Cupom de desconto',
+                campaignName: 'Loja',
+                description: 'Use este cupom para obter desconto em sua compra.'
+            };
+            
+            // Exibir o modal com as informações do cupom
+            selectedCouponForScratch.value = tempCoupon;
+            isScratchModalOpen.value = true;
+        } catch (error) {
+            console.error('Erro ao processar código do cupom:', error);
+        }
+    }
+};
+
+const closeScratchModal = () => {
+    isScratchModalOpen.value = false;
+    selectedCouponForScratch.value = null;
+};
+
 onMounted(async () => {
     await Promise.all([
         (async () => {
@@ -534,6 +577,14 @@ onMounted(async () => {
     ]);
 
     document.addEventListener('click', closeDropdownsOnClickOutside);
+    
+    // Verificar se há código de cupom na URL quando o componente for montado
+    await checkCouponInUrl();
+});
+
+// Observar mudanças na URL para verificar se há um novo código de cupom
+watch(() => route.query.display, async () => {
+    await checkCouponInUrl();
 });
 
 onBeforeUnmount(() => {
