@@ -34,6 +34,7 @@
                             <h1 class="text-3xl font-bold text-gray-800 mb-2">Cupons de desconto {{ campaign.name }}</h1>
                             <p class="text-gray-500 mb-2">Atualizado em {{ formatDate(new Date()) }}</p>
                             <p class="text-gray-700">Encontramos {{ coupons.length }} cupons de desconto para {{ campaign.name }} →</p>
+                            <p v-if="campaign.description" class="text-gray-600 mt-2 text-sm">{{ campaign.description }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 bg-amber-100 text-amber-800 px-3 py-2 rounded-md">
