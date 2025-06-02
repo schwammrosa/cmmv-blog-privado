@@ -153,7 +153,7 @@ export class CouponsServiceTools {
             order: {
                 expiration: "DESC"
             },
-            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "linkRef"]
+            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "linkRef", "deeplink"]
         });
 
         return (coupons) ? coupons.data : [];
@@ -193,7 +193,7 @@ export class CouponsServiceTools {
             order: {
                 views: "DESC"
             },
-            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "views", "campaign"]
+            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "views", "campaign", "deeplink"]
         });
 
         const campaignIds = (coupons) ? coupons.data.map((coupon: any) => coupon.campaign) : [];
@@ -248,8 +248,8 @@ export class CouponsServiceTools {
             order: {
                 views: "DESC"
             },
-            take: 25, // Changed from limit to take as per TypeORM standards for FindManyOptions
-            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "views", "campaign", "linkRef"]
+            take: 75, // Changed from limit to take as per TypeORM standards for FindManyOptions
+            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "views", "campaign", "linkRef", "deeplink"]
         });
 
         if (!couponsResult || !couponsResult.data || couponsResult.data.length === 0) {
@@ -271,9 +271,9 @@ export class CouponsServiceTools {
 
         const campaignMap = new Map(campaigns && campaigns.data ? campaigns.data.map((campaign: any) => [campaign.id, campaign]) : []);
         
-        let dataResponse: any[] = [];
-
-        dataResponse = couponsResult.data.map((coupon: any) => {
+        let processedCoupons: any[] = []; // Renamed from dataResponse
+        
+        processedCoupons = couponsResult.data.map((coupon: any) => { // Renamed from dataResponse
             if (coupon.campaign && typeof coupon.campaign === 'string' && coupon.campaign.trim() !== '') {
                 const campaignDetails: any = campaignMap.get(coupon.campaign);
                 if (campaignDetails) {
@@ -298,7 +298,51 @@ export class CouponsServiceTools {
         }).filter((coupon: any) => coupon !== null);
 
 
-        return (dataResponse.length > 0) ? dataResponse : [];
+        if (processedCoupons.length === 0) {
+            return [];
+        }
+
+        const campaignCouponsMap = new Map<string, any[]>();
+        for (const coupon of processedCoupons) {
+            const campaignId = coupon.campaign; 
+            if (campaignId) { 
+                if (!campaignCouponsMap.has(campaignId)) {
+                    campaignCouponsMap.set(campaignId, []);
+                }
+                campaignCouponsMap.get(campaignId)!.push(coupon);
+            }
+        }
+
+        if (campaignCouponsMap.size === 0) {
+            return [];
+        }
+        
+        const finalTop25Coupons: any[] = [];
+        const uniqueCampaignIds = Array.from(campaignCouponsMap.keys());
+        const campaignNextCouponIndex = new Map<string, number>();
+        uniqueCampaignIds.forEach(id => campaignNextCouponIndex.set(id, 0));
+        
+        while (finalTop25Coupons.length < 25) {
+            let addedACouponThisRound = false;
+            for (const campaignId of uniqueCampaignIds) {
+                const couponsFromThisCampaign = campaignCouponsMap.get(campaignId)!;
+                const nextIndex = campaignNextCouponIndex.get(campaignId)!;
+
+                if (nextIndex < couponsFromThisCampaign.length) {
+                    finalTop25Coupons.push(couponsFromThisCampaign[nextIndex]);
+                    campaignNextCouponIndex.set(campaignId, nextIndex + 1);
+                    addedACouponThisRound = true;
+                    if (finalTop25Coupons.length === 25) {
+                        break; 
+                    }
+                }
+            }
+            if (!addedACouponThisRound) { 
+                break; 
+            }
+        }
+        
+        return finalTop25Coupons;
     }
 
     /**
