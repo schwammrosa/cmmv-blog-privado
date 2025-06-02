@@ -9,10 +9,19 @@
 
             <div v-if="coupon" class="text-center">
                 <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center border border-gray-200 rounded-md p-2">
-                    <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName" class="max-w-full max-h-full object-contain">
-                    <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center rounded-sm text-gray-400 text-sm">Sem logo</div>
+                    <img v-if="coupon && coupon.campaignLogo" 
+                         :src="coupon.campaignLogo" 
+                         :alt="coupon.campaignName || 'Logo da loja'" 
+                         class="max-w-full max-h-full object-contain"
+                         @error="handleImageError"
+                         ref="logoImg">
+                    <div v-else class="w-full h-full bg-gray-100 flex items-center justify-center rounded-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                    </div>
                 </div>
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ coupon.campaignName }}</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ coupon.campaignName || 'Loja' }}</h2>
                 <p class="text-lg font-bold text-indigo-600 mb-4">{{ coupon.title }}</p>
 
                 <div v-if="coupon.code" class="bg-yellow-300 p-4 rounded-md mb-4">
@@ -27,14 +36,14 @@
                         class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
                         {{ copyButtonText }}
                     </button>
-                    
+                    <!--
                     <button
                         v-if="coupon.deeplink"
                         @click="visitStore"
                         class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none">
                         Ir para a loja
                     </button>
-                    
+                    -->
                     <button
                         @click="closeModal"
                         class="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none mt-2">
@@ -47,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 const props = defineProps({
@@ -58,6 +67,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 const copyButtonText = ref('Copiar Código');
 const router = useRouter();
+const logoImg = ref<HTMLImageElement | null>(null);
 
 const closeModal = () => {
     emit('close');
@@ -91,6 +101,28 @@ const visitStore = () => {
         window.open(props.coupon.deeplink, '_blank');
     }
 };
+
+const handleImageError = (event: Event) => {
+    //console.log('Erro ao carregar a imagem:', props.coupon?.campaignLogo);
+    // Quando a imagem falha ao carregar, substituímos por null para mostrar o fallback
+    if (props.coupon) {
+        props.coupon.campaignLogo = null;
+    }
+};
+
+// Monitorar mudanças na visibilidade do modal para logs
+watch(() => props.visible, (isVisible) => {
+    if (isVisible && props.coupon) {
+        //console.log('Modal aberto com logo:', props.coupon.campaignLogo);
+    }
+});
+
+// Verificar o estado da logo quando o componente é montado
+onMounted(() => {
+    if (props.visible && props.coupon) {
+        //console.log('Componente montado com logo:', props.coupon.campaignLogo);
+    }
+});
 </script>
 
 <style scoped>

@@ -1,7 +1,7 @@
 <template>
     <div class="w-full max-w-[1200px] mx-auto px-4">
         <!-- Cover Section -->
-        <section v-if="posts.length > 0" class="mb-8 md:block hidden">
+        <section v-if="posts.length > 0" class="mb-8 mt-4 md:block hidden">
             <!-- Full Layout (default) -->
             <div v-if="coverSettings.layoutType === 'full' || !coverSettings.layoutType" class="bg-white rounded-lg overflow-hidden shadow-md">
                 <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
@@ -352,16 +352,48 @@
                             </p>
                         </div>
 
-                        <div class="mt-4 md:mt-0 md:ml-6 flex-shrink-0">
+                        <div class="mt-4 md:mt-0 md:ml-6 flex-shrink-0 w-full md:w-48">
                             <button v-if="coupon.code"
                                 @click="openScratchModal(coupon)"
-                                class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
-                                Desbloquear <span class="ml-1">···{{ coupon.code.slice(-3) }}</span>
+                                class="coupon-button group relative w-full h-12 overflow-visible bg-white border border-gray-300 rounded-lg transition-all duration-200 hover:shadow-lg"
+                                :class="[
+                                    new Date(coupon.expiration) < new Date() ?
+                                        'border-gray-400 bg-gray-100 expired' :
+                                        'border-green-400 hover:border-green-500'
+                                ]">
+
+                                <!-- Área do código completo (sempre visível por baixo) -->
+                                <div class="absolute inset-0 flex items-center justify-end px-4 z-5"
+                                    :class="[new Date(coupon.expiration) < new Date() ?
+                                        'bg-gray-100' :
+                                        'bg-gradient-to-r from-green-50 to-emerald-50']">
+                                    <div class="font-mono text-sm font-bold px-3 py-2"
+                                        :class="[new Date(coupon.expiration) < new Date() ?
+                                            'border-gray-400 text-gray-600' :
+                                            'border-green-400 text-green-800']">
+                                        ...{{ coupon.code.slice(-4) }}
+                                    </div>
+                                </div>
+
+                                <!-- Parte verde "Ver Cupom" que funciona como tampa -->
+                                <div class="coupon-cover absolute inset-0 flex items-center px-4 transition-all duration-200 ease-in-out z-10"
+                                    :class="[new Date(coupon.expiration) < new Date() ?
+                                        'bg-gray-400' :
+                                        'bg-green-600']">
+
+                                    <!-- Texto VER CUPOM -->
+                                    <div class="flex items-center text-white">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                        </svg>
+                                        <span class="text-sm font-medium">Ver Cupom</span>
+                                    </div>
+                                </div>
                             </button>
                             <a v-else
                                :href="coupon.linkRef || (coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}/${coupon.id}` : '#')"
                                target="_blank"
-                               class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full md:w-auto">
+                               class="inline-block bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-center w-full">
                                 Ver Desconto
                             </a>
                         </div>
@@ -705,7 +737,7 @@ const loadData = async () => {
 
     } catch (err: any) {
         error.value = err;
-        console.error("Erro ao carregar dados da Home:", err);
+        //console.error("Erro ao carregar dados da Home:", err);
     } finally {
         loading.value = false;
     }
@@ -779,8 +811,23 @@ const openDeeplinkInBackground = (url: string) => {
 
 // Funções para o Modal de Raspadinha
 const openScratchModal = (coupon: any) => {
-    // Primeiro mostrar o modal
-    selectedCouponForScratch.value = coupon;
+    // Verificar se o cupom já tem as informações da campanha
+    if (!coupon.campaignName || !coupon.campaignLogo) {
+        // Buscar a campanha correspondente se ela existir
+        const relatedCampaign = campaigns.value.find(c => c.id === coupon.campaignId);
+        
+        // Criar uma cópia enriquecida do cupom com os dados da campanha
+        selectedCouponForScratch.value = {
+            ...coupon,
+            campaignName: relatedCampaign?.name || coupon.campaignName || 'Loja',
+            campaignLogo: relatedCampaign?.logo || coupon.campaignLogo || null
+        };
+    } else {
+        // Se já tem os dados da campanha, usar diretamente
+        selectedCouponForScratch.value = coupon;
+    }
+    
+    // Mostrar o modal
     isScratchModalOpen.value = true;
     
     // Abrir uma nova janela com o código do cupom
@@ -835,6 +882,61 @@ watch(() => settings.value['blog.cover'], () => {
 
 .h-18 {
     height: 4.5rem;
+}
+
+/* Estilos para o botão de cupom */
+.coupon-button {
+    position: relative;
+    z-index: 1;
+    border-radius: 6px 6px 3px 3px;
+}
+
+.coupon-button .coupon-cover {
+    transition: all 0.3s ease-in-out;
+    z-index: 10;
+    right: 0;
+    width: 70%;
+}
+
+.coupon-button .coupon-cover::after {
+    display: none;
+}
+
+.coupon-button .coupon-cover::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    right: -28px;
+    width: 40px;
+    height: 55px;
+    background: linear-gradient(36deg, #b1cea8, #c6e8b8 38%, #c9e0be 47%, #c0e1b3 51%, rgba(255,255,255,0) 54%);
+    transform: rotate(35deg);
+    transform-origin: center center;
+    border-radius: 6px 6px 3px 3px;
+    z-index: 12;
+    transition: all 0.3s ease-in-out;
+    display: block;
+}
+
+.coupon-button:hover .coupon-cover {
+    width: 60%;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+}
+
+.coupon-button:hover .coupon-cover::before {
+    top: 0px;
+    right: -32px;
+    transform: rotate(30deg);
+    width: 44px;
+    height: 55px;
+}
+
+.coupon-button.expired .coupon-cover {
+    background-color: #9ca3af !important;
+}
+
+.coupon-button.expired .coupon-cover::before {
+    background: linear-gradient(36deg, #d1d5db, #e5e7eb 38%, #f3f4f6 47%, #e5e7eb 51%, rgba(255,255,255,0) 54%);
 }
 </style>
 

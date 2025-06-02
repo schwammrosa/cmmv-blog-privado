@@ -3,7 +3,7 @@
         <!-- Header -->
         <header class="bg-indigo-600 shadow-md fixed top-0 left-0 right-0 z-50">
             <div class="container mx-auto px-4">
-                <div class="flex items-center justify-between py-4">
+                <div class="flex items-center justify-between py-4 max-w-[1200px] mx-auto">
                     <!-- Logo -->
                     <div class="flex items-center">
                         <a href="/" class="text-2xl font-bold text-white">
@@ -535,19 +535,74 @@ const selectedCouponForScratch = ref<any | null>(null);
 
 const checkCouponInUrl = async () => {
     const displayCode = route.query.display;
-
+    
     if (displayCode && typeof displayCode === 'string') {
         try {
-            const tempCoupon = {
-                id: 'temp-' + Date.now(),
-                code: displayCode,
-                title: 'Cupom de desconto',
-                campaignName: 'Loja',
-                description: 'Use este cupom para obter desconto em sua compra.'
-            };
-
-            selectedCouponForScratch.value = tempCoupon;
-            isScratchModalOpen.value = true;
+            // Tentar encontrar o cupom com este código entre os cupons carregados
+            let foundCoupon: any = null;
+            let relatedCampaign: any = null;
+            
+            // Verificar nos cupons em destaque
+            if (couponsStore.getFeaturedCoupons.length > 0) {
+                foundCoupon = couponsStore.getFeaturedCoupons.find(c => c.code === displayCode);
+            }
+            
+            // Verificar nos top 25 cupons
+            if (!foundCoupon && couponsStore.getTop25Coupons.length > 0) {
+                foundCoupon = couponsStore.getTop25Coupons.find(c => c.code === displayCode);
+            }
+            
+            // Se ainda não encontrou, tentar verificar nos cupons de cada campanha
+            if (!foundCoupon) {
+                const campaigns = campaignsStore.getCampaigns || [];
+                for (const campaign of campaigns) {
+                    const campaignCoupons = couponsStore.getCampaignCoupons(campaign.id);
+                    if (campaignCoupons && campaignCoupons.length > 0) {
+                        foundCoupon = campaignCoupons.find(c => c.code === displayCode);
+                        if (foundCoupon) {
+                            relatedCampaign = campaign;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (foundCoupon) {
+                // Se encontramos o cupom, verificar se ele tem as informações da campanha
+                if (!foundCoupon.campaignName || !foundCoupon.campaignLogo) {
+                    // Se já temos a campanha relacionada, usá-la
+                    if (!relatedCampaign) {
+                        // Caso contrário, buscar a campanha correspondente
+                        const campaigns = campaignsStore.getCampaigns || [];
+                        relatedCampaign = campaigns.find(c => c.id === foundCoupon.campaignId);
+                    }
+                    
+                    // Adicionar os dados da campanha ao cupom
+                    selectedCouponForScratch.value = {
+                        ...foundCoupon,
+                        campaignName: relatedCampaign?.name || 'Loja',
+                        campaignLogo: relatedCampaign?.logo || null
+                    };
+                } else {
+                    // Exibir o modal com as informações do cupom
+                    selectedCouponForScratch.value = foundCoupon;
+                }
+                isScratchModalOpen.value = true;
+            } else {
+                // Como não temos um método getByCode na API ou não encontramos o cupom,
+                // criar um cupom temporário com os dados básicos
+                const tempCoupon = {
+                    id: 'temp-' + Date.now(),
+                    code: displayCode,
+                    title: 'Cupom de desconto',
+                    campaignName: 'Loja',
+                    description: 'Use este cupom para obter desconto em sua compra.'
+                };
+                
+                // Exibir o modal com as informações do cupom
+                selectedCouponForScratch.value = tempCoupon;
+                isScratchModalOpen.value = true;
+            }
         } catch (error) {
             console.error('Erro ao processar código do cupom:', error);
         }
