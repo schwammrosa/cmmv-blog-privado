@@ -122,6 +122,7 @@ export class FeedRawContract extends AbstractContract {
         nullable: true,
         index: true,
         defaultValue: 'pending',
+        exclude: true,
     })
     status!: string;
 

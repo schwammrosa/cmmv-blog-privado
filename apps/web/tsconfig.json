@@ -18,7 +18,9 @@
             "@cmmv/blog": ["../../packages/plugin"],
             "@cmmv/blog/*": ["../../packages/plugin/*"],
             "@cmmv/affiliate": ["../../packages/affiliate"],
-            "@cmmv/affiliate/*": ["../../packages/affiliate/*"]
+            "@cmmv/affiliate/*": ["../../packages/affiliate/*"],
+            "@cmmv/odds": ["../../packages/odds"],
+            "@cmmv/odds/*": ["../../packages/odds/*"]
         }
     },
     "ts-node": {
