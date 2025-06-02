@@ -313,7 +313,7 @@
                             <textarea
                                 id="promptText"
                                 v-model="promptForm.prompt"
-                                class="flex-1 min-h-[500px] w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
+                                class="flex-1 min-h-[500px] w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono"
                                 placeholder="Enter your prompt text"
                                 required
                             ></textarea>
