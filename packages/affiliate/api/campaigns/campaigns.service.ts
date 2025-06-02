@@ -79,30 +79,25 @@ export class CampaignsServiceTools {
                 console.error(`Failed to load coupon count for campaign ${campaign.id}:`, err);
                 campaignsWithCounts.push({
                     ...campaign,
-                    couponCount: 0 // Default to 0 if fetching count fails
+                    couponCount: 0
                 });
             }
         }
-        
-        // Sort campaigns: highlighted first, then by coupon count (desc), then by name (asc)
-        campaignsWithCounts.sort((a, b) => {
-            const aIsHighlighted = !!a.highlight; // Garante que seja tratado como booleano
-            const bIsHighlighted = !!b.highlight; // Garante que seja tratado como booleano
 
-            // Prioritize highlighted campaigns
+        campaignsWithCounts.sort((a, b) => {
+            const aIsHighlighted = !!a.highlight;
+            const bIsHighlighted = !!b.highlight;
+
             if (aIsHighlighted && !bIsHighlighted) return -1;
             if (!aIsHighlighted && bIsHighlighted) return 1;
 
-            // Se o status de highlight for o mesmo, ordena por couponCount (decrescente)
-            const aCoupons = Number(a.couponCount || 0); // Garante que seja número
-            const bCoupons = Number(b.couponCount || 0); // Garante que seja número
+            const aCoupons = Number(a.couponCount || 0);
+            const bCoupons = Number(b.couponCount || 0);
 
-            if (bCoupons !== aCoupons) {
+            if (bCoupons !== aCoupons)
                 return bCoupons - aCoupons;
-            }
 
-            // Se a contagem de cupons também for a mesma, ordena por nome (alfabética)
-            return (a.name || "").localeCompare(b.name || ""); // Garante que seja string para comparação
+            return (a.name || "").localeCompare(b.name || "");
         });
 
         return campaignsWithCounts;

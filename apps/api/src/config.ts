@@ -6,10 +6,6 @@ dotenv.config();
 Config.assign({
     env: process.env.NODE_ENV,
 
-    logs: {
-        enabled: true
-    },
-
     server: {
         host: process.env.HOST || '0.0.0.0',
         port: process.env.PORT || 5000,

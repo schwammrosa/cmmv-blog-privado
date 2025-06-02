@@ -11,7 +11,7 @@ import {
     subPath: '/odds',
     generateController: true,
     generateBoilerplates: false,
-    auth: false,
+    auth: true,
     options: {
         moduleContract: true,
         databaseSchemaName: "odds_bets",

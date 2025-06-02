@@ -242,12 +242,12 @@
                                         <p v-if="searchResults.length > 0 || searchCampaigns.length > 0" class="text-sm text-gray-500 mb-2">
                                             {{ searchResults.length + searchCampaigns.length }} resultado{{ (searchResults.length + searchCampaigns.length) !== 1 ? 's' : '' }} encontrado{{ (searchResults.length + searchCampaigns.length) !== 1 ? 's' : '' }}
                                         </p>
-                                        
+
                                         <!-- Resultados de Lojas -->
                                         <div v-if="searchCampaigns.length > 0" class="mb-6">
                                             <h4 class="text-lg font-medium text-gray-700 mb-3 border-b pb-2">Lojas</h4>
                                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                                <a v-for="campaign in searchCampaigns" :key="campaign.id" 
+                                                <a v-for="campaign in searchCampaigns" :key="campaign.id"
                                                    :href="`/desconto/${campaign.slug}`"
                                                    class="store-card bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center hover:shadow-md transition-all"
                                                    :class="{'border-indigo-200 bg-indigo-50': campaign.highlight}">
@@ -266,7 +266,7 @@
                                                 </a>
                                             </div>
                                         </div>
-                                        
+
                                         <!-- Resultados de Posts -->
                                         <div v-if="searchResults.length > 0" class="mb-6">
                                             <h4 class="text-lg font-medium text-gray-700 mb-3 border-b pb-2">Artigos do Blog</h4>
@@ -303,10 +303,10 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Cupom Modal -->
-        <CouponScratchModal 
-            :visible="isScratchModalOpen" 
+        <CouponScratchModal
+            :visible="isScratchModalOpen"
             :coupon="selectedCouponForScratch"
             @close="closeScratchModal" />
     </div>
@@ -461,12 +461,12 @@ const performSearch = async () => {
     try {
         // Buscar posts do blog
         const postPromise = blogAPI.posts.search(searchQuery.value);
-        
+
         // Buscar todas as campanhas
         const campaignsPromise = affiliateAPI.campaigns.getAllWithCouponCounts();
-        
+
         const [postResponse, allCampaigns] = await Promise.all([postPromise, campaignsPromise]);
-        
+
         // Processar resultados dos posts
         if (Array.isArray(postResponse)) {
             searchResults.value = postResponse;
@@ -476,27 +476,27 @@ const performSearch = async () => {
         } else {
             searchResults.value = [];
         }
-        
+
         // Processar resultados das campanhas
         if (allCampaigns && Array.isArray(allCampaigns)) {
             const query = searchQuery.value.toLowerCase().trim();
-            
+
             // Filtragem de campanhas
             const filtered: any[] = [];
-            
+
             for (const campaign of allCampaigns) {
                 if (!campaign || !campaign.name) continue;
-                
+
                 const campName = campaign.name.toLowerCase();
                 const campSlug = campaign.slug ? campaign.slug.toLowerCase() : '';
                 const campDescription = campaign.description ? campaign.description.toLowerCase() : '';
-                
+
                 // Verificação normal
                 if (campName.includes(query) || campSlug.includes(query) || campDescription.includes(query)) {
                     filtered.push(campaign);
                 }
             }
-            
+
             searchCampaigns.value = filtered;
         } else {
             searchCampaigns.value = [];
@@ -530,18 +530,14 @@ const categoriesColumns = computed(() => {
     ];
 });
 
-// Estado para o Modal de Raspadinha
 const isScratchModalOpen = ref(false);
 const selectedCouponForScratch = ref<any | null>(null);
 
-// Checar se há um código de cupom na URL
 const checkCouponInUrl = async () => {
     const displayCode = route.query.display;
-    
+
     if (displayCode && typeof displayCode === 'string') {
         try {
-            // Como não temos um método getByCode na API, vamos criar um cupom temporário
-            // Em um caso real, você precisaria implementar getByCode na API ou buscar todos os cupons e filtrar
             const tempCoupon = {
                 id: 'temp-' + Date.now(),
                 code: displayCode,
@@ -549,8 +545,7 @@ const checkCouponInUrl = async () => {
                 campaignName: 'Loja',
                 description: 'Use este cupom para obter desconto em sua compra.'
             };
-            
-            // Exibir o modal com as informações do cupom
+
             selectedCouponForScratch.value = tempCoupon;
             isScratchModalOpen.value = true;
         } catch (error) {
@@ -564,10 +559,8 @@ const closeScratchModal = () => {
     selectedCouponForScratch.value = null;
 };
 
-// Carregar dados da API e salvar na store
 const loadInitialData = async () => {
     try {
-        // Carregar categorias se ainda não estiverem na store
         if (!categories.value.length) {
             const categoriesResponse = await blogAPI.categories.getAll();
             if (categoriesResponse) {
@@ -576,7 +569,6 @@ const loadInitialData = async () => {
             }
         }
 
-        // Carregar campanhas se ainda não estiverem na store
         if (!campaignsStore.getCampaigns) {
             const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
             if (campaignsData && campaignsData.length > 0) {
@@ -584,7 +576,6 @@ const loadInitialData = async () => {
             }
         }
 
-        // Carregar cupons em destaque se ainda não estiverem na store
         if (couponsStore.getFeaturedCoupons.length === 0) {
             const featuredCouponsData = await affiliateAPI.coupons.getMostViewed();
             if (featuredCouponsData && featuredCouponsData.length > 0) {
@@ -592,7 +583,6 @@ const loadInitialData = async () => {
             }
         }
 
-        // Carregar top 25 cupons se ainda não estiverem na store
         if (couponsStore.getTop25Coupons.length === 0) {
             const top25CouponsData = await affiliateAPI.coupons.getTop25WeeklyCoupons();
             if (top25CouponsData && top25CouponsData.length > 0) {
@@ -604,22 +594,16 @@ const loadInitialData = async () => {
     }
 };
 
-// No SSR, carregamos os dados para que estejam disponíveis no HTML inicial
 onServerPrefetch(async () => {
     await loadInitialData();
 });
 
 onMounted(async () => {
-    // Carregar dados iniciais se ainda não foram carregados
     await loadInitialData();
-
     document.addEventListener('click', closeDropdownsOnClickOutside);
-    
-    // Verificar se há código de cupom na URL quando o componente for montado
     await checkCouponInUrl();
 });
 
-// Observar mudanças na URL para verificar se há um novo código de cupom
 watch(() => route.query.display, async () => {
     await checkCouponInUrl();
 });
