@@ -58,7 +58,7 @@ export class CampaignsServiceTools {
             active: true,
             limit: 10000
         }, [], {
-            select: ["id", "name", "logo", "description", "highlight", "slug"]
+            select: ["id", "name", "logo", "description", "highlight", "slug", "categories"]
         });
 
         if (!campaignsResult || campaignsResult.data.length === 0) {

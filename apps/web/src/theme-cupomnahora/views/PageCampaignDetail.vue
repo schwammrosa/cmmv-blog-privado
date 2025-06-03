@@ -34,6 +34,7 @@
                             <h1 class="text-3xl font-bold text-gray-800 mb-2">Cupons de desconto {{ campaign.name }}</h1>
                             <p class="text-gray-500 mb-2">Atualizado em {{ formatDate(new Date()) }}</p>
                             <p class="text-gray-700">Encontramos {{ coupons.length }} cupons de desconto para {{ campaign.name }} →</p>
+                            <p v-if="campaign.description" class="text-gray-600 mt-2 text-sm">{{ campaign.description }}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 bg-amber-100 text-amber-800 px-3 py-2 rounded-md">
@@ -332,22 +333,34 @@ const loadData = async () => {
             let campaignCoupons = couponsStore.getCampaignCoupons(campaignId);
 
             if (campaignCoupons && campaignCoupons.length > 0) {
-                coupons.value = campaignCoupons;
+                // Adicionar informações da campanha em cada cupom
+                coupons.value = campaignCoupons.map((c: any) => ({
+                    ...c,
+                    campaignName: campaign.value.name,
+                    campaignLogo: c.campaignLogo || campaign.value.logo
+                }));
             } else {
                 const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaignId);
 
                 if (realCoupons && realCoupons.length > 0) {
-                    coupons.value = realCoupons;
-                    couponsStore.setCampaignCoupons(campaignId, realCoupons);
+                    // Adicionar informações da campanha em cada cupom
+                    const enrichedCoupons = realCoupons.map((c: any) => ({
+                        ...c,
+                        campaignName: campaign.value.name,
+                        campaignLogo: c.campaignLogo || campaign.value.logo
+                    }));
+                    
+                    coupons.value = enrichedCoupons;
+                    couponsStore.setCampaignCoupons(campaignId, enrichedCoupons);
                 }
             }
         } catch (couponError) {
-            console.error("Erro ao carregar cupons reais:", couponError);
+            console.error("Erro ao carregar cupons:", couponError);
         }
 
         loading.value = false;
     } catch (err: any) {
-        console.error('Erro ao carregar campanha:', err);
+        //console.error('Erro ao carregar campanha:', err);
         error.value = err.message || 'Erro ao carregar a loja e seus cupons';
         loading.value = false;
     }
@@ -367,19 +380,45 @@ const setFilter = (filter: string) => {
 };
 
 const openCouponModal = (coupon: any) => {
-    selectedCouponForScratch.value = {
-        ...coupon,
-        campaignName: campaign.value?.name,
-        campaignLogo: campaign.value?.logo
-    };
-
+    // Verificar se o cupom já tem as informações da campanha
+    if (!coupon.campaignName || !coupon.campaignLogo) {
+        // Primeiro tentar usar a campanha atual da página
+        if (campaign.value) {
+            // Criar uma cópia enriquecida do cupom com os dados da campanha
+            selectedCouponForScratch.value = {
+                ...coupon,
+                campaignName: campaign.value.name || 'Loja',
+                campaignLogo: campaign.value.logo || null
+            };
+        } else {
+            // Se não temos campaign.value (o que seria estranho nesta página),
+            // buscar a campanha correspondente pelo ID
+            const relatedCampaign = campaignsStore.getCampaigns?.find(c => c.id === coupon.campaignId);
+            
+            // Criar uma cópia enriquecida do cupom com os dados da campanha
+            selectedCouponForScratch.value = {
+                ...coupon,
+                campaignName: relatedCampaign?.name || coupon.campaignName || 'Loja',
+                campaignLogo: relatedCampaign?.logo || coupon.campaignLogo || null
+            };
+        }
+    } else {
+        // Se já tem os dados da campanha, usar diretamente
+        selectedCouponForScratch.value = { ...coupon };
+    }
+    
+    // Mostrar o modal
     isScratchModalOpen.value = true;
-
-    if (coupon && coupon.code)
+    
+    // Abrir uma nova janela com o código do cupom
+    if (coupon && coupon.code) {
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
-
-    if (coupon && coupon.deeplink)
+    }
+    
+    // Redirecionar para o deeplink
+    if (coupon && coupon.deeplink) {
         window.location.href = coupon.deeplink;
+    }
 };
 
 const closeCouponModal = () => {
