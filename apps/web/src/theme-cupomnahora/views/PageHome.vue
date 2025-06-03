@@ -733,29 +733,6 @@ const nextCouponSlide = () => {
     }
 };
 
-const openDeepLink = (url: string) => {
-    window.open(url, '_blank');
-};
-
-const openDeeplinkInBackground = (url: string) => {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    try {
-        iframe.src = url;
-
-        setTimeout(() => {
-            if (iframe && iframe.parentNode) {
-                iframe.parentNode.removeChild(iframe);
-            }
-        }, 1000);
-    } catch (e) {
-        if (iframe && iframe.parentNode)
-            iframe.parentNode.removeChild(iframe);
-    }
-};
-
 const openScratchModal = (coupon: any) => {
     if (!coupon.campaignName || !coupon.campaignLogo) {
         const relatedCampaign = campaigns.value.find(c => c.id === coupon.campaignId);

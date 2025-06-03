@@ -391,7 +391,6 @@ import { ref, computed, onMounted, watch, onBeforeUnmount, onServerPrefetch } fr
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
-import { useCategoriesStore } from '../../store/categories';
 import { useCampaignsStore } from '../../store/campaigns';
 import { useCouponsStore } from '../../store/coupons';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
@@ -542,7 +541,6 @@ const performSearch = async () => {
             searchResults.value = [];
         }
 
-        // Processar resultados das campanhas
         if (allCampaigns && Array.isArray(allCampaigns)) {
             const query = searchQuery.value.toLowerCase().trim();
 
@@ -655,21 +653,8 @@ const closeScratchModal = () => {
 };
 
 onMounted(async () => {
-    document.addEventListener('click', closeDropdownsOnClickOutside);
     await checkCouponInUrl();
 });
-
-watch(() => route.query.display, async () => {
-    await checkCouponInUrl();
-});
-
-onBeforeUnmount(() => {
-    document.removeEventListener('click', closeDropdownsOnClickOutside);
-});
-
-const closeDropdownsOnClickOutside = (event: Event) => {
-    // No dropdowns to close in this simplified menu
-};
 </script>
 
 <style>
@@ -696,7 +681,6 @@ const closeDropdownsOnClickOutside = (event: Event) => {
     overflow: hidden;
 }
 
-/* Autocomplete styles */
 .autocomplete-dropdown {
     backdrop-filter: blur(10px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -707,7 +691,6 @@ const closeDropdownsOnClickOutside = (event: Event) => {
     background: linear-gradient(90deg, rgba(67, 56, 202, 0.05), rgba(99, 102, 241, 0.05));
 }
 
-/* Search input focus styles */
 input[type="text"]:focus + button svg {
     color: #4338ca;
 }
