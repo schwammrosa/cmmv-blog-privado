@@ -75,7 +75,7 @@ export async function render(url: string) {
         mostAccessedPostsStore.setMostAccessedPosts(mostAccessedPostsData);
         couponsStore.setFeaturedCoupons(featuredCouponsData);
         couponsStore.setTop25Coupons(top25CouponsData);
-''
+
         const { router } = await useTheme();
         router.push(url);
         await router.isReady();

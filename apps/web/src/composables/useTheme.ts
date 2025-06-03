@@ -14,21 +14,12 @@ export async function useTheme() {
         return { theme, router }
     }
     else{
-        if((window as any) && (window as any).__PINIA__){
-            const pinia = (window as any).__PINIA__;
-            let theme = pinia.settings.data["blog.theme"] || import.meta.env.VITE_DEFAULT_THEME;
-            const importFn = routerModules[`../theme-${theme}/router.ts`] || routerModules[`../theme-default/router.ts`];
-            //@ts-ignore
-            const { createRouter } = await importFn();
-            const router = createRouter();
-            return { theme, router }
-        }
-        else{
-            const importFn = routerModules[`../theme-default/router.ts`];
-            //@ts-ignore
-            const { createRouter } = await importFn();
-            const router = createRouter();
-            return { theme: 'default', router }
-        }
+        const pinia = (window as any).__PINIA__;
+        let theme = pinia?.settings?.data?.["blog.theme"] || import.meta.env.VITE_DEFAULT_THEME;
+        const importFn = routerModules[`../theme-${theme}/router.ts`] || routerModules[`../theme-default/router.ts`];
+        //@ts-ignore
+        const { createRouter } = await importFn();
+        const router = createRouter();
+        return { theme, router }
     }
 }
