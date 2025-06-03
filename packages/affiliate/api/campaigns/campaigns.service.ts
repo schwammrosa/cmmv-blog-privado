@@ -101,6 +101,7 @@ IMPORTANT:
 - Respond in ${language} language
 - Format the response in HTML with Tailwind CSS 4 classes
 - Do not include <html>, <head>, or <body> tags, just the content HTML
+- Do not use container classes like max-w-*, mx-auto, or section wrappers
 - Use semantic HTML structure with headings and paragraphs styled with Tailwind CSS
 - Use the following Tailwind CSS styling patterns:
 
@@ -113,7 +114,7 @@ Paragraphs:
 - p: class="text-gray-600 leading-relaxed mb-4"
 
 Lists:
-- ul: class="list-disc list-inside space-y-2 mb-4 text-gray-600"
+- ul: class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6"
 - ol: class="list-decimal list-inside space-y-2 mb-4 text-gray-600"
 - li: class="leading-relaxed"
 
@@ -128,21 +129,21 @@ Containers/Sections:
 Links:
 - a: class="text-green-600 hover:text-green-800 font-medium underline"
 
-Example structure to follow:
+Example structure to follow (start directly with content, no wrapper sections):
 <h2 class="text-2xl font-bold text-gray-800 mb-4 mt-8">Main Section</h2>
 <p class="text-gray-600 leading-relaxed mb-4">Content paragraph...</p>
 <div class="bg-gray-50 p-6 rounded-lg mb-6">
     <h3 class="text-xl font-semibold text-gray-700 mb-3">Important Information</h3>
     <p class="text-gray-600 leading-relaxed">Highlighted content...</p>
 </div>
-<ul class="list-disc list-inside space-y-2 mb-4 text-gray-600">
+<ul class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6">
     <li class="leading-relaxed">List item with details</li>
 </ul>
 <div class="border-l-4 border-green-500 pl-4 mb-4">
     <p class="text-gray-600 leading-relaxed"><strong class="font-semibold text-gray-800">Pro Tip:</strong> Important advice here</p>
 </div>
 
-Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting.`;
+Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting and without container wrappers.`;
 
             const aiService = Application.resolveProvider<any>(AIContentService);
 
@@ -315,6 +316,7 @@ IMPORTANT:
 - Respond in ${language} language
 - Format the response in HTML with Tailwind CSS 4 classes
 - Do not include <html>, <head>, or <body> tags, just the content HTML
+- Do not use container classes like max-w-*, mx-auto, or section wrappers
 - Use semantic HTML structure with headings and paragraphs styled with Tailwind CSS
 - Use the following Tailwind CSS styling patterns:
 
@@ -327,7 +329,7 @@ Paragraphs:
 - p: class="text-gray-600 leading-relaxed mb-4"
 
 Lists:
-- ul: class="list-disc list-inside space-y-2 mb-4 text-gray-600"
+- ul: class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6"
 - ol: class="list-decimal list-inside space-y-2 mb-4 text-gray-600"
 - li: class="leading-relaxed"
 
@@ -342,21 +344,21 @@ Containers/Sections:
 Links:
 - a: class="text-green-600 hover:text-green-800 font-medium underline"
 
-Example structure to follow:
+Example structure to follow (start directly with content, no wrapper sections):
 <h2 class="text-2xl font-bold text-gray-800 mb-4 mt-8">Main Section</h2>
 <p class="text-gray-600 leading-relaxed mb-4">Content paragraph...</p>
 <div class="bg-gray-50 p-6 rounded-lg mb-6">
     <h3 class="text-xl font-semibold text-gray-700 mb-3">Important Information</h3>
     <p class="text-gray-600 leading-relaxed">Highlighted content...</p>
 </div>
-<ul class="list-disc list-inside space-y-2 mb-4 text-gray-600">
+<ul class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6">
     <li class="leading-relaxed">List item with details</li>
 </ul>
 <div class="border-l-4 border-green-500 pl-4 mb-4">
     <p class="text-gray-600 leading-relaxed"><strong class="font-semibold text-gray-800">Pro Tip:</strong> Important advice here</p>
 </div>
 
-Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting.`;
+Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting and without container wrappers.`;
 
             this.logger.log(`Processing SEO job ${jobId} for campaign ${job.campaignId}`);
             const aiService = Application.resolveProvider<any>(AIContentService);
