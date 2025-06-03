@@ -157,40 +157,9 @@
                 <!-- Mobile Menu -->
                 <div v-show="mobileMenuOpen" class="md:hidden py-3 border-t border-gray-200">
                     <div class="flex flex-col gap-1">
-                        <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
-                            <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
-                                <button
-                                    @click="(e) => toggleDropdown(category.id, e)"
-                                    class="dropdown-toggle flex items-center justify-between w-full text-gray-700 hover:text-indigo-600 rounded px-3 py-2 text-sm"
-                                    :class="{'text-indigo-600': openDropdowns[category.id]}"
-                                >
-                                    {{ category.name }}
-                                    <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-                                <div v-show="openDropdowns[category.id]" class="pl-4 py-1 bg-gray-50 rounded mt-1">
-                                    <a
-                                        v-for="child in mainNavCategories.childrenMap[category.id]"
-                                        :key="child.id"
-                                        :href="`/category/${child.slug}`"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:text-indigo-600 rounded"
-                                    >
-                                        {{ child.name }}
-                                    </a>
-                                </div>
-                            </div>
-                            <a
-                                v-else
-                                :href="`/category/${category.slug}`"
-                                class="block text-gray-700 hover:text-indigo-600 rounded px-3 py-2 text-sm"
-                            >
-                                {{ category.name }}
-                            </a>
-                        </template>
-                        <a href="/cashback" class="block text-gray-700 hover:text-indigo-600 rounded px-3 py-2 text-sm">Cashback</a>
-                        <a href="/blog" class="block text-gray-700 hover:text-indigo-600 rounded px-3 py-2 text-sm">Blog</a>
-                        <a href="/login" class="block bg-indigo-600 text-white rounded px-3 py-2 text-sm mt-2 mx-3">Entrar</a>
+                        <a href="/desconto" class="block text-white hover:text-indigo-200 rounded px-3 py-2 text-sm">Lojas</a>
+                        <a href="/cupom" class="block text-white hover:text-indigo-200 rounded px-3 py-2 text-sm">Categorias</a>
+                        <a href="/blog" class="block text-white hover:text-indigo-200 rounded px-3 py-2 text-sm">Blog</a>
                     </div>
                 </div>
             </div>
@@ -422,23 +391,19 @@ import { ref, computed, onMounted, watch, onBeforeUnmount, onServerPrefetch } fr
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
-import { useCategoriesStore } from '../../store/categories';
 import { useCampaignsStore } from '../../store/campaigns';
 import { useCouponsStore } from '../../store/coupons';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useRoute } from 'vue-router';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
-
 import CookieConsent from '../../components/CookieConsent.vue';
 
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
-const categoriesStore = useCategoriesStore();
 const settingsStore = useSettingsStore();
 const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
 const route = useRoute();
-const isSSR = typeof window === 'undefined';
 const settings = ref<any>(settingsStore.getSettings);
 
 const scripts = computed(() => {
@@ -491,46 +456,6 @@ const showAutocomplete = ref(false);
 const featuredStores = ref<any[]>([]);
 const autocompleteBlurTimeout = ref<any>(null);
 
-const categories = ref<any[]>(categoriesStore.getCategories || []);
-
-const mainNavCategories = computed(() => {
-    const navCategories = categories.value?.filter((category: any) => category.mainNav) || [];
-    navCategories.sort((a: any, b: any) => (a.mainNavIndex ?? 999) - (b.mainNavIndex ?? 999));
-
-    const rootCategories = navCategories.filter((cat: any) => !cat.parentCategory);
-    const childCategories = navCategories.filter((cat: any) => cat.parentCategory);
-
-    return {
-        rootCategories,
-        childrenMap: childCategories.reduce((map: Record<string, any[]>, child: any) => {
-            if (!map[child.parentCategory]) {
-                map[child.parentCategory] = [];
-            }
-            map[child.parentCategory].push(child);
-            return map;
-        }, {} as Record<string, any[]>),
-    };
-});
-
-const openDropdowns = ref<Record<string, boolean>>({});
-
-const toggleDropdown = (categoryId: string, event: Event) => {
-    event.stopPropagation();
-    if (openDropdowns.value[categoryId]) {
-        openDropdowns.value = {
-            ...openDropdowns.value,
-            [categoryId]: false
-        };
-    } else {
-        const newDropdownState: Record<string, boolean> = {};
-        Object.keys(openDropdowns.value).forEach(key => {
-            newDropdownState[key] = false;
-        });
-        newDropdownState[categoryId] = true;
-        openDropdowns.value = newDropdownState;
-    }
-};
-
 const openSearchModal = () => {
     searchModalOpen.value = true;
     closeAutocomplete();
@@ -547,9 +472,8 @@ const closeSearchModal = () => {
 };
 
 const debouncedSearch = () => {
-    if (searchTimeout.value) {
+    if (searchTimeout.value)
         clearTimeout(searchTimeout.value);
-    }
 
     searchTimeout.value = setTimeout(() => {
         performSearch();
@@ -557,15 +481,14 @@ const debouncedSearch = () => {
 };
 
 const onSearchFocus = () => {
-    if (autocompleteBlurTimeout.value) {
+    if (autocompleteBlurTimeout.value)
         clearTimeout(autocompleteBlurTimeout.value);
-    }
+
     showAutocomplete.value = true;
     loadFeaturedStores();
 };
 
 const onSearchBlur = () => {
-    // Delay hiding to allow clicks on dropdown items
     autocompleteBlurTimeout.value = setTimeout(() => {
         showAutocomplete.value = false;
     }, 150);
@@ -580,9 +503,8 @@ const closeAutocomplete = () => {
 
 const loadFeaturedStores = () => {
     if (featuredStores.value.length === 0) {
-        // Get featured stores from campaigns store
         const campaigns = campaignsStore.getCampaigns || [];
-        // Filter and sort by highlight or coupon count
+
         featuredStores.value = campaigns
             .filter((campaign: any) => campaign.active !== false)
             .sort((a: any, b: any) => {
@@ -606,15 +528,10 @@ const performSearch = async () => {
     isSearching.value = true;
 
     try {
-        // Buscar posts do blog
         const postPromise = blogAPI.posts.search(searchQuery.value);
-
-        // Buscar todas as campanhas
         const campaignsPromise = affiliateAPI.campaigns.getAllWithCouponCounts();
-
         const [postResponse, allCampaigns] = await Promise.all([postPromise, campaignsPromise]);
 
-        // Processar resultados dos posts
         if (Array.isArray(postResponse)) {
             searchResults.value = postResponse;
         } else if (postResponse && typeof postResponse === 'object') {
@@ -624,7 +541,6 @@ const performSearch = async () => {
             searchResults.value = [];
         }
 
-        // Processar resultados das campanhas
         if (allCampaigns && Array.isArray(allCampaigns)) {
             const query = searchQuery.value.toLowerCase().trim();
 
@@ -667,7 +583,7 @@ const formatDate = (dateString: string) => {
 };
 
 const categoriesColumns = computed(() => {
-    const allCategories = categories.value;
+    const allCategories: any[] = [];
     const columnSize = Math.ceil(allCategories.length / 3);
 
     return [
@@ -685,21 +601,15 @@ const checkCouponInUrl = async () => {
 
     if (displayCode && typeof displayCode === 'string') {
         try {
-            // Tentar encontrar o cupom com este código entre os cupons carregados
             let foundCoupon: any = null;
             let relatedCampaign: any = null;
 
-            // Verificar nos cupons em destaque
-            if (couponsStore.getFeaturedCoupons.length > 0) {
+            if (couponsStore.getFeaturedCoupons.length > 0)
                 foundCoupon = couponsStore.getFeaturedCoupons.find(c => c.code === displayCode);
-            }
 
-            // Verificar nos top 25 cupons
-            if (!foundCoupon && couponsStore.getTop25Coupons.length > 0) {
+            if (!foundCoupon && couponsStore.getTop25Coupons.length > 0)
                 foundCoupon = couponsStore.getTop25Coupons.find(c => c.code === displayCode);
-            }
 
-            // Se ainda não encontrou, tentar verificar nos cupons de cada campanha
             if (!foundCoupon) {
                 const campaigns = campaignsStore.getCampaigns || [];
                 for (const campaign of campaigns) {
@@ -715,39 +625,20 @@ const checkCouponInUrl = async () => {
             }
 
             if (foundCoupon) {
-                // Se encontramos o cupom, verificar se ele tem as informações da campanha
                 if (!foundCoupon.campaignName || !foundCoupon.campaignLogo) {
-                    // Se já temos a campanha relacionada, usá-la
                     if (!relatedCampaign) {
-                        // Caso contrário, buscar a campanha correspondente
                         const campaigns = campaignsStore.getCampaigns || [];
                         relatedCampaign = campaigns.find(c => c.id === foundCoupon.campaignId);
                     }
 
-                    // Adicionar os dados da campanha ao cupom
                     selectedCouponForScratch.value = {
                         ...foundCoupon,
                         campaignName: relatedCampaign?.name || 'Loja',
                         campaignLogo: relatedCampaign?.logo || null
                     };
                 } else {
-                    // Exibir o modal com as informações do cupom
                     selectedCouponForScratch.value = foundCoupon;
                 }
-                isScratchModalOpen.value = true;
-            } else {
-                // Como não temos um método getByCode na API ou não encontramos o cupom,
-                // criar um cupom temporário com os dados básicos
-                const tempCoupon = {
-                    id: 'temp-' + Date.now(),
-                    code: displayCode,
-                    title: 'Cupom de desconto',
-                    campaignName: 'Loja',
-                    description: 'Use este cupom para obter desconto em sua compra.'
-                };
-
-                // Exibir o modal com as informações do cupom
-                selectedCouponForScratch.value = tempCoupon;
                 isScratchModalOpen.value = true;
             }
         } catch (error) {
@@ -761,80 +652,9 @@ const closeScratchModal = () => {
     selectedCouponForScratch.value = null;
 };
 
-const loadInitialData = async () => {
-    try {
-        if (!categories.value.length) {
-            const categoriesResponse = await blogAPI.categories.getAll();
-            if (categoriesResponse) {
-                categories.value = categoriesResponse;
-                categoriesStore.setCategories(categoriesResponse);
-            }
-        }
-
-        if (!campaignsStore.getCampaigns) {
-            const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
-            if (campaignsData && campaignsData.length > 0) {
-                campaignsStore.setCampaigns(campaignsData);
-            }
-        }
-
-        if (couponsStore.getFeaturedCoupons.length === 0) {
-            const featuredCouponsData = await affiliateAPI.coupons.getMostViewed();
-            if (featuredCouponsData && featuredCouponsData.length > 0) {
-                couponsStore.setFeaturedCoupons(featuredCouponsData);
-            }
-        }
-
-        if (couponsStore.getTop25Coupons.length === 0) {
-            const top25CouponsData = await affiliateAPI.coupons.getTop25WeeklyCoupons();
-            if (top25CouponsData && top25CouponsData.length > 0) {
-                couponsStore.setTop25Coupons(top25CouponsData);
-            }
-        }
-    } catch (error) {
-        console.error("Erro ao carregar dados iniciais:", error);
-    }
-};
-
-onServerPrefetch(async () => {
-    await loadInitialData();
-});
-
 onMounted(async () => {
-    await loadInitialData();
-    document.addEventListener('click', closeDropdownsOnClickOutside);
     await checkCouponInUrl();
 });
-
-watch(() => route.query.display, async () => {
-    await checkCouponInUrl();
-});
-
-onBeforeUnmount(() => {
-    document.removeEventListener('click', closeDropdownsOnClickOutside);
-});
-
-const closeDropdownsOnClickOutside = (event: Event) => {
-    const dropdownElements = document.querySelectorAll('.dropdown-menu');
-    const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
-    let clickedInsideDropdown = false;
-
-    dropdownElements.forEach(el => {
-        if (el.contains(event.target as Node)) {
-            clickedInsideDropdown = true;
-        }
-    });
-
-    dropdownToggles.forEach(el => {
-        if (el.contains(event.target as Node)) {
-            clickedInsideDropdown = true;
-        }
-    });
-
-    if (!clickedInsideDropdown) {
-        openDropdowns.value = {};
-    }
-};
 </script>
 
 <style>
@@ -861,7 +681,6 @@ const closeDropdownsOnClickOutside = (event: Event) => {
     overflow: hidden;
 }
 
-/* Autocomplete styles */
 .autocomplete-dropdown {
     backdrop-filter: blur(10px);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -872,7 +691,6 @@ const closeDropdownsOnClickOutside = (event: Event) => {
     background: linear-gradient(90deg, rgba(67, 56, 202, 0.05), rgba(99, 102, 241, 0.05));
 }
 
-/* Search input focus styles */
 input[type="text"]:focus + button svg {
     color: #4338ca;
 }

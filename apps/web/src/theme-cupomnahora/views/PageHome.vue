@@ -466,13 +466,11 @@ const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
-const isSSR = typeof window === 'undefined';
 
 // State
 const rawSettings = computed(() => settingsStore.getSettings);
 const settings = computed<Record<string, any>>(() => {
     const settingsObj = rawSettings.value || {};
-    // Extract all blog.* settings
     const blogSettings: Record<string, any> = {};
     Object.keys(settingsObj).forEach(key => {
         if (key.startsWith('blog.')) {
@@ -488,25 +486,19 @@ const featuredCoupons = ref<any[]>(couponsStore.getFeaturedCoupons || []);
 const top25Coupons = ref<any[]>(couponsStore.getTop25Coupons || []);
 const loading = ref(true);
 const error = ref(null);
-const searchQuery = ref('');
-const searchResults = ref<any[]>([]);
-const searchModalOpen = ref(false);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
 const currentCouponIndex = ref(0);
 const couponSlidesVisible = ref(3);
 
-// Estado para o Modal de Raspadinha
 const isScratchModalOpen = ref(false);
 const selectedCouponForScratch = ref<any | null>(null);
 
-// Cover settings from the blog settings
 const coverSettings = computed(() => {
     try {
         const config = settings.value.cover;
         return config ? JSON.parse(config) : { layoutType: 'full' };
     } catch (err) {
-        //console.error('Error parsing cover settings:', err);
         return { layoutType: 'full' };
     }
 });
@@ -515,7 +507,6 @@ const hasCoverConfig = computed(() => {
     return !!settings.value.cover && Object.keys(coverSettings.value).length > 0;
 });
 
-// Cover posts for different layout types
 const coverPosts = computed(() => {
     if (!posts.value.length) return {};
 
@@ -532,13 +523,11 @@ const coverPosts = computed(() => {
         const shouldRespectSelectedPosts = config.respectSelectedPosts !== false;
 
         if (shouldRespectSelectedPosts) {
-            // Handle "full" layout
             if (config.layoutType === 'full' && config.fullCover?.postId) {
                 const configPost = posts.value.find(p => p.id === config.fullCover.postId);
                 if (configPost) result.full = configPost;
             }
 
-            // Handle "carousel" layout
             if (config.layoutType === 'carousel' && Array.isArray(config.carousel)) {
                 const carouselPostIds = config.carousel
                     .filter(item => item && item.postId)
@@ -553,15 +542,12 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "split" layout
             if (config.layoutType === 'split') {
-                // Main post
                 if (config.split?.main?.postId) {
                     const mainPost = posts.value.find(p => p.id === config.split.main.postId);
                     if (mainPost) result.splitMain = mainPost;
                 }
 
-                // Secondary posts
                 if (Array.isArray(config.split?.secondary)) {
                     const secondaryPostIds = config.split.secondary
                         .filter(item => item && item.postId)
@@ -577,7 +563,6 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "dual" layout
             if (config.layoutType === 'dual' && Array.isArray(config.dual)) {
                 const dualPostIds = config.dual
                     .filter(item => item && item.postId)
@@ -597,7 +582,6 @@ const coverPosts = computed(() => {
     return result;
 });
 
-// Carousel functions
 const startCarouselInterval = () => {
     if (coverSettings.value.layoutType === 'carousel' && coverPosts.value.carousel?.length > 1) {
         carouselInterval.value = window.setInterval(() => {
@@ -629,37 +613,16 @@ const prevCarouselSlide = () => {
     startCarouselInterval();
 };
 
-// Sort campaigns to prioritize highlighted ones
 const featuredCampaigns = computed(() => {
     if (!campaigns.value || campaigns.value.length === 0) return [];
-
-    // Data from campaigns.value is already sorted by the backend.
-    // We just need to filter out campaigns with no coupons.
     return campaigns.value.filter(campaign => campaign.couponCount > 0);
 });
 
-// Helper functions
-const validUntil = () => {
-    const now = new Date();
-    const future = new Date(now.setDate(now.getDate() + Math.floor(Math.random() * 60) + 10));
-    return future.toLocaleDateString('pt-BR');
-};
-
-const generateCouponCode = () => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    const length = Math.floor(Math.random() * 5) + 5;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-};
-
 const headData = ref({
-    title: settings.value?.title || 'MeuCupom - Economize em suas compras online',
+    title: settings.value?.title || 'CupomNahora - Economize em suas compras online',
     meta: [
         { name: 'description', content: settings.value?.description || 'Encontre os melhores cupons de desconto e ofertas em mais de 5.000 lojas parceiras.' },
-        { property: 'og:title', content: settings.value?.title || 'MeuCupom - Economize em suas compras online' },
+        { property: 'og:title', content: settings.value?.title || 'CupomNahora - Economize em suas compras online' },
         { property: 'og:description', content: settings.value?.description || 'Encontre os melhores cupons de desconto e ofertas em mais de 5.000 lojas parceiras.' },
         { property: 'og:type', content: 'website' }
     ]
@@ -672,7 +635,6 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // Verificar se já temos dados nas stores antes de fazer chamadas à API
         let needToFetchPosts = posts.value.length === 0;
         let needToFetchCampaigns = campaigns.value.length === 0;
         let needToFetchFeaturedCoupons = featuredCoupons.value.length === 0;
@@ -680,7 +642,6 @@ const loadData = async () => {
 
         const promises: Promise<any>[] = [];
 
-        // Só fazer chamadas se necessário
         if (needToFetchPosts) {
             promises.push(
                 blogAPI.posts.getAll(0).then(postsResponse => {
@@ -731,20 +692,13 @@ const loadData = async () => {
             );
         }
 
-        if (promises.length > 0) {
+        if (promises.length > 0)
             await Promise.all(promises);
-        }
-
     } catch (err: any) {
         error.value = err;
-        //console.error("Erro ao carregar dados da Home:", err);
     } finally {
         loading.value = false;
     }
-};
-
-const openSearchModal = () => {
-    searchModalOpen.value = true;
 };
 
 const prevCouponSlide = () => {
@@ -779,66 +733,26 @@ const nextCouponSlide = () => {
     }
 };
 
-// Função para abrir deeplink em nova aba
-const openDeepLink = (url: string) => {
-    window.open(url, '_blank');
-};
-
-// Cria um iframe invisível para abrir o deeplink sem mudar o foco
-const openDeeplinkInBackground = (url: string) => {
-    // Criar um iframe invisível
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    try {
-        // Definir o src do iframe para o deeplink
-        iframe.src = url;
-
-        // Limpar o iframe após um curto período
-        setTimeout(() => {
-            if (iframe && iframe.parentNode) {
-                iframe.parentNode.removeChild(iframe);
-            }
-        }, 1000);
-    } catch (e) {
-        //console.error('Erro ao abrir deeplink via iframe:', e);
-        if (iframe && iframe.parentNode) {
-            iframe.parentNode.removeChild(iframe);
-        }
-    }
-};
-
-// Funções para o Modal de Raspadinha
 const openScratchModal = (coupon: any) => {
-    // Verificar se o cupom já tem as informações da campanha
     if (!coupon.campaignName || !coupon.campaignLogo) {
-        // Buscar a campanha correspondente se ela existir
         const relatedCampaign = campaigns.value.find(c => c.id === coupon.campaignId);
 
-        // Criar uma cópia enriquecida do cupom com os dados da campanha
         selectedCouponForScratch.value = {
             ...coupon,
             campaignName: relatedCampaign?.name || coupon.campaignName || 'Loja',
             campaignLogo: relatedCampaign?.logo || coupon.campaignLogo || null
         };
     } else {
-        // Se já tem os dados da campanha, usar diretamente
         selectedCouponForScratch.value = coupon;
     }
 
-    // Mostrar o modal
     isScratchModalOpen.value = true;
 
-    // Abrir uma nova janela com o código do cupom
-    if (coupon && coupon.code) {
+    if (coupon && coupon.code)
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
-    }
 
-    // Redirecionar para o deeplink
-    if (coupon && coupon.deeplink) {
+    if (coupon && coupon.deeplink)
         window.location.href = coupon.deeplink;
-    }
 };
 
 const closeScratchModal = () => {

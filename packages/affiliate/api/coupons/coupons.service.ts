@@ -799,11 +799,9 @@ export class CouponsServiceTools {
         const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
         const campaign = await Repository.findOne(AffiliateCampaignsEntity, { id: campaignId });
 
-        if (!campaign) {
+        if (!campaign)
             throw new Error(`Campaign with ID ${campaignId} not found`);
-        }
 
-        // Check if campaign has active coupons
         const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
         const couponsResult = await Repository.findAll(AffiliateCouponsEntity, {
             campaign: campaignId,
@@ -811,11 +809,9 @@ export class CouponsServiceTools {
             limit: 1
         });
 
-        if (!couponsResult || !couponsResult.data || couponsResult.data.length === 0) {
+        if (!couponsResult || !couponsResult.data || couponsResult.data.length === 0)
             throw new Error(`No active coupons found for campaign ${campaign.name}`);
-        }
 
-        // Generate unique job ID
         const jobId = `post-job-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
         const job: PostJob = {
