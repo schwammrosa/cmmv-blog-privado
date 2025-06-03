@@ -102,6 +102,10 @@ IMPORTANT:
 - Format the response in HTML with Tailwind CSS 4 classes
 - Do not include <html>, <head>, or <body> tags, just the content HTML
 - Do not use container classes like max-w-*, mx-auto, or section wrappers
+- Do not add links to external websites or third-party sites
+- Do not use "Conclusão" or "Conclusion" as section titles or add footer content
+- When mentioning coupons, do not reference third-party coupon sites (avoid phrases like "Sites parceiros como CupomValido.com.br" or similar)
+- Focus only on the specific store and its own coupon system
 - Use semantic HTML structure with headings and paragraphs styled with Tailwind CSS
 - Use the following Tailwind CSS styling patterns:
 
@@ -126,7 +130,7 @@ Containers/Sections:
 - Use divs with class="bg-gray-50 p-6 rounded-lg mb-6" for highlighted sections
 - Use divs with class="border-l-4 border-green-500 pl-4 mb-4" for tips/highlights
 
-Links:
+Links (only for internal store references):
 - a: class="text-green-600 hover:text-green-800 font-medium underline"
 
 Example structure to follow (start directly with content, no wrapper sections):
@@ -317,6 +321,10 @@ IMPORTANT:
 - Format the response in HTML with Tailwind CSS 4 classes
 - Do not include <html>, <head>, or <body> tags, just the content HTML
 - Do not use container classes like max-w-*, mx-auto, or section wrappers
+- Do not add links to external websites or third-party sites
+- Do not use "Conclusão" or "Conclusion" as section titles or add footer content
+- When mentioning coupons, do not reference third-party coupon sites (avoid phrases like "Sites parceiros como CupomValido.com.br" or similar)
+- Focus only on the specific store and its own coupon system
 - Use semantic HTML structure with headings and paragraphs styled with Tailwind CSS
 - Use the following Tailwind CSS styling patterns:
 
@@ -341,7 +349,7 @@ Containers/Sections:
 - Use divs with class="bg-gray-50 p-6 rounded-lg mb-6" for highlighted sections
 - Use divs with class="border-l-4 border-green-500 pl-4 mb-4" for tips/highlights
 
-Links:
+Links (only for internal store references):
 - a: class="text-green-600 hover:text-green-800 font-medium underline"
 
 Example structure to follow (start directly with content, no wrapper sections):
