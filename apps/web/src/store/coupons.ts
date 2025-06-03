@@ -4,7 +4,7 @@ export const useCouponsStore = defineStore('coupons', {
     state: () => ({
         featuredCoupons: [] as any[],
         top25Coupons: [] as any[],
-        campaignCoupons: {} as Record<string, any[]>, // Armazenar cupons por campanha ID
+        campaignCoupons: {} as Record<string, any[]>,
     }),
     actions: {
         setFeaturedCoupons(data: any[]) {
@@ -22,4 +22,4 @@ export const useCouponsStore = defineStore('coupons', {
         getTop25Coupons: (state) => state.top25Coupons,
         getCampaignCoupons: (state) => (campaignId: string) => state.campaignCoupons[campaignId] || [],
     }
-}) 
+})

@@ -387,7 +387,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onBeforeUnmount, onServerPrefetch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
@@ -440,7 +440,6 @@ useHead({
             src: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js',
             defer: true
         },
-        //...scripts
     ]
 })
 
