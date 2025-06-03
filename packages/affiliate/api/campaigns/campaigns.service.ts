@@ -54,7 +54,6 @@ export class CampaignsServiceTools {
             throw new Error("Campaign domain is required for SEO generation");
 
         try {
-            // First prompt for title, subtitle, and smallText
             const shortContentPrompt = `Generate SEO content for a coupon discount website for the store "${campaign.name}" (domain: ${campaign.domain}).
 
 I need:
@@ -73,7 +72,6 @@ Respond in JSON format:
   "smallText": "small text here"
 }`;
 
-            // Second prompt for longText
             const longContentPrompt = `Write a detailed text about the store "${campaign.name}" (domain: ${campaign.domain}) for a discount coupon website.
 
 The text should include:
@@ -109,11 +107,10 @@ Respond only with the HTML formatted text, without JSON formatting.`;
                     const jsonStartIndex = shortContentResponse.indexOf('{');
                     const jsonEndIndex = shortContentResponse.lastIndexOf('}') + 1;
 
-                    if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex) {
+                    if (jsonStartIndex >= 0 && jsonEndIndex > jsonStartIndex)
                         jsonText = shortContentResponse.substring(jsonStartIndex, jsonEndIndex);
-                    } else {
+                    else
                         jsonText = shortContentResponse;
-                    }
 
                     jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
                 } else {
@@ -130,6 +127,7 @@ Respond only with the HTML formatted text, without JSON formatting.`;
             }
 
             let longContentText = '';
+
             if (typeof longContentResponse === 'string') {
                 longContentText = longContentResponse.trim();
                 longContentText = longContentText.replace(/```html\s*/g, '').replace(/```\s*$/g, '').trim();
@@ -168,7 +166,6 @@ Respond only with the HTML formatted text, without JSON formatting.`;
             };
 
         } catch (error: any) {
-            console.error('Error generating SEO content:', error);
             throw new Error(`Failed to generate SEO content: ${error.message}`);
         }
     }
@@ -223,7 +220,6 @@ Respond only with the HTML formatted text, without JSON formatting.`;
                     couponCount: couponCountResponse?.count || 0
                 });
             } catch (err) {
-                console.error(`Failed to load coupon count for campaign ${campaign.id}:`, err);
                 campaignsWithCounts.push({
                     ...campaign,
                     couponCount: 0

@@ -452,7 +452,7 @@ useHead({
     link: [
         {
             rel: 'stylesheet',
-            href: 'https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css'
+            href: '/src/theme-cupomnahora/style.css?v=2'
         },
         {
             rel: 'icon',

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out" :class="visible ? 'opacity-100' : 'opacity-0 pointer-events-none'">
+    <div v-if="visible" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ease-in-out" :class="visible ? 'opacity-100' : 'opacity-0 pointer-events-none'">
         <div class="bg-white rounded-lg shadow-xl p-6 md:p-8 w-full max-w-md relative transform transition-all duration-300 ease-in-out" :class="visible ? 'scale-100' : 'scale-95'">
             <button @click="closeModal" class="absolute top-3 right-3 text-gray-500 hover:text-gray-700 transition-colors z-30">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -9,9 +9,9 @@
 
             <div v-if="coupon" class="text-center">
                 <div class="w-24 h-24 mx-auto mb-4 flex items-center justify-center border border-gray-200 rounded-md p-2">
-                    <img v-if="coupon && coupon.campaignLogo" 
-                         :src="coupon.campaignLogo" 
-                         :alt="coupon.campaignName || 'Logo da loja'" 
+                    <img v-if="coupon && coupon.campaignLogo"
+                         :src="coupon.campaignLogo"
+                         :alt="coupon.campaignName || 'Logo da loja'"
                          class="max-w-full max-h-full object-contain"
                          @error="handleImageError"
                          ref="logoImg">
@@ -30,7 +30,7 @@
                 <p v-else class="text-gray-600 mb-4">Este cupom não possui código.</p>
 
                 <div class="flex flex-col gap-3">
-                    <button 
+                    <button
                         v-if="coupon.code"
                         @click="copyCode"
                         class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">
@@ -71,7 +71,7 @@ const logoImg = ref<HTMLImageElement | null>(null);
 
 const closeModal = () => {
     emit('close');
-    
+
     // Se o modal foi aberto via parâmetro URL, remover o parâmetro ao fechar
     if (router.currentRoute.value.query.display) {
         router.replace({
@@ -127,4 +127,4 @@ onMounted(() => {
 
 <style scoped>
 /* Estilos gerais para o modal */
-</style> 
+</style>
