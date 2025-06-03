@@ -313,9 +313,9 @@ const loadData = async () => {
 
         if (!allCampaigns || allCampaigns.length === 0) {
             allCampaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
-            if (allCampaigns && allCampaigns.length > 0) {
+
+            if (allCampaigns && allCampaigns.length > 0)
                 campaignsStore.setCampaigns(allCampaigns);
-            }
         }
 
         if (!allCampaigns || allCampaigns.length === 0) {
@@ -339,7 +339,6 @@ const loadData = async () => {
             let campaignCoupons = couponsStore.getCampaignCoupons(campaignId);
 
             if (campaignCoupons && campaignCoupons.length > 0) {
-                // Adicionar informações da campanha em cada cupom
                 coupons.value = campaignCoupons.map((c: any) => ({
                     ...c,
                     campaignName: campaign.value.name,
@@ -349,7 +348,6 @@ const loadData = async () => {
                 const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaignId);
 
                 if (realCoupons && realCoupons.length > 0) {
-                    // Adicionar informações da campanha em cada cupom
                     const enrichedCoupons = realCoupons.map((c: any) => ({
                         ...c,
                         campaignName: campaign.value.name,
@@ -366,7 +364,6 @@ const loadData = async () => {
 
         loading.value = false;
     } catch (err: any) {
-        //console.error('Erro ao carregar campanha:', err);
         error.value = err.message || 'Erro ao carregar a loja e seus cupons';
         loading.value = false;
     }
@@ -386,22 +383,16 @@ const setFilter = (filter: string) => {
 };
 
 const openCouponModal = (coupon: any) => {
-    // Verificar se o cupom já tem as informações da campanha
     if (!coupon.campaignName || !coupon.campaignLogo) {
-        // Primeiro tentar usar a campanha atual da página
         if (campaign.value) {
-            // Criar uma cópia enriquecida do cupom com os dados da campanha
             selectedCouponForScratch.value = {
                 ...coupon,
                 campaignName: campaign.value.name || 'Loja',
                 campaignLogo: campaign.value.logo || null
             };
         } else {
-            // Se não temos campaign.value (o que seria estranho nesta página),
-            // buscar a campanha correspondente pelo ID
             const relatedCampaign = campaignsStore.getCampaigns?.find(c => c.id === coupon.campaignId);
 
-            // Criar uma cópia enriquecida do cupom com os dados da campanha
             selectedCouponForScratch.value = {
                 ...coupon,
                 campaignName: relatedCampaign?.name || coupon.campaignName || 'Loja',
@@ -409,22 +400,16 @@ const openCouponModal = (coupon: any) => {
             };
         }
     } else {
-        // Se já tem os dados da campanha, usar diretamente
         selectedCouponForScratch.value = { ...coupon };
     }
 
-    // Mostrar o modal
     isScratchModalOpen.value = true;
 
-    // Abrir uma nova janela com o código do cupom
-    if (coupon && coupon.code) {
+    if (coupon && coupon.code)
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
-    }
 
-    // Redirecionar para o deeplink
-    if (coupon && coupon.deeplink) {
+    if (coupon && coupon.deeplink)
         window.location.href = coupon.deeplink;
-    }
 };
 
 const closeCouponModal = () => {
@@ -472,9 +457,8 @@ onMounted(() => {
 });
 
 watch(() => route.params.slug, (newSlug, oldSlug) => {
-    if (newSlug !== oldSlug) {
+    if (newSlug !== oldSlug)
         loadData();
-    }
 });
 </script>
 
