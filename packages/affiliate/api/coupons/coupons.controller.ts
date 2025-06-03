@@ -32,6 +32,19 @@ export class CouponsControllerTools {
         return this.couponsService.generateBestCouponsPost(campaignId);
     }
 
+    @Get("start-post-job/:campaignId")
+    @Auth("affiliatecoupons:get")
+    async startPostGenerationJob(@Param("campaignId") campaignId: string) {
+        const jobId = await this.couponsService.startPostGenerationJob(campaignId);
+        return { jobId, status: 'pending', message: 'Post generation job started' };
+    }
+
+    @Get("post-job/:jobId/status")
+    @Auth("affiliatecoupons:get")
+    async getPostJobStatus(@Param("jobId") jobId: string) {
+        return await this.couponsService.getPostJobStatus(jobId);
+    }
+
     @Get("campaign/:campaignId")
     @Cache("coupons:")
     @CacheControl({ maxAge: 3600, public: true })

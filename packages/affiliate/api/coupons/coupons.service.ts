@@ -1,5 +1,5 @@
 import {
-    Service, Application, Config
+    Service, Application, Config, Logger
 } from "@cmmv/core";
 
 import {
@@ -11,8 +11,21 @@ import {
 import { AIContentService } from "@cmmv/ai-content";
 import { DeeplinkService } from "../deeplink/deeplink.service";
 
+interface PostJob {
+    id: string;
+    campaignId: string;
+    type: 'post';
+    status: 'pending' | 'processing' | 'completed' | 'error';
+    result?: any;
+    error?: string;
+    startTime: Date;
+}
+
 @Service()
 export class CouponsServiceTools {
+    private readonly logger = new Logger("CouponsService");
+    private postJobs: Map<string, PostJob> = new Map();
+
     constructor(
         private readonly aiContentService: AIContentService
     ) {}
@@ -775,6 +788,125 @@ export class CouponsServiceTools {
         const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
         const coupons = await Repository.findAll(AffiliateCouponsEntity, { limit: 1000000 });
         return (coupons && coupons.data.length > 0) ? JSON.stringify(coupons.data, null, 4) : "";
+    }
+
+    /**
+     * Start an asynchronous post generation job
+     * @param campaignId The ID of the campaign
+     * @returns Job ID for tracking the processing status
+     */
+    async startPostGenerationJob(campaignId: string): Promise<string> {
+        const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
+        const campaign = await Repository.findOne(AffiliateCampaignsEntity, { id: campaignId });
+
+        if (!campaign) {
+            throw new Error(`Campaign with ID ${campaignId} not found`);
+        }
+
+        // Check if campaign has active coupons
+        const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
+        const couponsResult = await Repository.findAll(AffiliateCouponsEntity, {
+            campaign: campaignId,
+            active: true,
+            limit: 1
+        });
+
+        if (!couponsResult || !couponsResult.data || couponsResult.data.length === 0) {
+            throw new Error(`No active coupons found for campaign ${campaign.name}`);
+        }
+
+        // Generate unique job ID
+        const jobId = `post-job-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
+
+        const job: PostJob = {
+            id: jobId,
+            campaignId: campaignId,
+            type: 'post',
+            status: 'pending',
+            startTime: new Date()
+        };
+
+        this.postJobs.set(jobId, job);
+        setTimeout(() => this.processPostJob(jobId), 0);
+
+        return jobId;
+    }
+
+    /**
+     * Process a post generation job asynchronously
+     * @param jobId The ID of the job to process
+     */
+    private async processPostJob(jobId: string): Promise<void> {
+        const job = this.postJobs.get(jobId);
+        if (!job) {
+            this.logger.error(`Job ${jobId} not found`);
+            return;
+        }
+
+        try {
+            job.status = 'processing';
+            this.postJobs.set(jobId, job);
+
+            this.logger.log(`Processing post job ${jobId} for campaign ${job.campaignId}`);
+
+            // Call the original generateBestCouponsPost method
+            const result = await this.generateBestCouponsPost(job.campaignId);
+
+            job.result = result;
+            job.status = 'completed';
+            this.postJobs.set(jobId, job);
+
+            this.logger.log(`Post job ${jobId} completed successfully`);
+
+        } catch (error: any) {
+            this.logger.error(`Error processing post job ${jobId}: ${error.message}`);
+            job.status = 'error';
+            job.error = error.message;
+            this.postJobs.set(jobId, job);
+        }
+    }
+
+    /**
+     * Get the status and result of a post job
+     * @param jobId The ID of the job to check
+     * @returns The current status and result (if available) of the job
+     */
+    async getPostJobStatus(jobId: string) {
+        const job = this.postJobs.get(jobId);
+
+        if (!job)
+            throw new Error(`Job ${jobId} not found`);
+
+        this.cleanupOldJobs();
+
+        if (job.status === 'completed') {
+            return {
+                status: job.status,
+                result: job.result
+            };
+        } else if (job.status === 'error') {
+            return {
+                status: job.status,
+                error: job.error
+            };
+        } else {
+            return {
+                status: job.status
+            };
+        }
+    }
+
+    /**
+     * Clean up old completed/error jobs to prevent memory leaks
+     */
+    private cleanupOldJobs() {
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+        for (const [jobId, job] of this.postJobs.entries()) {
+            if ((job.status === 'completed' || job.status === 'error') && job.startTime < oneHourAgo) {
+                this.postJobs.delete(jobId);
+            }
+        }
     }
 
     /**

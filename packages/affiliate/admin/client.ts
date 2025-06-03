@@ -49,6 +49,12 @@ export const useAffiliateClient = () => {
         generateSEOContent: async (id: string) => {
             return api.authRequest(`affiliate/campaigns/${id}/generate-seo`, "POST");
         },
+        startSEOJob: async (id: string) => {
+            return api.authRequest(`affiliate/campaigns/${id}/start-seo-job`, "POST");
+        },
+        getJobStatus: async (jobId: string) => {
+            return api.authRequest(`affiliate/campaigns/job/${jobId}/status`, "GET");
+        },
         export: async (token: string) => {
             return api.authRequest(`affiliate/campaigns/export?token=${token}`, "GET");
         },
@@ -76,6 +82,12 @@ export const useAffiliateClient = () => {
         },
         generateBestCouponsPost: async (campaignId: string) => {
             return api.authRequest(`affiliate/coupons/generate-post/${campaignId}`, "GET");
+        },
+        startPostJob: async (campaignId: string) => {
+            return api.authRequest(`affiliate/coupons/start-post-job/${campaignId}`, "GET");
+        },
+        getPostJobStatus: async (jobId: string) => {
+            return api.authRequest(`affiliate/coupons/post-job/${jobId}/status`, "GET");
         },
         export: async (token: string) => {
             return api.authRequest(`affiliate/coupons/export?token=${token}`, "GET");
