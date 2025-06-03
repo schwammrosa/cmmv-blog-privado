@@ -2,7 +2,7 @@ import {
     Controller, Get, Param,
     CacheControl, ContentType,
     Raw, Put, Body, Res,
-    Query
+    Query, Post
 } from "@cmmv/http";
 
 import {
@@ -21,6 +21,12 @@ export class CampaignsControllerTools {
     @Auth("affiliatecampaigns:update")
     async updateCampaignLogo(@Param("campaignId") campaignId: string, @Body() data: { logo: string }) {
         return await this.campaignsService.updateCampaignLogo(campaignId, data.logo);
+    }
+
+    @Post(":campaignId/generate-seo")
+    @Auth("affiliatecampaigns:update")
+    async generateSEOContent(@Param("campaignId") campaignId: string) {
+        return await this.campaignsService.generateSEOContent(campaignId);
     }
 
     @Get("public")

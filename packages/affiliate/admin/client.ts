@@ -46,6 +46,9 @@ export const useAffiliateClient = () => {
         updateLogo: async (id: string, logoData: string) => {
             return api.authRequest(`affiliate/campaigns/${id}/logo`, "PUT", { logo: logoData });
         },
+        generateSEOContent: async (id: string) => {
+            return api.authRequest(`affiliate/campaigns/${id}/generate-seo`, "POST");
+        },
         export: async (token: string) => {
             return api.authRequest(`affiliate/campaigns/export?token=${token}`, "GET");
         }

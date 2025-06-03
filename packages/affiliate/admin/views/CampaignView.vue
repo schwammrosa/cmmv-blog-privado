@@ -284,6 +284,17 @@
                         >
                             Extra
                         </button>
+                        <button
+                            @click="activeTab = 'seo'"
+                            :class="[
+                                'pb-2 px-1 text-sm font-medium transition-colors border-b-2',
+                                activeTab === 'seo'
+                                    ? 'border-blue-500 text-blue-400'
+                                    : 'border-transparent text-neutral-400 hover:text-neutral-300'
+                            ]"
+                        >
+                            SEO
+                        </button>
                     </div>
                 </div>
 
@@ -600,6 +611,88 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- SEO Tab -->
+                        <div v-if="activeTab === 'seo'">
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-lg font-medium text-white">SEO Content</h3>
+                                    <button
+                                        type="button"
+                                        @click="generateSEOWithAI"
+                                        :disabled="seoGenerating || !campaignForm.domain"
+                                        class="px-3 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-neutral-600 disabled:cursor-not-allowed text-white text-sm font-medium rounded-md transition-colors flex items-center"
+                                    >
+                                        <svg v-if="seoGenerating" class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        {{ seoGenerating ? 'Generating...' : 'Generate with AI' }}
+                                    </button>
+                                </div>
+                                <p v-if="!campaignForm.domain" class="text-sm text-yellow-400 mb-4">
+                                    ⚠️ Domain is required to generate SEO content with AI. Please fill the domain in the Extra tab first.
+                                </p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="seoTitle" class="block text-sm font-medium text-neutral-300 mb-1">SEO Title</label>
+                                <input
+                                    id="seoTitle"
+                                    v-model="campaignForm.seoTitle"
+                                    type="text"
+                                    maxlength="60"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="SEO optimized title (max 60 characters)"
+                                />
+                                <p class="mt-1 text-xs text-neutral-500">{{ campaignForm.seoTitle?.length || 0 }}/60 characters</p>
+                                <p v-if="formErrors.seoTitle" class="mt-1 text-sm text-red-500">{{ formErrors.seoTitle }}</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="seoSubtitle" class="block text-sm font-medium text-neutral-300 mb-1">SEO Subtitle</label>
+                                <input
+                                    id="seoSubtitle"
+                                    v-model="campaignForm.seoSubtitle"
+                                    type="text"
+                                    maxlength="120"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Engaging subtitle (max 120 characters)"
+                                />
+                                <p class="mt-1 text-xs text-neutral-500">{{ campaignForm.seoSubtitle?.length || 0 }}/120 characters</p>
+                                <p v-if="formErrors.seoSubtitle" class="mt-1 text-sm text-red-500">{{ formErrors.seoSubtitle }}</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="seoSmallText" class="block text-sm font-medium text-neutral-300 mb-1">SEO Small Text (Meta Description)</label>
+                                <textarea
+                                    id="seoSmallText"
+                                    v-model="campaignForm.seoSmallText"
+                                    rows="3"
+                                    maxlength="160"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Short description for search results (max 160 characters)"
+                                ></textarea>
+                                <p class="mt-1 text-xs text-neutral-500">{{ campaignForm.seoSmallText?.length || 0 }}/160 characters</p>
+                                <p v-if="formErrors.seoSmallText" class="mt-1 text-sm text-red-500">{{ formErrors.seoSmallText }}</p>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="seoLongText" class="block text-sm font-medium text-neutral-300 mb-1">SEO Long Text (Page Content)</label>
+                                <textarea
+                                    id="seoLongText"
+                                    v-model="campaignForm.seoLongText"
+                                    rows="8"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Detailed content about the store, how to use coupons, benefits, etc."
+                                ></textarea>
+                                <p class="mt-1 text-xs text-neutral-500">{{ campaignForm.seoLongText?.length || 0 }} characters</p>
+                                <p v-if="formErrors.seoLongText" class="mt-1 text-sm text-red-500">{{ formErrors.seoLongText }}</p>
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="p-6 border-t border-neutral-700 bg-neutral-800 flex justify-end space-x-3">
@@ -823,6 +916,7 @@ const showDialog = ref(false)
 const isEditing = ref(false)
 const campaignForm = ref({
     name: '',
+    _previousName: '',
     url: '',
     logo: '',
     description: '',
@@ -832,7 +926,11 @@ const campaignForm = ref({
     categories: [],
     active: true,
     highlight: false,
-    slug: ''
+    slug: '',
+    seoTitle: '',
+    seoSubtitle: '',
+    seoSmallText: '',
+    seoLongText: ''
 })
 const campaignToEdit = ref(null)
 const formErrors = ref({})
@@ -868,6 +966,7 @@ const filters = ref({
 
 const aiLoadingMap = ref({});
 const exportLoading = ref(false);
+const seoGenerating = ref(false);
 const logoCropModalOpen = ref(false)
 const logoZoomLevel = ref(1)
 const logoCropCanvas = ref(null)
@@ -1037,7 +1136,11 @@ const openAddDialog = async () => {
         categories: [],
         active: true,
         highlight: false,
-        slug: ''
+        slug: '',
+        seoTitle: '',
+        seoSubtitle: '',
+        seoSmallText: '',
+        seoLongText: ''
     }
     formErrors.value = {}
     categorySearch.value = ''
@@ -1070,7 +1173,11 @@ const openEditDialog = async (campaign) => {
         categories: campaign.categories || [],
         active: campaign.active !== false,
         highlight: campaign.highlight === true,
-        slug: campaign.slug || ''
+        slug: campaign.slug || '',
+        seoTitle: campaign.seoTitle || '',
+        seoSubtitle: campaign.seoSubtitle || '',
+        seoSmallText: campaign.seoSmallText || '',
+        seoLongText: campaign.seoLongText || ''
     }
     formErrors.value = {}
     categorySearch.value = ''
@@ -1098,7 +1205,11 @@ const closeDialog = () => {
         categories: [],
         active: true,
         highlight: false,
-        slug: ''
+        slug: '',
+        seoTitle: '',
+        seoSubtitle: '',
+        seoSmallText: '',
+        seoLongText: ''
     }
     formErrors.value = {}
     campaignToEdit.value = null
@@ -1152,7 +1263,11 @@ const saveCampaign = async () => {
             categories: campaignForm.value.categories,
             active: campaignForm.value.active,
             highlight: campaignForm.value.highlight,
-            slug: campaignForm.value.slug.trim() || undefined
+            slug: campaignForm.value.slug.trim() || undefined,
+            seoTitle: campaignForm.value.seoTitle || '',
+            seoSubtitle: campaignForm.value.seoSubtitle || '',
+            seoSmallText: campaignForm.value.seoSmallText || '',
+            seoLongText: campaignForm.value.seoLongText || ''
         }
 
         if (campaignForm.value.logo && campaignForm.value.logo.startsWith('data:')) {
@@ -1325,6 +1440,68 @@ const parseMetadata = (metadataJson) => {
     } catch (e) {
         console.error('Failed to parse metadata:', e);
         return [];
+    }
+};
+
+const generateSEOWithAI = async () => {
+    if (!campaignForm.value.domain) {
+        showNotification('error', 'Domain is required to generate SEO content');
+        return;
+    }
+
+    try {
+        seoGenerating.value = true;
+
+        let campaignId;
+
+        // If editing existing campaign, use its ID
+        if (isEditing.value && campaignToEdit.value) {
+            campaignId = campaignToEdit.value.id;
+        } else {
+            // If creating new campaign, we need to save it first
+            if (!campaignForm.value.name.trim()) {
+                showNotification('error', 'Campaign name is required before generating SEO content');
+                seoGenerating.value = false;
+                return;
+            }
+
+            // Create a temporary campaign to get SEO content
+            const tempCampaignData = {
+                name: campaignForm.value.name.trim(),
+                url: campaignForm.value.url.trim() || 'https://example.com',
+                domain: campaignForm.value.domain,
+                network: campaignForm.value.networkId || null,
+                active: false, // Keep it inactive until user saves
+                description: campaignForm.value.description?.trim() || '',
+                categories: campaignForm.value.categories || [],
+                highlight: false,
+                metadata: null
+            };
+
+            const tempCampaign = await affiliateClient.campaigns.insert(tempCampaignData);
+            campaignId = tempCampaign.id;
+        }
+
+        // Generate SEO content
+        const response = await affiliateClient.campaigns.generateSEOContent(campaignId);
+
+        if (response && response.success && response.seoContent) {
+            // Update form with generated content
+            campaignForm.value.seoTitle = response.seoContent.seoTitle || '';
+            campaignForm.value.seoSubtitle = response.seoContent.seoSubtitle || '';
+            campaignForm.value.seoSmallText = response.seoContent.seoSmallText || '';
+            campaignForm.value.seoLongText = response.seoContent.seoLongText || '';
+
+            showNotification('success', 'SEO content generated successfully!');
+        } else {
+            showNotification('error', 'Failed to generate SEO content');
+        }
+
+        seoGenerating.value = false;
+    } catch (err) {
+        console.error('Failed to generate SEO content:', err);
+        showNotification('error', err.message || 'Failed to generate SEO content');
+        seoGenerating.value = false;
     }
 };
 
@@ -1587,12 +1764,10 @@ const clearSearch = () => {
     showSearchDropdown.value = false
 }
 
-// Toggle more actions dropdown
 const toggleMoreActionsDropdown = () => {
     showMoreActionsDropdown.value = !showMoreActionsDropdown.value;
 }
 
-// Open file input for import
 const openImportFileDialog = () => {
     importFileInput.value.click();
 }
@@ -1602,26 +1777,22 @@ const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    // Check if it's a JSON file
     if (file.type !== 'application/json') {
         showNotification('error', 'Please select a valid JSON file');
-        event.target.value = ''; // Clear the input
+        event.target.value = '';
         return;
     }
 
-    // Read file contents
     const reader = new FileReader();
     reader.onload = (e) => {
         try {
             const jsonData = JSON.parse(e.target.result);
 
-            // Validate that it's an array of campaigns
             if (!Array.isArray(jsonData)) {
                 showNotification('error', 'Invalid JSON format. Expected an array of campaigns.');
                 return;
             }
 
-            // Start import process
             startImport(jsonData);
         } catch (err) {
             console.error('Failed to parse JSON:', err);
@@ -1634,12 +1805,10 @@ const handleFileSelect = (event) => {
     };
 
     reader.readAsText(file);
-    event.target.value = ''; // Clear the input
+    event.target.value = '';
 }
 
-// Start the import process
 const startImport = (campaigns) => {
-    // Reset progress
     importProgress.value = {
         current: 0,
         total: campaigns.length,
@@ -1650,39 +1819,30 @@ const startImport = (campaigns) => {
         errorMessage: ''
     };
 
-    // Show progress dialog
     showImportProgress.value = true;
     importInProgress.value = true;
     importFinished.value = false;
     importCancelled.value = false;
 
-    // Start processing campaigns
     processCampaigns(campaigns);
 }
 
-// Process campaigns one by one
 const processCampaigns = async (campaigns) => {
     for (let i = 0; i < campaigns.length; i++) {
-        // Check if import was cancelled
-        if (importCancelled.value) {
+        if (importCancelled.value)
             break;
-        }
 
         const campaign = campaigns[i];
         importProgress.value.current = i + 1;
         importProgress.value.percentage = Math.round((importProgress.value.current / importProgress.value.total) * 100);
 
         try {
-            // Update current item being processed
             importProgress.value.currentItem = campaign.name || `Campaign ${i + 1}`;
             importProgress.value.errorMessage = '';
 
-            // Check if campaign has required fields
-            if (!campaign.name || !campaign.url) {
+            if (!campaign.name || !campaign.url)
                 throw new Error('Campaign requires name and URL fields');
-            }
 
-            // Prepare campaign data for API
             const campaignData = {
                 name: campaign.name.trim(),
                 url: campaign.url.trim(),
@@ -1697,32 +1857,24 @@ const processCampaigns = async (campaigns) => {
                 highlight: campaign.highlight || false
             };
 
-            // Insert campaign using API
             await affiliateClient.campaigns.insert(campaignData);
 
-            // Update success count
             importProgress.value.success++;
         } catch (err) {
             console.error(`Failed to import campaign ${i + 1}:`, err);
             importProgress.value.failed++;
             importProgress.value.errorMessage = err.message || 'Failed to import campaign';
-
-            // Small delay to let user see the error message
             await new Promise(resolve => setTimeout(resolve, 500));
         }
 
-        // Small delay to prevent UI freezing
         await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     // Import completed
     importInProgress.value = false;
     importFinished.value = true;
-
-    // Refresh campaign list after import
     refreshData();
 
-    // Show notification
     if (importCancelled.value) {
         showNotification('info', `Import cancelled. ${importProgress.value.success} campaigns imported successfully.`);
     } else {

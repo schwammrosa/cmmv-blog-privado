@@ -123,4 +123,28 @@ export class AffiliateCampaignsContract extends AbstractContract {
         index: true
     })
     coupons!: number;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true
+    })
+    seoTitle?: string;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true
+    })
+    seoSubtitle?: string;
+
+    @ContractField({
+        protoType: 'text',
+        nullable: true
+    })
+    seoSmallText?: string;
+
+    @ContractField({
+        protoType: 'text',
+        nullable: true
+    })
+    seoLongText?: string;
 }
