@@ -30,9 +30,7 @@
                     <nav class="hidden md:flex items-center space-x-4">
                         <a href="/desconto" class="text-white hover:text-indigo-200">Lojas</a>
                         <a href="/cupom" class="text-white hover:text-indigo-200">Categorias</a>
-                        <a href="/ajuda" class="text-white hover:text-indigo-200">Ajuda</a>
                         <a href="/blog" class="text-white hover:text-indigo-200">Blog</a>
-                        <a href="/login" class="bg-indigo-800 text-white px-4 py-2 rounded-full hover:bg-indigo-700">Entrar</a>
                     </nav>
 
                     <!-- Mobile Menu Button -->
@@ -535,23 +533,23 @@ const selectedCouponForScratch = ref<any | null>(null);
 
 const checkCouponInUrl = async () => {
     const displayCode = route.query.display;
-    
+
     if (displayCode && typeof displayCode === 'string') {
         try {
             // Tentar encontrar o cupom com este código entre os cupons carregados
             let foundCoupon: any = null;
             let relatedCampaign: any = null;
-            
+
             // Verificar nos cupons em destaque
             if (couponsStore.getFeaturedCoupons.length > 0) {
                 foundCoupon = couponsStore.getFeaturedCoupons.find(c => c.code === displayCode);
             }
-            
+
             // Verificar nos top 25 cupons
             if (!foundCoupon && couponsStore.getTop25Coupons.length > 0) {
                 foundCoupon = couponsStore.getTop25Coupons.find(c => c.code === displayCode);
             }
-            
+
             // Se ainda não encontrou, tentar verificar nos cupons de cada campanha
             if (!foundCoupon) {
                 const campaigns = campaignsStore.getCampaigns || [];
@@ -566,7 +564,7 @@ const checkCouponInUrl = async () => {
                     }
                 }
             }
-            
+
             if (foundCoupon) {
                 // Se encontramos o cupom, verificar se ele tem as informações da campanha
                 if (!foundCoupon.campaignName || !foundCoupon.campaignLogo) {
@@ -576,7 +574,7 @@ const checkCouponInUrl = async () => {
                         const campaigns = campaignsStore.getCampaigns || [];
                         relatedCampaign = campaigns.find(c => c.id === foundCoupon.campaignId);
                     }
-                    
+
                     // Adicionar os dados da campanha ao cupom
                     selectedCouponForScratch.value = {
                         ...foundCoupon,
@@ -598,7 +596,7 @@ const checkCouponInUrl = async () => {
                     campaignName: 'Loja',
                     description: 'Use este cupom para obter desconto em sua compra.'
                 };
-                
+
                 // Exibir o modal com as informações do cupom
                 selectedCouponForScratch.value = tempCoupon;
                 isScratchModalOpen.value = true;

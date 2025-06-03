@@ -41,12 +41,6 @@
                             <p class="text-gray-700 mt-4">Encontramos {{ coupons.length }} cupons de desconto para {{ campaign.name }} →</p>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 bg-amber-100 text-amber-800 px-3 py-2 rounded-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-sm font-medium">Termina em: 02:03:31</span>
-                    </div>
                 </div>
 
                 <!-- Filtro -->
@@ -479,7 +473,6 @@ watch(() => route.params.slug, (newSlug, oldSlug) => {
     }
 });
 </script>
-
 
 <style scoped>
 .longText-content :deep(img) {

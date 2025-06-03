@@ -216,6 +216,21 @@
                                         <i v-else class="fas fa-ticket-alt text-center" style="width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center;"></i>
                                     </button>
                                     <button
+                                        @click="generatePostPreview(campaign)"
+                                        title="Generate AI Post"
+                                        class="text-neutral-400 hover:text-purple-500 transition-colors"
+                                        :disabled="postGeneratingMap[campaign.id]"
+                                    >
+                                        <div v-if="postGeneratingMap[campaign.id]" class="animate-spin h-5 w-5">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
+                                        </div>
+                                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                    </button>
+                                    <button
                                         @click="openEditDialog(campaign)"
                                         title="Edit"
                                         class="text-neutral-400 hover:text-white transition-colors"
@@ -889,6 +904,155 @@
                 </div>
             </div>
         </div>
+
+        <!-- Post Preview Modal -->
+        <div v-if="showPostPreview" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50 p-4 overflow-hidden" style="backdrop-filter: blur(4px);" @click.self="closePostPreview">
+            <div class="bg-white rounded-lg shadow-xl max-w-7xl w-full max-h-[90vh] flex flex-col overflow-hidden">
+                <div class="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
+                    <div class="flex items-center space-x-4">
+                        <h1 class="text-xl font-bold text-gray-900">{{ generatedPost?.title }}</h1>
+                        <span class="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs">AI Generated</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">{{ previewCampaign?.name }}</span>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button @click="closePostPreview" class="text-gray-500 hover:text-gray-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-gray-200 overflow-y-auto">
+                    <!-- Main Content -->
+                    <div class="p-6 lg:w-2/3">
+                        <div v-if="generatedPost">
+                            <!-- Campaign Info -->
+                            <div class="mb-6">
+                                <div class="flex items-center space-x-4 mb-4">
+                                    <img v-if="previewCampaign?.logo" :src="previewCampaign.logo" alt="Campaign logo" class="h-12 w-12 rounded-full object-cover" />
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-gray-900">{{ previewCampaign?.name }}</h2>
+                                        <p class="text-sm text-gray-600">{{ generatedPost.month }} • {{ generatedPost.couponsCount }} cupons encontrados</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cover Image Preview -->
+                            <div v-if="generatedPost.coverImage" class="mb-6">
+                                <h3 class="text-sm font-medium text-gray-800 mb-2">Imagem de Capa Sugerida</h3>
+                                <div class="rounded-lg overflow-hidden border border-gray-200">
+                                    <img :src="generatedPost.coverImage" alt="Cover image" class="w-full h-48 object-cover" />
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Imagem encontrada automaticamente pela IA</p>
+                            </div>
+
+                            <!-- Generated Content -->
+                            <div class="prose prose-lg max-w-none text-gray-800" v-html="generatedPost.content"></div>
+
+                            <!-- Campaign Stats -->
+                            <div v-if="generatedPost" class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                <h3 class="text-sm font-medium text-gray-800 mb-2">Estatísticas da Geração</h3>
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-600">Cupons analisados:</span>
+                                        <span class="font-medium text-gray-900 ml-1">{{ generatedPost.couponsCount }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Gerado em:</span>
+                                        <span class="font-medium text-gray-900 ml-1">{{ new Date(generatedPost.generatedAt).toLocaleString() }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar -->
+                    <div class="p-6 lg:w-1/3">
+                        <!-- Tags Section -->
+                        <div v-if="generatedPost?.suggestedTags && generatedPost.suggestedTags.length > 0" class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">Tags Sugeridas</h3>
+                            <div class="flex flex-wrap gap-2">
+                                <div
+                                    v-for="(tag, index) in generatedPost.suggestedTags"
+                                    :key="index"
+                                    class="bg-purple-100 text-purple-800 px-3 py-1 rounded text-sm flex items-center cursor-pointer hover:bg-purple-200 transition-colors"
+                                    :class="{'bg-green-100 text-green-800': selectedTags.includes(tag)}"
+                                    @click="toggleTagSelection(tag)"
+                                >
+                                    <span>{{ tag }}</span>
+                                    <svg v-if="selectedTags.includes(tag)" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Categories Section -->
+                        <div v-if="generatedPost?.suggestedCategories && generatedPost.suggestedCategories.length > 0" class="mb-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">Categorias Sugeridas pela IA</h3>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <div
+                                    v-for="(suggestedCategory, index) in generatedPost.suggestedCategories"
+                                    :key="index"
+                                    class="bg-orange-100 text-orange-800 px-3 py-1 rounded text-sm flex items-center"
+                                >
+                                    <span>{{ suggestedCategory }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Available Categories -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-3">Categorias Disponíveis</h3>
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div v-if="loadingCategories" class="flex justify-center py-4">
+                                    <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-blue-500"></div>
+                                </div>
+                                <div v-else-if="availableCategories.length === 0" class="text-center py-4 text-gray-500">
+                                    Nenhuma categoria encontrada
+                                </div>
+                                <div v-else class="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto">
+                                    <div v-for="category in availableCategories" :key="category.id" class="flex items-center">
+                                        <input
+                                            :id="'cat-' + category.id"
+                                            type="checkbox"
+                                            :value="category.id"
+                                            v-model="selectedCategories"
+                                            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                        >
+                                        <label :for="'cat-' + category.id" class="ml-2 text-sm text-gray-700">{{ category.name }}</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="space-y-3">
+                            <button
+                                @click="createPostFromGenerated"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Criar Post
+                            </button>
+
+                            <button
+                                @click="generatePostPreview(previewCampaign)"
+                                class="w-full inline-flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Regenerar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -967,6 +1131,13 @@ const filters = ref({
 const aiLoadingMap = ref({});
 const exportLoading = ref(false);
 const seoGenerating = ref(false);
+const postGeneratingMap = ref({});
+const showPostPreview = ref(false);
+const previewCampaign = ref(null);
+const generatedPost = ref(null);
+const postGeneratingError = ref(null);
+const selectedTags = ref([]);
+const selectedCategories = ref([]);
 const logoCropModalOpen = ref(false)
 const logoZoomLevel = ref(1)
 const logoCropCanvas = ref(null)
@@ -1532,6 +1703,133 @@ const collectCouponsWithAI = async (campaign) => {
         );
     } finally {
         aiLoadingMap.value[campaign.id] = false;
+    }
+}
+
+const generatePostPreview = async (campaign) => {
+    if (postGeneratingMap.value[campaign.id]) return;
+
+    try {
+        postGeneratingMap.value[campaign.id] = true;
+        postGeneratingError.value = null;
+
+        showNotification('info', `Gerando conteúdo para ${campaign.name}... Isso pode levar alguns minutos.`);
+
+        const response = await affiliateClient.coupons.generateBestCouponsPost(campaign.id);
+
+        if (response && response.success && response.data) {
+            generatedPost.value = response.data;
+            previewCampaign.value = campaign;
+            selectedTags.value = response.data.suggestedTags || [];
+            selectedCategories.value = [];
+            showPostPreview.value = true;
+            document.body.style.overflow = 'hidden';
+
+            // Load categories for selection
+            await loadCategories();
+
+            showNotification('success', 'Post preview generated successfully!');
+        } else {
+            throw new Error(response.message || 'Failed to generate post content');
+        }
+    } catch (err) {
+        console.error('Failed to generate post preview:', err);
+        postGeneratingError.value = err.message || 'Failed to generate post content';
+
+        // Check for specific error types
+        let errorMessage = 'Failed to generate post content';
+
+        if (err.message?.includes('timeout') || err.message?.includes('Timeout')) {
+            errorMessage = 'A geração demorou mais que o esperado. Tente novamente em alguns minutos.';
+        } else if (err.message?.includes('fetch failed') || err.message?.includes('connect')) {
+            errorMessage = 'Problemas de conexão com o serviço de IA. Verifique sua internet e tente novamente.';
+        } else if (err.message?.includes('No active coupons found')) {
+            errorMessage = `Nenhum cupom ativo encontrado para ${campaign.name}. Adicione cupons primeiro.`;
+        } else if (err.message?.includes('after 3 attempts')) {
+            errorMessage = 'Serviço de IA temporariamente indisponível. Tente novamente em alguns minutos.';
+        }
+
+        showNotification('error', errorMessage);
+    } finally {
+        postGeneratingMap.value[campaign.id] = false;
+    }
+}
+
+const closePostPreview = () => {
+    showPostPreview.value = false;
+    previewCampaign.value = null;
+    generatedPost.value = null;
+    postGeneratingError.value = null;
+    selectedTags.value = [];
+    selectedCategories.value = [];
+    document.body.style.overflow = '';
+}
+
+const createPostFromGenerated = async () => {
+    if (!generatedPost.value || !previewCampaign.value) return;
+
+    try {
+        showNotification('info', 'Creating post from generated content...');
+
+        const slug = generatedPost.value.title
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+        const tags = selectedTags.value.length > 0
+            ? selectedTags.value
+            : [previewCampaign.value.name, 'Cupons', 'Descontos'];
+
+        const postData = {
+            post: {
+                title: generatedPost.value.title,
+                slug: slug,
+                content: generatedPost.value.content,
+                status: 'draft',
+                excerpt: generatedPost.value.content.substring(0, 200).replace(/<\/?[^>]+(>|$)/g, "") + '...',
+                featureImage: generatedPost.value.coverImage || previewCampaign.value.logo || null,
+                tags: tags,
+                categories: selectedCategories.value
+            },
+            meta: {
+                metaTitle: generatedPost.value.title,
+                metacontent: generatedPost.value.content.substring(0, 155).replace(/<\/?[^>]+(>|$)/g, "") + '...',
+                ogTitle: generatedPost.value.title,
+                ogcontent: generatedPost.value.content.substring(0, 155).replace(/<\/?[^>]+(>|$)/g, "") + '...',
+                ogImage: generatedPost.value.coverImage || previewCampaign.value.logo || null,
+                twitterTitle: generatedPost.value.title,
+                twittercontent: generatedPost.value.content.substring(0, 155).replace(/<\/?[^>]+(>|$)/g, "") + '...',
+                twitterImage: generatedPost.value.coverImage || previewCampaign.value.logo || null
+            }
+        };
+
+        const saveResponse = await adminClient.posts.save(postData);
+
+        if (!saveResponse || !saveResponse.id)
+            throw new Error("Failed to create post");
+
+        showNotification('success', 'Post created successfully!');
+        closePostPreview();
+
+        setTimeout(() => {
+            window.open(`/admin/posts/edit/${saveResponse.id}`, '_blank');
+        }, 1000);
+
+    } catch (err) {
+        console.error('Failed to create post:', err);
+        showNotification('error', 'Failed to create post: ' + (err.message || 'Unknown error'));
+    }
+}
+
+const toggleTagSelection = (tag) => {
+    const index = selectedTags.value.indexOf(tag);
+    if (index !== -1) {
+        selectedTags.value.splice(index, 1);
+    } else {
+        selectedTags.value.push(tag);
     }
 }
 
