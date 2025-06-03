@@ -17,12 +17,117 @@
                             <input type="text" placeholder="Buscar lojas ou cupons..."
                                    class="w-full py-2 px-4 border bg-white border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                    v-model="searchQuery"
-                                   @input="debouncedSearch">
+                                   @input="debouncedSearch"
+                                   @focus="onSearchFocus"
+                                   @blur="onSearchBlur">
                             <button class="absolute right-3 top-2 text-gray-500" @click="openSearchModal">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </button>
+
+                            <!-- Autocomplete Dropdown -->
+                            <div v-if="showAutocomplete" class="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                                <!-- Loading State -->
+                                <div v-if="isSearching" class="p-4 text-center">
+                                    <div class="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-indigo-600 mx-auto"></div>
+                                    <p class="text-sm text-gray-500 mt-2">Buscando...</p>
+                                </div>
+
+                                <!-- Featured Stores (quando campo focado sem busca) -->
+                                <div v-else-if="searchQuery.trim().length === 0" class="p-4">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Lojas em Destaque</h4>
+                                    <div class="space-y-2">
+                                        <a v-for="store in featuredStores.slice(0, 6)" :key="store.id"
+                                           :href="`/desconto/${store.slug}`"
+                                           class="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                                           @click="closeAutocomplete">
+                                            <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                                <img v-if="store.logo" :src="store.logo" :alt="store.name" class="w-full h-full object-contain rounded">
+                                                <div v-else class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow">
+                                                <h5 class="text-sm font-medium text-gray-900">{{ store.name }}</h5>
+                                                <p class="text-xs text-gray-500">{{ store.couponCount || 0 }} cupons disponíveis</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Search Results -->
+                                <div v-else-if="searchQuery.trim().length > 1">
+                                    <!-- No Results -->
+                                    <div v-if="searchResults.length === 0 && searchCampaigns.length === 0" class="p-4 text-center text-gray-500">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mx-auto text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p class="text-sm">Nenhum resultado encontrado</p>
+                                    </div>
+
+                                    <!-- Store Results -->
+                                    <div v-if="searchCampaigns.length > 0" class="border-b border-gray-100">
+                                        <div class="p-3 bg-gray-50">
+                                            <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Lojas</h4>
+                                        </div>
+                                        <div class="p-2">
+                                            <a v-for="store in searchCampaigns.slice(0, 4)" :key="store.id"
+                                               :href="`/desconto/${store.slug}`"
+                                               class="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                                               @click="closeAutocomplete">
+                                                <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                                    <img v-if="store.logo" :src="store.logo" :alt="store.name" class="w-full h-full object-contain rounded">
+                                                    <div v-else class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow">
+                                                    <h5 class="text-sm font-medium text-gray-900">{{ store.name }}</h5>
+                                                    <p class="text-xs text-gray-500">{{ store.couponCount || 0 }} cupons</p>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- Blog Results -->
+                                    <div v-if="searchResults.length > 0">
+                                        <div class="p-3 bg-gray-50">
+                                            <h4 class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Artigos</h4>
+                                        </div>
+                                        <div class="p-2">
+                                            <a v-for="post in searchResults.slice(0, 3)" :key="post.id"
+                                               :href="`/post/${post.slug}`"
+                                               class="flex items-center p-2 hover:bg-gray-50 rounded-lg transition-colors"
+                                               @click="closeAutocomplete">
+                                                <div class="w-8 h-8 flex-shrink-0 mr-3">
+                                                    <img v-if="post.featureImage" :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover rounded">
+                                                    <div v-else class="w-full h-full bg-gray-200 rounded flex items-center justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-grow">
+                                                    <h5 class="text-sm font-medium text-gray-900 line-clamp-1">{{ post.title }}</h5>
+                                                    <p class="text-xs text-gray-500">{{ formatDate(post.publishedAt || post.updatedAt) }}</p>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <!-- View All Results -->
+                                    <div v-if="(searchResults.length > 3 || searchCampaigns.length > 4)" class="p-3 border-t border-gray-100">
+                                        <button @click="openSearchModal" class="w-full text-center text-sm text-indigo-600 hover:text-indigo-800 font-medium">
+                                            Ver todos os resultados ({{ searchResults.length + searchCampaigns.length }})
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -382,6 +487,9 @@ const isSearching = ref(false);
 const searchTimeout = ref<any>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
 const mobileMenuOpen = ref(false);
+const showAutocomplete = ref(false);
+const featuredStores = ref<any[]>([]);
+const autocompleteBlurTimeout = ref<any>(null);
 
 const categories = ref<any[]>(categoriesStore.getCategories || []);
 
@@ -425,6 +533,7 @@ const toggleDropdown = (categoryId: string, event: Event) => {
 
 const openSearchModal = () => {
     searchModalOpen.value = true;
+    closeAutocomplete();
     setTimeout(() => {
         searchInput.value?.focus();
     }, 100);
@@ -445,6 +554,46 @@ const debouncedSearch = () => {
     searchTimeout.value = setTimeout(() => {
         performSearch();
     }, 300);
+};
+
+const onSearchFocus = () => {
+    if (autocompleteBlurTimeout.value) {
+        clearTimeout(autocompleteBlurTimeout.value);
+    }
+    showAutocomplete.value = true;
+    loadFeaturedStores();
+};
+
+const onSearchBlur = () => {
+    // Delay hiding to allow clicks on dropdown items
+    autocompleteBlurTimeout.value = setTimeout(() => {
+        showAutocomplete.value = false;
+    }, 150);
+};
+
+const closeAutocomplete = () => {
+    showAutocomplete.value = false;
+    if (autocompleteBlurTimeout.value) {
+        clearTimeout(autocompleteBlurTimeout.value);
+    }
+};
+
+const loadFeaturedStores = () => {
+    if (featuredStores.value.length === 0) {
+        // Get featured stores from campaigns store
+        const campaigns = campaignsStore.getCampaigns || [];
+        // Filter and sort by highlight or coupon count
+        featuredStores.value = campaigns
+            .filter((campaign: any) => campaign.active !== false)
+            .sort((a: any, b: any) => {
+                // Prioritize highlighted campaigns
+                if (a.highlight && !b.highlight) return -1;
+                if (!a.highlight && b.highlight) return 1;
+                // Then sort by coupon count
+                return (b.couponCount || 0) - (a.couponCount || 0);
+            })
+            .slice(0, 8);
+    }
 };
 
 const performSearch = async () => {
@@ -704,5 +853,27 @@ const closeDropdownsOnClickOutside = (event: Event) => {
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+}
+.line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Autocomplete styles */
+.autocomplete-dropdown {
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.autocomplete-item:hover {
+    background: linear-gradient(90deg, rgba(67, 56, 202, 0.05), rgba(99, 102, 241, 0.05));
+}
+
+/* Search input focus styles */
+input[type="text"]:focus + button svg {
+    color: #4338ca;
 }
 </style>
