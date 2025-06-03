@@ -18,7 +18,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                         Search
-                        <!-- Indicator dot for active search -->
                         <span
                             v-if="filters.search.trim()"
                             class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-blue-500 rounded-full"
@@ -37,7 +36,6 @@
                                     @keydown.esc="showSearchDropdown = false"
                                     ref="searchInput"
                                 >
-                                <!-- Clear button -->
                                 <button
                                     v-if="filters.search.trim()"
                                     @click="clearSearch"
@@ -68,7 +66,6 @@
                         </svg>
                         More
                     </button>
-                    <!-- More actions dropdown menu -->
                     <div v-if="showMoreActionsDropdown" class="absolute right-0 mt-2 w-48 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
                         <div class="py-1">
                             <button
@@ -182,7 +179,6 @@
                                 <span v-else class="text-neutral-500 italic">No slug</span>
                             </td>
                             <td class="px-6 py-4 text-sm text-neutral-400">
-                                <!-- Visualización de red única usando el campo network -->
                                 <span
                                     v-if="campaign.network"
                                     class="bg-neutral-700 text-xs rounded px-2 py-1"
@@ -264,7 +260,6 @@
                     </button>
                 </div>
 
-                <!-- Tab navigation -->
                 <div class="px-6 pt-4 border-b border-neutral-700">
                     <div class="flex space-x-4">
                         <button
@@ -294,7 +289,6 @@
 
                 <div class="p-6 overflow-y-auto" style="max-height: calc(85vh - 168px);">
                     <form @submit.prevent="saveCampaign">
-                        <!-- Basic Tab -->
                         <div v-if="activeTab === 'basic'">
                             <div class="mb-4">
                                 <label for="campaignName" class="block text-sm font-medium text-neutral-300 mb-1">Campaign Name</label>

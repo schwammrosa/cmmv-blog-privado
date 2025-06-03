@@ -9,9 +9,14 @@ import {
 
 //@ts-ignore
 import { AIContentService } from "@cmmv/ai-content";
+import { DeeplinkService } from "../deeplink/deeplink.service";
 
 @Service()
 export class CouponsServiceTools {
+    constructor(
+        private readonly aiContentService: AIContentService
+    ) {}
+
     /**
      * Uses AI to search for coupon codes for a specific campaign and adds them to the database
      * @param campaignId The ID of the campaign to find coupons for
@@ -19,8 +24,11 @@ export class CouponsServiceTools {
      */
     async getCouponsWithAI(campaignId: string) {
         const language = Config.get("blog.language", "en");
+        const deeplinkService = Application.resolveProvider(DeeplinkService);
         const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
         const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
+        const AffiliateCampaignsNetworksEntity = Repository.getEntity("AffiliateCampaignsNetworksEntity");
+        const AffiliateAccountsEntity = Repository.getEntity("AffiliateAccountsEntity");
 
         const campaign = await Repository.findOne(AffiliateCampaignsEntity, {
             id: campaignId
@@ -28,6 +36,20 @@ export class CouponsServiceTools {
 
         if (!campaign)
             throw new Error(`Campaign with ID ${campaignId} not found`);
+
+        const campaignNetwork = await Repository.findOne(AffiliateCampaignsNetworksEntity, {
+            domain: campaign.domain
+        });
+
+        if (!campaignNetwork)
+            throw new Error(`Campaign with ID ${campaignId} not found network account`);
+
+        const account = await Repository.findOne(AffiliateAccountsEntity, {
+            network: campaignNetwork.network
+        });
+
+        if (!account)
+            throw new Error(`Account with ID ${campaignNetwork.accountId} not found`);
 
         const prompt = `
             Find 10 current discount coupon codes for ${campaign.name}.
@@ -41,6 +63,10 @@ export class CouponsServiceTools {
             4. The expiration date (if available) - MUST be after today or null
             5. The discount amount or percentage
             6. The source URL where you found this coupon code
+            7. I only want coupons that point to the domain ${campaign.domain}
+            8. Do not invent links that do not exist, as this will cause problems in generating deeplinks.
+            9. If you cannot find a valid link, use the home link when returning from the registry.
+            10. Check the website home page as stores are usually placing coupons on banners.
 
             IMPORTANT: Return ONLY a raw JSON array with objects containing these fields, without any explanation or text before or after:
             [
@@ -108,6 +134,8 @@ export class CouponsServiceTools {
                 if (existingCoupon)
                     continue;
 
+                const deeplink = await deeplinkService.getDeeplink(account.id, campaignNetwork.id, coupon.linkRef);
+
                 const newCoupon = {
                     title: coupon.title || `${campaign.name} ${coupon.code}`,
                     description: coupon.description || '',
@@ -119,12 +147,14 @@ export class CouponsServiceTools {
                     campaign: campaignId,
                     campaignName: campaign.name,
                     network: campaign.network || null,
-                    linkRef: coupon.linkRef || null
+                    linkRef: coupon.linkRef || null,
+                    deeplink: deeplink.deeplink
                 };
 
                 try {
                     const savedCoupon = await Repository.insert(AffiliateCouponsEntity, newCoupon);
                     savedCoupons.push(savedCoupon);
+                    //savedCoupons.push(newCoupon);
                 } catch (err) {
                     console.warn(`Failed to save coupon ${coupon.code}: ${err instanceof Error ? err.message : String(err)}`);
                 }
@@ -257,7 +287,7 @@ export class CouponsServiceTools {
         }
 
         const campaignIds = couponsResult.data.map((coupon: any) => coupon.campaign);
-        
+
         const campaigns = await Repository.findAll(AffiliateCampaignsEntity, {
             id: In(campaignIds)
         }, [], {
@@ -270,9 +300,9 @@ export class CouponsServiceTools {
         }
 
         const campaignMap = new Map(campaigns && campaigns.data ? campaigns.data.map((campaign: any) => [campaign.id, campaign]) : []);
-        
+
         let processedCoupons: any[] = []; // Renamed from dataResponse
-        
+
         processedCoupons = couponsResult.data.map((coupon: any) => { // Renamed from dataResponse
             if (coupon.campaign && typeof coupon.campaign === 'string' && coupon.campaign.trim() !== '') {
                 const campaignDetails: any = campaignMap.get(coupon.campaign);
@@ -304,8 +334,8 @@ export class CouponsServiceTools {
 
         const campaignCouponsMap = new Map<string, any[]>();
         for (const coupon of processedCoupons) {
-            const campaignId = coupon.campaign; 
-            if (campaignId) { 
+            const campaignId = coupon.campaign;
+            if (campaignId) {
                 if (!campaignCouponsMap.has(campaignId)) {
                     campaignCouponsMap.set(campaignId, []);
                 }
@@ -316,12 +346,12 @@ export class CouponsServiceTools {
         if (campaignCouponsMap.size === 0) {
             return [];
         }
-        
+
         const finalTop25Coupons: any[] = [];
         const uniqueCampaignIds = Array.from(campaignCouponsMap.keys());
         const campaignNextCouponIndex = new Map<string, number>();
         uniqueCampaignIds.forEach(id => campaignNextCouponIndex.set(id, 0));
-        
+
         while (finalTop25Coupons.length < 25) {
             let addedACouponThisRound = false;
             for (const campaignId of uniqueCampaignIds) {
@@ -333,15 +363,15 @@ export class CouponsServiceTools {
                     campaignNextCouponIndex.set(campaignId, nextIndex + 1);
                     addedACouponThisRound = true;
                     if (finalTop25Coupons.length === 25) {
-                        break; 
+                        break;
                     }
                 }
             }
-            if (!addedACouponThisRound) { 
-                break; 
+            if (!addedACouponThisRound) {
+                break;
             }
         }
-        
+
         return finalTop25Coupons;
     }
 

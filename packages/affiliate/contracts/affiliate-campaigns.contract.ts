@@ -117,7 +117,7 @@ export class AffiliateCampaignsContract extends AbstractContract {
     slug!: string;
 
     @ContractField({
-        protoType: 'number',
+        protoType: 'int32',
         nullable: true,
         defaultValue: 0,
         index: true

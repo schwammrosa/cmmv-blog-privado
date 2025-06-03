@@ -22,7 +22,7 @@
             <div v-else class="bg-white rounded-lg p-6">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
                     <div class="w-32 h-32 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="w-full h-full object-cover">
+                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="w-full h-full">
                         <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -349,7 +349,7 @@ const loadData = async () => {
                         campaignName: campaign.value.name,
                         campaignLogo: c.campaignLogo || campaign.value.logo
                     }));
-                    
+
                     coupons.value = enrichedCoupons;
                     couponsStore.setCampaignCoupons(campaignId, enrichedCoupons);
                 }
@@ -394,7 +394,7 @@ const openCouponModal = (coupon: any) => {
             // Se não temos campaign.value (o que seria estranho nesta página),
             // buscar a campanha correspondente pelo ID
             const relatedCampaign = campaignsStore.getCampaigns?.find(c => c.id === coupon.campaignId);
-            
+
             // Criar uma cópia enriquecida do cupom com os dados da campanha
             selectedCouponForScratch.value = {
                 ...coupon,
@@ -406,15 +406,15 @@ const openCouponModal = (coupon: any) => {
         // Se já tem os dados da campanha, usar diretamente
         selectedCouponForScratch.value = { ...coupon };
     }
-    
+
     // Mostrar o modal
     isScratchModalOpen.value = true;
-    
+
     // Abrir uma nova janela com o código do cupom
     if (coupon && coupon.code) {
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
     }
-    
+
     // Redirecionar para o deeplink
     if (coupon && coupon.deeplink) {
         window.location.href = coupon.deeplink;

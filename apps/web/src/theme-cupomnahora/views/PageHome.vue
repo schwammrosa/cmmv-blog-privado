@@ -268,7 +268,7 @@
                             :style="`transform: translateX(-${currentCouponIndex * (100 / couponSlidesVisible)}%);`">
                             <div v-for="coupon in featuredCoupons.slice(0, 10)" :key="coupon.id"
                                 class="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2 flex-shrink-0">
-                                <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" 
+                                <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'"
                                    class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col p-0 block">
                                     <div class="p-4 pb-3">
                                         <div class="flex-shrink-0 h-24 flex items-center justify-center">
@@ -281,8 +281,8 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gray-200 flex-1 flex flex-col text-center p-4 pt-3 mt-auto">
-                                        <p class="text-base font-bold text-gray-800 mb-1 line-clamp-2 h-12">{{ coupon.title }}</p>
+                                    <div class="flex-1 flex flex-col text-center p-4 pt-3 mt-auto">
+                                        <p class="text-sm font-bold text-gray-800 mb-1 line-clamp-2 h-10">{{ coupon.title }}</p>
                                     </div>
                                 </a>
                             </div>
@@ -290,11 +290,12 @@
                     </div>
 
                     <!-- Carousel Controls -->
-                    <button @click="prevCouponSlide" 
+                    <button @click="prevCouponSlide"
                             class="absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full w-10 h-10 p-2 z-10 -ml-3 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button @click="nextCouponSlide" 
+
+                    <button @click="nextCouponSlide"
                             class="absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md rounded-full w-10 h-10 p-2 z-10 -mr-3 flex items-center justify-center text-gray-600 hover:text-gray-800 transition-colors">
                         <i class="fas fa-chevron-right"></i>
                     </button>
@@ -302,7 +303,7 @@
                     <!-- Carousel Bullets -->
                     <div class="flex justify-center mt-6 space-x-2">
                         <button v-for="i in Math.ceil(Math.min(10, featuredCoupons.length) / couponSlidesVisible)" :key="i"
-                            @click="currentCouponIndex = (i-1) * couponSlidesVisible" 
+                            @click="currentCouponIndex = (i-1) * couponSlidesVisible"
                             class="w-2.5 h-2.5 rounded-full bg-gray-300 hover:bg-gray-400 focus:outline-none transition-colors"
                             :class="{'bg-indigo-600': Math.floor(currentCouponIndex / couponSlidesVisible) === i-1}"></button>
                     </div>
@@ -327,7 +328,7 @@
                 <div v-else class="space-y-4">
                     <div v-for="coupon in top25Coupons" :key="coupon.id"
                          class="bg-white border border-gray-200 rounded-lg p-4 md:p-6 flex flex-col md:flex-row items-center hover:shadow-lg transition-shadow duration-300">
-                        
+
                         <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
                             <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
                                  class="max-w-full max-h-full object-contain rounded">
@@ -341,7 +342,7 @@
                         <div class="flex-grow text-center md:text-left">
                             <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-1">{{ coupon.title }}</h3>
                             <p v-if="coupon.cashbackPercentage" class="text-sm text-green-600 font-medium mb-1">
-                                + {{ coupon.cashbackPercentage }}% de cashback 
+                                + {{ coupon.cashbackPercentage }}% de cashback
                                 <span v-if="coupon.oldCashbackPercentage" class="text-gray-500 line-through">(era {{coupon.oldCashbackPercentage}}%)</span>
                             </p>
                             <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ coupon.description }}</p>
@@ -441,8 +442,8 @@
         </div>
     </div>
 
-    <CouponScratchModal 
-        :visible="isScratchModalOpen" 
+    <CouponScratchModal
+        :visible="isScratchModalOpen"
         :coupon="selectedCouponForScratch"
         @close="closeScratchModal" />
 
@@ -751,7 +752,7 @@ const prevCouponSlide = () => {
     const numDisplayableCoupons = Math.min(10, featuredCoupons.value.length);
     if (couponSlidesVisible.value >= numDisplayableCoupons) {
         currentCouponIndex.value = 0;
-        return; 
+        return;
     }
 
     const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
@@ -790,11 +791,11 @@ const openDeeplinkInBackground = (url: string) => {
     const iframe = document.createElement('iframe');
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
-    
+
     try {
         // Definir o src do iframe para o deeplink
         iframe.src = url;
-        
+
         // Limpar o iframe após um curto período
         setTimeout(() => {
             if (iframe && iframe.parentNode) {
@@ -815,7 +816,7 @@ const openScratchModal = (coupon: any) => {
     if (!coupon.campaignName || !coupon.campaignLogo) {
         // Buscar a campanha correspondente se ela existir
         const relatedCampaign = campaigns.value.find(c => c.id === coupon.campaignId);
-        
+
         // Criar uma cópia enriquecida do cupom com os dados da campanha
         selectedCouponForScratch.value = {
             ...coupon,
@@ -826,15 +827,15 @@ const openScratchModal = (coupon: any) => {
         // Se já tem os dados da campanha, usar diretamente
         selectedCouponForScratch.value = coupon;
     }
-    
+
     // Mostrar o modal
     isScratchModalOpen.value = true;
-    
+
     // Abrir uma nova janela com o código do cupom
     if (coupon && coupon.code) {
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
     }
-    
+
     // Redirecionar para o deeplink
     if (coupon && coupon.deeplink) {
         window.location.href = coupon.deeplink;
