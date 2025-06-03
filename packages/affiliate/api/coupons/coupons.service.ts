@@ -275,6 +275,7 @@ export class CouponsServiceTools {
             active: true,
             campaign: Not(IsNull()),
             expiration: MoreThan(new Date()),
+            type: "Cupom",
             limit: 50
         },
         [], // relations
