@@ -591,24 +591,18 @@ const adSettings = computed(() => {
         taboolaJsCode: rawSettings['blog.taboolaJsCode'] || '',
     };
 
-    // Log for debugging
-    console.log('adSenseSidebarLeft value in PagePost:', rawSettings['blog.adSenseSidebarLeft']);
-
     return result;
 });
 
-// Helper to get appropriate ad HTML based on position
 const getAdHtml = (position) => {
     if (!adSettings.value.enableAds) return '';
 
-    // Check if position is enabled
     const positionSetting = `articlePage${position.charAt(0).toUpperCase() + position.slice(1)}`;
-    if (positionSetting in adSettings.value && !adSettings.value[positionSetting]) {
+
+    if (positionSetting in adSettings.value && !adSettings.value[positionSetting])
         return '';
-    }
 
     if (adSettings.value.enableAdSense) {
-        // Map position to the correct AdSense setting key
         let adSenseSetting = '';
         switch (position) {
             case 'header':
@@ -645,7 +639,6 @@ const getAdHtml = (position) => {
     }
 
     if (adSettings.value.enableCustomAds) {
-        // Map position to the correct custom ad setting key
         let customSetting = '';
         switch (position) {
             case 'header':
@@ -938,14 +931,11 @@ const loadComments = () => {
 
         const commentsContainer = document.getElementById('comments-container');
 
-        if (!commentsContainer || !document.body.contains(commentsContainer)) {
-            console.warn('Comments container not found or not attached to DOM');
+        if (!commentsContainer || !document.body.contains(commentsContainer))
             return;
-        }
 
-        while (commentsContainer.firstChild) {
+        while (commentsContainer.firstChild)
             commentsContainer.removeChild(commentsContainer.firstChild);
-        }
 
         if (commentSystem.value === 'disqus') {
             loadDisqusComments();
@@ -981,10 +971,9 @@ const loadFacebookComments = () => {
         if (isSSR || !isMounted.value) return;
 
         const commentsContainer = document.getElementById('comments-container');
-        if (!commentsContainer || !document.body.contains(commentsContainer)) {
-            console.warn('Comments container not found or not attached to DOM');
+
+        if (!commentsContainer || !document.body.contains(commentsContainer))
             return;
-        }
 
         commentsContainer.innerHTML = '';
 
@@ -1003,10 +992,9 @@ const loadFacebookComments = () => {
         commentsContainer.appendChild(fbCommentsDiv);
 
         const facebookAppId = settings.value['blog.facebookAppId'];
-        if (!facebookAppId) {
-            console.error('Facebook App ID is not set.');
+
+        if (!facebookAppId)
             return;
-        }
 
         if (!window.FB) {
             if (!document.getElementById('facebook-jssdk')) {
@@ -1029,9 +1017,7 @@ const loadFacebookComments = () => {
         } else {
             FB.XFBML.parse();
         }
-    } catch (error) {
-        console.error('Error in loadFacebookComments:', error);
-    }
+    } catch (error) {}
 };
 
 const loadDisqusComments = () => {
@@ -1039,17 +1025,16 @@ const loadDisqusComments = () => {
         if (isSSR || !isMounted.value) return;
 
         const commentsContainer = document.getElementById('comments-container');
-        if (!commentsContainer || !document.body.contains(commentsContainer)) {
-            console.warn('Comments container not found or not attached to DOM for Disqus');
+
+        if (!commentsContainer || !document.body.contains(commentsContainer))
             return;
-        }
 
         const disqusShortname = settings.value['blog.disqusShortname'];
+
         if (!disqusShortname) {
-            console.error('Disqus shortname is not set');
-            if (document.body.contains(commentsContainer)) {
+            if (document.body.contains(commentsContainer))
                 commentsContainer.innerHTML = '<p class="text-center text-red-500 py-4">O sistema de comentários do Disqus não está configurado corretamente.</p>';
-            }
+
             return;
         }
 
@@ -1083,13 +1068,9 @@ const loadDisqusComments = () => {
                 if (target) {
                     target.appendChild(script);
                 }
-            } catch (error) {
-                console.error('Error loading Disqus:', error);
-            }
+            } catch (error) {}
         }, 100);
-    } catch (error) {
-        console.error('Error in loadDisqusComments:', error);
-    }
+    } catch (error) {}
 };
 
 const relatedPostsObserver = ref<HTMLElement | null>(null)
@@ -1193,12 +1174,9 @@ const loadRelatedPosts = async () => {
             if (document.body.contains(relatedPostsObserver.value))
                 relatedPostsLoaded.value = true;
         }
-    } catch (error) {
-        console.error('Error loading related posts:', error);
-    }
+    } catch (error) {}
 };
 
-// Load the AdSense script if enabled
 const loadAdScripts = () => {
     if (adSettings.value.enableAds) {
         if (adSettings.value.enableAdSense && adSettings.value.enableAdSenseAutoAds && adSettings.value.adSenseAutoAdsCode) {
@@ -1217,13 +1195,8 @@ const loadAdScripts = () => {
                         script.src = scriptSrc;
                         script.crossOrigin = "anonymous";
                         head.appendChild(script);
-                        console.log('AdSense script added to head:', scriptSrc);
-                    } else {
-                        console.error('Could not extract AdSense script URL from:', adSettings.value.adSenseAutoAdsCode);
                     }
-                } catch (e) {
-                    console.error('Error parsing AdSense code:', e);
-                }
+                } catch (e) {}
             }
         }
 
@@ -1240,17 +1213,11 @@ const loadAdScripts = () => {
                         if (window.adsbygoogle) {
                             try {
                                 window.adsbygoogle.push({});
-                            } catch (e) {
-                                console.error('Error initializing left sidebar ad:', e);
-                            }
+                            } catch (e) {}
                         }
-                    } else {
-                        console.error('Could not find ins element in adSenseSidebarLeft HTML');
                     }
                 }, 500);
-            } catch (e) {
-                console.error('Error inserting left sidebar ad:', e);
-            }
+            } catch (e) {}
         }
 
         if (adSettings.value.enableAdSense && window.adsbygoogle) {
@@ -1259,13 +1226,9 @@ const loadAdScripts = () => {
                     document.querySelectorAll('.adsbygoogle').forEach((ad) => {
                         if (!ad.hasAttribute('data-adsbygoogle-status')) {
                             (window.adsbygoogle = window.adsbygoogle || []).push({});
-                        } else {
-                            console.log('Ad unit already initialized:', ad.getAttribute('data-adsbygoogle-status'));
                         }
                     });
-                } catch (e) {
-                    console.error('AdSense initialization error:', e);
-                }
+                } catch (e) {}
             }, 300);
         }
     }

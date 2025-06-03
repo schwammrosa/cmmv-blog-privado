@@ -116,6 +116,7 @@ const campaigns = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
+
 // SEO
 const headData = computed(() => ({
     title: `Cupons de Desconto ${category.value?.name || 'Categoria'} | ${settings.value?.['blog.title'] || 'Site de Cupons'}`,
@@ -145,23 +146,67 @@ useHead(headData);
 const relatedCampaigns = computed(() => {
     if (!category.value || !campaigns.value.length) return [];
 
-    const campaignsWithCoupons = campaigns.value.filter(campaign => campaign.couponCount > 0);
+    console.log('Categoria atual:', category.value);
+    console.log('Total de campanhas:', campaigns.value.length);
+    
+    // Filtramos apenas campanhas que têm a categoria atual E que têm cupons disponíveis
+    const campaignsInCategory = campaigns.value.filter(campaign => {
+        // Verifica se a campanha tem cupons
+        const hasCoupons = campaign.couponCount > 0;
+        
+        // Verifica a categoria de várias formas possíveis
+        let hasCategory = false;
+        
+        // Método 1: Verifica se a categoria está no array de categorias (API)
+        if (campaign.categories && Array.isArray(campaign.categories)) {
+            // Comparação direta de IDs
+            hasCategory = campaign.categories.includes(category.value.id);
+            
+            // Comparação de strings de IDs
+            if (!hasCategory) {
+                hasCategory = campaign.categories.some(catId => 
+                    String(catId) === String(category.value.id)
+                );
+            }
+        }
+        
+        
+        // Método 2: Verifica se a categoria está no nome da campanha ou descrição (fallback)
+        if (!hasCategory && category.value.name && campaign.name) {
+            const categoryName = category.value.name.toLowerCase();
+            const campaignName = campaign.name.toLowerCase();
+            const campaignDesc = (campaign.description || '').toLowerCase();
+            
+            if (campaignName.includes(categoryName) || categoryName.includes(campaignName) ||
+                campaignDesc.includes(categoryName)) {
+                hasCategory = true;
+            }
+        }
+        
+        // Log para depuração
+        if (campaign.name === 'Consul' || campaign.name === 'Brastemp') {
+            console.log(`Campanha: ${campaign.name}, Tem cupons: ${hasCoupons}, Tem categoria: ${hasCategory}`);
+            console.log('Categories:', campaign.categories);
+        }
+        
+        return hasCategory && hasCoupons;
+    });
 
-    if (campaignsWithCoupons.length === 0) return [];
-
-    const minCount = Math.floor(campaignsWithCoupons.length * 0.3);
-    const maxCount = Math.floor(campaignsWithCoupons.length * 0.7);
-    const count = Math.max(1, Math.floor(Math.random() * (maxCount - minCount + 1)) + minCount);
-
-    return [...campaignsWithCoupons]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, count)
-        .sort((a, b) => {
-            if (a.highlight && !b.highlight) return -1;
-            if (!a.highlight && b.highlight) return 1;
-            if (a.couponCount !== b.couponCount) return b.couponCount - a.couponCount;
-            return a.name.localeCompare(b.name);
-        });
+    console.log('Campanhas filtradas:', campaignsInCategory.length);
+    /*
+    if (campaignsInCategory.length === 0) {
+        // Fallback: Se não encontrarmos nenhuma campanha, mostrar todas as campanhas com cupons
+        console.log('Nenhuma campanha na categoria. Mostrando todas as campanhas com cupons.');
+        return campaigns.value.filter(campaign => campaign.couponCount > 0);
+    }
+    */
+    // Ordenamos as campanhas: primeiro as destacadas, depois por número de cupons
+    return [...campaignsInCategory].sort((a, b) => {
+        if (a.highlight && !b.highlight) return -1;
+        if (!a.highlight && b.highlight) return 1;
+        if (a.couponCount !== b.couponCount) return b.couponCount - a.couponCount;
+        return a.name.localeCompare(b.name);
+    });
 });
 
 const loadData = async () => {

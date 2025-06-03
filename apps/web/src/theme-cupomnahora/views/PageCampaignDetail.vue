@@ -21,8 +21,8 @@
 
             <div v-else class="bg-white rounded-lg p-6">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
-                    <div class="w-32 h-32 flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="w-full h-full object-cover">
+                    <div class="w-[160px] h-[125px] flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="w-full h-full">
                         <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -31,16 +31,15 @@
                     </div>
                     <div class="flex-1">
                         <div class="flex flex-col text-center md:text-left">
-                            <h1 class="text-3xl font-bold text-gray-800 mb-2">Cupons de desconto {{ campaign.name }}</h1>
-                            <p class="text-gray-500 mb-2">Atualizado em {{ formatDate(new Date()) }}</p>
-                            <p class="text-gray-700">Encontramos {{ coupons.length }} cupons de desconto para {{ campaign.name }} →</p>
+                            <h1 v-if="campaign.seoTitle" class="text-3xl font-bold text-gray-800 mb-2">{{ campaign.seoTitle }}</h1>
+                            <h1 v-else class="text-3xl font-bold text-gray-800 mb-2">Cupons de desconto {{ campaign.name }}</h1>
+                            <p class="text-gray-500 mb-2 text-sm">Atualizado em {{ formatDate(new Date()) }}</p>
+                            <h2 v-if="campaign.seoSubtitle" class="text-md text-gray-800 mb-2">{{ campaign.seoSubtitle }}</h2>
+
+                            <p v-if="campaign.seoSmallText" class="text-gray-600 mt-2 text-sm">{{ campaign.seoSmallText }}</p>
+                            <p v-else-if="campaign.description" class="text-gray-600 mt-2 text-sm">{{ campaign.description }}</p>
+                            <p class="text-gray-700 mt-4">Encontramos {{ coupons.length }} cupons de desconto para {{ campaign.name }} →</p>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-2 bg-amber-100 text-amber-800 px-3 py-2 rounded-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span class="text-sm font-medium">Termina em: 02:03:31</span>
                     </div>
                 </div>
 
@@ -217,6 +216,10 @@
                         </div>
                     </div>
                 </div>
+
+                <div v-if="campaign.seoLongText" class="mt-8 longText-content">
+                    <div v-html="campaign.seoLongText" class="text-gray-600 text-md"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -332,22 +335,34 @@ const loadData = async () => {
             let campaignCoupons = couponsStore.getCampaignCoupons(campaignId);
 
             if (campaignCoupons && campaignCoupons.length > 0) {
-                coupons.value = campaignCoupons;
+                // Adicionar informações da campanha em cada cupom
+                coupons.value = campaignCoupons.map((c: any) => ({
+                    ...c,
+                    campaignName: campaign.value.name,
+                    campaignLogo: c.campaignLogo || campaign.value.logo
+                }));
             } else {
                 const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaignId);
 
                 if (realCoupons && realCoupons.length > 0) {
-                    coupons.value = realCoupons;
-                    couponsStore.setCampaignCoupons(campaignId, realCoupons);
+                    // Adicionar informações da campanha em cada cupom
+                    const enrichedCoupons = realCoupons.map((c: any) => ({
+                        ...c,
+                        campaignName: campaign.value.name,
+                        campaignLogo: c.campaignLogo || campaign.value.logo
+                    }));
+
+                    coupons.value = enrichedCoupons;
+                    couponsStore.setCampaignCoupons(campaignId, enrichedCoupons);
                 }
             }
         } catch (couponError) {
-            console.error("Erro ao carregar cupons reais:", couponError);
+            console.error("Erro ao carregar cupons:", couponError);
         }
 
         loading.value = false;
     } catch (err: any) {
-        console.error('Erro ao carregar campanha:', err);
+        //console.error('Erro ao carregar campanha:', err);
         error.value = err.message || 'Erro ao carregar a loja e seus cupons';
         loading.value = false;
     }
@@ -367,19 +382,45 @@ const setFilter = (filter: string) => {
 };
 
 const openCouponModal = (coupon: any) => {
-    selectedCouponForScratch.value = {
-        ...coupon,
-        campaignName: campaign.value?.name,
-        campaignLogo: campaign.value?.logo
-    };
+    // Verificar se o cupom já tem as informações da campanha
+    if (!coupon.campaignName || !coupon.campaignLogo) {
+        // Primeiro tentar usar a campanha atual da página
+        if (campaign.value) {
+            // Criar uma cópia enriquecida do cupom com os dados da campanha
+            selectedCouponForScratch.value = {
+                ...coupon,
+                campaignName: campaign.value.name || 'Loja',
+                campaignLogo: campaign.value.logo || null
+            };
+        } else {
+            // Se não temos campaign.value (o que seria estranho nesta página),
+            // buscar a campanha correspondente pelo ID
+            const relatedCampaign = campaignsStore.getCampaigns?.find(c => c.id === coupon.campaignId);
 
+            // Criar uma cópia enriquecida do cupom com os dados da campanha
+            selectedCouponForScratch.value = {
+                ...coupon,
+                campaignName: relatedCampaign?.name || coupon.campaignName || 'Loja',
+                campaignLogo: relatedCampaign?.logo || coupon.campaignLogo || null
+            };
+        }
+    } else {
+        // Se já tem os dados da campanha, usar diretamente
+        selectedCouponForScratch.value = { ...coupon };
+    }
+
+    // Mostrar o modal
     isScratchModalOpen.value = true;
 
-    if (coupon && coupon.code)
+    // Abrir uma nova janela com o código do cupom
+    if (coupon && coupon.code) {
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
+    }
 
-    if (coupon && coupon.deeplink)
+    // Redirecionar para o deeplink
+    if (coupon && coupon.deeplink) {
         window.location.href = coupon.deeplink;
+    }
 };
 
 const closeCouponModal = () => {
@@ -432,77 +473,3 @@ watch(() => route.params.slug, (newSlug, oldSlug) => {
     }
 });
 </script>
-
-<style scoped>
-.coupon-button {
-    position: relative;
-    z-index: 1;
-
-    border-radius: 6px 6px 3px 3px;
-}
-
-.coupon-button .coupon-cover {
-    transition: all 0.3s ease-in-out;
-    z-index: 10;
-    right: 0;
-    width: 70%;
-}
-
-.coupon-button .coupon-cover::after {
-    display: none;
-}
-
-.coupon-button .coupon-cover::before {
-    content: "";
-    position: absolute;
-    top: -5px;
-    right: -28px;
-    width: 40px;
-    height: 55px;
-    background: linear-gradient(36deg, #b1cea8, #c6e8b8 38%, #c9e0be 47%, #c0e1b3 51%, rgba(255,255,255,0) 54%);
-    transform: rotate(35deg);
-    transform-origin: center center;
-    border-radius: 6px 6px 3px 3px;
-    z-index: 12;
-    transition: all 0.3s ease-in-out;
-    display: block;
-}
-
-.coupon-button:hover .coupon-cover {
-    width: 60%;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
-}
-
-.coupon-button:hover .coupon-cover::before {
-    top: 0px;
-    right: -32px;
-    transform: rotate(30deg);
-    width: 44px;
-    height: 55px;
-}
-
-.coupon-button.expired .coupon-cover {
-    background-color: #9ca3af !important;
-}
-
-.coupon-button.expired .coupon-cover::before {
-    background: linear-gradient(36deg, #d1d5db, #e5e7eb 38%, #f3f4f6 47%, #e5e7eb 51%, rgba(255,255,255,0) 54%);
-}
-
-/* Estilos adicionais para cupons expirados */
-.expired-coupon {
-    background-color: #f8f8f8;
-    opacity: 0.8;
-    border-color: #ddd;
-}
-
-.expired-coupon h3,
-.expired-coupon p {
-    color: #999;
-}
-
-.expired-coupon button,
-.expired-coupon a {
-    opacity: 0.7;
-}
-</style>

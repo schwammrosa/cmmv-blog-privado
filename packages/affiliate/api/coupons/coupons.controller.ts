@@ -26,6 +26,12 @@ export class CouponsControllerTools {
         return this.couponsService.getCouponsWithAI(campaignId);
     }
 
+    @Get("generate-post/:campaignId")
+    @Auth("affiliatecoupons:get")
+    async generateBestCouponsPost(@Param("campaignId") campaignId: string) {
+        return this.couponsService.generateBestCouponsPost(campaignId);
+    }
+
     @Get("campaign/:campaignId")
     @Cache("coupons:")
     @CacheControl({ maxAge: 3600, public: true })

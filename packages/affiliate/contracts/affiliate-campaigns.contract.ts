@@ -117,10 +117,34 @@ export class AffiliateCampaignsContract extends AbstractContract {
     slug!: string;
 
     @ContractField({
-        protoType: 'number',
+        protoType: 'int32',
         nullable: true,
         defaultValue: 0,
         index: true
     })
     coupons!: number;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true
+    })
+    seoTitle?: string;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true
+    })
+    seoSubtitle?: string;
+
+    @ContractField({
+        protoType: 'text',
+        nullable: true
+    })
+    seoSmallText?: string;
+
+    @ContractField({
+        protoType: 'text',
+        nullable: true
+    })
+    seoLongText?: string;
 }
