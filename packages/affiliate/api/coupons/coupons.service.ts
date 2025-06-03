@@ -242,7 +242,7 @@ export class CouponsServiceTools {
         const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
 
         const coupons = await Repository.findAll(AffiliateCouponsEntity, {
-            limit: 10000,
+            limit: 50,
             active: true,
             campaign: campaignId
         }, [], {
