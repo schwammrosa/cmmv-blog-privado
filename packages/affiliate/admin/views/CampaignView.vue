@@ -1789,15 +1789,13 @@ const generatePostPreview = async (campaign) => {
                     throw new Error(statusResponse.error || 'Post generation failed');
                 } else if (statusResponse.status === 'processing') {
                     showNotification('info', `Gerando conteúdo para ${campaign.name}... A IA está processando, aguarde.`);
-                    setTimeout(pollJob, 8000); // Poll every 8 seconds for longer jobs
+                    setTimeout(pollJob, 8000);
                 } else {
-                    // Still pending
-                    setTimeout(pollJob, 5000); // Poll every 5 seconds
+                    setTimeout(pollJob, 5000);
                 }
             } catch (pollError) {
                 console.error('Error polling post job status:', pollError);
 
-                // Check for specific error types for better user messages
                 let errorMessage = 'Failed to check post generation status';
 
                 if (pollError.message?.includes('timeout') || pollError.message?.includes('Timeout')) {
@@ -1816,14 +1814,12 @@ const generatePostPreview = async (campaign) => {
             }
         };
 
-        // Start polling after a short delay
         setTimeout(pollJob, 3000);
 
     } catch (err) {
         console.error('Failed to start post generation:', err);
         postGeneratingError.value = err.message || 'Failed to generate post content';
 
-        // Check for specific error types
         let errorMessage = 'Failed to start post generation';
 
         if (err.message?.includes('No active coupons found')) {
