@@ -37,7 +37,7 @@
                             <h2 v-if="campaign.seoSubtitle" class="text-md text-gray-800 mb-2">{{ campaign.seoSubtitle }}</h2>
 
                             <p v-if="campaign.seoSmallText" class="text-gray-600 mt-2 text-sm">{{ campaign.seoSmallText }}</p>
-                            <p v-if="campaign.description" class="text-gray-600 mt-2 text-sm">{{ campaign.description }}</p>
+                            <p v-else-if="campaign.description" class="text-gray-600 mt-2 text-sm">{{ campaign.description }}</p>
                             <p class="text-gray-700 mt-4">Encontramos {{ coupons.length }} cupons de desconto para {{ campaign.name }} →</p>
                         </div>
                     </div>
