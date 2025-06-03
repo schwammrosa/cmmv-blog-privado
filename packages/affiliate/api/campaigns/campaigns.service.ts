@@ -99,12 +99,55 @@ Text should be 2000-4000 words, informative and SEO optimized.
 
 IMPORTANT:
 - Respond in ${language} language
-- Format the response in HTML with proper tags (h2, h3, p, ul, li, etc.)
+- Format the response in HTML with Tailwind CSS 4 classes
 - Do not include <html>, <head>, or <body> tags, just the content HTML
-- Use semantic HTML structure with headings and paragraphs
-- Convert any markdown formatting to proper HTML tags
+- Do not use container classes like max-w-*, mx-auto, or section wrappers
+- Do not add links to external websites or third-party sites
+- Do not use "Conclusão" or "Conclusion" as section titles or add footer content
+- When mentioning coupons, do not reference third-party coupon sites (avoid phrases like "Sites parceiros como CupomValido.com.br" or similar)
+- Focus only on the specific store and its own coupon system
+- Use semantic HTML structure with headings and paragraphs styled with Tailwind CSS
+- Use the following Tailwind CSS styling patterns:
 
-Respond only with the HTML formatted text, without JSON formatting.`;
+Headers:
+- h2: class="text-2xl font-bold text-gray-800 mb-4 mt-8"
+- h3: class="text-xl font-semibold text-gray-700 mb-3 mt-6"
+- h4: class="text-lg font-medium text-gray-600 mb-2 mt-4"
+
+Paragraphs:
+- p: class="text-gray-600 leading-relaxed mb-4"
+
+Lists:
+- ul: class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6"
+- ol: class="list-decimal list-inside space-y-2 mb-4 text-gray-600"
+- li: class="leading-relaxed"
+
+Emphasis:
+- strong: class="font-semibold text-gray-800"
+- em: class="italic text-gray-700"
+
+Containers/Sections:
+- Use divs with class="bg-gray-50 p-6 rounded-lg mb-6" for highlighted sections
+- Use divs with class="border-l-4 border-green-500 pl-4 mb-4" for tips/highlights
+
+Links (only for internal store references):
+- a: class="text-green-600 hover:text-green-800 font-medium underline"
+
+Example structure to follow (start directly with content, no wrapper sections):
+<h2 class="text-2xl font-bold text-gray-800 mb-4 mt-8">Main Section</h2>
+<p class="text-gray-600 leading-relaxed mb-4">Content paragraph...</p>
+<div class="bg-gray-50 p-6 rounded-lg mb-6">
+    <h3 class="text-xl font-semibold text-gray-700 mb-3">Important Information</h3>
+    <p class="text-gray-600 leading-relaxed">Highlighted content...</p>
+</div>
+<ul class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6">
+    <li class="leading-relaxed">List item with details</li>
+</ul>
+<div class="border-l-4 border-green-500 pl-4 mb-4">
+    <p class="text-gray-600 leading-relaxed"><strong class="font-semibold text-gray-800">Pro Tip:</strong> Important advice here</p>
+</div>
+
+Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting and without container wrappers.`;
 
             const aiService = Application.resolveProvider<any>(AIContentService);
 
@@ -275,12 +318,55 @@ Text should be 2000-4000 words, informative and SEO optimized.
 
 IMPORTANT:
 - Respond in ${language} language
-- Format the response in HTML with proper tags (h2, h3, p, ul, li, etc.)
+- Format the response in HTML with Tailwind CSS 4 classes
 - Do not include <html>, <head>, or <body> tags, just the content HTML
-- Use semantic HTML structure with headings and paragraphs
-- Convert any markdown formatting to proper HTML tags
+- Do not use container classes like max-w-*, mx-auto, or section wrappers
+- Do not add links to external websites or third-party sites
+- Do not use "Conclusão" or "Conclusion" as section titles or add footer content
+- When mentioning coupons, do not reference third-party coupon sites (avoid phrases like "Sites parceiros como CupomValido.com.br" or similar)
+- Focus only on the specific store and its own coupon system
+- Use semantic HTML structure with headings and paragraphs styled with Tailwind CSS
+- Use the following Tailwind CSS styling patterns:
 
-Respond only with the HTML formatted text, without JSON formatting.`;
+Headers:
+- h2: class="text-2xl font-bold text-gray-800 mb-4 mt-8"
+- h3: class="text-xl font-semibold text-gray-700 mb-3 mt-6"
+- h4: class="text-lg font-medium text-gray-600 mb-2 mt-4"
+
+Paragraphs:
+- p: class="text-gray-600 leading-relaxed mb-4"
+
+Lists:
+- ul: class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6"
+- ol: class="list-decimal list-inside space-y-2 mb-4 text-gray-600"
+- li: class="leading-relaxed"
+
+Emphasis:
+- strong: class="font-semibold text-gray-800"
+- em: class="italic text-gray-700"
+
+Containers/Sections:
+- Use divs with class="bg-gray-50 p-6 rounded-lg mb-6" for highlighted sections
+- Use divs with class="border-l-4 border-green-500 pl-4 mb-4" for tips/highlights
+
+Links (only for internal store references):
+- a: class="text-green-600 hover:text-green-800 font-medium underline"
+
+Example structure to follow (start directly with content, no wrapper sections):
+<h2 class="text-2xl font-bold text-gray-800 mb-4 mt-8">Main Section</h2>
+<p class="text-gray-600 leading-relaxed mb-4">Content paragraph...</p>
+<div class="bg-gray-50 p-6 rounded-lg mb-6">
+    <h3 class="text-xl font-semibold text-gray-700 mb-3">Important Information</h3>
+    <p class="text-gray-600 leading-relaxed">Highlighted content...</p>
+</div>
+<ul class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6">
+    <li class="leading-relaxed">List item with details</li>
+</ul>
+<div class="border-l-4 border-green-500 pl-4 mb-4">
+    <p class="text-gray-600 leading-relaxed"><strong class="font-semibold text-gray-800">Pro Tip:</strong> Important advice here</p>
+</div>
+
+Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting and without container wrappers.`;
 
             this.logger.log(`Processing SEO job ${jobId} for campaign ${job.campaignId}`);
             const aiService = Application.resolveProvider<any>(AIContentService);
