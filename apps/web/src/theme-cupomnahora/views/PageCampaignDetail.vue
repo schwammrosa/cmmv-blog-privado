@@ -48,15 +48,15 @@
                 <div class="border-t border-b border-gray-200 py-4 mb-8">
                     <div class="flex flex-wrap gap-2">
                         <div class="text-gray-700 font-medium mr-2 flex items-center">Filtrar por:</div>
-                        <button 
-                            @click="setFilter('all')" 
+                        <button
+                            @click="setFilter('all')"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
                             :class="activeFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                         >
                             Todos ({{ coupons.length }})
                         </button>
-                        <button 
-                            @click="setFilter('codes')" 
+                        <button
+                            @click="setFilter('codes')"
                             :disabled="codesCount === 0"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
                             :class="[
@@ -66,8 +66,8 @@
                         >
                             Códigos ({{ codesCount }})
                         </button>
-                        <button 
-                            @click="setFilter('offers')" 
+                        <button
+                            @click="setFilter('offers')"
                             :disabled="offersCount === 0"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
                             :class="[
@@ -77,8 +77,8 @@
                         >
                             Ofertas ({{ offersCount }})
                         </button>
-                        <button 
-                            @click="setFilter('expired')" 
+                        <button
+                            @click="setFilter('expired')"
                             :disabled="expiredCount === 0"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
                             :class="[
@@ -96,14 +96,14 @@
                     <p class="text-lg text-gray-600">Nenhum cupom encontrado para este filtro.</p>
                     <p class="text-gray-500 mt-2">Tente outro filtro ou volte mais tarde.</p>
                 </div>
-                
+
                 <div v-else class="space-y-6">
-                    <div v-for="coupon in filteredCoupons" :key="coupon.id" 
+                    <div v-for="coupon in filteredCoupons" :key="coupon.id"
                         class="border border-gray-200 rounded-lg p-4 md:p-6 hover:shadow-md transition-shadow duration-300 bg-white relative"
                         :class="{'expired-coupon': new Date(coupon.expiration) < new Date()}">
-                        
+
                         <!-- Etiqueta de desconto ou etiqueta de expirado -->
-                        <div v-if="new Date(coupon.expiration) < new Date()" 
+                        <div v-if="new Date(coupon.expiration) < new Date()"
                             class="absolute top-0 left-0 bg-gray-500 text-white px-4 py-2 rounded-tr-lg rounded-bl-lg font-bold">
                             Expirado
                         </div>
@@ -119,23 +119,23 @@
                                 Produto
                             </template>
                         </div>
-                        
+
                         <div class="mt-6 md:ml-6">
                             <div class="flex flex-col md:flex-row">
                                 <div class="flex-grow md:pr-6">
                                     <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2">{{ coupon.title }}</h3>
-                                    
+
                                     <!-- Cashback info -->
                                     <div v-if="coupon.cashbackPercentage" class="text-sm text-indigo-600 font-medium mb-2 flex items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                         </svg>
-                                        + {{ coupon.cashbackPercentage }}% de cashback 
+                                        + {{ coupon.cashbackPercentage }}% de cashback
                                         <span v-if="coupon.oldCashbackPercentage" class="text-gray-500 line-through ml-1">(era {{coupon.oldCashbackPercentage}}%)</span>
                                     </div>
-                                    
+
                                     <p class="text-gray-600 text-sm mb-3">{{ coupon.description }}</p>
-                                    
+
                                     <!-- Validade e verificação -->
                                     <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-500 mb-4">
                                         <div class="flex items-center">
@@ -160,22 +160,57 @@
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="md:w-48 flex-shrink-0 flex justify-center mt-4 md:mt-0">
                                     <button v-if="coupon.code"
                                         @click="openCouponModal(coupon)"
-                                        class="w-full font-semibold py-3 px-6 rounded-lg transition-colors duration-300 text-center flex flex-col items-center"
-                                        :class="[new Date(coupon.expiration) < new Date() ? 
-                                            'bg-gray-700 hover:bg-gray-800 text-white' : 
-                                            'bg-indigo-600 hover:bg-indigo-700 text-white']">
-                                        <span class="block mb-1">VER CUPOM</span>
-                                        <span class="text-xs">···{{ coupon.code.slice(-3) }}</span>
+                                        class="coupon-button group relative w-full h-12 overflow-visible bg-white border border-gray-300 rounded-lg transition-all duration-200 hover:shadow-lg"
+                                        :class="[
+                                            new Date(coupon.expiration) < new Date() ?
+                                                'border-gray-400 bg-gray-100 expired' :
+                                                'border-green-400 hover:border-green-500'
+                                        ]">
+
+                                        <!-- Área do código completo (sempre visível por baixo) -->
+                                        <div class="absolute inset-0 flex items-center justify-end px-4 z-5"
+                                            :class="[new Date(coupon.expiration) < new Date() ?
+                                                'bg-gray-100' :
+                                                'bg-gradient-to-r from-green-50 to-emerald-50']">
+                                            <div class="font-mono text-sm font-bold px-3 py-2"
+                                                :class="[new Date(coupon.expiration) < new Date() ?
+                                                    'border-gray-400 text-gray-600' :
+                                                    'border-green-400 text-green-800']">
+                                                ...{{ coupon.code.slice(-4) }}
+                                            </div>
+                                        </div>
+
+                                        <!-- Parte verde "Ver Cupom" que funciona como tampa -->
+                                        <div class="coupon-cover absolute inset-0 flex items-center px-4 transition-all duration-200 ease-in-out z-10"
+                                            :class="[new Date(coupon.expiration) < new Date() ?
+                                                'bg-gray-400' :
+                                                'bg-green-600']">
+
+                                            <!-- Texto VER CUPOM -->
+                                            <div class="flex items-center text-white">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                                </svg>
+                                                <span class="text-sm font-medium">Ver Cupom</span>
+                                            </div>
+                                        </div>
                                     </button>
+
                                     <a v-else
                                         :href="coupon.link || coupon.linkRef || '#'"
                                         target="_blank"
-                                        class="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 text-center">
-                                        VER OFERTA
+                                        class="group relative w-full h-12 overflow-hidden bg-orange-500 to-red-600 border border-orange-400 rounded-lg transition-all duration-300 hover:shadow-lg hover:from-orange-600 hover:to-red-700 flex items-center justify-center">
+
+                                        <div class="flex items-center text-white font-medium">
+                                            <span class="text-sm text-white font-medium">VER OFERTA</span>
+                                        </div>
+
+                                        <!-- Efeito de brilho -->
+                                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300 transform -skew-x-12 translate-x-full group-hover:translate-x-full"></div>
                                     </a>
                                 </div>
                             </div>
@@ -186,8 +221,8 @@
         </div>
     </div>
 
-    <CouponScratchModal 
-        :visible="isScratchModalOpen" 
+    <CouponScratchModal
+        :visible="isScratchModalOpen"
         :coupon="selectedCouponForScratch"
         @close="closeCouponModal" />
 </template>
@@ -196,7 +231,6 @@
 import { ref, computed, onMounted, watch, onServerPrefetch } from 'vue';
 import { useHead } from '@unhead/vue';
 import { useRoute } from 'vue-router';
-import { vue3 } from '@cmmv/blog/client';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useSettingsStore } from '../../store/settings';
 import { useCampaignsStore } from '../../store/campaigns';
@@ -204,12 +238,10 @@ import { useCouponsStore } from '../../store/coupons';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 
 const route = useRoute();
-const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const settingsStore = useSettingsStore();
 const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
-const isSSR = typeof window === 'undefined';
 
 const settings = ref<any>(settingsStore.getSettings);
 const campaign = ref<any>(null);
@@ -217,19 +249,14 @@ const coupons = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-// Estado para filtros
-const activeFilter = ref('all'); // 'all', 'codes', 'offers', 'expired'
+const activeFilter = ref('all');
+const isScratchModalOpen = ref(false);
+const selectedCouponForScratch = ref<any | null>(null);
 
-// Estado para modal de cupom (usaremos o CouponScratchModal)
-const isScratchModalOpen = ref(false); // Novo estado para o CouponScratchModal
-const selectedCouponForScratch = ref<any | null>(null); // Novo estado
-
-// Contadores para os filtros
 const codesCount = computed(() => coupons.value.filter(coupon => coupon.code).length);
 const offersCount = computed(() => coupons.value.filter(coupon => !coupon.code).length);
 const expiredCount = computed(() => coupons.value.filter(coupon => new Date(coupon.expiration) < new Date()).length);
 
-// Filtrar cupons baseado no filtro ativo
 const filteredCoupons = computed(() => {
     if (activeFilter.value === 'all') return coupons.value;
     if (activeFilter.value === 'codes') return coupons.value.filter(coupon => coupon.code);
@@ -238,97 +265,86 @@ const filteredCoupons = computed(() => {
     return coupons.value;
 });
 
-// SEO
 const headData = computed(() => ({
     title: `Cupons de Desconto ${campaign.value?.name || ''} | ${settings.value?.['blog.title'] || 'Site de Cupons'}`,
     meta: [
-        { 
-            name: 'description', 
-            content: `Economize com ${coupons.value.length} cupons de desconto ${campaign.value?.name || ''} válidos. Códigos verificados e funcionando.` 
+        {
+            name: 'description',
+            content: `Economize com ${coupons.value.length} cupons de desconto ${campaign.value?.name || ''} válidos. Códigos verificados e funcionando.`
         },
-        { 
-            property: 'og:title', 
-            content: `Cupons de Desconto ${campaign.value?.name || ''} | ${settings.value?.['blog.title'] || 'Site de Cupons'}` 
+        {
+            property: 'og:title',
+            content: `Cupons de Desconto ${campaign.value?.name || ''} | ${settings.value?.['blog.title'] || 'Site de Cupons'}`
         },
-        { 
-            property: 'og:description', 
-            content: `Economize com ${coupons.value.length} cupons de desconto ${campaign.value?.name || ''} válidos. Códigos verificados e funcionando.` 
+        {
+            property: 'og:description',
+            content: `Economize com ${coupons.value.length} cupons de desconto ${campaign.value?.name || ''} válidos. Códigos verificados e funcionando.`
         },
         { property: 'og:type', content: 'website' },
-        { 
-            property: 'og:url', 
-            content: `${settings.value?.['blog.url'] || 'https://cupomnahora.com.br'}/desconto/${route.params.slug}` 
+        {
+            property: 'og:url',
+            content: `${settings.value?.['blog.url'] || 'https://cupomnahora.com.br'}/desconto/${route.params.slug}`
         }
     ]
 }));
 
 useHead(headData);
 
-// Carregar dados da campanha e cupons
 const loadData = async () => {
     try {
         loading.value = true;
         error.value = null;
-        
-        // Pegar o slug da rota
         const slug = route.params.slug;
-        
+
         if (!slug) {
             error.value = 'Loja não encontrada';
             loading.value = false;
             return;
         }
-        
-        // Primeiro verificar se temos as campanhas na store
+
         let allCampaigns = campaignsStore.getCampaigns;
-        
-        // Se não temos, buscar da API
+
         if (!allCampaigns || allCampaigns.length === 0) {
             allCampaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
             if (allCampaigns && allCampaigns.length > 0) {
                 campaignsStore.setCampaigns(allCampaigns);
             }
         }
-        
+
         if (!allCampaigns || allCampaigns.length === 0) {
             error.value = 'Não foi possível carregar as lojas';
             loading.value = false;
             return;
         }
-        
-        // Encontrar a campanha pelo slug
+
         const foundCampaign = allCampaigns.find((c: any) => c.slug === slug);
-        
+
         if (!foundCampaign) {
             error.value = 'Loja não encontrada';
             loading.value = false;
             return;
         }
-        
+
         campaign.value = foundCampaign;
-        
-        // Carregar cupons reais da API
+
         try {
-            // Verificar se já temos cupons para essa campanha na store
             const campaignId = campaign.value.id;
             let campaignCoupons = couponsStore.getCampaignCoupons(campaignId);
-            
-            // Se já temos cupons na store, usar eles
+
             if (campaignCoupons && campaignCoupons.length > 0) {
                 coupons.value = campaignCoupons;
             } else {
-                // Caso contrário, carregar da API
                 const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaignId);
+
                 if (realCoupons && realCoupons.length > 0) {
                     coupons.value = realCoupons;
-                    // Salvar na store para uso futuro
                     couponsStore.setCampaignCoupons(campaignId, realCoupons);
                 }
             }
         } catch (couponError) {
             console.error("Erro ao carregar cupons reais:", couponError);
         }
-        
+
         loading.value = false;
     } catch (err: any) {
         console.error('Erro ao carregar campanha:', err);
@@ -337,95 +353,75 @@ const loadData = async () => {
     }
 };
 
-// Pré-carregar dados no SSR
 onServerPrefetch(async () => {
     await loadData();
 });
 
-// Formatar data para exibição
 const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 };
 
-// Alterar filtro ativo
 const setFilter = (filter: string) => {
     activeFilter.value = filter;
 };
 
 const openCouponModal = (coupon: any) => {
-    // Atribuir dados ao cupom selecionado para o modal, incluindo infos da campanha
     selectedCouponForScratch.value = {
-        ...coupon, 
+        ...coupon,
         campaignName: campaign.value?.name,
         campaignLogo: campaign.value?.logo
     };
-    isScratchModalOpen.value = true; // Mostrar o modal
 
-    // Abrir uma nova janela com o código do cupom
-    if (coupon && coupon.code) {
+    isScratchModalOpen.value = true;
+
+    if (coupon && coupon.code)
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
-    }
-    
-    // Redirecionar para o deeplink
-    if (coupon && coupon.deeplink) {
+
+    if (coupon && coupon.deeplink)
         window.location.href = coupon.deeplink;
-    }
 };
 
 const closeCouponModal = () => {
-    isScratchModalOpen.value = false;        // Fechar o CouponScratchModal
+    isScratchModalOpen.value = false;
     selectedCouponForScratch.value = null;
 };
 
-// Função para extrair percentual de desconto do título
 const extractDiscountPercentage = (title: string) => {
     if (!title) return null;
-    
-    // Procura por padrões como "10%" ou "10 %" ou "10 por cento" ou "10 porcento"
+
     const percentRegex = /(\d+)(\s*)(%|\spor\scento|\sporcento)/i;
     const match = title.match(percentRegex);
-    
-    if (match && match[1]) {
+
+    if (match && match[1])
         return match[1] + '%';
-    }
-    
-    // Procura por padrões como "10 de desconto" ou "desconto de 10"
+
     const discountRegex = /(\d+)(\s*)(de\sdesconto|desconto)/i;
     const discountMatch = title.match(discountRegex);
-    
-    if (discountMatch && discountMatch[1]) {
+
+    if (discountMatch && discountMatch[1])
         return discountMatch[1] + '%';
-    }
-    
+
     return null;
 };
 
-// Função para verificar se o desconto é em valor monetário
 const isCurrencyDiscount = (title: string) => {
     if (!title) return false;
-    
-    // Procura por padrões como "R$49,99" ou "R$ 49,99"
     const currencyRegex = /R\$\s*\d+[\.,]?\d*/i;
     return currencyRegex.test(title);
 };
 
-// Função para extrair valor monetário do título
 const extractDiscountValue = (title: string) => {
     if (!title) return 'Oferta';
-    
-    // Procura por padrões como "R$49,99" ou "R$ 49,99"
     const currencyRegex = /(R\$\s*\d+[\.,]?\d*)/i;
     const match = title.match(currencyRegex);
-    
-    if (match && match[1]) {
+
+    if (match && match[1])
         return match[1];
-    }
-    
+
     return 'Oferta';
 };
 
-// Carregar dados quando a página é montada ou o slug muda
 onMounted(() => {
     loadData();
 });
@@ -438,7 +434,62 @@ watch(() => route.params.slug, (newSlug, oldSlug) => {
 </script>
 
 <style scoped>
-/* Estilos adicionais se necessário */
+.coupon-button {
+    position: relative;
+    z-index: 1;
+
+    border-radius: 6px 6px 3px 3px;
+}
+
+.coupon-button .coupon-cover {
+    transition: all 0.3s ease-in-out;
+    z-index: 10;
+    right: 0;
+    width: 70%;
+}
+
+.coupon-button .coupon-cover::after {
+    display: none;
+}
+
+.coupon-button .coupon-cover::before {
+    content: "";
+    position: absolute;
+    top: -5px;
+    right: -28px;
+    width: 40px;
+    height: 55px;
+    background: linear-gradient(36deg, #b1cea8, #c6e8b8 38%, #c9e0be 47%, #c0e1b3 51%, rgba(255,255,255,0) 54%);
+    transform: rotate(35deg);
+    transform-origin: center center;
+    border-radius: 6px 6px 3px 3px;
+    z-index: 12;
+    transition: all 0.3s ease-in-out;
+    display: block;
+}
+
+.coupon-button:hover .coupon-cover {
+    width: 60%;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+}
+
+.coupon-button:hover .coupon-cover::before {
+    top: 0px;
+    right: -32px;
+    transform: rotate(30deg);
+    width: 44px;
+    height: 55px;
+}
+
+.coupon-button.expired .coupon-cover {
+    background-color: #9ca3af !important;
+}
+
+.coupon-button.expired .coupon-cover::before {
+    background: linear-gradient(36deg, #d1d5db, #e5e7eb 38%, #f3f4f6 47%, #e5e7eb 51%, rgba(255,255,255,0) 54%);
+}
+
+/* Estilos adicionais para cupons expirados */
 .expired-coupon {
     background-color: #f8f8f8;
     opacity: 0.8;
@@ -454,4 +505,4 @@ watch(() => route.params.slug, (newSlug, oldSlug) => {
 .expired-coupon a {
     opacity: 0.7;
 }
-</style> 
+</style>

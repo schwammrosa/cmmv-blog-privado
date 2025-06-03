@@ -3,26 +3,22 @@ import {
     ContractField
 } from "@cmmv/core";
 
-import {
-    AffiliateNetworksContract
-} from "./affiliate-networks.contract";
-
 @Contract({
-    namespace: 'Affiliate',
-    controllerName: 'AffiliateCampaigns',
-    controllerCustomPath: 'affiliate/campaigns',
-    protoPackage: 'affiliate',
-    subPath: '/affiliate',
+    namespace: 'Odds',
+    controllerName: 'OddsBets',
+    controllerCustomPath: 'odds/bets',
+    protoPackage: 'odds',
+    subPath: '/odds',
     generateController: true,
     generateBoilerplates: false,
     auth: true,
     options: {
         moduleContract: true,
-        databaseSchemaName: "affiliate_campaigns",
+        databaseSchemaName: "odds_bets",
         databaseTimestamps: true
     }
 })
-export class AffiliateCampaignsContract extends AbstractContract {
+export class OddsBetsContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         nullable: false,
@@ -51,19 +47,10 @@ export class AffiliateCampaignsContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         objectType: 'string',
-        entityType: 'AffiliateNetworksEntity',
+        entityType: 'string',
         protoRepeated: false,
         nullable: true,
-        modelName: 'AffiliateNetworks',
         readOnly: true,
-        link: [
-            {
-                createRelationship: true,
-                contract: AffiliateNetworksContract,
-                entityName: 'networks',
-                field: 'id'
-            },
-        ],
     })
     network!: string;
 
@@ -74,24 +61,6 @@ export class AffiliateCampaignsContract extends AbstractContract {
         index: true
     })
     domain?: string;
-
-    @ContractField({
-        protoType: 'text',
-        nullable: true,
-    })
-    metadata?: string;
-
-    @ContractField({
-        protoType: 'array',
-        objectType: 'string',
-        entityType: 'string',
-        exclude: true,
-        array: true,
-        nullable: true,
-        protoRepeated: true,
-        index: true
-    })
-    categories?: string[];
 
     @ContractField({
         protoType: 'boolean',
@@ -115,12 +84,4 @@ export class AffiliateCampaignsContract extends AbstractContract {
         index: true
     })
     slug!: string;
-
-    @ContractField({
-        protoType: 'number',
-        nullable: true,
-        defaultValue: 0,
-        index: true
-    })
-    coupons!: number;
 }

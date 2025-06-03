@@ -54,7 +54,9 @@ export default defineConfig(({ mode }) => {
                 '@cmmv/blog': path.resolve(__dirname, '../../packages/plugin/'),
                 '@cmmv/blog/*': path.resolve(__dirname, '../../packages/plugin/*'),
                 '@cmmv/affiliate': path.resolve(__dirname, '../../packages/affiliate/'),
-                '@cmmv/affiliate/*': path.resolve(__dirname, '../../packages/affiliate/*')
+                '@cmmv/affiliate/*': path.resolve(__dirname, '../../packages/affiliate/*'),
+                '@cmmv/odds': path.resolve(__dirname, '../../packages/odds/'),
+                '@cmmv/odds/*': path.resolve(__dirname, '../../packages/odds/*')
             },
         },
         server: {

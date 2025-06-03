@@ -59,7 +59,7 @@ export class AffiliateNetworksContract extends AbstractContract {
         protoType: 'string',
         nullable: true,
         readOnly: true,
-        defaultValue: 'Fetch',
+        //defaultValue: 'Fetch',
     })
     apiType?: string;
 }
