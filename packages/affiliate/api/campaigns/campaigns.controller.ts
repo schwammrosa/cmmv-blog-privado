@@ -29,6 +29,19 @@ export class CampaignsControllerTools {
         return await this.campaignsService.generateSEOContent(campaignId);
     }
 
+    @Post(":campaignId/start-seo-job")
+    @Auth("affiliatecampaigns:update")
+    async startSEOGenerationJob(@Param("campaignId") campaignId: string) {
+        const jobId = await this.campaignsService.startSEOGenerationJob(campaignId);
+        return { jobId, status: 'pending', message: 'SEO generation job started' };
+    }
+
+    @Get("job/:jobId/status")
+    @Auth("affiliatecampaigns:get")
+    async getAIJobStatus(@Param("jobId") jobId: string) {
+        return await this.campaignsService.getAIJobStatus(jobId);
+    }
+
     @Get("public")
     @ContentType("application/json")
     @CacheControl({
