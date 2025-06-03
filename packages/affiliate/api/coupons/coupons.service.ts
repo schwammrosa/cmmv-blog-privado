@@ -223,7 +223,10 @@ export class CouponsServiceTools {
             order: {
                 views: "DESC"
             },
-            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "views", "campaign", "deeplink"]
+            select: [
+                "title", "code", "description", "expiration", "type", "typeDiscount",
+                "views", "campaign", "deeplink"
+            ]
         });
 
         const campaignIds = (coupons) ? coupons.data.map((coupon: any) => coupon.campaign) : [];
@@ -271,15 +274,18 @@ export class CouponsServiceTools {
         const couponsResult = await Repository.findAll(AffiliateCouponsEntity, {
             active: true,
             campaign: Not(IsNull()),
-            expiration: MoreThan(new Date())
+            expiration: MoreThan(new Date()),
+            limit: 50
         },
         [], // relations
         {
             order: {
                 views: "DESC"
             },
-            take: 75, // Changed from limit to take as per TypeORM standards for FindManyOptions
-            select: ["title", "code", "description", "expiration", "type", "typeDiscount", "views", "campaign", "linkRef", "deeplink"]
+            select: [
+                "title", "code", "description", "expiration", "type", "typeDiscount",
+                "views", "campaign", "linkRef", "deeplink"
+            ]
         });
 
         if (!couponsResult || !couponsResult.data || couponsResult.data.length === 0) {
@@ -289,21 +295,20 @@ export class CouponsServiceTools {
         const campaignIds = couponsResult.data.map((coupon: any) => coupon.campaign);
 
         const campaigns = await Repository.findAll(AffiliateCampaignsEntity, {
-            id: In(campaignIds)
+            id: In(campaignIds),
+            limit: 10000
         }, [], {
             select: ["id", "name", "slug", "logo"]
         });
 
-        if (!campaigns || !campaigns.data) {
-            // It's possible that some campaigns are not found, but we should still process the coupons for which we found campaigns
+        if (!campaigns || !campaigns.data)
             console.warn(`Not all campaigns with IDs ${campaignIds} were found`);
-        }
 
         const campaignMap = new Map(campaigns && campaigns.data ? campaigns.data.map((campaign: any) => [campaign.id, campaign]) : []);
 
-        let processedCoupons: any[] = []; // Renamed from dataResponse
+        let processedCoupons: any[] = [];
 
-        processedCoupons = couponsResult.data.map((coupon: any) => { // Renamed from dataResponse
+        processedCoupons = couponsResult.data.map((coupon: any) => {
             if (coupon.campaign && typeof coupon.campaign === 'string' && coupon.campaign.trim() !== '') {
                 const campaignDetails: any = campaignMap.get(coupon.campaign);
                 if (campaignDetails) {
@@ -314,11 +319,9 @@ export class CouponsServiceTools {
                         campaignLogo: campaignDetails.logo
                     };
                 } else {
-                    // If campaign details are not found, we might still want to return the coupon without them
-                    // Or filter it out, depending on requirements. Here, returning without campaign details.
                     return {
                         ...coupon,
-                        campaignName: "N/A", // Or some default value
+                        campaignName: "N/A",
                         campaignSlug: "",
                         campaignLogo: ""
                     };
