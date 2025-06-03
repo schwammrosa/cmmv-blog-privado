@@ -457,7 +457,7 @@ useHead({
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/favicon.ico'
+            href: '/src/theme-cupomnahora/favicon.ico?v=2'
         },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com/' },
