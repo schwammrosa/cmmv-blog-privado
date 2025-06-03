@@ -294,7 +294,6 @@ async function bootstrap() {
                 const serializedData = JSON.stringify(ssrData).replace(/</g, '\\u003c');
                 const dataScript = `<script>window.__CMMV_DATA__ = ${serializedData};</script>${piniaScript}`;
 
-                template = await transformHtmlTemplate(head, template.replace(`</title>`, `</title>${dataScript}`));
                 template = await transformHtmlTemplate(head, template.replace(`<div id="app"></div>`, `<div id="app">${appHtml}</div>`));
 
                 template = template.replace("<analytics />", settings["blog.analyticsCode"] || "").replace("<analytics>", settings["blog.analyticsCode"] || "");
@@ -306,6 +305,8 @@ async function bootstrap() {
 
                 res.setHeader('Content-Type', 'text/html');
                 res.setHeader('Cache-Control', `public, max-age=900`);
+
+                template = await transformHtmlTemplate(head, template.replace(`</title>`, `</title>${dataScript}`));
 
                 const compressed = compressHtml(template, acceptEncoding as string);
 
