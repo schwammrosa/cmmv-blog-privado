@@ -235,15 +235,12 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
         const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
         const campaign = await Repository.findOne(CampaignEntity, { id: campaignId });
 
-        if (!campaign) {
+        if (!campaign)
             throw new Error(`Campaign with ID ${campaignId} not found`);
-        }
 
-        if (!campaign.domain) {
+        if (!campaign.domain)
             throw new Error("Campaign domain is required for SEO generation");
-        }
 
-        // Generate unique job ID
         const jobId = `seo-job-${Date.now()}-${Math.random().toString(36).substring(2, 10)}`;
 
         const job: AIJob = {
@@ -282,9 +279,8 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
                 id: job.campaignId
             });
 
-            if (!campaign) {
+            if (!campaign)
                 throw new Error(`Campaign with ID ${job.campaignId} not found`);
-            }
 
             const shortContentPrompt = `Generate SEO content for a coupon discount website for the store "${campaign.name}" (domain: ${campaign.domain}).
 
@@ -491,9 +487,8 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
         for (const [jobId, job] of this.aiJobs.entries()) {
-            if ((job.status === 'completed' || job.status === 'error') && job.startTime < oneHourAgo) {
+            if ((job.status === 'completed' || job.status === 'error') && job.startTime < oneHourAgo)
                 this.aiJobs.delete(jobId);
-            }
         }
     }
 
@@ -532,9 +527,8 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
             ]
         });
 
-        if (!campaignsResult || campaignsResult.data.length === 0) {
+        if (!campaignsResult || campaignsResult.data.length === 0)
             return [];
-        }
 
         const couponsService = Application.resolveProvider(CouponsServiceTools);
         const campaignsWithCounts = [];

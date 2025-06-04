@@ -22,7 +22,7 @@ export class AffiliateCouponsContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         nullable: false,
-        //defaultValue: 'Cupom',
+        defaultValue: 'Cupom',
         index: true
     })
     type!: string;
@@ -30,7 +30,7 @@ export class AffiliateCouponsContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         nullable: false,
-        //defaultValue: 'fixed',
+        defaultValue: 'fixed',
         index: true
     })
     typeDiscount!: string;
@@ -91,7 +91,8 @@ export class AffiliateCouponsContract extends AbstractContract {
     @ContractField({
         protoType: 'boolean',
         nullable: false,
-        defaultValue: true
+        defaultValue: true,
+        index: true
     })
     active!: boolean;
 

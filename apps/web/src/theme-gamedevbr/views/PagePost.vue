@@ -402,7 +402,7 @@
                                 </div>
 
                                 <!-- Popular Posts Widget -->
-                                <div v-if="popularPosts && popularPosts.length > 0" class="bg-white rounded-lg shadow-md p-5 mb-6">
+                                <div v-if="popularPosts && popularPosts.length > 0" class="bg-white rounded-lg shadow-md p-5 mb-6 hidden md:block">
                                     <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
                                         Mais Populares
                                     </h2>
@@ -1389,3 +1389,4 @@ const sidebarLeftAdContainer = ref(null);
     }
 }
 </style>
+

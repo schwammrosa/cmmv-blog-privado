@@ -26,7 +26,14 @@
                         <!-- Feature Image -->
                         <a :href="`/post/${post.slug}`" class="block mb-4" aria-label="Ler mais sobre este post">
                             <div v-if="post.featureImage" class="relative aspect-video overflow-hidden rounded-lg">
-                                <img :src="post.featureImage" :alt="post.featureImageAlt || post.title" class="w-full h-full object-cover" />
+                                <img
+                                    :src="post.featureImage"
+                                    :alt="post.featureImageAlt || post.title"
+                                    class="w-full h-full object-cover"
+                                    loading="lazy"
+                                    width="768"
+                                    height="432"
+                                />
                             </div>
                         </a>
 
@@ -101,7 +108,7 @@
 
 <script setup lang="ts">
 //@ts-nocheck
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue'
 import { vue3 } from '@cmmv/blog/client';

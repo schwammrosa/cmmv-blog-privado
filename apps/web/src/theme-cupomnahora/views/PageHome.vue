@@ -8,9 +8,10 @@
                     <div class="relative h-[400px]">
                         <img
                             v-if="coverPosts.full && coverPosts.full.featureImage"
-                            :src="coverPosts.full.featureImage"
+                            :src="getThumbnailUrl(coverPosts.full.featureImage)"
+                            :data-src="coverPosts.full.featureImage"
                             :alt="coverPosts.full.title"
-                            class="w-full h-full object-cover"
+                            class="lazy-image w-full h-full object-cover"
                             loading="lazy"
                             width="890"
                             height="606"
@@ -50,9 +51,10 @@
                         <a :href="`/post/${post.slug}`" class="block h-full">
                             <img
                                 v-if="post.featureImage"
-                                :src="post.featureImage"
+                                :src="getThumbnailUrl(post.featureImage)"
+                                :data-src="post.featureImage"
                                 :alt="post.title"
-                                class="w-full h-full object-cover"
+                                class="lazy-image w-full h-full object-cover"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -118,9 +120,10 @@
                         <div class="relative h-full">
                             <img
                                 v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage"
-                                :src="coverPosts.splitMain.featureImage"
+                                :src="getThumbnailUrl(coverPosts.splitMain.featureImage)"
+                                :data-src="coverPosts.splitMain.featureImage"
                                 :alt="coverPosts.splitMain.title"
-                                class="w-full h-full object-cover"
+                                class="lazy-image w-full h-full object-cover"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -156,9 +159,11 @@
                             <div class="relative h-full">
                                 <img
                                     v-if="post.featureImage"
-                                    :src="post.featureImage"
+                                    :src="getThumbnailUrl(post.featureImage)"
+                                    :data-src="post.featureImage"
                                     :alt="post.title"
-                                    class="w-full h-full object-cover"
+                                    class="lazy-image w-full h-full object-cover"
+                                    loading="lazy"
                                 />
                                 <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -189,9 +194,10 @@
                         <div class="relative h-[350px]">
                             <img
                                 v-if="post.featureImage"
-                                :src="post.featureImage"
+                                :src="getThumbnailUrl(post.featureImage)"
+                                :data-src="post.featureImage"
                                 :alt="post.title"
-                                class="w-full h-full object-cover"
+                                class="lazy-image w-full h-full object-cover"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -241,7 +247,12 @@
                         class="store-card bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-all">
                         <div class="text-center">
                             <div class="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
-                                <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="max-w-full max-h-full">
+                                <img v-if="campaign.logo"
+                                     :src="getThumbnailUrl(campaign.logo)"
+                                     :data-src="campaign.logo"
+                                     :alt="campaign.name"
+                                     class="lazy-image max-w-full max-h-full"
+                                     loading="lazy" width="64" height="64">
                                 <div v-else class="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -271,8 +282,12 @@
                                    class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all h-full flex flex-col p-0 block">
                                     <div class="p-4 pb-3">
                                         <div class="flex-shrink-0 h-24 flex items-center justify-center">
-                                            <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
-                                                class="max-h-20 max-w-full object-contain">
+                                            <img v-if="coupon.campaignLogo"
+                                                 :src="getThumbnailUrl(coupon.campaignLogo)"
+                                                 :data-src="coupon.campaignLogo"
+                                                 :alt="coupon.campaignName"
+                                                 class="lazy-image max-h-20 max-w-full object-contain"
+                                                 loading="lazy" width="102" height="80">
                                             <div v-else class="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-md">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -312,7 +327,7 @@
             <!-- Top 25 Cupons da Semana -->
             <section id="top-25-cupons" class="mb-12">
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800">Os 25 melhores Cupons de Desconto da semana!</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">Os 50 melhores Cupons de Desconto da semana!</h2>
                 </div>
 
                 <div v-if="loading" class="flex justify-center items-center py-10">
@@ -329,8 +344,12 @@
                          class="bg-white border border-gray-200 rounded-lg p-4 md:p-6 flex flex-col md:flex-row items-center hover:shadow-lg transition-shadow duration-300">
 
                         <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
-                            <img v-if="coupon.campaignLogo" :src="coupon.campaignLogo" :alt="coupon.campaignName"
-                                 class="max-w-full max-h-full object-contain rounded">
+                            <img v-if="coupon.campaignLogo"
+                                 :src="getThumbnailUrl(coupon.campaignLogo)"
+                                 :data-src="coupon.campaignLogo"
+                                 :alt="coupon.campaignName"
+                                 class="lazy-image max-w-full max-h-full object-contain rounded"
+                                 loading="lazy" width="102" height="80">
                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -414,7 +433,12 @@
                         <div v-for="post in posts.slice(0, 3)" :key="post.id"
                             class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all flex flex-col">
                             <div class="h-48 overflow-hidden">
-                                <img v-if="post.featureImage" :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover">
+                                <img v-if="post.featureImage"
+                                     :src="getThumbnailUrl(post.featureImage)"
+                                     :data-src="post.featureImage"
+                                     :alt="post.title"
+                                     class="lazy-image w-full h-full object-cover"
+                                     loading="lazy" width="360" height="192">
                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
@@ -466,13 +490,11 @@ const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
-const isSSR = typeof window === 'undefined';
 
 // State
 const rawSettings = computed(() => settingsStore.getSettings);
 const settings = computed<Record<string, any>>(() => {
     const settingsObj = rawSettings.value || {};
-    // Extract all blog.* settings
     const blogSettings: Record<string, any> = {};
     Object.keys(settingsObj).forEach(key => {
         if (key.startsWith('blog.')) {
@@ -488,25 +510,94 @@ const featuredCoupons = ref<any[]>(couponsStore.getFeaturedCoupons || []);
 const top25Coupons = ref<any[]>(couponsStore.getTop25Coupons || []);
 const loading = ref(true);
 const error = ref(null);
-const searchQuery = ref('');
-const searchResults = ref<any[]>([]);
-const searchModalOpen = ref(false);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
 const currentCouponIndex = ref(0);
 const couponSlidesVisible = ref(3);
 
-// Estado para o Modal de Raspadinha
 const isScratchModalOpen = ref(false);
 const selectedCouponForScratch = ref<any | null>(null);
+let lazyLoadObserver: IntersectionObserver | null = null;
 
-// Cover settings from the blog settings
+/**
+ * Get thumbnail URL by adding _thumb to the filename and forcing .webp format
+ */
+const getThumbnailUrl = (originalUrl: string): string => {
+    if (!originalUrl) return originalUrl;
+
+    if (originalUrl.includes('_thumb')) return originalUrl;
+    if (originalUrl.startsWith('data:')) return originalUrl;
+
+    const lastDotIndex = originalUrl.lastIndexOf('.');
+
+    if (lastDotIndex === -1)
+        return originalUrl + '_thumb.webp';
+
+    const beforeExtension = originalUrl.substring(0, lastDotIndex);
+    return `${beforeExtension}_thumb.webp`;
+};
+
+/**
+ * Initialize lazy loading observer
+ */
+const initLazyLoading = () => {
+    if (!('IntersectionObserver' in window)) return;
+
+    lazyLoadObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                const img = entry.target as HTMLImageElement;
+                const fullSrc = img.dataset.src;
+
+                if (fullSrc && fullSrc !== img.src) {
+                    const newImg = new Image();
+                    newImg.onload = () => {
+                        img.src = fullSrc;
+                        img.classList.add('loaded');
+                    };
+                    newImg.onerror = () => {
+                        img.classList.add('error');
+                    };
+                    newImg.src = fullSrc;
+                }
+
+                lazyLoadObserver?.unobserve(img);
+            }
+        });
+    }, {
+        rootMargin: '50px 0px',
+        threshold: 0.1
+    });
+
+    const observeLazyImages = () => {
+        const lazyImages = document.querySelectorAll('img.lazy-image');
+        lazyImages.forEach((img) => {
+            lazyLoadObserver?.observe(img);
+        });
+    };
+
+    setTimeout(observeLazyImages, 100);
+
+    watch([posts, campaigns, featuredCoupons, top25Coupons], () => {
+        setTimeout(observeLazyImages, 100);
+    }, { deep: true });
+};
+
+/**
+ * Cleanup lazy loading observer
+ */
+const cleanupLazyLoading = () => {
+    if (lazyLoadObserver) {
+        lazyLoadObserver.disconnect();
+        lazyLoadObserver = null;
+    }
+};
+
 const coverSettings = computed(() => {
     try {
         const config = settings.value.cover;
         return config ? JSON.parse(config) : { layoutType: 'full' };
     } catch (err) {
-        //console.error('Error parsing cover settings:', err);
         return { layoutType: 'full' };
     }
 });
@@ -515,7 +606,6 @@ const hasCoverConfig = computed(() => {
     return !!settings.value.cover && Object.keys(coverSettings.value).length > 0;
 });
 
-// Cover posts for different layout types
 const coverPosts = computed(() => {
     if (!posts.value.length) return {};
 
@@ -532,13 +622,11 @@ const coverPosts = computed(() => {
         const shouldRespectSelectedPosts = config.respectSelectedPosts !== false;
 
         if (shouldRespectSelectedPosts) {
-            // Handle "full" layout
             if (config.layoutType === 'full' && config.fullCover?.postId) {
                 const configPost = posts.value.find(p => p.id === config.fullCover.postId);
                 if (configPost) result.full = configPost;
             }
 
-            // Handle "carousel" layout
             if (config.layoutType === 'carousel' && Array.isArray(config.carousel)) {
                 const carouselPostIds = config.carousel
                     .filter(item => item && item.postId)
@@ -553,15 +641,12 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "split" layout
             if (config.layoutType === 'split') {
-                // Main post
                 if (config.split?.main?.postId) {
                     const mainPost = posts.value.find(p => p.id === config.split.main.postId);
                     if (mainPost) result.splitMain = mainPost;
                 }
 
-                // Secondary posts
                 if (Array.isArray(config.split?.secondary)) {
                     const secondaryPostIds = config.split.secondary
                         .filter(item => item && item.postId)
@@ -577,7 +662,6 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "dual" layout
             if (config.layoutType === 'dual' && Array.isArray(config.dual)) {
                 const dualPostIds = config.dual
                     .filter(item => item && item.postId)
@@ -597,7 +681,6 @@ const coverPosts = computed(() => {
     return result;
 });
 
-// Carousel functions
 const startCarouselInterval = () => {
     if (coverSettings.value.layoutType === 'carousel' && coverPosts.value.carousel?.length > 1) {
         carouselInterval.value = window.setInterval(() => {
@@ -629,37 +712,16 @@ const prevCarouselSlide = () => {
     startCarouselInterval();
 };
 
-// Sort campaigns to prioritize highlighted ones
 const featuredCampaigns = computed(() => {
     if (!campaigns.value || campaigns.value.length === 0) return [];
-
-    // Data from campaigns.value is already sorted by the backend.
-    // We just need to filter out campaigns with no coupons.
     return campaigns.value.filter(campaign => campaign.couponCount > 0);
 });
 
-// Helper functions
-const validUntil = () => {
-    const now = new Date();
-    const future = new Date(now.setDate(now.getDate() + Math.floor(Math.random() * 60) + 10));
-    return future.toLocaleDateString('pt-BR');
-};
-
-const generateCouponCode = () => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let result = '';
-    const length = Math.floor(Math.random() * 5) + 5;
-    for (let i = 0; i < length; i++) {
-        result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-};
-
 const headData = ref({
-    title: settings.value?.title || 'MeuCupom - Economize em suas compras online',
+    title: settings.value?.title || 'CupomNahora - Economize em suas compras online',
     meta: [
         { name: 'description', content: settings.value?.description || 'Encontre os melhores cupons de desconto e ofertas em mais de 5.000 lojas parceiras.' },
-        { property: 'og:title', content: settings.value?.title || 'MeuCupom - Economize em suas compras online' },
+        { property: 'og:title', content: settings.value?.title || 'CupomNahora - Economize em suas compras online' },
         { property: 'og:description', content: settings.value?.description || 'Encontre os melhores cupons de desconto e ofertas em mais de 5.000 lojas parceiras.' },
         { property: 'og:type', content: 'website' }
     ]
@@ -672,7 +734,6 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // Verificar se já temos dados nas stores antes de fazer chamadas à API
         let needToFetchPosts = posts.value.length === 0;
         let needToFetchCampaigns = campaigns.value.length === 0;
         let needToFetchFeaturedCoupons = featuredCoupons.value.length === 0;
@@ -680,7 +741,6 @@ const loadData = async () => {
 
         const promises: Promise<any>[] = [];
 
-        // Só fazer chamadas se necessário
         if (needToFetchPosts) {
             promises.push(
                 blogAPI.posts.getAll(0).then(postsResponse => {
@@ -731,20 +791,13 @@ const loadData = async () => {
             );
         }
 
-        if (promises.length > 0) {
+        if (promises.length > 0)
             await Promise.all(promises);
-        }
-
     } catch (err: any) {
         error.value = err;
-        //console.error("Erro ao carregar dados da Home:", err);
     } finally {
         loading.value = false;
     }
-};
-
-const openSearchModal = () => {
-    searchModalOpen.value = true;
 };
 
 const prevCouponSlide = () => {
@@ -779,66 +832,26 @@ const nextCouponSlide = () => {
     }
 };
 
-// Função para abrir deeplink em nova aba
-const openDeepLink = (url: string) => {
-    window.open(url, '_blank');
-};
-
-// Cria um iframe invisível para abrir o deeplink sem mudar o foco
-const openDeeplinkInBackground = (url: string) => {
-    // Criar um iframe invisível
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-
-    try {
-        // Definir o src do iframe para o deeplink
-        iframe.src = url;
-
-        // Limpar o iframe após um curto período
-        setTimeout(() => {
-            if (iframe && iframe.parentNode) {
-                iframe.parentNode.removeChild(iframe);
-            }
-        }, 1000);
-    } catch (e) {
-        //console.error('Erro ao abrir deeplink via iframe:', e);
-        if (iframe && iframe.parentNode) {
-            iframe.parentNode.removeChild(iframe);
-        }
-    }
-};
-
-// Funções para o Modal de Raspadinha
 const openScratchModal = (coupon: any) => {
-    // Verificar se o cupom já tem as informações da campanha
     if (!coupon.campaignName || !coupon.campaignLogo) {
-        // Buscar a campanha correspondente se ela existir
         const relatedCampaign = campaigns.value.find(c => c.id === coupon.campaignId);
 
-        // Criar uma cópia enriquecida do cupom com os dados da campanha
         selectedCouponForScratch.value = {
             ...coupon,
             campaignName: relatedCampaign?.name || coupon.campaignName || 'Loja',
             campaignLogo: relatedCampaign?.logo || coupon.campaignLogo || null
         };
     } else {
-        // Se já tem os dados da campanha, usar diretamente
         selectedCouponForScratch.value = coupon;
     }
 
-    // Mostrar o modal
     isScratchModalOpen.value = true;
 
-    // Abrir uma nova janela com o código do cupom
-    if (coupon && coupon.code) {
+    if (coupon && coupon.code)
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
-    }
 
-    // Redirecionar para o deeplink
-    if (coupon && coupon.deeplink) {
+    if (coupon && coupon.deeplink)
         window.location.href = coupon.deeplink;
-    }
 };
 
 const closeScratchModal = () => {
@@ -853,10 +866,12 @@ onServerPrefetch(async () => {
 onMounted(async () => {
     await loadData();
     startCarouselInterval();
+    initLazyLoading();
 });
 
 onUnmounted(() => {
     stopCarouselInterval();
+    cleanupLazyLoading();
 });
 
 watch(() => settings.value['blog.cover'], () => {
@@ -864,5 +879,40 @@ watch(() => settings.value['blog.cover'], () => {
     startCarouselInterval();
 }, { deep: true });
 </script>
+
+<style scoped>
+.lazy-image {
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0.8;
+}
+
+.lazy-image.loaded {
+    opacity: 1;
+}
+
+.lazy-image.error {
+    opacity: 0.7;
+    filter: grayscale(0.2);
+}
+
+img {
+    transition: opacity 0.2s ease-in-out;
+}
+
+.lazy-image:not(.loaded):not(.error) {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+</style>
 
 

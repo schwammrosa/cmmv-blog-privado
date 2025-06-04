@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue';
 import type { IncomingMessage } from 'http';
 import { unheadVueComposablesImports } from '@unhead/vue'
 import AutoImport from 'unplugin-auto-import/vite'
-import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+import { VitePWA } from 'vite-plugin-pwa';
 //@ts-ignore
 import tailwindcss from '@tailwindcss/vite';
 
@@ -30,12 +30,12 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [
             vue(),
+            VitePWA({ registerType: 'autoUpdate' }),
             AutoImport({
                 imports: [
                   unheadVueComposablesImports,
                 ],
             }),
-            ViteImageOptimizer(),
             tailwindcss(),
         ],
         ssr: {

@@ -79,6 +79,7 @@ export class FeedRawContract extends AbstractContract {
     @ContractField({
         protoType: 'string',
         nullable: true,
+        index: true
     })
     category!: string;
 

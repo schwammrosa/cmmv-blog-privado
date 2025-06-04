@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 export const useCategoriesStore = defineStore('categories', {
     state: () => ({
         categories: null as any,
-        affiliateCategories: [] as any[], // Categorias de afiliados para cupons
+        affiliateCategories: [] as any[],
     }),
     actions: {
         setCategories(data: any) {

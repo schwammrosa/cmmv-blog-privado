@@ -9,18 +9,6 @@
             </div>
 
             <div v-else>
-                <!-- Top AdSense Banner -->
-                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center h-[400px]">
-                    <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
-                        <div v-html="getAdHtml('header')"></div>
-                    </div>
-                    <div class="ad-container ad-banner-top py-2 px-4" v-else>
-                        <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                            <span>Anúncio</span>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Main Content Layout -->
                 <div class="flex flex-col lg:flex-row gap-8">
                     <!-- Main Content Area -->
@@ -42,7 +30,7 @@
                                         <img
                                             :src="post.featureImage"
                                             :alt="post.featureImageAlt || post.title"
-                                            class="featured-img md:block hidden"
+                                            class="featured-img lazy-image md:block hidden"
                                             width="890"
                                             height="606"
                                             loading="lazy"
@@ -242,7 +230,7 @@
                                                                 v-if="relatedPost.featureImage"
                                                                 :src="relatedPost.featureImage"
                                                                 :alt="relatedPost.title"
-                                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                                             />
                                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -300,30 +288,6 @@
 
                             <!-- Right Column (Widgets + Ads) -->
                             <div class="lg:col-span-1">
-                                <!-- AdSense Rectangle (Top) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden">
-                                    <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
-                                        <div v-html="getAdHtml('sidebarTop')"></div>
-                                    </div>
-                                    <div class="ad-container ad-sidebar-top" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                            <span>Anúncio</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- AdSense Rectangle (Middle) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarMid" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden">
-                                    <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
-                                        <div v-html="getAdHtml('sidebarMid')"></div>
-                                    </div>
-                                    <div class="ad-container ad-sidebar-mid" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                            <span>Anúncio</span>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <!-- Share Widget -->
                                 <div class="bg-white rounded-lg shadow-md p-5 mb-6">
                                     <h2 class="text-xl font-bold mb-4 pb-2 text-[#ff0030] border-b-2 border-[#000] inline-block">
@@ -402,7 +366,7 @@
                                 </div>
 
                                 <!-- Popular Posts Widget -->
-                                <div v-if="popularPosts && popularPosts.length > 0" class="bg-white rounded-lg shadow-md p-5 mb-6">
+                                <div v-if="popularPosts && popularPosts.length > 0" class="bg-white rounded-lg shadow-md p-5 mb-6 hidden md:block">
                                     <h2 class="text-xl font-bold mb-4 pb-2 text-[#ff0030] border-b-2 border-[#000] inline-block">
                                         Mais Populares
                                     </h2>
@@ -419,7 +383,7 @@
                                                         v-if="popularPost.image || popularPost.featureImage"
                                                         :src="popularPost.image || popularPost.featureImage"
                                                         :alt="popularPost.title"
-                                                        class="w-full h-full object-cover"
+                                                        class="w-full h-full object-cover lazy-image"
                                                     />
                                                     <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -461,18 +425,6 @@
                                             </a>
                                         </li>
                                     </ul>
-                                </div>
-
-                                <!-- AdSense Rectangle (Bottom) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center">
-                                    <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
-                                        <div v-html="getAdHtml('sidebarBottom')"></div>
-                                    </div>
-                                    <div class="ad-container ad-sidebar-bottom" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                            <span>Anúncio</span>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -591,13 +543,9 @@ const adSettings = computed(() => {
         taboolaJsCode: rawSettings['blog.taboolaJsCode'] || '',
     };
 
-    // Log for debugging
-    console.log('adSenseSidebarLeft value in PagePost:', rawSettings['blog.adSenseSidebarLeft']);
-
     return result;
 });
 
-// Helper to get appropriate ad HTML based on position
 const getAdHtml = (position) => {
     if (!adSettings.value.enableAds) return '';
 
@@ -719,7 +667,6 @@ function processPostContent(content) {
 
     let processedContent = content;
 
-    // Replace Twitter/X URLs with embed code
     twitterUrlPatterns.forEach(pattern => {
         processedContent = processedContent.replace(pattern, (match, p1, username, tweetId) => {
             // Create Twitter embed HTML
@@ -731,7 +678,6 @@ function processPostContent(content) {
         });
     });
 
-    // Replace Reddit URLs with embed code
     redditUrlPatterns.forEach(pattern => {
         processedContent = processedContent.replace(pattern, (match, p1, subreddit, postId, commentId) => {
             // Create Reddit embed HTML
@@ -743,14 +689,12 @@ function processPostContent(content) {
         });
     });
 
-    // Load Twitter script if content has Twitter embeds
     if (!isSSR && (processedContent.includes('twitter-tweet') || processedContent.includes('twitter-embed'))) {
         setTimeout(() => {
             loadTwitterScript();
         }, 100);
     }
 
-    // Load Reddit script if content has Reddit embeds
     if (!isSSR && processedContent.includes('reddit-embed')) {
         setTimeout(() => {
             loadRedditScript();
@@ -1423,6 +1367,15 @@ const sidebarLeftAdContainer = ref(null);
 @media (max-width: 1280px) {
     .ad-sidebar-left {
         display: none;
+    }
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
     }
 }
 </style>

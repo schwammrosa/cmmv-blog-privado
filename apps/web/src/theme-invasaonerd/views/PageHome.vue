@@ -37,7 +37,7 @@
                                 v-if="featuredPost.featureImage"
                                 :src="featuredPost.featureImage"
                                 :alt="featuredPost.title"
-                                class="w-full h-full object-cover"
+                                class="w-full h-full object-cover lazy-image"
                             />
                             <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,7 +85,7 @@
                                             v-if="post.featureImage"
                                             :src="post.featureImage"
                                             :alt="post.title"
-                                            class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                                            class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                         />
                                         <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +135,7 @@
                                             v-if="post.featureImage"
                                             :src="post.featureImage"
                                             :alt="post.title"
-                                            class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                                            class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                         />
                                         <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -196,7 +196,7 @@
                                         <img
                                             :src="post.featureImage || post.image || '/placeholder-image.jpg'"
                                             :alt="post.title"
-                                            class="w-full h-full object-cover"
+                                            class="w-full h-full object-cover lazy-image"
                                         />
                                     </a>
                                 </div>
@@ -564,6 +564,19 @@ watch(() => settings.value['blog.cover'], () => {
 @media (max-width: 768px) {
     .featured-post {
         height: 300px;
+    }
+}
+
+img {
+    transition: opacity 0.2s ease-in-out;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
     }
 }
 </style>

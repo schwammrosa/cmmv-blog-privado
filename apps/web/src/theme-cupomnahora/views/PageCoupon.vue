@@ -31,7 +31,7 @@
                     </div>
 
                     <div v-else class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-12">
-                        <a v-for="category in topCategories" :key="category.id" :href="`/categoria/${category.slug}`"
+                        <a v-for="category in topCategories" :key="category.id" :href="`/cupom/${category.slug}`"
                             class="category-card bg-white border border-gray-200 rounded-lg p-4 flex items-center justify-center hover:shadow-lg transition-all">
                             <div class="text-center">
                                 <div class="w-12 h-12 mx-auto mb-2 flex items-center justify-center text-purple-600">
@@ -91,7 +91,7 @@
                             <a 
                                 v-for="category in getCategoriesByLetter(letter)" 
                                 :key="category.id" 
-                                :href="`/categoria/${category.slug}`"
+                                :href="`/cupom/${category.slug}`"
                                 class="flex items-center gap-2 p-2 hover:bg-gray-100 rounded transition-colors">
                                 <div class="w-8 h-8 flex-shrink-0 flex items-center justify-center text-purple-600">
                                     <i v-if="category.icon" :class="[category.icon, 'text-xl']"></i>

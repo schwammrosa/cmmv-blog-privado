@@ -12,7 +12,7 @@ export class DeepSeekService {
                 'Authorization': `Bearer ${deepseekApiKey || ''}`
             },
             body: JSON.stringify({
-                model: "deepseek-reasoner",
+                model: "deepseek-chat",
                 messages: [
                     {
                         role: "user",

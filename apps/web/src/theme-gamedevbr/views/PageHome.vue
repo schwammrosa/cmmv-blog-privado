@@ -180,6 +180,7 @@
                                         :src="post.featureImage"
                                         :alt="post.title"
                                         class="w-full h-full object-cover"
+                                        loading="lazy"
                                     />
                                     <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -283,6 +284,9 @@
                                                 :src="post.featureImage"
                                                 :alt="post.title"
                                                 class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                                                loading="lazy"
+                                                width="360"
+                                                height="192"
                                             />
                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -344,6 +348,9 @@
                                                     :src="post.featureImage"
                                                     :alt="post.title"
                                                     class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
+                                                    loading="lazy"
+                                                    width="360"
+                                                    height="192"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -430,6 +437,9 @@
                                                     :src="post.image"
                                                     :alt="post.title"
                                                     class="w-full h-full object-cover"
+                                                    loading="lazy"
+                                                    width="80"
+                                                    height="64"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -535,7 +545,6 @@ const blogAPI = vue3.useBlog();
 const rawSettings = computed(() => settingsStore.getSettings);
 const settings = computed<Record<string, any>>(() => {
     const settingsObj = rawSettings.value || {};
-    // Extract all blog.* settings
     const blogSettings: Record<string, any> = {};
     Object.keys(settingsObj).forEach(key => {
         if (key.startsWith('blog.')) {
@@ -557,11 +566,11 @@ const observerTarget = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
-
-// Elements references
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
 
-// Create formatted settings object for useAds
+/**
+ * Create formatted settings object for useAds
+ */
 const adPluginSettings = computed(() => {
     return settings.value || {};
 });
@@ -832,8 +841,6 @@ onMounted(async () => {
     loading.value = false;
     setupIntersectionObserver();
     startCarouselInterval();
-
-    // Load ad scripts and sidebar left ad
     loadAdScripts();
     loadSidebarLeftAd(sidebarLeftAdContainer.value);
 });
@@ -843,6 +850,7 @@ onUnmounted(() => {
         observer.value.unobserve(observerTarget.value);
         observer.value.disconnect();
     }
+
     stopCarouselInterval();
 });
 
@@ -853,6 +861,13 @@ watch(() => settings.value['blog.cover'], () => {
 </script>
 
 <style scoped>
+/* Only hide the left sidebar on screens smaller than 1280px */
+@media (max-width: 1280px) {
+    .ad-sidebar-left {
+        display: none;
+    }
+}
+
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -866,13 +881,6 @@ watch(() => settings.value['blog.cover'], () => {
     justify-content: center;
     border: 1px dashed #ccc;
     border-radius: 4px;
-}
-
-/* Only hide the left sidebar on screens smaller than 1280px */
-@media (max-width: 1280px) {
-    .ad-sidebar-left {
-        display: none;
-    }
 }
 </style>
 

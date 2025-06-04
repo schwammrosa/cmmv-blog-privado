@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
@@ -108,6 +108,7 @@ import {
 const settingsStore = useSettingsStore();
 const blogAPI = vue3.useBlog();
 const route = useRoute();
+
 const data = ref<any>(await blogAPI.tags.getPostsBySlug(route.params.slug as string));
 const posts = ref<any[]>(data.value.posts || []);
 const settings = ref<any>(settingsStore.getSettings);

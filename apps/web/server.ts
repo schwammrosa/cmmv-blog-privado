@@ -1,4 +1,8 @@
-import { createServer, loadEnv } from 'vite';
+import {
+    createServer, loadEnv,
+    ViteDevServer
+} from 'vite';
+
 import { transformHtmlTemplate } from '@unhead/vue/server';
 import { useSettingsStore } from './src/store/settings.js';
 
@@ -11,6 +15,83 @@ import * as mime from 'mime-types';
 
 const env = loadEnv(process.env.NODE_ENV || 'development', process.cwd(), 'VITE');
 const fileCache = new Map<string, { buffer: Buffer, etag: string, mtime: number }>();
+
+interface PageCacheEntry {
+    html: string;
+    compressedVersions: {
+        gzip?: Buffer;
+        br?: Buffer;
+        uncompressed: string;
+    };
+    timestamp: number;
+    headers: Record<string, string>;
+}
+
+const pageCache = new Map<string, PageCacheEntry>();
+const PAGE_CACHE_DURATION = 30 * 60 * 1000;
+
+/**
+ * Clean expired page cache entries
+ */
+const cleanExpiredPageCache = () => {
+    const now = Date.now();
+    for (const [key, entry] of pageCache.entries()) {
+        if (now - entry.timestamp > PAGE_CACHE_DURATION) {
+            pageCache.delete(key);
+        }
+    }
+};
+
+/**
+ * Check if a page cache entry is still valid
+ */
+const isPageCacheValid = (key: string): boolean => {
+    const entry = pageCache.get(key);
+    if (!entry) return false;
+
+    const now = Date.now();
+    return (now - entry.timestamp) < PAGE_CACHE_DURATION;
+};
+
+/**
+ * Generate cache key from request
+ */
+const generateCacheKey = (url: string, userAgent?: string): string => {
+    const isMobile = userAgent?.toLowerCase().includes('mobile') ? 'mobile' : 'desktop';
+    return `${url}:${isMobile}`;
+};
+
+/**
+ * Clear all page cache
+ */
+const clearPageCache = () => {
+    const cacheSize = pageCache.size;
+    pageCache.clear();
+    console.log(`🗑️ Page cache cleared. Removed ${cacheSize} entries.`);
+};
+
+/**
+ * Get cache statistics
+ */
+const getCacheStats = () => {
+    const now = Date.now();
+    let validEntries = 0;
+    let expiredEntries = 0;
+
+    for (const [key, entry] of pageCache.entries()) {
+        if (now - entry.timestamp > PAGE_CACHE_DURATION) {
+            expiredEntries++;
+        } else {
+            validEntries++;
+        }
+    }
+
+    return {
+        total: pageCache.size,
+        valid: validEntries,
+        expired: expiredEntries
+    };
+};
 
 const compressHtml = (html: string, acceptEncoding: string = ''): { data: Buffer | string, encoding: string | null } => {
     if (acceptEncoding.includes('br')) {
@@ -119,8 +200,13 @@ const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerRespon
 let serverInstance: http.Server | null = null;
 
 async function bootstrap() {
+    const isDev = process.env.NODE_ENV !== 'production';
+
     const vite = await createServer({
-        server: { middlewareMode: true },
+        server: {
+            middlewareMode: true,
+            hmr: isDev ? true : false
+        },
         appType: 'custom'
     });
 
@@ -168,6 +254,42 @@ async function bootstrap() {
                 res.end(JSON.stringify([]));
                 return;
             }
+        }
+
+        if (url === '/cache/clear' && req.method === 'POST') {
+            const authHeader = req.headers.authorization || '';
+            const expectedAuth = `Bearer ${env.VITE_SIGNATURE}`;
+
+            if (authHeader !== expectedAuth) {
+                res.statusCode = 401;
+                res.setHeader('Content-Type', 'text/plain');
+                res.end('Unauthorized');
+                return;
+            }
+
+            clearPageCache();
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify({ success: true, message: 'Cache cleared successfully' }));
+            return;
+        }
+
+        if (url === '/cache/stats' && req.method === 'GET') {
+            const authHeader = req.headers.authorization || '';
+            const expectedAuth = `Bearer ${env.VITE_SIGNATURE}`;
+
+            if (authHeader !== expectedAuth) {
+                res.statusCode = 401;
+                res.setHeader('Content-Type', 'text/plain');
+                res.end('Unauthorized');
+                return;
+            }
+
+            const stats = getCacheStats();
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.end(JSON.stringify(stats));
+            return;
         }
 
         if (url === '/set-thema' && req.method === 'POST') {
@@ -261,18 +383,54 @@ async function bootstrap() {
             template = fs.readFileSync(path.resolve('dist/index.html'), 'utf-8');
             const mod = await (new Function('return import("./entry-server.js")')());
             render = mod.render;
-        } else {
+        } else if(vite) {
             template = fs.readFileSync(path.resolve('index.html'), 'utf-8');
             const { render: devRender } = await vite.ssrLoadModule('/src/entry-server.ts');
             render = devRender;
         }
 
-        vite.middlewares(req, res, async () => {
+        vite?.middlewares(req, res, async () => {
             try {
                 if (/\.\w+$/.test(url)) {
                     res.statusCode = 404;
                     return res.end(`Not found: ${url}`);
                 }
+
+                cleanExpiredPageCache();
+                const userAgent = req.headers['user-agent'] || '';
+                const cacheKey = generateCacheKey(url, userAgent);
+
+                if (isPageCacheValid(cacheKey)) {
+                    const cachedEntry = pageCache.get(cacheKey);
+                    if (cachedEntry) {
+                        //console.log(`💾 Cache HIT: ${url}`);
+
+                        Object.entries(cachedEntry.headers).forEach(([key, value]) => {
+                            res.setHeader(key, value);
+                        });
+
+                        let data: Buffer | string;
+                        let encoding: string | null = null;
+
+                        if (acceptEncoding.includes('br') && cachedEntry.compressedVersions.br) {
+                            data = cachedEntry.compressedVersions.br;
+                            encoding = 'br';
+                        } else if (acceptEncoding.includes('gzip') && cachedEntry.compressedVersions.gzip) {
+                            data = cachedEntry.compressedVersions.gzip;
+                            encoding = 'gzip';
+                        } else {
+                            data = cachedEntry.compressedVersions.uncompressed;
+                        }
+
+                        if (encoding)
+                            res.setHeader('Content-Encoding', encoding);
+
+                        res.end(data);
+                        return;
+                    }
+                }
+
+                //console.log(`🔄 Cache MISS: ${url} - Processing SSR...`);
 
                 template = await vite.transformIndexHtml(url, template);
 
@@ -294,18 +452,45 @@ async function bootstrap() {
                 const serializedData = JSON.stringify(ssrData).replace(/</g, '\\u003c');
                 const dataScript = `<script>window.__CMMV_DATA__ = ${serializedData};</script>${piniaScript}`;
 
-                template = await transformHtmlTemplate(head, template.replace(`</title>`, `</title>${dataScript}`));
                 template = await transformHtmlTemplate(head, template.replace(`<div id="app"></div>`, `<div id="app">${appHtml}</div>`));
 
                 template = template.replace("<analytics />", settings["blog.analyticsCode"] || "").replace("<analytics>", settings["blog.analyticsCode"] || "");
                 template = template.replace("<custom-js />", settings["blog.customJs"] || "").replace("<custom-js>", settings["blog.customJs"] || "");
                 template = template.replace("<custom-css />", settings["blog.customCss"] || "").replace("<custom-css>", settings["blog.customCss"] || "");
 
+                if (process.env.NODE_ENV === 'production') {
+                    template = template.replace(/<script[^>]*src="\/@vite\/client"[^>]*><\/script>/g, '');
+                    template = template.replace(/<script[^>]*type="[^"]*"[^>]*src="\/@vite\/client"[^>]*><\/script>/g, '');
+                }
+
                 for(const key in metadata)
                     template = template.replace(`{${key}}`, metadata[key]);
 
-                res.setHeader('Content-Type', 'text/html');
-                res.setHeader('Cache-Control', `public, max-age=900`);
+                const responseHeaders = {
+                    'Content-Type': 'text/html',
+                    'Cache-Control': 'public, max-age=900'
+                };
+
+                Object.entries(responseHeaders).forEach(([key, value]) => {
+                    res.setHeader(key, value);
+                });
+
+                template = await transformHtmlTemplate(head, template.replace(`</title>`, `</title>${dataScript}`));
+
+                // Pre-compress content for cache storage
+                const gzipCompressed = zlib.gzipSync(template);
+                const brotliCompressed = zlib.brotliCompressSync(template);
+
+                pageCache.set(cacheKey, {
+                    html: template,
+                    compressedVersions: {
+                        gzip: gzipCompressed,
+                        br: brotliCompressed,
+                        uncompressed: template
+                    },
+                    timestamp: Date.now(),
+                    headers: responseHeaders
+                });
 
                 const compressed = compressHtml(template, acceptEncoding as string);
 
@@ -323,7 +508,7 @@ async function bootstrap() {
 
     const port = env.VITE_SSR_PORT || 5001;
 
-    // @ts-ignore - Ignoring TypeScript error for the interface difference
+    // @ts-ignore
     serverInstance = server.listen(port, "0.0.0.0", () => {
         console.log(`🚀 SSR server running at http://localhost:${port}`);
     });
