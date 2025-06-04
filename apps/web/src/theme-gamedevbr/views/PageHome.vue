@@ -28,10 +28,11 @@
                     <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
                         <div class="relative h-[400px]">
                             <img
-                                v-if="coverPosts.full && coverPosts.full.featureImage"
+                                v-dynamic-resize
+                                v-if="coverPosts.full && coverPosts.full.featureImage && hydrated"
                                 :src="coverPosts.full.featureImage"
                                 :alt="coverPosts.full.title"
-                                class="w-full h-full object-cover"
+                                class="w-full h-full object-cover imgix-lazy"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -70,10 +71,11 @@
                              :class="{ 'opacity-100': currentCarouselIndex === index, 'opacity-0': currentCarouselIndex !== index }">
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <img
-                                    v-if="post.featureImage"
+                                    v-dynamic-resize
+                                    v-if="post.featureImage && hydrated"
                                     :src="post.featureImage"
                                     :alt="post.title"
-                                    class="w-full h-full object-cover"
+                                    class="w-full h-full object-cover imgix-lazy"
                                     loading="lazy"
                                     width="890"
                                     height="606"
@@ -138,10 +140,11 @@
                         <a v-if="coverPosts.splitMain" :href="`/post/${coverPosts.splitMain.slug}`" class="block h-full">
                             <div class="relative h-full">
                                 <img
-                                    v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage"
+                                    v-dynamic-resize
+                                    v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage && hydrated"
                                     :src="coverPosts.splitMain.featureImage"
                                     :alt="coverPosts.splitMain.title"
-                                    class="w-full h-full object-cover"
+                                    class="w-full h-full object-cover imgix-lazy"
                                     loading="lazy"
                                     width="890"
                                     height="606"
@@ -176,10 +179,11 @@
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <div class="relative h-full">
                                     <img
-                                        v-if="post.featureImage"
+                                        v-dynamic-resize
+                                        v-if="post.featureImage && hydrated"
                                         :src="post.featureImage"
                                         :alt="post.title"
-                                        class="w-full h-full object-cover"
+                                        class="w-full h-full object-cover imgix-lazy"
                                         loading="lazy"
                                     />
                                     <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
@@ -210,10 +214,11 @@
                         <a :href="`/post/${post.slug}`" class="block">
                             <div class="relative h-[350px]">
                                 <img
-                                    v-if="post.featureImage"
+                                    v-dynamic-resize
+                                    v-if="post.featureImage && hydrated"
                                     :src="post.featureImage"
                                     :alt="post.title"
-                                    class="w-full h-full object-cover"
+                                    class="w-full h-full object-cover imgix-lazy"
                                     loading="lazy"
                                     width="890"
                                     height="606"
@@ -260,12 +265,8 @@
 
             <!-- Main Content Layout -->
             <div class="flex flex-col lg:flex-row gap-8">
-
-                <!-- Main Content Area -->
                 <div class="flex-grow">
-                    <!-- Main Content in 2 Columns -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <!-- Left Column (Latest News) -->
                         <div class="lg:col-span-2">
                             <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
                                 Últimas Notícias
@@ -280,17 +281,18 @@
                                     <a :href="`/post/${post.slug}`" class="block">
                                         <div class="h-48 overflow-hidden relative">
                                             <img
-                                                v-if="post.featureImage"
+                                                v-dynamic-resize
+                                                v-if="post.featureImage && hydrated"
                                                 :src="post.featureImage"
                                                 :alt="post.title"
-                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                                                loading="lazy"
+                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
                                                 width="360"
                                                 height="192"
+                                                loading="lazy"
                                             />
                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
                                             <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
@@ -329,7 +331,6 @@
                                 </div>
                             </div>
 
-                            <!-- More Posts Section -->
                             <div v-if="posts.length > (featuredPost ? 5 : 4)">
                                 <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
                                     Mais Conteúdo
@@ -344,13 +345,14 @@
                                         <a :href="`/post/${post.slug}`" class="block">
                                             <div class="h-48 overflow-hidden relative">
                                                 <img
-                                                    v-if="post.featureImage"
+                                                    v-dynamic-resize
+                                                    v-if="post.featureImage && hydrated"
                                                     :src="post.featureImage"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                                                    loading="lazy"
+                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
                                                     width="360"
                                                     height="192"
+                                                    loading="lazy"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -382,7 +384,6 @@
                                 </div>
                             </div>
 
-                            <!-- Bottom AdSense Banner -->
                             <div v-if="adSettings.enableAds && adSettings.homePageAfterPosts" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
                                 <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
                                     <div v-html="getAdHtml('belowContent')"></div>
@@ -394,13 +395,11 @@
                                 </div>
                             </div>
 
-                            <!-- Loading More Indicator -->
                             <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
                                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
                                 <span class="ml-3 text-gray-600">Carregando mais posts...</span>
                             </div>
 
-                            <!-- Infinite Scroll Observer Target -->
                             <div ref="observerTarget" class="h-4 w-full"></div>
                         </div>
 
@@ -433,13 +432,14 @@
                                         <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
                                             <a :href="`/post/${post.slug}`">
                                                 <img
-                                                    v-if="post.image"
+                                                    v-dynamic-resize
+                                                    v-if="post.image && hydrated"
                                                     :src="post.image"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover"
-                                                    loading="lazy"
+                                                    class="w-full h-full object-cover imgix-lazy"
                                                     width="80"
                                                     height="64"
+                                                    loading="lazy"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -513,12 +513,15 @@
         </div>
     </div>
 
-    <!-- Taboola JS Code -->
+        <!-- Taboola JS Code -->
     <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import {
+    ref, computed, onMounted,
+    onUnmounted, watch, nextTick
+} from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useSettingsStore } from '../../store/settings';
@@ -528,10 +531,11 @@ import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import { useAds } from '../../composables/useAds';
 
-// Declare adsbygoogle for TypeScript
 declare global {
     interface Window {
         adsbygoogle: any[];
+        workbox: any;
+        imgix: any;
     }
 }
 
@@ -541,7 +545,6 @@ const postsStore = usePostsStore();
 const mostAccessedStore = useMostAccessedPostsStore();
 const blogAPI = vue3.useBlog();
 
-// State
 const rawSettings = computed(() => settingsStore.getSettings);
 const settings = computed<Record<string, any>>(() => {
     const settingsObj = rawSettings.value || {};
@@ -567,16 +570,16 @@ const observer = ref<IntersectionObserver | null>(null);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
+const hydrated = ref(false);
 
-/**
- * Create formatted settings object for useAds
- */
 const adPluginSettings = computed(() => {
     return settings.value || {};
 });
 
-// Set up ads functionality using the composable
-const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPluginSettings.value, 'home');
+const {
+    adSettings, getAdHtml,
+    loadAdScripts, loadSidebarLeftAd
+} = useAds(adPluginSettings.value, 'home');
 
 const coverSettings = computed(() => {
     try {
@@ -608,13 +611,11 @@ const coverPosts = computed(() => {
         const shouldRespectSelectedPosts = config.respectSelectedPosts !== false;
 
         if (shouldRespectSelectedPosts) {
-            // Handle "full" layout
             if (config.layoutType === 'full' && config.fullCover?.postId) {
                 const configPost = posts.value.find(p => p.id === config.fullCover.postId);
                 if (configPost) result.full = configPost;
             }
 
-            // Handle "carousel" layout
             if (config.layoutType === 'carousel' && Array.isArray(config.carousel)) {
                 const carouselPostIds = config.carousel
                     .filter(item => item && item.postId)
@@ -629,7 +630,6 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "split" layout
             if (config.layoutType === 'split') {
                 // Main post
                 if (config.split?.main?.postId) {
@@ -637,7 +637,6 @@ const coverPosts = computed(() => {
                     if (mainPost) result.splitMain = mainPost;
                 }
 
-                // Secondary posts
                 if (Array.isArray(config.split?.secondary)) {
                     const secondaryPostIds = config.split.secondary
                         .filter(item => item && item.postId)
@@ -653,7 +652,6 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "dual" layout
             if (config.layoutType === 'dual' && Array.isArray(config.dual)) {
                 const dualPostIds = config.dual
                     .filter(item => item && item.postId)
@@ -837,12 +835,17 @@ const getAuthor = (post: any) => {
     return post.authors.find((author: any) => author.id === post.author);
 };
 
+
+
 onMounted(async () => {
     loading.value = false;
+    hydrated.value = true;
     setupIntersectionObserver();
     startCarouselInterval();
     loadAdScripts();
     loadSidebarLeftAd(sidebarLeftAdContainer.value);
+
+    await nextTick();
 });
 
 onUnmounted(() => {
@@ -858,10 +861,13 @@ watch(() => settings.value['blog.cover'], () => {
     stopCarouselInterval();
     startCarouselInterval();
 }, { deep: true });
+
+watch(() => posts.value.length, async () => {
+    await nextTick();
+});
 </script>
 
 <style scoped>
-/* Only hide the left sidebar on screens smaller than 1280px */
 @media (max-width: 1280px) {
     .ad-sidebar-left {
         display: none;
@@ -881,6 +887,20 @@ watch(() => settings.value['blog.cover'], () => {
     justify-content: center;
     border: 1px dashed #ccc;
     border-radius: 4px;
+}
+
+/* Imgix lazy loading styles */
+.imgix-lazy {
+    transition: opacity 0.3s ease;
+}
+
+.imgix-lazy.imgix-loaded {
+    opacity: 1;
+}
+
+.imgix-lazy.imgix-error {
+    opacity: 0.5;
+    filter: grayscale(100%);
 }
 </style>
 

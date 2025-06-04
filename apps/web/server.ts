@@ -1,6 +1,5 @@
 import {
     createServer, loadEnv,
-    ViteDevServer
 } from 'vite';
 
 import { transformHtmlTemplate } from '@unhead/vue/server';
@@ -29,69 +28,6 @@ interface PageCacheEntry {
 
 const pageCache = new Map<string, PageCacheEntry>();
 const PAGE_CACHE_DURATION = 30 * 60 * 1000;
-
-/**
- * Clean expired page cache entries
- */
-const cleanExpiredPageCache = () => {
-    const now = Date.now();
-    for (const [key, entry] of pageCache.entries()) {
-        if (now - entry.timestamp > PAGE_CACHE_DURATION) {
-            pageCache.delete(key);
-        }
-    }
-};
-
-/**
- * Check if a page cache entry is still valid
- */
-const isPageCacheValid = (key: string): boolean => {
-    const entry = pageCache.get(key);
-    if (!entry) return false;
-
-    const now = Date.now();
-    return (now - entry.timestamp) < PAGE_CACHE_DURATION;
-};
-
-/**
- * Generate cache key from request
- */
-const generateCacheKey = (url: string, userAgent?: string): string => {
-    const isMobile = userAgent?.toLowerCase().includes('mobile') ? 'mobile' : 'desktop';
-    return `${url}:${isMobile}`;
-};
-
-/**
- * Clear all page cache
- */
-const clearPageCache = () => {
-    const cacheSize = pageCache.size;
-    pageCache.clear();
-    console.log(`🗑️ Page cache cleared. Removed ${cacheSize} entries.`);
-};
-
-/**
- * Get cache statistics
- */
-const getCacheStats = () => {
-    const now = Date.now();
-    let validEntries = 0;
-    let expiredEntries = 0;
-
-    for (const [key, entry] of pageCache.entries()) {
-        if (now - entry.timestamp > PAGE_CACHE_DURATION) {
-            expiredEntries++;
-        } else {
-            validEntries++;
-        }
-    }
-
-    return {
-        total: pageCache.size,
-        valid: validEntries,
-        expired: expiredEntries
-    };
-};
 
 const compressHtml = (html: string, acceptEncoding: string = ''): { data: Buffer | string, encoding: string | null } => {
     if (acceptEncoding.includes('br')) {
@@ -256,42 +192,6 @@ async function bootstrap() {
             }
         }
 
-        if (url === '/cache/clear' && req.method === 'POST') {
-            const authHeader = req.headers.authorization || '';
-            const expectedAuth = `Bearer ${env.VITE_SIGNATURE}`;
-
-            if (authHeader !== expectedAuth) {
-                res.statusCode = 401;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Unauthorized');
-                return;
-            }
-
-            clearPageCache();
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ success: true, message: 'Cache cleared successfully' }));
-            return;
-        }
-
-        if (url === '/cache/stats' && req.method === 'GET') {
-            const authHeader = req.headers.authorization || '';
-            const expectedAuth = `Bearer ${env.VITE_SIGNATURE}`;
-
-            if (authHeader !== expectedAuth) {
-                res.statusCode = 401;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Unauthorized');
-                return;
-            }
-
-            const stats = getCacheStats();
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(stats));
-            return;
-        }
-
         if (url === '/set-thema' && req.method === 'POST') {
             const authHeader = req.headers.authorization || '';
             const expectedAuth = `Bearer ${env.VITE_SIGNATURE}`;
@@ -416,7 +316,7 @@ async function bootstrap() {
                 const serializedData = JSON.stringify(ssrData).replace(/</g, '\\u003c');
                 const dataScript = `<script>window.__CMMV_DATA__ = ${serializedData};</script>${piniaScript}`;
 
-                template = await transformHtmlTemplate(head, template.replace(`<div id="app"></div>`, `<div id="app">${appHtml}</div>`));
+                template = await transformHtmlTemplate(head, template.replace(`<div id="app"></div>`, `<div id="app">${appHtml}</div>${dataScript}`));
 
                 template = template.replace("<analytics />", settings["blog.analyticsCode"] || "").replace("<analytics>", settings["blog.analyticsCode"] || "");
                 template = template.replace("<custom-js />", settings["blog.customJs"] || "").replace("<custom-js>", settings["blog.customJs"] || "");
@@ -439,7 +339,6 @@ async function bootstrap() {
                     res.setHeader(key, value);
                 });
 
-                template = await transformHtmlTemplate(head, template.replace(`</title>`, `</title>${dataScript}`));
                 const compressed = compressHtml(template, acceptEncoding as string);
 
                 if (compressed.encoding)

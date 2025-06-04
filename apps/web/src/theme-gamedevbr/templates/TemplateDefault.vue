@@ -395,7 +395,6 @@ import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
 import { useCategoriesStore } from '../../store/categories';
-
 import CookieConsent from '../../components/CookieConsent.vue';
 
 const blogAPI = vue3.useBlog();
@@ -405,7 +404,14 @@ const settingsStore = useSettingsStore();
 const settings = ref<any>(settingsStore.getSettings);
 
 const scripts = computed(() => {
-    const baseScripts = [];
+    const baseScripts = [
+        {
+            src: '/imgix-min.js',
+            type: 'text/javascript',
+            async: true,
+            defer: true
+        }
+    ];
     return [...baseScripts, ...settingsStore.googleAnalyticsScripts];
 });
 

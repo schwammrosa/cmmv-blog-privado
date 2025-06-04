@@ -22,7 +22,7 @@
             <div v-else class="bg-white rounded-lg p-6">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
                     <div class="w-[160px] h-[125px] flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" class="w-full h-full">
+                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" width="160" height="125">
                         <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -244,6 +244,8 @@ import { useCampaignsStore } from '../../store/campaigns';
 import { useCouponsStore } from '../../store/coupons';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 
+// @ts-ignore
+const isSSR = import.meta.env.SSR;
 const route = useRoute();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const settingsStore = useSettingsStore();
@@ -255,6 +257,9 @@ const campaign = ref<any>(null);
 const coupons = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+if(!isSSR)
+    campaign.value = window.__CMMV_DATA__["campaign"]
 
 const activeFilter = ref('all');
 const isScratchModalOpen = ref(false);
@@ -309,57 +314,23 @@ const loadData = async () => {
             return;
         }
 
-        let allCampaigns = campaignsStore.getCampaigns;
+        if(isSSR)
+            campaign.value = await affiliateAPI.campaigns.getBySlug(slug as string);
 
-        if (!allCampaigns || allCampaigns.length === 0) {
-            allCampaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
-
-            if (allCampaigns && allCampaigns.length > 0)
-                campaignsStore.setCampaigns(allCampaigns);
-        }
-
-        if (!allCampaigns || allCampaigns.length === 0) {
-            error.value = 'Não foi possível carregar as lojas';
-            loading.value = false;
-            return;
-        }
-
-        const foundCampaign = allCampaigns.find((c: any) => c.slug === slug);
-
-        if (!foundCampaign) {
+        if (!campaign.value) {
             error.value = 'Loja não encontrada';
             loading.value = false;
             return;
         }
 
-        campaign.value = foundCampaign;
+        let campaignCoupons = campaign.value.coupons;
 
-        try {
-            const campaignId = campaign.value.id;
-            let campaignCoupons = couponsStore.getCampaignCoupons(campaignId);
-
-            if (campaignCoupons && campaignCoupons.length > 0) {
-                coupons.value = campaignCoupons.map((c: any) => ({
-                    ...c,
-                    campaignName: campaign.value.name,
-                    campaignLogo: c.campaignLogo || campaign.value.logo
-                }));
-            } else {
-                const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaignId);
-
-                if (realCoupons && realCoupons.length > 0) {
-                    const enrichedCoupons = realCoupons.map((c: any) => ({
-                        ...c,
-                        campaignName: campaign.value.name,
-                        campaignLogo: c.campaignLogo || campaign.value.logo
-                    }));
-
-                    coupons.value = enrichedCoupons;
-                    couponsStore.setCampaignCoupons(campaignId, enrichedCoupons);
-                }
-            }
-        } catch (couponError) {
-            console.error("Erro ao carregar cupons:", couponError);
+        if (campaignCoupons && campaignCoupons.length > 0) {
+            coupons.value = campaignCoupons.map((c: any) => ({
+                ...c,
+                campaignName: campaign.value.name,
+                campaignLogo: c.campaignLogo || campaign.value.logo
+            }));
         }
 
         loading.value = false;
@@ -371,6 +342,10 @@ const loadData = async () => {
 
 onServerPrefetch(async () => {
     await loadData();
+});
+
+onMounted(() => {
+    loadData();
 });
 
 const formatDate = (dateString: string | Date) => {
@@ -451,15 +426,6 @@ const extractDiscountValue = (title: string) => {
 
     return 'Oferta';
 };
-
-onMounted(() => {
-    loadData();
-});
-
-watch(() => route.params.slug, (newSlug, oldSlug) => {
-    if (newSlug !== oldSlug)
-        loadData();
-});
 </script>
 
 <style>
