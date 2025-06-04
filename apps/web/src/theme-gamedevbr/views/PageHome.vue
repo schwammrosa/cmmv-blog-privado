@@ -291,6 +291,8 @@
                                                 :alt="post.title"
                                                 class="lazy-image w-full h-full object-cover transition-transform hover:scale-105 duration-300"
                                                 loading="lazy"
+                                                width="360"
+                                                height="192"
                                             />
                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -354,6 +356,8 @@
                                                     :alt="post.title"
                                                     class="lazy-image w-full h-full object-cover transition-transform hover:scale-105 duration-300"
                                                     loading="lazy"
+                                                    width="360"
+                                                    height="192"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -442,6 +446,8 @@
                                                     :alt="post.title"
                                                     class="lazy-image w-full h-full object-cover"
                                                     loading="lazy"
+                                                    width="80"
+                                                    height="64"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -925,12 +931,8 @@ onMounted(async () => {
     loading.value = false;
     setupIntersectionObserver();
     startCarouselInterval();
-
-    // Load ad scripts and sidebar left ad
     loadAdScripts();
     loadSidebarLeftAd(sidebarLeftAdContainer.value);
-
-    // Initialize lazy loading
     initLazyLoading();
 });
 
@@ -939,9 +941,8 @@ onUnmounted(() => {
         observer.value.unobserve(observerTarget.value);
         observer.value.disconnect();
     }
-    stopCarouselInterval();
 
-    // Cleanup lazy loading
+    stopCarouselInterval();
     cleanupLazyLoading();
 });
 
