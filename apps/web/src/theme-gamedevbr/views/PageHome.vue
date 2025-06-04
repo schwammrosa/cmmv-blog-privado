@@ -27,24 +27,17 @@
                 <div v-if="coverSettings.layoutType === 'full' || !coverSettings.layoutType" class="bg-white rounded-lg overflow-hidden shadow-md">
                     <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
                         <div class="relative h-[400px]">
-                            <img
-                                v-dynamic-resize
-                                v-if="coverPosts.full && coverPosts.full.featureImage && hydrated"
-                                :src="coverPosts.full.featureImage"
-                                :alt="coverPosts.full.title"
-                                class="w-full h-full object-cover imgix-lazy"
-                                loading="lazy"
+                            <OptimizedImage
+                                :src="coverPosts.full?.featureImage"
+                                :alt="coverPosts.full?.title"
+                                :title="coverPosts.full?.title"
+                                aria-label="Cover Image"
                                 width="890"
                                 height="606"
-                                :title="coverPosts.full.title"
-                                aria-label="Cover Image"
-                                fetchpriority="high"
+                                loading="lazy"
+                                priority="high"
+                                icon-size="lg"
                             />
-                            <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
                             <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
                                 <div v-if="coverPosts.full && coverPosts.full.categories && coverPosts.full.categories.length > 0" class="mb-2">
                                     <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
@@ -70,24 +63,17 @@
                              class="absolute w-full h-full transition-opacity duration-500 ease-in-out"
                              :class="{ 'opacity-100': currentCarouselIndex === index, 'opacity-0': currentCarouselIndex !== index }">
                             <a :href="`/post/${post.slug}`" class="block h-full">
-                                <img
-                                    v-dynamic-resize
-                                    v-if="post.featureImage && hydrated"
+                                <OptimizedImage
                                     :src="post.featureImage"
                                     :alt="post.title"
-                                    class="w-full h-full object-cover imgix-lazy"
-                                    loading="lazy"
-                                    width="890"
-                                    height="606"
                                     :title="post.title"
                                     aria-label="Cover Image"
-                                    fetchpriority="high"
+                                    width="890"
+                                    height="606"
+                                    loading="lazy"
+                                    priority="high"
+                                    icon-size="lg"
                                 />
-                                <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
                                 <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
                                     <div v-if="post.categories && post.categories.length > 0" class="mb-2">
                                         <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
@@ -139,24 +125,17 @@
                     <div class="md:col-span-2 bg-white rounded-lg overflow-hidden shadow-md">
                         <a v-if="coverPosts.splitMain" :href="`/post/${coverPosts.splitMain.slug}`" class="block h-full">
                             <div class="relative h-full">
-                                <img
-                                    v-dynamic-resize
-                                    v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage && hydrated"
-                                    :src="coverPosts.splitMain.featureImage"
-                                    :alt="coverPosts.splitMain.title"
-                                    class="w-full h-full object-cover imgix-lazy"
-                                    loading="lazy"
+                                <OptimizedImage
+                                    :src="coverPosts.splitMain?.featureImage"
+                                    :alt="coverPosts.splitMain?.title"
+                                    :title="coverPosts.splitMain?.title"
+                                    aria-label="Cover Image"
                                     width="890"
                                     height="606"
-                                    :title="coverPosts.splitMain.title"
-                                    aria-label="Cover Image"
-                                    fetchpriority="high"
+                                    loading="lazy"
+                                    priority="high"
+                                    icon-size="lg"
                                 />
-                                <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
                                 <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
                                     <div v-if="coverPosts.splitMain && coverPosts.splitMain.categories && coverPosts.splitMain.categories.length > 0" class="mb-2">
                                         <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
@@ -178,19 +157,12 @@
                         <div v-for="(post, index) in coverPosts.splitSide" :key="post.id" class="flex-1 bg-white rounded-lg overflow-hidden shadow-md">
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <div class="relative h-full">
-                                    <img
-                                        v-dynamic-resize
-                                        v-if="post.featureImage && hydrated"
+                                    <OptimizedImage
                                         :src="post.featureImage"
                                         :alt="post.title"
-                                        class="w-full h-full object-cover imgix-lazy"
                                         loading="lazy"
+                                        icon-size="md"
                                     />
-                                    <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
                                     <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
                                         <div v-if="post.categories && post.categories.length > 0" class="mb-2">
                                             <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
@@ -213,24 +185,17 @@
                     <div v-for="post in coverPosts.dual" :key="post.id" class="bg-white rounded-lg overflow-hidden shadow-md">
                         <a :href="`/post/${post.slug}`" class="block">
                             <div class="relative h-[350px]">
-                                <img
-                                    v-dynamic-resize
-                                    v-if="post.featureImage && hydrated"
+                                <OptimizedImage
                                     :src="post.featureImage"
                                     :alt="post.title"
-                                    class="w-full h-full object-cover imgix-lazy"
-                                    loading="lazy"
-                                    width="890"
-                                    height="606"
                                     :title="post.title"
                                     aria-label="Cover Image"
-                                    fetchpriority="high"
+                                    width="890"
+                                    height="606"
+                                    loading="lazy"
+                                    priority="high"
+                                    icon-size="lg"
                                 />
-                                <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                </div>
                                 <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
                                     <div v-if="post.categories && post.categories.length > 0" class="mb-2">
                                         <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
@@ -280,22 +245,16 @@
                                 >
                                     <a :href="`/post/${post.slug}`" class="block">
                                         <div class="h-48 overflow-hidden relative">
-                                            <img
-                                                v-dynamic-resize
-                                                v-if="post.featureImage && hydrated"
+                                            <OptimizedImage
                                                 :src="post.featureImage"
                                                 :alt="post.title"
-                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
                                                 width="360"
                                                 height="192"
                                                 loading="lazy"
-                                                fetchpriority="high"
+                                                priority="high"
+                                                :hover="true"
+                                                icon-size="md"
                                             />
-                                            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
                                             <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
                                                 <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
                                                     {{ post.categories[0].name }}
@@ -345,21 +304,15 @@
                                     >
                                         <a :href="`/post/${post.slug}`" class="block">
                                             <div class="h-48 overflow-hidden relative">
-                                                <img
-                                                    v-dynamic-resize
-                                                    v-if="post.featureImage && hydrated"
+                                                <OptimizedImage
                                                     :src="post.featureImage"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
                                                     width="360"
                                                     height="192"
                                                     loading="lazy"
+                                                    :hover="true"
+                                                    icon-size="md"
                                                 />
-                                                <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
                                                 <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
                                                     <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
                                                         {{ post.categories[0].name }}
@@ -432,21 +385,14 @@
                                     >
                                         <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
                                             <a :href="`/post/${post.slug}`">
-                                                <img
-                                                    v-dynamic-resize
-                                                    v-if="post.image && hydrated"
+                                                <OptimizedImage
                                                     :src="post.image"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover imgix-lazy"
                                                     width="80"
                                                     height="64"
                                                     loading="lazy"
+                                                    icon-size="sm"
                                                 />
-                                                <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                    </svg>
-                                                </div>
                                             </a>
                                         </div>
                                         <div class="flex-grow">
@@ -521,7 +467,7 @@
 <script setup lang="ts">
 import {
     ref, computed, onMounted,
-    onUnmounted, watch, nextTick
+    onUnmounted, watch, nextTick, provide
 } from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
@@ -531,6 +477,7 @@ import { usePostsStore } from '../../store/posts';
 import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import { useAds } from '../../composables/useAds';
+import OptimizedImage from '../../components/OptimizedImage.vue';
 
 declare global {
     interface Window {
@@ -838,6 +785,9 @@ const getAuthor = (post: any) => {
 
 
 
+// Provide hydrated state to child components
+provide('hydrated', hydrated);
+
 onMounted(async () => {
     loading.value = false;
     hydrated.value = true;
@@ -890,19 +840,7 @@ watch(() => posts.value.length, async () => {
     border-radius: 4px;
 }
 
-/* Imgix lazy loading styles */
-.imgix-lazy {
-    transition: opacity 0.3s ease;
-}
 
-.imgix-lazy.imgix-loaded {
-    opacity: 1;
-}
-
-.imgix-lazy.imgix-error {
-    opacity: 0.5;
-    filter: grayscale(100%);
-}
 </style>
 
 

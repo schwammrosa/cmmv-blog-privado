@@ -438,7 +438,8 @@ useHead({
         { rel: 'preconnect', href: 'https://static.gamedevbr.com.br/' },
         { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
         { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' },
-        { rel: 'dns-prefetch', href: 'https://static.gamedevbr.com.br/' }
+        { rel: 'dns-prefetch', href: 'https://static.gamedevbr.com.br/' },
+        { rel: 'alternate', href: `${settings.value['blog.url']}/feed`, type: 'application/rss+xml', title: settings.value['blog.title'] }
     ],
 
     script: scripts
