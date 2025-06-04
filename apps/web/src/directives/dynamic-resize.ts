@@ -1,6 +1,10 @@
 // directives/dynamic-resize.ts
+interface HTMLImageElementWithObserver extends HTMLImageElement {
+    __observer__?: ResizeObserver;
+}
+
 export default {
-    async mounted(el: HTMLImageElement) {
+    async mounted(el: HTMLImageElementWithObserver) {
         const resizeImage = async () => {
             try {
                 if (!el.complete) {
@@ -10,8 +14,20 @@ export default {
                     });
                 }
 
-                const width = el.clientWidth * window.devicePixelRatio;
-                const height = el.clientHeight * window.devicePixelRatio;
+                let width: number;
+                let height: number;
+
+                const attrWidth = el.getAttribute('width');
+                const attrHeight = el.getAttribute('height');
+
+                if (attrWidth && attrHeight && !isNaN(parseInt(attrWidth, 10)) && !isNaN(parseInt(attrHeight, 10))) {
+                    width = parseInt(attrWidth, 10);
+                    height = parseInt(attrHeight, 10);
+                } else {
+                    width = el.clientWidth * window.devicePixelRatio;
+                    height = el.clientHeight * window.devicePixelRatio;
+                }
+
                 if (width < 1 || height < 1) return;
 
                 const img = new Image();
@@ -48,7 +64,7 @@ export default {
         el.__observer__ = observer;
     },
 
-    unmounted(el: any) {
+    unmounted(el: HTMLImageElementWithObserver) {
         el.__observer__?.disconnect();
     },
 
