@@ -27,16 +27,18 @@
                                             </a>
                                         </div>
 
-                                        <img
-                                            :src="post.featureImage"
-                                            :alt="post.featureImageAlt || post.title"
-                                            class="featured-img lazy-image md:block hidden"
-                                            width="890"
-                                            height="606"
-                                            loading="lazy"
-                                            title="Imagem de destaque"
-                                            aria-label="Imagem de destaque"
-                                        />
+                                                                <OptimizedImage
+                            :src="post.featureImage"
+                            :alt="post.featureImageAlt || post.title"
+                            class="featured-img imgix-lazy md:block hidden"
+                            width="890"
+                            height="606"
+                            loading="lazy"
+                            priority="high"
+                            icon-size="lg"
+                            title="Imagem de destaque"
+                            aria-label="Imagem de destaque"
+                        />
 
                                         <p v-if="post.featureImageCaption" class="image-caption text-neutral-600 text-sm mt-2 text-center">{{
                                             post.featureImageCaption }}</p>
@@ -96,8 +98,8 @@
                                             <!-- Author Avatar -->
                                             <div
                                                 class="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0 border-2 border-white shadow">
-                                                <img v-if="author.image" :src="author.image" :alt="author.name"
-                                                    class="w-full h-full object-cover" width="44" height="44" />
+                                                                                <OptimizedImage v-if="author.image" :src="author.image" :alt="author.name"
+                                    class="w-full h-full object-cover imgix-lazy" width="44" height="44" icon-size="sm" />
                                                 <div v-else
                                                     class="w-full h-full flex items-center justify-center bg-[#000] text-white font-bold text-lg">
                                                     {{ authorInitials }}
@@ -226,12 +228,14 @@
                                                 >
                                                     <a :href="`/post/${relatedPost.slug}`" class="block">
                                                         <div class="h-48 overflow-hidden relative">
-                                                            <img
-                                                                v-if="relatedPost.featureImage"
-                                                                :src="relatedPost.featureImage"
-                                                                :alt="relatedPost.title"
-                                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
-                                                            />
+                                                                                                        <OptimizedImage
+                                                v-if="relatedPost.featureImage"
+                                                :src="relatedPost.featureImage"
+                                                :alt="relatedPost.title"
+                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
+                                                :hover="true"
+                                                icon-size="md"
+                                            />
                                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -379,12 +383,15 @@
                                         >
                                             <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
                                                 <a :href="`/post/${popularPost.slug}`">
-                                                    <img
-                                                        v-if="popularPost.image || popularPost.featureImage"
-                                                        :src="popularPost.image || popularPost.featureImage"
-                                                        :alt="popularPost.title"
-                                                        class="w-full h-full object-cover lazy-image"
-                                                    />
+                                                                                            <OptimizedImage
+                                            v-if="popularPost.image || popularPost.featureImage"
+                                            :src="popularPost.image || popularPost.featureImage"
+                                            :alt="popularPost.title"
+                                            class="w-full h-full object-cover imgix-lazy"
+                                            width="80"
+                                            height="64"
+                                            icon-size="sm"
+                                        />
                                                     <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -449,6 +456,7 @@ import { useHead } from '@unhead/vue'
 import { vue3 } from '@cmmv/blog/client'
 import { formatDate, stripHtml } from '../../composables/useUtils'
 import CommentSection from '../../components/CommentSection.vue'
+import OptimizedImage from '../../components/OptimizedImage.vue'
 import { useSettingsStore } from '../../store/settings';
 import { usePostsStore } from '../../store/posts';
 import { useCategoriesStore } from '../../store/categories';

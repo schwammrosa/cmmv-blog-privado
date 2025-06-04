@@ -1,9 +1,8 @@
 <template>
-    <div class="relative w-full h-full">
-        <!-- Optimized Image -->
+    <div class="relative w-full h-full" v-cloak>
         <img
-            v-dynamic-resize
-            v-if="src && isHydrated"
+            v-if="src"
+            ref="imageElement"
             :src="src"
             :alt="alt || 'Image'"
             :class="imageClasses"
@@ -13,8 +12,8 @@
             :fetchpriority="priority"
             :title="title"
             :aria-label="ariaLabel"
-            @load="$emit('load', $event)"
-            @error="$emit('error', $event)"
+            @load="onImageLoad"
+            @error="onImageError"
         />
 
         <!-- Fallback/Placeholder -->
@@ -45,9 +44,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref, type Ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, nextTick } from 'vue';
 
-// Props interface
 interface OptimizedImageProps {
     src?: string;
     alt?: string;
@@ -65,7 +63,7 @@ interface OptimizedImageProps {
     transition?: boolean;
 }
 
-const isHydrated = ref(false);
+const imageElement = ref<HTMLImageElement | null>(null);
 
 const props = withDefaults(defineProps<OptimizedImageProps>(), {
     loading: 'lazy',
@@ -77,6 +75,11 @@ const props = withDefaults(defineProps<OptimizedImageProps>(), {
     hover: false,
     transition: true
 });
+
+const emit = defineEmits<{
+    load: [event: Event];
+    error: [event: Event];
+}>();
 
 const imageClasses = computed(() => {
     const baseClasses = [
@@ -110,9 +113,70 @@ const fallbackIconSize = computed(() => {
     return sizeMap[props.iconSize];
 });
 
-onMounted(() => {
-    isHydrated.value = true;
-});
+const resizeImage = async () => {
+    if (typeof window === 'undefined' || !imageElement.value) return;
+
+    try {
+        const el = imageElement.value;
+
+        if (!el.complete) {
+            await new Promise((resolve, reject) => {
+                el.onload = () => resolve(true);
+                el.onerror = reject;
+            });
+        }
+
+        let width: number;
+        let height: number;
+
+        const attrWidth = el.getAttribute('width');
+        const attrHeight = el.getAttribute('height');
+
+        if (attrWidth && attrHeight && !isNaN(parseInt(attrWidth, 10)) && !isNaN(parseInt(attrHeight, 10))) {
+            width = parseInt(attrWidth, 10);
+            height = parseInt(attrHeight, 10);
+        } else {
+            width = el.clientWidth * window.devicePixelRatio;
+            height = el.clientHeight * window.devicePixelRatio;
+        }
+
+        if (width < 1 || height < 1) return;
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = el.src;
+
+        await new Promise((res, rej) => {
+            img.onload = res;
+            img.onerror = rej;
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const resizedBase64 = canvas.toDataURL('image/webp', 0.85);
+        el.src = resizedBase64;
+    } catch (e) {
+        console.warn('Erro ao redimensionar imagem:', e);
+    }
+};
+
+
+const onImageLoad = async (event: Event) => {
+    emit('load', event);
+
+    await nextTick();
+    await resizeImage();
+};
+
+const onImageError = (event: Event) => {
+    emit('error', event);
+};
 </script>
 
 <style scoped>

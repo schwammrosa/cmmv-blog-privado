@@ -33,7 +33,7 @@
                                     loading="lazy"
                                     width="768"
                                     height="432"
-                                    hover="true"
+                                    :hover="true"
                                     icon-size="lg"
                                 />
                             </div>
