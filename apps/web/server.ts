@@ -1,4 +1,8 @@
-import { createServer, loadEnv } from 'vite';
+import {
+    createServer, loadEnv,
+    ViteDevServer
+} from 'vite';
+
 import { transformHtmlTemplate } from '@unhead/vue/server';
 import { useSettingsStore } from './src/store/settings.js';
 
@@ -119,10 +123,14 @@ const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerRespon
 let serverInstance: http.Server | null = null;
 
 async function bootstrap() {
-    const vite = await createServer({
-        server: { middlewareMode: true },
-        appType: 'custom'
-    });
+    let vite: ViteDevServer | null = null;
+
+    if (process.env.NODE_ENV !== 'production') {
+        vite = await createServer({
+            server: { middlewareMode: true },
+            appType: 'custom'
+        });
+    }
 
     const themesDir = path.resolve(process.cwd(), 'src');
     const themeFolders = fs.readdirSync(themesDir)
@@ -261,13 +269,13 @@ async function bootstrap() {
             template = fs.readFileSync(path.resolve('dist/index.html'), 'utf-8');
             const mod = await (new Function('return import("./entry-server.js")')());
             render = mod.render;
-        } else {
+        } else if(vite) {
             template = fs.readFileSync(path.resolve('index.html'), 'utf-8');
             const { render: devRender } = await vite.ssrLoadModule('/src/entry-server.ts');
             render = devRender;
         }
 
-        vite.middlewares(req, res, async () => {
+        vite?.middlewares(req, res, async () => {
             try {
                 if (/\.\w+$/.test(url)) {
                     res.statusCode = 404;
