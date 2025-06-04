@@ -123,14 +123,15 @@ const serveStaticFile = async (req: http.IncomingMessage, res: http.ServerRespon
 let serverInstance: http.Server | null = null;
 
 async function bootstrap() {
-    let vite: ViteDevServer | null = null;
+    const isDev = process.env.NODE_ENV !== 'production';
 
-    if (process.env.NODE_ENV !== 'production') {
-        vite = await createServer({
-            server: { middlewareMode: true },
-            appType: 'custom'
-        });
-    }
+    const vite = await createServer({
+        server: {
+            middlewareMode: true,
+            hmr: isDev ? true : false
+        },
+        appType: 'custom'
+    });
 
     const themesDir = path.resolve(process.cwd(), 'src');
     const themeFolders = fs.readdirSync(themesDir)
@@ -332,7 +333,7 @@ async function bootstrap() {
 
     const port = env.VITE_SSR_PORT || 5001;
 
-    // @ts-ignore - Ignoring TypeScript error for the interface difference
+    // @ts-ignore
     serverInstance = server.listen(port, "0.0.0.0", () => {
         console.log(`🚀 SSR server running at http://localhost:${port}`);
     });
