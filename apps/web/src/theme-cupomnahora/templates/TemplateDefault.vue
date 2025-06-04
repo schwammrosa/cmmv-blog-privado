@@ -716,19 +716,34 @@ const subscribeNewsletter = async () => {
         newsletterError.value = '';
         isSubscribing.value = true;
         
-        const response = await newsletterAPI.subscribers.subscribe({
-            email: newsletterEmail.value,
-            source: 'footer'
+        // Armazena o email para limpar depois em caso de sucesso
+        const emailToSubmit = newsletterEmail.value;
+        
+        // Chamada à API direta
+        const response = await fetch('/api/newsletter/subscribers/subscribe', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: emailToSubmit,
+                source: 'footer'
+            })
         });
         
-        newsletterSubmitted.value = true;
-        newsletterMessage.value = 'Obrigado! Você foi inscrito com sucesso.';
-        newsletterEmail.value = '';
-        
-        // Hide success message after a few seconds
-        setTimeout(() => {
-            newsletterSubmitted.value = false;
-        }, 5000);
+        // Verificar se a resposta HTTP é bem-sucedida
+        if (response.ok) {
+            newsletterSubmitted.value = true;
+            newsletterMessage.value = 'Obrigado! Você foi inscrito com sucesso.';
+            newsletterEmail.value = '';
+            
+            // Esconde a mensagem após alguns segundos
+            setTimeout(() => {
+                newsletterSubmitted.value = false;
+            }, 5000);
+        } else {
+            throw new Error('Falha na requisição');
+        }
         
     } catch (error) {
         console.error('Newsletter subscription error:', error);

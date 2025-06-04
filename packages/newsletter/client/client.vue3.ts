@@ -21,30 +21,31 @@ export const useNewsletter = () => {
 
     const subscribers = {
         subscribe: async (data: { email: string; name?: string; source?: string }) => {
-            return api.post("newsletter/subscribers/subscribe", data)
-                .then(response => response?.data || { success: true })
-                .catch(error => {
-                    console.error("Newsletter subscribe error:", error);
-                    throw error;
-                });
+            try {
+                // A API post retorna diretamente o resultado, não um objeto com propriedade 'data'
+                return await api.post("newsletter/subscribers/subscribe", data);
+            } catch (error) {
+                console.error("Newsletter subscribe error:", error);
+                throw error;
+            }
         },
         
         unsubscribe: async (email: string) => {
-            return api.post(`newsletter/subscribers/unsubscribe/${encodeURIComponent(email)}`)
-                .then(response => response?.data || { success: true })
-                .catch(error => {
-                    console.error("Newsletter unsubscribe error:", error);
-                    throw error;
-                });
+            try {
+                return await api.post(`newsletter/subscribers/unsubscribe/${encodeURIComponent(email)}`);
+            } catch (error) {
+                console.error("Newsletter unsubscribe error:", error);
+                throw error;
+            }
         },
 
         getStatus: async (email: string) => {
-            return api.get(`newsletter/subscribers/status/${encodeURIComponent(email)}`, `subscriber_status_${email}`)
-                .then(response => response?.data || { subscribed: false })
-                .catch(error => {
-                    console.error("Newsletter status check error:", error);
-                    return { subscribed: false };
-                });
+            try {
+                return await api.get(`newsletter/subscribers/status/${encodeURIComponent(email)}`, `subscriber_status_${email}`);
+            } catch (error) {
+                console.error("Newsletter status check error:", error);
+                return { subscribed: false };
+            }
         }
     };
 
