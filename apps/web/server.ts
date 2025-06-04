@@ -309,6 +309,11 @@ async function bootstrap() {
                 template = template.replace("<custom-js />", settings["blog.customJs"] || "").replace("<custom-js>", settings["blog.customJs"] || "");
                 template = template.replace("<custom-css />", settings["blog.customCss"] || "").replace("<custom-css>", settings["blog.customCss"] || "");
 
+                if (process.env.NODE_ENV === 'production') {
+                    template = template.replace(/<script[^>]*src="\/@vite\/client"[^>]*><\/script>/g, '');
+                    template = template.replace(/<script[^>]*type="[^"]*"[^>]*src="\/@vite\/client"[^>]*><\/script>/g, '');
+                }
+
                 for(const key in metadata)
                     template = template.replace(`{${key}}`, metadata[key]);
 
