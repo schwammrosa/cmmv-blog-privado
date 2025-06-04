@@ -252,7 +252,7 @@
                                      :data-src="campaign.logo"
                                      :alt="campaign.name"
                                      class="lazy-image max-w-full max-h-full"
-                                     loading="lazy">
+                                     loading="lazy" width="64" height="64">
                                 <div v-else class="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -287,7 +287,7 @@
                                                  :data-src="coupon.campaignLogo"
                                                  :alt="coupon.campaignName"
                                                  class="lazy-image max-h-20 max-w-full object-contain"
-                                                 loading="lazy">
+                                                 loading="lazy" width="102" height="80">
                                             <div v-else class="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-md">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -327,7 +327,7 @@
             <!-- Top 25 Cupons da Semana -->
             <section id="top-25-cupons" class="mb-12">
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-2xl font-bold text-gray-800">Os 25 melhores Cupons de Desconto da semana!</h2>
+                    <h2 class="text-2xl font-bold text-gray-800">Os 50 melhores Cupons de Desconto da semana!</h2>
                 </div>
 
                 <div v-if="loading" class="flex justify-center items-center py-10">
@@ -349,7 +349,7 @@
                                  :data-src="coupon.campaignLogo"
                                  :alt="coupon.campaignName"
                                  class="lazy-image max-w-full max-h-full object-contain rounded"
-                                 loading="lazy">
+                                 loading="lazy" width="102" height="80">
                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -438,7 +438,7 @@
                                      :data-src="post.featureImage"
                                      :alt="post.title"
                                      class="lazy-image w-full h-full object-cover"
-                                     loading="lazy">
+                                     loading="lazy" width="360" height="192">
                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
