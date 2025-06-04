@@ -517,32 +517,24 @@ const couponSlidesVisible = ref(3);
 
 const isScratchModalOpen = ref(false);
 const selectedCouponForScratch = ref<any | null>(null);
-
-// Lazy loading setup
 let lazyLoadObserver: IntersectionObserver | null = null;
 
 /**
- * Get thumbnail URL by adding _thumb to the filename
+ * Get thumbnail URL by adding _thumb to the filename and forcing .webp format
  */
 const getThumbnailUrl = (originalUrl: string): string => {
     if (!originalUrl) return originalUrl;
 
-    // If it's already a thumbnail, return as is
     if (originalUrl.includes('_thumb')) return originalUrl;
-
-    // If it's a data URL, return as is
     if (originalUrl.startsWith('data:')) return originalUrl;
 
-    // For regular URLs, try to add _thumb before the extension
     const lastDotIndex = originalUrl.lastIndexOf('.');
-    if (lastDotIndex === -1) {
-        // No extension found, add _thumb to the end
-        return originalUrl + '_thumb';
-    }
+
+    if (lastDotIndex === -1)
+        return originalUrl + '_thumb.webp';
 
     const beforeExtension = originalUrl.substring(0, lastDotIndex);
-    const extension = originalUrl.substring(lastDotIndex);
-    return `${beforeExtension}_thumb${extension}`;
+    return `${beforeExtension}_thumb.webp`;
 };
 
 /**
@@ -558,30 +550,25 @@ const initLazyLoading = () => {
                 const fullSrc = img.dataset.src;
 
                 if (fullSrc && fullSrc !== img.src) {
-                    // Create a new image to preload the full resolution
                     const newImg = new Image();
                     newImg.onload = () => {
-                        // Once loaded, replace the src with full resolution
                         img.src = fullSrc;
                         img.classList.add('loaded');
                     };
                     newImg.onerror = () => {
-                        // If full image fails to load, keep the thumbnail
                         img.classList.add('error');
                     };
                     newImg.src = fullSrc;
                 }
 
-                // Stop observing this image
                 lazyLoadObserver?.unobserve(img);
             }
         });
     }, {
-        rootMargin: '50px 0px', // Start loading 50px before the image enters viewport
+        rootMargin: '50px 0px',
         threshold: 0.1
     });
 
-    // Observe all lazy images
     const observeLazyImages = () => {
         const lazyImages = document.querySelectorAll('img.lazy-image');
         lazyImages.forEach((img) => {
@@ -589,10 +576,8 @@ const initLazyLoading = () => {
         });
     };
 
-    // Initial observation
     setTimeout(observeLazyImages, 100);
 
-    // Re-observe when data changes
     watch([posts, campaigns, featuredCoupons, top25Coupons], () => {
         setTimeout(observeLazyImages, 100);
     }, { deep: true });
@@ -896,7 +881,6 @@ watch(() => settings.value['blog.cover'], () => {
 </script>
 
 <style scoped>
-/* Lazy loading styles */
 .lazy-image {
     transition: opacity 0.3s ease-in-out;
     opacity: 0.8;
@@ -911,12 +895,10 @@ watch(() => settings.value['blog.cover'], () => {
     filter: grayscale(0.2);
 }
 
-/* Ensure smooth transitions for all images */
 img {
     transition: opacity 0.2s ease-in-out;
 }
 
-/* Loading placeholder effect */
 .lazy-image:not(.loaded):not(.error) {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;

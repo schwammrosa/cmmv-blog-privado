@@ -524,7 +524,6 @@ import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import { useAds } from '../../composables/useAds';
 
-// Declare adsbygoogle for TypeScript
 declare global {
     interface Window {
         adsbygoogle: any[];
@@ -541,7 +540,6 @@ const blogAPI = vue3.useBlog();
 const rawSettings = computed(() => settingsStore.getSettings);
 const settings = computed<Record<string, any>>(() => {
     const settingsObj = rawSettings.value || {};
-    // Extract all blog.* settings
     const blogSettings: Record<string, any> = {};
     Object.keys(settingsObj).forEach(key => {
         if (key.startsWith('blog.')) {
@@ -645,12 +643,10 @@ const cleanupLazyLoading = () => {
     }
 };
 
-// Create formatted settings object for useAds
 const adPluginSettings = computed(() => {
     return settings.value || {};
 });
 
-// Set up ads functionality using the composable
 const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPluginSettings.value, 'home');
 
 const coverSettings = computed(() => {
@@ -683,13 +679,11 @@ const coverPosts = computed(() => {
         const shouldRespectSelectedPosts = config.respectSelectedPosts !== false;
 
         if (shouldRespectSelectedPosts) {
-            // Handle "full" layout
             if (config.layoutType === 'full' && config.fullCover?.postId) {
                 const configPost = posts.value.find(p => p.id === config.fullCover.postId);
                 if (configPost) result.full = configPost;
             }
 
-            // Handle "carousel" layout
             if (config.layoutType === 'carousel' && Array.isArray(config.carousel)) {
                 const carouselPostIds = config.carousel
                     .filter(item => item && item.postId)
@@ -704,15 +698,12 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "split" layout
             if (config.layoutType === 'split') {
-                // Main post
                 if (config.split?.main?.postId) {
                     const mainPost = posts.value.find(p => p.id === config.split.main.postId);
                     if (mainPost) result.splitMain = mainPost;
                 }
 
-                // Secondary posts
                 if (Array.isArray(config.split?.secondary)) {
                     const secondaryPostIds = config.split.secondary
                         .filter(item => item && item.postId)
@@ -728,7 +719,6 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "dual" layout
             if (config.layoutType === 'dual' && Array.isArray(config.dual)) {
                 const dualPostIds = config.dual
                     .filter(item => item && item.postId)
@@ -917,8 +907,6 @@ onMounted(async () => {
     setupIntersectionObserver();
     startCarouselInterval();
     initLazyLoading();
-
-    // Load ad scripts and sidebar left ad
     loadAdScripts();
     loadSidebarLeftAd(sidebarLeftAdContainer.value);
 });
@@ -939,7 +927,6 @@ watch(() => settings.value['blog.cover'], () => {
 </script>
 
 <style scoped>
-/* Lazy loading styles */
 .lazy-image {
     transition: opacity 0.3s ease-in-out;
     opacity: 0.8;
@@ -954,12 +941,10 @@ watch(() => settings.value['blog.cover'], () => {
     filter: grayscale(0.2);
 }
 
-/* Ensure smooth transitions for all images */
 img {
     transition: opacity 0.2s ease-in-out;
 }
 
-/* Loading placeholder effect */
 .lazy-image:not(.loaded):not(.error) {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
@@ -990,7 +975,6 @@ img {
     border-radius: 4px;
 }
 
-/* Only hide the left sidebar on screens smaller than 1280px */
 @media (max-width: 1280px) {
     .ad-sidebar-left {
         display: none;

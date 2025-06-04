@@ -553,7 +553,6 @@ const blogAPI = vue3.useBlog();
 const rawSettings = computed(() => settingsStore.getSettings);
 const settings = computed<Record<string, any>>(() => {
     const settingsObj = rawSettings.value || {};
-    // Extract all blog.* settings
     const blogSettings: Record<string, any> = {};
     Object.keys(settingsObj).forEach(key => {
         if (key.startsWith('blog.')) {
@@ -575,11 +574,7 @@ const observerTarget = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
-
-// Elements references
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
-
-// Lazy loading setup
 let lazyLoadObserver: IntersectionObserver | null = null;
 
 /**
@@ -594,11 +589,10 @@ const getThumbnailUrl = (originalUrl: string): string => {
     const lastDotIndex = originalUrl.lastIndexOf('.');
 
     if (lastDotIndex === -1)
-        return originalUrl + '_thumb';
+        return originalUrl + '_thumb.webp';
 
     const beforeExtension = originalUrl.substring(0, lastDotIndex);
-    const extension = originalUrl.substring(lastDotIndex);
-    return `${beforeExtension}_thumb${extension}`;
+    return `${beforeExtension}_thumb.webp`;
 };
 
 /**
