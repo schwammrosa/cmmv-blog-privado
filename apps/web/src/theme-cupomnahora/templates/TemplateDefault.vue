@@ -277,13 +277,13 @@
 
                     <!-- Lojas Populares -->
                     <div>
-                        <h3 class="text-xl font-bold mb-4">Lojas Populares</h3>
+                        <h3 class="text-xl font-bold mb-4">Lojas Recentes</h3>
                         <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-white">Amazon</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Magalu</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Shopee</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">AliExpress</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Americanas</a></li>
+                            <li v-for="campaign in recentCampaigns.slice(0, 10)" :key="campaign.id">
+                                <a :href="`/desconto/${campaign.slug}`" class="text-gray-400 hover:text-white">
+                                    {{ campaign.name }}
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -446,6 +446,16 @@ const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
 const route = useRoute();
 const settings = ref<any>(settingsStore.getSettings);
+const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
+
+const recentCampaigns = computed(() => {
+    if (!campaigns.value || campaigns.value.length === 0) return [];
+    // Ordenar por couponCount (quantidade de cupons) como critério de "popularidade"
+    return [...campaigns.value]
+        .filter(campaign => campaign.couponCount > 0)
+        .sort((a, b) => (b.couponCount || 0) - (a.couponCount || 0))
+        .slice(0, 10);
+});
 
 const scripts = computed(() => {
     const baseScripts = [];
