@@ -18,6 +18,11 @@ const fileCache = new Map<string, { buffer: Buffer, etag: string, mtime: number 
 
 interface PageCacheEntry {
     html: string;
+    compressedVersions: {
+        gzip?: Buffer;
+        br?: Buffer;
+        uncompressed: string;
+    };
     timestamp: number;
     headers: Record<string, string>;
 }
@@ -404,12 +409,23 @@ async function bootstrap() {
                             res.setHeader(key, value);
                         });
 
-                        const compressed = compressHtml(cachedEntry.html, acceptEncoding as string);
+                        let data: Buffer | string;
+                        let encoding: string | null = null;
 
-                        if (compressed.encoding)
-                            res.setHeader('Content-Encoding', compressed.encoding);
+                        if (acceptEncoding.includes('br') && cachedEntry.compressedVersions.br) {
+                            data = cachedEntry.compressedVersions.br;
+                            encoding = 'br';
+                        } else if (acceptEncoding.includes('gzip') && cachedEntry.compressedVersions.gzip) {
+                            data = cachedEntry.compressedVersions.gzip;
+                            encoding = 'gzip';
+                        } else {
+                            data = cachedEntry.compressedVersions.uncompressed;
+                        }
 
-                        res.end(compressed.data);
+                        if (encoding)
+                            res.setHeader('Content-Encoding', encoding);
+
+                        res.end(data);
                         return;
                     }
                 }
@@ -461,9 +477,17 @@ async function bootstrap() {
 
                 template = await transformHtmlTemplate(head, template.replace(`</title>`, `</title>${dataScript}`));
 
-                // Store in cache before compression
+                // Pre-compress content for cache storage
+                const gzipCompressed = zlib.gzipSync(template);
+                const brotliCompressed = zlib.brotliCompressSync(template);
+
                 pageCache.set(cacheKey, {
                     html: template,
+                    compressedVersions: {
+                        gzip: gzipCompressed,
+                        br: brotliCompressed,
+                        uncompressed: template
+                    },
                     timestamp: Date.now(),
                     headers: responseHeaders
                 });
