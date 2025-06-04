@@ -1,100 +1,143 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js");
-const {registerRoute: registerRoute, setCatchHandler: setCatchHandler} = workbox.routing
-  , {CacheFirst: CacheFirst, NetworkFirst: NetworkFirst, StaleWhileRevalidate: StaleWhileRevalidate} = workbox.strategies
-  , {ExpirationPlugin: ExpirationPlugin} = workbox.expiration
-  , {CacheableResponsePlugin: CacheableResponsePlugin} = workbox.cacheableResponse
-  , {BackgroundSyncPlugin: BackgroundSyncPlugin} = workbox.backgroundSync
-  , {skipWaiting: skipWaiting, clientsClaim: clientsClaim} = workbox.core;
+
+const {
+    registerRoute,
+    setCatchHandler
+} = workbox.routing;
+const {
+    CacheFirst,
+    NetworkFirst,
+    StaleWhileRevalidate
+} = workbox.strategies;
+const {
+    ExpirationPlugin
+} = workbox.expiration;
+const {
+    CacheableResponsePlugin
+} = workbox.cacheableResponse;
+const {
+    BackgroundSyncPlugin
+} = workbox.backgroundSync;
+const {
+    skipWaiting,
+    clientsClaim
+} = workbox.core;
+
 self.addEventListener("install", e => {
-    e.waitUntil(self.skipWaiting())
-}
-),
+    e.waitUntil(self.skipWaiting());
+});
 clientsClaim();
-const VERSION = "v0.0.3"
-  , CACHE_NAMES = {
-    ASSETS: "assets-cache-v0.0.3",
-    STATIC: "static-cache-v0.0.3",
-    LAST_VISITED: "last-visited-v0.0.3",
-    COUPONS: `coupons-pages-v0.0.3-${(new Date).toLocaleDateString("pt-BR").replace(/\//g, "")}`,
-    OFFLINE_QUEUE: "offline-queue-v0.0.3"
-}
-  , ROUTE_REGEX = {
-    IMAGES: /.*(static|cdn).*\.(?:png|jpg|jpeg|svg|gif|webp)/,
-    ASSETS: /.*(?:static|ajax.googleapis.com|cloudfront.net).*(?:\.css|\.js|\.woff2|\.jquery)/,
+
+const VERSION = "v0.0.5";
+
+const CACHE_NAMES = {
+    ASSETS: "assets-cache-" + VERSION,
+    STATIC: "static-cache-" + VERSION,
+    LAST_VISITED: "last-visited-" + VERSION,
+    COUPONS: `coupons-pages-${VERSION}-${(new Date).toLocaleDateString("pt-BR").replace(/\//g, "")}`,
+    OFFLINE_QUEUE: "offline-queue-" + VERSION
+};
+
+const ROUTE_REGEX = {
+    IMAGES: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+    ASSETS: /\.(?:js|css|woff2?|eot|ttf|otf|map)$/i,
     COUPONS: /(?:\?|&)c=(\d+)(?:&|#|$)/,
     LAST_VISITED: /.*(?:static\.com\.br\/widget\/lastvisitedstores)/,
-}
-  , assetsMatchFunction = ({url: e, event: t}) => -1 == e.href.indexOf("sw.js") && ROUTE_REGEX.ASSETS.test(e.href)
-  , assetsExpirationPlugin = new ExpirationPlugin({
-    maxEntries: 60,
-    maxAgeSeconds: 15552e3,
-    purgeOnQuotaError: !0
-})
-  , lastVisitedStoresExpirationPlugin = new ExpirationPlugin({
-    maxAgeSeconds: 60,
-    maxEntries: 8,
-    purgeOnQuotaError: !0
-})
-  , couponsExpirationPlugin = new ExpirationPlugin({
-    maxAgeSeconds: 1800,
-    maxEntries: 40,
-    purgeOnQuotaError: !0
-})
-  , strategies = {
-    default: new StaleWhileRevalidate({
-        cacheName: CACHE_NAMES.STATIC,
-        plugins: [new ExpirationPlugin({
-            maxEntries: 100,
-            maxAgeSeconds: 15552e3
-        }), new CacheableResponsePlugin({
-            statuses: [200]
-        })]
-    }),
-    networkFirst: new NetworkFirst({
-        cacheName: "network-first-cache",
-        networkTimeoutSeconds: 3,
-        plugins: [new ExpirationPlugin({
-            maxEntries: 50,
-            maxAgeSeconds: 86400
-        })]
-    })
 };
-registerRoute(ROUTE_REGEX.IMAGES, strategies.default),
-registerRoute(ROUTE_REGEX.COUPONS, new CacheFirst({
-    cacheName: CACHE_NAMES.COUPONS,
-    plugins: [new BackgroundSyncPlugin(CACHE_NAMES.OFFLINE_QUEUE,{
-        maxRetentionTime: 1440
-    }), couponsExpirationPlugin]
-})),
-workbox.routing.registerRoute(assetsMatchFunction, new CacheFirst({
-    cacheName: CACHE_NAMES.ASSETS,
-    plugins: [assetsExpirationPlugin]
-})),
-workbox.routing.registerRoute(
-    ({url}) => url.origin === 'https://fonts.gstatic.com',
-    new workbox.strategies.CacheFirst({
-      cacheName: 'google-fonts',
-      plugins: [new workbox.expiration.ExpirationPlugin({ maxEntries: 20 })]
+
+const assetsExpirationPlugin = new ExpirationPlugin({
+    maxEntries: 100,
+    maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
+    purgeOnQuotaError: true
+});
+
+const imagesExpirationPlugin = new ExpirationPlugin({
+    maxEntries: 100,
+    maxAgeSeconds: 60 * 24 * 60 * 60, // 60 dias
+    purgeOnQuotaError: true
+});
+
+const couponsExpirationPlugin = new ExpirationPlugin({
+    maxEntries: 40,
+    maxAgeSeconds: 1800,
+    purgeOnQuotaError: true
+});
+
+const lastVisitedStoresExpirationPlugin = new ExpirationPlugin({
+    maxEntries: 8,
+    maxAgeSeconds: 60,
+    purgeOnQuotaError: true
+});
+
+// ⚡️ Cache JS/CSS com CacheFirst
+registerRoute(
+    ({ request }) => request.destination === 'script' || request.destination === 'style',
+    new CacheFirst({
+        cacheName: CACHE_NAMES.ASSETS,
+        plugins: [
+            new CacheableResponsePlugin({ statuses: [200] }),
+            assetsExpirationPlugin
+        ]
     })
 );
+
+// ⚡️ Cache imagens
+registerRoute(
+    ({ request }) => request.destination === 'image' || ROUTE_REGEX.IMAGES.test(request.url),
+    new CacheFirst({
+        cacheName: 'images-cache-' + VERSION,
+        plugins: [
+            new CacheableResponsePlugin({ statuses: [200] }),
+            imagesExpirationPlugin
+        ]
+    })
+);
+
+// 🔄 Cache fontes do Google
+registerRoute(
+    ({ url }) => url.origin === 'https://fonts.gstatic.com',
+    new CacheFirst({
+        cacheName: 'google-fonts',
+        plugins: [
+            new CacheableResponsePlugin({ statuses: [200] }),
+            new ExpirationPlugin({ maxEntries: 20 })
+        ]
+    })
+);
+
+// 🏷 Cupons
+registerRoute(ROUTE_REGEX.COUPONS, new CacheFirst({
+    cacheName: CACHE_NAMES.COUPONS,
+    plugins: [
+        new BackgroundSyncPlugin(CACHE_NAMES.OFFLINE_QUEUE, {
+            maxRetentionTime: 1440
+        }),
+        couponsExpirationPlugin
+    ]
+}));
+
+// 🛍 Últimas lojas
 registerRoute(ROUTE_REGEX.LAST_VISITED, new CacheFirst({
     cacheName: CACHE_NAMES.LAST_VISITED,
     plugins: [lastVisitedStoresExpirationPlugin]
-})),
+}));
+
+// 🎯 Mensagens
 self.addEventListener("message", e => {
-    "clear_coupons" === e.data && couponsExpirationPlugin.deleteCacheAndMetadata().finally( () => {
-        e.source.postMessage("coupons_cleared")
+    if (e.data === "clear_coupons") {
+        couponsExpirationPlugin.deleteCacheAndMetadata().finally(() => {
+            e.source.postMessage("coupons_cleared");
+        });
+    } else if (e.data === "clear_assets") {
+        assetsExpirationPlugin.deleteCacheAndMetadata().finally(() => {
+            e.source.postMessage("assets_cleared");
+        });
+    } else if (e.data === "logout") {
+        lastVisitedStoresExpirationPlugin.deleteCacheAndMetadata().finally(() => {
+            e.source.postMessage("last_visited_cleared");
+        });
+    } else if (e.data?.type === "force_update") {
+        self.skipWaiting();
+        clientsClaim();
     }
-    ),
-    "clear_assets" === e.data && assetsExpirationPlugin.deleteCacheAndMetadata().finally( () => {
-        e.source.postMessage("assets_cleared")
-    }
-    ),
-    "logout" === e.data && lastVisitedStoresExpirationPlugin.deleteCacheAndMetadata().finally( () => {
-        e.source.postMessage("last_visited_cleared")
-    }
-    ),
-    "force_update" === e.data.type && (self.skipWaiting(),
-    clients.claim())
-}
-);
+});

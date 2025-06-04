@@ -406,7 +406,7 @@ const settings = ref<any>(settingsStore.getSettings);
 const scripts = computed(() => {
     const baseScripts = [
         {
-            src: '/imgix-min.js',
+            src: '/imgix-min.js?v=0.0.5',
             type: 'text/javascript',
             async: true,
             defer: true
