@@ -29,38 +29,6 @@ interface PageCacheEntry {
 const pageCache = new Map<string, PageCacheEntry>();
 const PAGE_CACHE_DURATION = 30 * 60 * 1000;
 
-/**
- * Clear all page cache
- */
-const clearPageCache = () => {
-    const cacheSize = pageCache.size;
-    pageCache.clear();
-    console.log(`🗑️ Page cache cleared. Removed ${cacheSize} entries.`);
-};
-
-/**
- * Get cache statistics
- */
-const getCacheStats = () => {
-    const now = Date.now();
-    let validEntries = 0;
-    let expiredEntries = 0;
-
-    for (const [key, entry] of pageCache.entries()) {
-        if (now - entry.timestamp > PAGE_CACHE_DURATION) {
-            expiredEntries++;
-        } else {
-            validEntries++;
-        }
-    }
-
-    return {
-        total: pageCache.size,
-        valid: validEntries,
-        expired: expiredEntries
-    };
-};
-
 const compressHtml = (html: string, acceptEncoding: string = ''): { data: Buffer | string, encoding: string | null } => {
     if (acceptEncoding.includes('br')) {
         return {
