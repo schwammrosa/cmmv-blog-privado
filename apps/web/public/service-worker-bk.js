@@ -28,7 +28,7 @@ self.addEventListener("install", e => {
 });
 clientsClaim();
 
-const VERSION = "v0.0.5";
+const VERSION = "v0.0.6";
 
 const CACHE_NAMES = {
     ASSETS: "assets-cache-" + VERSION,
@@ -69,9 +69,13 @@ const lastVisitedStoresExpirationPlugin = new ExpirationPlugin({
     purgeOnQuotaError: true
 });
 
-// ⚡️ Cache JS/CSS com CacheFirst
+// ⚡️ Cache JS/CSS com CacheFirst (exceto AdSense)
 registerRoute(
-    ({ request }) => request.destination === 'script' || request.destination === 'style',
+    ({ request, url }) =>
+        (request.destination === 'script' || request.destination === 'style') &&
+        !url.hostname.includes('googlesyndication.com') &&
+        !url.hostname.includes('googleadservices.com') &&
+        !url.hostname.includes('doubleclick.net'),
     new CacheFirst({
         cacheName: CACHE_NAMES.ASSETS,
         plugins: [
