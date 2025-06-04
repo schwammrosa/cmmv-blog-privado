@@ -344,19 +344,6 @@ const loadData = async () => {
                     campaignName: campaign.value.name,
                     campaignLogo: c.campaignLogo || campaign.value.logo
                 }));
-            } else {
-                const realCoupons = await affiliateAPI.coupons.getByCampaignId(campaignId);
-
-                if (realCoupons && realCoupons.length > 0) {
-                    const enrichedCoupons = realCoupons.map((c: any) => ({
-                        ...c,
-                        campaignName: campaign.value.name,
-                        campaignLogo: c.campaignLogo || campaign.value.logo
-                    }));
-
-                    coupons.value = enrichedCoupons;
-                    couponsStore.setCampaignCoupons(campaignId, enrichedCoupons);
-                }
             }
         } catch (couponError) {
             console.error("Erro ao carregar cupons:", couponError);
@@ -454,11 +441,6 @@ const extractDiscountValue = (title: string) => {
 
 onMounted(() => {
     loadData();
-});
-
-watch(() => route.params.slug, (newSlug, oldSlug) => {
-    if (newSlug !== oldSlug)
-        loadData();
 });
 </script>
 

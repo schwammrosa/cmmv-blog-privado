@@ -519,8 +519,11 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
         const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
         const campaignsResult = await Repository.findAll(CampaignEntity, {
             active: true,
-            limit: 10000
+            limit: 18
         }, [], {
+            order: {
+                highlight: "DESC"
+            },
             select: [
                 "id", "name", "logo", "description", "highlight", "slug", "categories",
                 "seoTitle", "seoSubtitle", "seoSmallText", "seoLongText"
@@ -565,6 +568,44 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
         });
 
         return campaignsWithCounts;
+    }
+
+    /**
+     * Get a campaign by its slug
+     * @param slug The slug of the campaign
+     * @returns The campaign
+     */
+    async getCampaignBySlug(slug: string) {
+        const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
+        const campaign = await Repository.findOne(CampaignEntity, {
+            slug,
+            active: true
+        });
+
+        if (!campaign)
+            throw new Error(`Campaign with slug ${slug} not found`);
+
+        return campaign;
+    }
+
+    async searchCampaigns(query: string) {
+        const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
+        const campaigns = await Repository.findAll(CampaignEntity, {
+            search: query,
+            searchField: "name",
+            active: true,
+            limit: 10,
+        }, [], {
+            order: {
+                highlight: "DESC"
+            },
+            select: [
+                "id", "name", "logo", "description", "highlight", "slug", "categories",
+                "seoTitle", "seoSubtitle", "seoSmallText", "seoLongText"
+            ]
+        });
+
+        return campaigns;
     }
 
     /**
