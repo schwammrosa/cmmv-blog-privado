@@ -396,42 +396,6 @@ async function bootstrap() {
                     return res.end(`Not found: ${url}`);
                 }
 
-                cleanExpiredPageCache();
-                const userAgent = req.headers['user-agent'] || '';
-                const cacheKey = generateCacheKey(url, userAgent);
-
-                if (isPageCacheValid(cacheKey)) {
-                    const cachedEntry = pageCache.get(cacheKey);
-                    if (cachedEntry) {
-                        //console.log(`💾 Cache HIT: ${url}`);
-
-                        Object.entries(cachedEntry.headers).forEach(([key, value]) => {
-                            res.setHeader(key, value);
-                        });
-
-                        let data: Buffer | string;
-                        let encoding: string | null = null;
-
-                        if (acceptEncoding.includes('br') && cachedEntry.compressedVersions.br) {
-                            data = cachedEntry.compressedVersions.br;
-                            encoding = 'br';
-                        } else if (acceptEncoding.includes('gzip') && cachedEntry.compressedVersions.gzip) {
-                            data = cachedEntry.compressedVersions.gzip;
-                            encoding = 'gzip';
-                        } else {
-                            data = cachedEntry.compressedVersions.uncompressed;
-                        }
-
-                        if (encoding)
-                            res.setHeader('Content-Encoding', encoding);
-
-                        res.end(data);
-                        return;
-                    }
-                }
-
-                //console.log(`🔄 Cache MISS: ${url} - Processing SSR...`);
-
                 template = await vite.transformIndexHtml(url, template);
 
                 const {
@@ -476,22 +440,6 @@ async function bootstrap() {
                 });
 
                 template = await transformHtmlTemplate(head, template.replace(`</title>`, `</title>${dataScript}`));
-
-                // Pre-compress content for cache storage
-                const gzipCompressed = zlib.gzipSync(template);
-                const brotliCompressed = zlib.brotliCompressSync(template);
-
-                pageCache.set(cacheKey, {
-                    html: template,
-                    compressedVersions: {
-                        gzip: gzipCompressed,
-                        br: brotliCompressed,
-                        uncompressed: template
-                    },
-                    timestamp: Date.now(),
-                    headers: responseHeaders
-                });
-
                 const compressed = compressHtml(template, acceptEncoding as string);
 
                 if (compressed.encoding)
