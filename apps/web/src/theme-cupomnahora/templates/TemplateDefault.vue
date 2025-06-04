@@ -251,30 +251,6 @@
                         </div>
                     </div>
 
-                    <!-- Links Úteis -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Links Úteis</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-white">Como funciona</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Cashback</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Perguntas frequentes</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Contato</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Categorias -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Categorias</h3>
-                        <ul class="space-y-2">
-                            <li v-for="category in categoriesColumns[0].slice(0, 5)" :key="category.id">
-                                <a :href="`/category/${category.slug}`" class="text-gray-400 hover:text-white">
-                                    {{ category.name }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
                     <!-- Lojas Populares -->
                     <div>
                         <h3 class="text-xl font-bold mb-4">Lojas Recentes</h3>
