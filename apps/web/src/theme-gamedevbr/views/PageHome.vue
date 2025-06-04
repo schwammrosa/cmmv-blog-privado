@@ -281,16 +281,17 @@
                                         <div class="h-48 overflow-hidden relative">
                                             <img
                                                 v-if="post.featureImage"
-                                                :src="post.featureImage"
+                                                :src="getThumbUrl(post.featureImage)"
+                                                :data-src="post.featureImage"
                                                 :alt="post.title"
-                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                                                loading="lazy"
+                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                                 width="360"
                                                 height="192"
+                                                @load="($event.target as HTMLImageElement) && registerLazyImage($event.target as HTMLImageElement)"
                                             />
                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
                                             <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
@@ -345,12 +346,13 @@
                                             <div class="h-48 overflow-hidden relative">
                                                 <img
                                                     v-if="post.featureImage"
-                                                    :src="post.featureImage"
+                                                    :src="getThumbUrl(post.featureImage)"
+                                                    :data-src="post.featureImage"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                                                    loading="lazy"
+                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                                     width="360"
                                                     height="192"
+                                                    @load="($event.target as HTMLImageElement) && registerLazyImage($event.target as HTMLImageElement)"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -434,12 +436,13 @@
                                             <a :href="`/post/${post.slug}`">
                                                 <img
                                                     v-if="post.image"
-                                                    :src="post.image"
+                                                    :src="getThumbUrl(post.image)"
+                                                    :data-src="post.image"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover"
-                                                    loading="lazy"
+                                                    class="w-full h-full object-cover lazy-image"
                                                     width="80"
                                                     height="64"
+                                                    @load="($event.target as HTMLImageElement) && registerLazyImage($event.target as HTMLImageElement)"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -515,10 +518,13 @@
 
     <!-- Taboola JS Code -->
     <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
+
+    <!-- Workbox Setup Script -->
+    <script src="/workbox-setup.js" async></script>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useSettingsStore } from '../../store/settings';
@@ -528,10 +534,10 @@ import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { formatDate, stripHtml } from '../../composables/useUtils';
 import { useAds } from '../../composables/useAds';
 
-// Declare adsbygoogle for TypeScript
 declare global {
     interface Window {
         adsbygoogle: any[];
+        workbox: any;
     }
 }
 
@@ -567,15 +573,13 @@ const observer = ref<IntersectionObserver | null>(null);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
+const lazyImageObserver = ref<IntersectionObserver | null>(null);
+const lcpDelay = ref(2000);
 
-/**
- * Create formatted settings object for useAds
- */
 const adPluginSettings = computed(() => {
     return settings.value || {};
 });
 
-// Set up ads functionality using the composable
 const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPluginSettings.value, 'home');
 
 const coverSettings = computed(() => {
@@ -608,13 +612,11 @@ const coverPosts = computed(() => {
         const shouldRespectSelectedPosts = config.respectSelectedPosts !== false;
 
         if (shouldRespectSelectedPosts) {
-            // Handle "full" layout
             if (config.layoutType === 'full' && config.fullCover?.postId) {
                 const configPost = posts.value.find(p => p.id === config.fullCover.postId);
                 if (configPost) result.full = configPost;
             }
 
-            // Handle "carousel" layout
             if (config.layoutType === 'carousel' && Array.isArray(config.carousel)) {
                 const carouselPostIds = config.carousel
                     .filter(item => item && item.postId)
@@ -629,7 +631,6 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "split" layout
             if (config.layoutType === 'split') {
                 // Main post
                 if (config.split?.main?.postId) {
@@ -637,7 +638,6 @@ const coverPosts = computed(() => {
                     if (mainPost) result.splitMain = mainPost;
                 }
 
-                // Secondary posts
                 if (Array.isArray(config.split?.secondary)) {
                     const secondaryPostIds = config.split.secondary
                         .filter(item => item && item.postId)
@@ -653,7 +653,6 @@ const coverPosts = computed(() => {
                 }
             }
 
-            // Handle "dual" layout
             if (config.layoutType === 'dual' && Array.isArray(config.dual)) {
                 const dualPostIds = config.dual
                     .filter(item => item && item.postId)
@@ -837,18 +836,90 @@ const getAuthor = (post: any) => {
     return post.authors.find((author: any) => author.id === post.author);
 };
 
+const getThumbUrl = (imageUrl: string): string => {
+    if (!imageUrl) return '';
+    const lastDotIndex = imageUrl.lastIndexOf('.');
+    if (lastDotIndex === -1) return imageUrl;
+
+    const base = imageUrl.substring(0, lastDotIndex);
+    return `${base}_thumb.webp`;
+};
+
+const setupLazyLoading = () => {
+    const options = {
+        root: null,
+        rootMargin: '50px',
+        threshold: 0.1
+    };
+
+    lazyImageObserver.value = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target as HTMLImageElement;
+                const actualSrc = img.dataset.src;
+
+                setTimeout(() => {
+                    if (actualSrc) {
+                        if (window.workbox) {
+                            fetch(actualSrc).then(() => {
+                                console.log('Image preloaded with Workbox:', actualSrc);
+                            }).catch(err => {
+                                console.warn('Workbox preload failed:', err);
+                            });
+                        }
+
+                        const newImg = new Image();
+                        newImg.onload = () => {
+                            img.src = actualSrc;
+                            img.classList.add('loaded');
+                            img.style.opacity = '0';
+                            setTimeout(() => {
+                                img.style.opacity = '1';
+                            }, 50);
+                        };
+                        newImg.onerror = () => {
+                            console.warn('Failed to load image:', actualSrc);
+                            img.classList.add('error');
+                        };
+                        newImg.src = actualSrc;
+                    }
+                }, lcpDelay.value);
+
+                lazyImageObserver.value?.unobserve(img);
+            }
+        });
+    }, options);
+};
+
+const registerLazyImage = (element: HTMLImageElement) => {
+    if (lazyImageObserver.value && element) {
+        lazyImageObserver.value.observe(element);
+    }
+};
+
 onMounted(async () => {
     loading.value = false;
     setupIntersectionObserver();
+    setupLazyLoading();
     startCarouselInterval();
     loadAdScripts();
     loadSidebarLeftAd(sidebarLeftAdContainer.value);
+
+    await nextTick();
+    setTimeout(() => {
+        const lazyImages = document.querySelectorAll('img[data-src]');
+        lazyImages.forEach(img => registerLazyImage(img as HTMLImageElement));
+    }, 100);
 });
 
 onUnmounted(() => {
     if (observer.value && observerTarget.value) {
         observer.value.unobserve(observerTarget.value);
         observer.value.disconnect();
+    }
+
+    if (lazyImageObserver.value) {
+        lazyImageObserver.value.disconnect();
     }
 
     stopCarouselInterval();
@@ -861,7 +932,6 @@ watch(() => settings.value['blog.cover'], () => {
 </script>
 
 <style scoped>
-/* Only hide the left sidebar on screens smaller than 1280px */
 @media (max-width: 1280px) {
     .ad-sidebar-left {
         display: none;
@@ -881,6 +951,47 @@ watch(() => settings.value['blog.cover'], () => {
     justify-content: center;
     border: 1px dashed #ccc;
     border-radius: 4px;
+}
+
+/* Lazy loading styles */
+.lazy-image {
+    transition: opacity 0.3s ease;
+    opacity: 0.8;
+}
+
+.lazy-image.loaded {
+    opacity: 1;
+}
+
+.lazy-image::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    z-index: 1;
+}
+
+.lazy-image.loaded::before {
+    display: none;
+}
+
+.lazy-image.error {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 </style>
 
