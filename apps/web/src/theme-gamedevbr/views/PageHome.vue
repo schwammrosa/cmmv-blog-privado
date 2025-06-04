@@ -287,7 +287,6 @@
                                                 class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                                 width="360"
                                                 height="192"
-                                                @load="($event.target as HTMLImageElement) && registerLazyImage($event.target as HTMLImageElement)"
                                             />
                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -352,7 +351,6 @@
                                                     class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                                     width="360"
                                                     height="192"
-                                                    @load="($event.target as HTMLImageElement) && registerLazyImage($event.target as HTMLImageElement)"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -442,7 +440,6 @@
                                                     class="w-full h-full object-cover lazy-image"
                                                     width="80"
                                                     height="64"
-                                                    @load="($event.target as HTMLImageElement) && registerLazyImage($event.target as HTMLImageElement)"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -858,31 +855,38 @@ const setupLazyLoading = () => {
                 const img = entry.target as HTMLImageElement;
                 const actualSrc = img.dataset.src;
 
-                setTimeout(() => {
-                    if (actualSrc) {
-                        if (window.workbox) {
-                            fetch(actualSrc).then(() => {
-                                console.log('Image preloaded with Workbox:', actualSrc);
-                            }).catch(err => {
-                                console.warn('Workbox preload failed:', err);
-                            });
-                        }
+                // Check if already processed
+                if (!actualSrc || img.classList.contains('lazy-processed')) {
+                    lazyImageObserver.value?.unobserve(img);
+                    return;
+                }
 
-                        const newImg = new Image();
-                        newImg.onload = () => {
-                            img.src = actualSrc;
-                            img.classList.add('loaded');
-                            img.style.opacity = '0';
-                            setTimeout(() => {
-                                img.style.opacity = '1';
-                            }, 50);
-                        };
-                        newImg.onerror = () => {
-                            console.warn('Failed to load image:', actualSrc);
-                            img.classList.add('error');
-                        };
-                        newImg.src = actualSrc;
+                // Mark as being processed
+                img.classList.add('lazy-processed');
+
+                setTimeout(() => {
+                    if (window.workbox) {
+                        fetch(actualSrc).then(() => {
+                            console.log('Image preloaded with Workbox:', actualSrc);
+                        }).catch(err => {
+                            console.warn('Workbox preload failed:', err);
+                        });
                     }
+
+                    const newImg = new Image();
+                    newImg.onload = () => {
+                        img.src = actualSrc;
+                        img.classList.add('loaded');
+                        img.style.opacity = '0';
+                        setTimeout(() => {
+                            img.style.opacity = '1';
+                        }, 50);
+                    };
+                    newImg.onerror = () => {
+                        console.warn('Failed to load image:', actualSrc);
+                        img.classList.add('error');
+                    };
+                    newImg.src = actualSrc;
                 }, lcpDelay.value);
 
                 lazyImageObserver.value?.unobserve(img);
@@ -892,7 +896,8 @@ const setupLazyLoading = () => {
 };
 
 const registerLazyImage = (element: HTMLImageElement) => {
-    if (lazyImageObserver.value && element) {
+    if (lazyImageObserver.value && element && !element.classList.contains('lazy-registered')) {
+        element.classList.add('lazy-registered');
         lazyImageObserver.value.observe(element);
     }
 };
@@ -907,7 +912,7 @@ onMounted(async () => {
 
     await nextTick();
     setTimeout(() => {
-        const lazyImages = document.querySelectorAll('img[data-src]');
+        const lazyImages = document.querySelectorAll('img[data-src]:not(.lazy-registered)');
         lazyImages.forEach(img => registerLazyImage(img as HTMLImageElement));
     }, 100);
 });
@@ -929,6 +934,15 @@ watch(() => settings.value['blog.cover'], () => {
     stopCarouselInterval();
     startCarouselInterval();
 }, { deep: true });
+
+// Watch for new posts being added (infinite scroll)
+watch(() => posts.value.length, async () => {
+    await nextTick();
+    setTimeout(() => {
+        const newLazyImages = document.querySelectorAll('img[data-src]:not(.lazy-registered)');
+        newLazyImages.forEach(img => registerLazyImage(img as HTMLImageElement));
+    }, 100);
+});
 </script>
 
 <style scoped>
@@ -966,6 +980,14 @@ watch(() => settings.value['blog.cover'], () => {
 .lazy-image.error {
     opacity: 0.5;
     filter: grayscale(100%);
+}
+
+.lazy-image.lazy-processed {
+    /* Styles for images being processed */
+}
+
+.lazy-image.lazy-registered {
+    /* Styles for images already registered in observer */
 }
 </style>
 
