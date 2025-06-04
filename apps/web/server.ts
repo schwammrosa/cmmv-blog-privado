@@ -1,6 +1,5 @@
 import {
     createServer, loadEnv,
-    ViteDevServer
 } from 'vite';
 
 import { transformHtmlTemplate } from '@unhead/vue/server';
@@ -29,37 +28,6 @@ interface PageCacheEntry {
 
 const pageCache = new Map<string, PageCacheEntry>();
 const PAGE_CACHE_DURATION = 30 * 60 * 1000;
-
-/**
- * Clean expired page cache entries
- */
-const cleanExpiredPageCache = () => {
-    const now = Date.now();
-    for (const [key, entry] of pageCache.entries()) {
-        if (now - entry.timestamp > PAGE_CACHE_DURATION) {
-            pageCache.delete(key);
-        }
-    }
-};
-
-/**
- * Check if a page cache entry is still valid
- */
-const isPageCacheValid = (key: string): boolean => {
-    const entry = pageCache.get(key);
-    if (!entry) return false;
-
-    const now = Date.now();
-    return (now - entry.timestamp) < PAGE_CACHE_DURATION;
-};
-
-/**
- * Generate cache key from request
- */
-const generateCacheKey = (url: string, userAgent?: string): string => {
-    const isMobile = userAgent?.toLowerCase().includes('mobile') ? 'mobile' : 'desktop';
-    return `${url}:${isMobile}`;
-};
 
 /**
  * Clear all page cache
@@ -254,42 +222,6 @@ async function bootstrap() {
                 res.end(JSON.stringify([]));
                 return;
             }
-        }
-
-        if (url === '/cache/clear' && req.method === 'POST') {
-            const authHeader = req.headers.authorization || '';
-            const expectedAuth = `Bearer ${env.VITE_SIGNATURE}`;
-
-            if (authHeader !== expectedAuth) {
-                res.statusCode = 401;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Unauthorized');
-                return;
-            }
-
-            clearPageCache();
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ success: true, message: 'Cache cleared successfully' }));
-            return;
-        }
-
-        if (url === '/cache/stats' && req.method === 'GET') {
-            const authHeader = req.headers.authorization || '';
-            const expectedAuth = `Bearer ${env.VITE_SIGNATURE}`;
-
-            if (authHeader !== expectedAuth) {
-                res.statusCode = 401;
-                res.setHeader('Content-Type', 'text/plain');
-                res.end('Unauthorized');
-                return;
-            }
-
-            const stats = getCacheStats();
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify(stats));
-            return;
         }
 
         if (url === '/set-thema' && req.method === 'POST') {

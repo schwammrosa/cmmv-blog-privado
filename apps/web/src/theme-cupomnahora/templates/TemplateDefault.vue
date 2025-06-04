@@ -430,14 +430,14 @@
 import { ref, computed, onMounted } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
-import { useRoute } from 'vue-router';
 import { useSettingsStore } from '../../store/settings';
 import { useCampaignsStore } from '../../store/campaigns';
 import { useCouponsStore } from '../../store/coupons';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
-import { vue3 as newsletterVue3 } from '@cmmv/newsletter/client';
+import { useRoute } from 'vue-router';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 import CookieConsent from '../../components/CookieConsent.vue';
+import { vue3 as newsletterVue3 } from '@cmmv/newsletter/client';
 
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
@@ -543,20 +543,25 @@ const closeAutocomplete = () => {
     }
 };
 
-const loadFeaturedStores = () => {
+const loadFeaturedStores = async () => {
     if (featuredStores.value.length === 0) {
-        const campaigns = campaignsStore.getCampaigns || [];
+        try {
+            const campaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
 
-        featuredStores.value = campaigns
-            .filter((campaign: any) => campaign.active !== false)
-            .sort((a: any, b: any) => {
-                // Prioritize highlighted campaigns
-                if (a.highlight && !b.highlight) return -1;
-                if (!a.highlight && b.highlight) return 1;
-                // Then sort by coupon count
-                return (b.couponCount || 0) - (a.couponCount || 0);
-            })
-            .slice(0, 8);
+            if (campaigns && Array.isArray(campaigns)) {
+                featuredStores.value = campaigns
+                    .filter((campaign: any) => campaign.active !== false)
+                    .sort((a: any, b: any) => {
+                        if (a.highlight && !b.highlight) return -1;
+                        if (!a.highlight && b.highlight) return 1;
+                        return (b.couponCount || 0) - (a.couponCount || 0);
+                    })
+                    .slice(0, 8);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar lojas em destaque:', error);
+            featuredStores.value = [];
+        }
     }
 };
 
@@ -570,9 +575,10 @@ const performSearch = async () => {
     isSearching.value = true;
 
     try {
-        const postPromise = blogAPI.posts.search(searchQuery.value);
-        const campaignsPromise = affiliateAPI.campaigns.getAllWithCouponCounts();
-        const [postResponse, allCampaigns] = await Promise.all([postPromise, campaignsPromise]);
+        const query = searchQuery.value.trim();
+        const postPromise = blogAPI.posts.search(query);
+        const campaignsPromise = affiliateAPI.campaigns.searchCampaigns(query);
+        const [postResponse, campaignsResponse] = await Promise.all([postPromise, campaignsPromise]);
 
         if (Array.isArray(postResponse)) {
             searchResults.value = postResponse;
@@ -583,26 +589,8 @@ const performSearch = async () => {
             searchResults.value = [];
         }
 
-        if (allCampaigns && Array.isArray(allCampaigns)) {
-            const query = searchQuery.value.toLowerCase().trim();
-
-            // Filtragem de campanhas
-            const filtered: any[] = [];
-
-            for (const campaign of allCampaigns) {
-                if (!campaign || !campaign.name) continue;
-
-                const campName = campaign.name.toLowerCase();
-                const campSlug = campaign.slug ? campaign.slug.toLowerCase() : '';
-                const campDescription = campaign.description ? campaign.description.toLowerCase() : '';
-
-                // Verificação normal
-                if (campName.includes(query) || campSlug.includes(query) || campDescription.includes(query)) {
-                    filtered.push(campaign);
-                }
-            }
-
-            searchCampaigns.value = filtered;
+        if (campaignsResponse && Array.isArray(campaignsResponse)) {
+            searchCampaigns.value = campaignsResponse;
         } else {
             searchCampaigns.value = [];
         }
@@ -698,7 +686,6 @@ onMounted(async () => {
     await checkCouponInUrl();
 });
 
-// Newsletter functionality
 const newsletterAPI = newsletterVue3.useNewsletter();
 const newsletterEmail = ref('');
 const newsletterSubmitted = ref(false);
@@ -715,11 +702,8 @@ const subscribeNewsletter = async () => {
     try {
         newsletterError.value = '';
         isSubscribing.value = true;
-
-        // Armazena o email para limpar depois em caso de sucesso
         const emailToSubmit = newsletterEmail.value;
 
-        // Chamada à API direta
         const response = await fetch('/api/newsletter/subscribers/subscribe', {
             method: 'POST',
             headers: {
@@ -731,13 +715,11 @@ const subscribeNewsletter = async () => {
             })
         });
 
-        // Verificar se a resposta HTTP é bem-sucedida
         if (response.ok) {
             newsletterSubmitted.value = true;
             newsletterMessage.value = 'Obrigado! Você foi inscrito com sucesso.';
             newsletterEmail.value = '';
 
-            // Esconde a mensagem após alguns segundos
             setTimeout(() => {
                 newsletterSubmitted.value = false;
             }, 5000);

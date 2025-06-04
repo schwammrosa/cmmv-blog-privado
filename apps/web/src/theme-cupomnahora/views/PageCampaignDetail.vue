@@ -244,6 +244,8 @@ import { useCampaignsStore } from '../../store/campaigns';
 import { useCouponsStore } from '../../store/coupons';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 
+// @ts-ignore
+const isSSR = import.meta.env.SSR;
 const route = useRoute();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const settingsStore = useSettingsStore();
@@ -255,6 +257,9 @@ const campaign = ref<any>(null);
 const coupons = ref<any[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+if(!isSSR)
+    campaign.value = window.__CMMV_DATA__["campaign"]
 
 const activeFilter = ref('all');
 const isScratchModalOpen = ref(false);
@@ -309,44 +314,23 @@ const loadData = async () => {
             return;
         }
 
-        let allCampaigns = campaignsStore.getCampaigns;
+        if(isSSR)
+            campaign.value = await affiliateAPI.campaigns.getBySlug(slug as string);
 
-        if (!allCampaigns || allCampaigns.length === 0) {
-            allCampaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
-
-            if (allCampaigns && allCampaigns.length > 0)
-                campaignsStore.setCampaigns(allCampaigns);
-        }
-
-        if (!allCampaigns || allCampaigns.length === 0) {
-            error.value = 'Não foi possível carregar as lojas';
-            loading.value = false;
-            return;
-        }
-
-        const foundCampaign = allCampaigns.find((c: any) => c.slug === slug);
-
-        if (!foundCampaign) {
+        if (!campaign.value) {
             error.value = 'Loja não encontrada';
             loading.value = false;
             return;
         }
 
-        campaign.value = foundCampaign;
+        let campaignCoupons = campaign.value.coupons;
 
-        try {
-            const campaignId = campaign.value.id;
-            let campaignCoupons = couponsStore.getCampaignCoupons(campaignId);
-
-            if (campaignCoupons && campaignCoupons.length > 0) {
-                coupons.value = campaignCoupons.map((c: any) => ({
-                    ...c,
-                    campaignName: campaign.value.name,
-                    campaignLogo: c.campaignLogo || campaign.value.logo
-                }));
-            }
-        } catch (couponError) {
-            console.error("Erro ao carregar cupons:", couponError);
+        if (campaignCoupons && campaignCoupons.length > 0) {
+            coupons.value = campaignCoupons.map((c: any) => ({
+                ...c,
+                campaignName: campaign.value.name,
+                campaignLogo: c.campaignLogo || campaign.value.logo
+            }));
         }
 
         loading.value = false;
@@ -358,6 +342,10 @@ const loadData = async () => {
 
 onServerPrefetch(async () => {
     await loadData();
+});
+
+onMounted(() => {
+    loadData();
 });
 
 const formatDate = (dateString: string | Date) => {
@@ -438,10 +426,6 @@ const extractDiscountValue = (title: string) => {
 
     return 'Oferta';
 };
-
-onMounted(() => {
-    loadData();
-});
 </script>
 
 <style>
