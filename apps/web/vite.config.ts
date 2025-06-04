@@ -46,6 +46,17 @@ export default defineConfig(({ mode }) => {
             outDir: 'dist',
             rollupOptions: {
                 input: path.resolve(__dirname, 'index.html'),
+            },
+            manualChunks(id: string) {
+                if (id.includes('node_modules')) {
+                    if (id.includes('vue-router'))
+                        return 'vendor-vue-router';
+
+                    if (id.includes('vue'))
+                        return 'vendor-vue';
+
+                    return 'vendor';
+                }
             }
         },
         resolve: {
