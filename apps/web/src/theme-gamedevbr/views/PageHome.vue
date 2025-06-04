@@ -28,10 +28,11 @@
                     <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
                         <div class="relative h-[400px]">
                             <img
-                                v-if="coverPosts.full && coverPosts.full.featureImage"
+                                v-dynamic-resize
+                                v-if="coverPosts.full && coverPosts.full.featureImage && hydrated"
                                 :src="coverPosts.full.featureImage"
                                 :alt="coverPosts.full.title"
-                                class="w-full h-full object-cover"
+                                class="w-full h-full object-cover imgix-lazy"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -70,10 +71,11 @@
                              :class="{ 'opacity-100': currentCarouselIndex === index, 'opacity-0': currentCarouselIndex !== index }">
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <img
-                                    v-if="post.featureImage"
+                                    v-dynamic-resize
+                                    v-if="post.featureImage && hydrated"
                                     :src="post.featureImage"
                                     :alt="post.title"
-                                    class="w-full h-full object-cover"
+                                    class="w-full h-full object-cover imgix-lazy"
                                     loading="lazy"
                                     width="890"
                                     height="606"
@@ -138,10 +140,11 @@
                         <a v-if="coverPosts.splitMain" :href="`/post/${coverPosts.splitMain.slug}`" class="block h-full">
                             <div class="relative h-full">
                                 <img
-                                    v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage"
+                                    v-dynamic-resize
+                                    v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage && hydrated"
                                     :src="coverPosts.splitMain.featureImage"
                                     :alt="coverPosts.splitMain.title"
-                                    class="w-full h-full object-cover"
+                                    class="w-full h-full object-cover imgix-lazy"
                                     loading="lazy"
                                     width="890"
                                     height="606"
@@ -176,10 +179,11 @@
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <div class="relative h-full">
                                     <img
-                                        v-if="post.featureImage"
+                                        v-dynamic-resize
+                                        v-if="post.featureImage && hydrated"
                                         :src="post.featureImage"
                                         :alt="post.title"
-                                        class="w-full h-full object-cover"
+                                        class="w-full h-full object-cover imgix-lazy"
                                         loading="lazy"
                                     />
                                     <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center">
@@ -210,10 +214,11 @@
                         <a :href="`/post/${post.slug}`" class="block">
                             <div class="relative h-[350px]">
                                 <img
-                                    v-if="post.featureImage"
+                                    v-dynamic-resize
+                                    v-if="post.featureImage && hydrated"
                                     :src="post.featureImage"
                                     :alt="post.title"
-                                    class="w-full h-full object-cover"
+                                    class="w-full h-full object-cover imgix-lazy"
                                     loading="lazy"
                                     width="890"
                                     height="606"
@@ -260,12 +265,8 @@
 
             <!-- Main Content Layout -->
             <div class="flex flex-col lg:flex-row gap-8">
-
-                <!-- Main Content Area -->
                 <div class="flex-grow">
-                    <!-- Main Content in 2 Columns -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <!-- Left Column (Latest News) -->
                         <div class="lg:col-span-2">
                             <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
                                 Últimas Notícias
@@ -280,13 +281,14 @@
                                     <a :href="`/post/${post.slug}`" class="block">
                                         <div class="h-48 overflow-hidden relative">
                                             <img
-                                                v-if="post.featureImage"
-                                                :src="getThumbUrl(post.featureImage)"
-                                                :data-src="post.featureImage"
+                                                v-dynamic-resize
+                                                v-if="post.featureImage && hydrated"
+                                                :src="post.featureImage"
                                                 :alt="post.title"
-                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
+                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
                                                 width="360"
                                                 height="192"
+                                                loading="lazy"
                                             />
                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -329,7 +331,6 @@
                                 </div>
                             </div>
 
-                            <!-- More Posts Section -->
                             <div v-if="posts.length > (featuredPost ? 5 : 4)">
                                 <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
                                     Mais Conteúdo
@@ -344,13 +345,14 @@
                                         <a :href="`/post/${post.slug}`" class="block">
                                             <div class="h-48 overflow-hidden relative">
                                                 <img
-                                                    v-if="post.featureImage"
-                                                    :src="getThumbUrl(post.featureImage)"
-                                                    :data-src="post.featureImage"
+                                                    v-dynamic-resize
+                                                    v-if="post.featureImage && hydrated"
+                                                    :src="post.featureImage"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
+                                                    class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
                                                     width="360"
                                                     height="192"
+                                                    loading="lazy"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -382,7 +384,6 @@
                                 </div>
                             </div>
 
-                            <!-- Bottom AdSense Banner -->
                             <div v-if="adSettings.enableAds && adSettings.homePageAfterPosts" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
                                 <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
                                     <div v-html="getAdHtml('belowContent')"></div>
@@ -394,13 +395,11 @@
                                 </div>
                             </div>
 
-                            <!-- Loading More Indicator -->
                             <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
                                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
                                 <span class="ml-3 text-gray-600">Carregando mais posts...</span>
                             </div>
 
-                            <!-- Infinite Scroll Observer Target -->
                             <div ref="observerTarget" class="h-4 w-full"></div>
                         </div>
 
@@ -433,13 +432,14 @@
                                         <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
                                             <a :href="`/post/${post.slug}`">
                                                 <img
-                                                    v-if="post.image"
-                                                    :src="getThumbUrl(post.image)"
-                                                    :data-src="post.image"
+                                                    v-dynamic-resize
+                                                    v-if="post.image && hydrated"
+                                                    :src="post.image"
                                                     :alt="post.title"
-                                                    class="w-full h-full object-cover lazy-image"
+                                                    class="w-full h-full object-cover imgix-lazy"
                                                     width="80"
                                                     height="64"
+                                                    loading="lazy"
                                                 />
                                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -513,15 +513,15 @@
         </div>
     </div>
 
-    <!-- Taboola JS Code -->
+        <!-- Taboola JS Code -->
     <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
-
-    <!-- Workbox Setup Script -->
-    <script src="/workbox-setup.js" async></script>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import {
+    ref, computed, onMounted,
+    onUnmounted, watch, nextTick
+} from 'vue';
 import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useSettingsStore } from '../../store/settings';
@@ -535,6 +535,7 @@ declare global {
     interface Window {
         adsbygoogle: any[];
         workbox: any;
+        imgix: any;
     }
 }
 
@@ -544,7 +545,6 @@ const postsStore = usePostsStore();
 const mostAccessedStore = useMostAccessedPostsStore();
 const blogAPI = vue3.useBlog();
 
-// State
 const rawSettings = computed(() => settingsStore.getSettings);
 const settings = computed<Record<string, any>>(() => {
     const settingsObj = rawSettings.value || {};
@@ -570,14 +570,16 @@ const observer = ref<IntersectionObserver | null>(null);
 const currentCarouselIndex = ref(0);
 const carouselInterval = ref<number | null>(null);
 const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
-const lazyImageObserver = ref<IntersectionObserver | null>(null);
-const lcpDelay = ref(2000);
+const hydrated = ref(false);
 
 const adPluginSettings = computed(() => {
     return settings.value || {};
 });
 
-const { adSettings, getAdHtml, loadAdScripts, loadSidebarLeftAd } = useAds(adPluginSettings.value, 'home');
+const {
+    adSettings, getAdHtml,
+    loadAdScripts, loadSidebarLeftAd
+} = useAds(adPluginSettings.value, 'home');
 
 const coverSettings = computed(() => {
     try {
@@ -833,98 +835,23 @@ const getAuthor = (post: any) => {
     return post.authors.find((author: any) => author.id === post.author);
 };
 
-const getThumbUrl = (imageUrl: string): string => {
-    if (!imageUrl) return '';
-    const lastDotIndex = imageUrl.lastIndexOf('.');
-    if (lastDotIndex === -1) return imageUrl;
 
-    const base = imageUrl.substring(0, lastDotIndex);
-    return `${base}_thumb.webp`;
-};
-
-const setupLazyLoading = () => {
-    const options = {
-        root: null,
-        rootMargin: '50px',
-        threshold: 0.1
-    };
-
-    lazyImageObserver.value = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const img = entry.target as HTMLImageElement;
-                const actualSrc = img.dataset.src;
-
-                // Check if already processed
-                if (!actualSrc || img.classList.contains('lazy-processed')) {
-                    lazyImageObserver.value?.unobserve(img);
-                    return;
-                }
-
-                // Mark as being processed
-                img.classList.add('lazy-processed');
-
-                setTimeout(() => {
-                    if (window.workbox) {
-                        fetch(actualSrc).then(() => {
-                            console.log('Image preloaded with Workbox:', actualSrc);
-                        }).catch(err => {
-                            console.warn('Workbox preload failed:', err);
-                        });
-                    }
-
-                    const newImg = new Image();
-                    newImg.onload = () => {
-                        img.src = actualSrc;
-                        img.classList.add('loaded');
-                        img.style.opacity = '0';
-                        setTimeout(() => {
-                            img.style.opacity = '1';
-                        }, 50);
-                    };
-                    newImg.onerror = () => {
-                        console.warn('Failed to load image:', actualSrc);
-                        img.classList.add('error');
-                    };
-                    newImg.src = actualSrc;
-                }, lcpDelay.value);
-
-                lazyImageObserver.value?.unobserve(img);
-            }
-        });
-    }, options);
-};
-
-const registerLazyImage = (element: HTMLImageElement) => {
-    if (lazyImageObserver.value && element && !element.classList.contains('lazy-registered')) {
-        element.classList.add('lazy-registered');
-        lazyImageObserver.value.observe(element);
-    }
-};
 
 onMounted(async () => {
     loading.value = false;
+    hydrated.value = true;
     setupIntersectionObserver();
-    setupLazyLoading();
     startCarouselInterval();
     loadAdScripts();
     loadSidebarLeftAd(sidebarLeftAdContainer.value);
 
     await nextTick();
-    setTimeout(() => {
-        const lazyImages = document.querySelectorAll('img[data-src]:not(.lazy-registered)');
-        lazyImages.forEach(img => registerLazyImage(img as HTMLImageElement));
-    }, 100);
 });
 
 onUnmounted(() => {
     if (observer.value && observerTarget.value) {
         observer.value.unobserve(observerTarget.value);
         observer.value.disconnect();
-    }
-
-    if (lazyImageObserver.value) {
-        lazyImageObserver.value.disconnect();
     }
 
     stopCarouselInterval();
@@ -935,13 +862,8 @@ watch(() => settings.value['blog.cover'], () => {
     startCarouselInterval();
 }, { deep: true });
 
-// Watch for new posts being added (infinite scroll)
 watch(() => posts.value.length, async () => {
     await nextTick();
-    setTimeout(() => {
-        const newLazyImages = document.querySelectorAll('img[data-src]:not(.lazy-registered)');
-        newLazyImages.forEach(img => registerLazyImage(img as HTMLImageElement));
-    }, 100);
 });
 </script>
 
@@ -967,27 +889,18 @@ watch(() => posts.value.length, async () => {
     border-radius: 4px;
 }
 
-/* Lazy loading styles */
-.lazy-image {
+/* Imgix lazy loading styles */
+.imgix-lazy {
     transition: opacity 0.3s ease;
-    opacity: 0.8;
 }
 
-.lazy-image.loaded {
+.imgix-lazy.imgix-loaded {
     opacity: 1;
 }
 
-.lazy-image.error {
+.imgix-lazy.imgix-error {
     opacity: 0.5;
     filter: grayscale(100%);
-}
-
-.lazy-image.lazy-processed {
-    /* Styles for images being processed */
-}
-
-.lazy-image.lazy-registered {
-    /* Styles for images already registered in observer */
 }
 </style>
 
