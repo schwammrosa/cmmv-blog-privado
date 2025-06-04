@@ -476,13 +476,6 @@ useHead({
         { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
         { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' },
         { rel: 'dns-prefetch', href: 'https://static.cupomnahora.com.br/' }
-    ],
-
-    script: [
-        {
-            src: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js',
-            defer: true
-        },
     ]
 })
 
