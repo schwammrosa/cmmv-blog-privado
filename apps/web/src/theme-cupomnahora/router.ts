@@ -17,7 +17,7 @@ import PageDiscount from './views/PageDiscount.vue';
 import PageCoupon from './views/PageCoupon.vue';
 import PageCampaignDetail from './views/PageCampaignDetail.vue';
 import PageCategoryDetail from './views/PageCategoryDetail.vue';
-
+import PageBlog from './views/PageBlog.vue';
 export function createRouter() {
     return _createRouter({
         history: import.meta.env.SSR ? createMemoryHistory() : createWebHistory(),
@@ -38,7 +38,8 @@ export function createRouter() {
                     { path: '/desconto', component: PageDiscount },
                     { path: '/desconto/:slug', component: PageCampaignDetail },
                     { path: '/cupom', component: PageCoupon },
-                    { path: '/categoria/:slug', component: PageCategoryDetail }
+                    { path: '/cupom/:slug', component: PageCategoryDetail },
+                    { path: '/blog', component: PageBlog }
                 ]
             }
         ]
