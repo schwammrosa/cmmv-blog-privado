@@ -289,6 +289,7 @@
                                                 width="360"
                                                 height="192"
                                                 loading="lazy"
+                                                fetchpriority="high"
                                             />
                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
