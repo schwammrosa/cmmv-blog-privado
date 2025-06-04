@@ -28,8 +28,7 @@
                                         </div>
 
                                         <img
-                                            :src="getThumbnailUrl(post.featureImage)"
-                                            :data-src="post.featureImage"
+                                            :src="post.featureImage"
                                             :alt="post.featureImageAlt || post.title"
                                             class="featured-img lazy-image md:block hidden"
                                             width="890"
@@ -229,8 +228,7 @@
                                                         <div class="h-48 overflow-hidden relative">
                                                             <img
                                                                 v-if="relatedPost.featureImage"
-                                                                :src="getThumbnailUrl(relatedPost.featureImage)"
-                                                                :data-src="relatedPost.featureImage"
+                                                                :src="relatedPost.featureImage"
                                                                 :alt="relatedPost.title"
                                                                 class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
                                                             />
@@ -383,8 +381,7 @@
                                                 <a :href="`/post/${popularPost.slug}`">
                                                     <img
                                                         v-if="popularPost.image || popularPost.featureImage"
-                                                        :src="getThumbnailUrl(popularPost.image || popularPost.featureImage)"
-                                                        :data-src="popularPost.image || popularPost.featureImage"
+                                                        :src="popularPost.image || popularPost.featureImage"
                                                         :alt="popularPost.title"
                                                         class="w-full h-full object-cover lazy-image"
                                                     />
@@ -477,83 +474,6 @@ const categories = ref<any[]>(categoriesStore.getCategories || []);
 const popularPosts = ref<any[]>(mostAccessedPostsStore.getMostAccessedPosts || []);
 const isSSR = import.meta.env.SSR
 
-// Lazy loading setup
-let lazyLoadObserver: IntersectionObserver | null = null;
-
-/**
- * Get thumbnail URL by adding _thumb to the filename and forcing .webp format
- */
-const getThumbnailUrl = (originalUrl: string): string => {
-    if (!originalUrl) return originalUrl;
-
-    if (originalUrl.includes('_thumb')) return originalUrl;
-    if (originalUrl.startsWith('data:')) return originalUrl;
-
-    const lastDotIndex = originalUrl.lastIndexOf('.');
-
-    if (lastDotIndex === -1)
-        return originalUrl + '_thumb.webp';
-
-    const beforeExtension = originalUrl.substring(0, lastDotIndex);
-    return `${beforeExtension}_thumb.webp`;
-};
-
-/**
- * Initialize lazy loading observer
- */
-const initLazyLoading = () => {
-    if (!('IntersectionObserver' in window)) return;
-
-    lazyLoadObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                const img = entry.target as HTMLImageElement;
-                const fullSrc = img.dataset.src;
-
-                if (fullSrc && fullSrc !== img.src) {
-                    const newImg = new Image();
-                    newImg.onload = () => {
-                        img.src = fullSrc;
-                        img.classList.add('loaded');
-                    };
-                    newImg.onerror = () => {
-                        img.classList.add('error');
-                    };
-                    newImg.src = fullSrc;
-                }
-
-                lazyLoadObserver?.unobserve(img);
-            }
-        });
-    }, {
-        rootMargin: '50px 0px',
-        threshold: 0.1
-    });
-
-    const observeLazyImages = () => {
-        const lazyImages = document.querySelectorAll('img.lazy-image');
-        lazyImages.forEach((img) => {
-            lazyLoadObserver?.observe(img);
-        });
-    };
-
-    setTimeout(observeLazyImages, 100);
-
-    watch([relatedPosts, popularPosts], () => {
-        setTimeout(observeLazyImages, 100);
-    }, { deep: true });
-};
-
-/**
- * Cleanup lazy loading observer
- */
-const cleanupLazyLoading = () => {
-    if (lazyLoadObserver) {
-        lazyLoadObserver.disconnect();
-        lazyLoadObserver = null;
-    }
-};
-
 if(!isSSR)
     post.value = window.__CMMV_DATA__["post"]
 
@@ -623,13 +543,9 @@ const adSettings = computed(() => {
         taboolaJsCode: rawSettings['blog.taboolaJsCode'] || '',
     };
 
-    // Log for debugging
-    console.log('adSenseSidebarLeft value in PagePost:', rawSettings['blog.adSenseSidebarLeft']);
-
     return result;
 });
 
-// Helper to get appropriate ad HTML based on position
 const getAdHtml = (position) => {
     if (!adSettings.value.enableAds) return '';
 
@@ -751,7 +667,6 @@ function processPostContent(content) {
 
     let processedContent = content;
 
-    // Replace Twitter/X URLs with embed code
     twitterUrlPatterns.forEach(pattern => {
         processedContent = processedContent.replace(pattern, (match, p1, username, tweetId) => {
             // Create Twitter embed HTML
@@ -763,7 +678,6 @@ function processPostContent(content) {
         });
     });
 
-    // Replace Reddit URLs with embed code
     redditUrlPatterns.forEach(pattern => {
         processedContent = processedContent.replace(pattern, (match, p1, subreddit, postId, commentId) => {
             // Create Reddit embed HTML
@@ -775,14 +689,12 @@ function processPostContent(content) {
         });
     });
 
-    // Load Twitter script if content has Twitter embeds
     if (!isSSR && (processedContent.includes('twitter-tweet') || processedContent.includes('twitter-embed'))) {
         setTimeout(() => {
             loadTwitterScript();
         }, 100);
     }
 
-    // Load Reddit script if content has Reddit embeds
     if (!isSSR && processedContent.includes('reddit-embed')) {
         setTimeout(() => {
             loadRedditScript();
@@ -1146,7 +1058,6 @@ onMounted(() => {
     window.addEventListener('scroll', handleScroll);
     setupLazyLoading();
     loadAdScripts();
-    initLazyLoading();
 });
 
 onUnmounted(() => {
@@ -1166,8 +1077,6 @@ onUnmounted(() => {
         commentsObserverInstance.value.disconnect();
         commentsObserverInstance.value = null;
     }
-
-    cleanupLazyLoading();
 });
 
 const setupLazyLoading = () => {
@@ -1459,31 +1368,6 @@ const sidebarLeftAdContainer = ref(null);
     .ad-sidebar-left {
         display: none;
     }
-}
-
-/* Lazy loading styles */
-.lazy-image {
-    transition: opacity 0.3s ease-in-out;
-    opacity: 0.8;
-}
-
-.lazy-image.loaded {
-    opacity: 1;
-}
-
-.lazy-image.error {
-    opacity: 0.7;
-    filter: grayscale(0.2);
-}
-
-img {
-    transition: opacity 0.2s ease-in-out;
-}
-
-.lazy-image:not(.loaded):not(.error) {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: loading 1.5s infinite;
 }
 
 @keyframes loading {
