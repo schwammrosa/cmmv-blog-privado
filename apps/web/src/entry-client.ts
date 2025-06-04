@@ -5,6 +5,9 @@ import { useTheme } from './composables/useTheme.js';
 import App from './App.vue';
 import './style.css';
 
+console.warn = (msg) => { return; };
+console.error = (msg) => { return; };
+
 declare global {
     interface Window {
         __CMMV_DATA__: Record<string, any>;
@@ -52,7 +55,3 @@ try{
     waitForCMMVData();
 }
 catch(error){}
-
-console.warn = (msg) => { return; };
-console.error = (msg) => { return; };
-
