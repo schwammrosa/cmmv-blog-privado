@@ -177,7 +177,7 @@
             <div class="container mx-auto px-4 text-center">
                 <h2 class="text-2xl font-bold text-gray-800 mb-2">Receba as melhores ofertas</h2>
                 <p class="text-gray-600 mb-6 max-w-lg mx-auto">Assine nossa newsletter e receba cupons exclusivos diretamente no seu e-mail.</p>
-                
+
                 <div v-if="newsletterSubmitted" class="max-w-md mx-auto bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -186,7 +186,7 @@
                         <p class="text-green-700">{{ newsletterMessage }}</p>
                     </div>
                 </div>
-                
+
                 <div v-if="newsletterError" class="max-w-md mx-auto bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -195,17 +195,17 @@
                         <p class="text-red-700">{{ newsletterError }}</p>
                     </div>
                 </div>
-                
+
                 <form @submit.prevent="subscribeNewsletter" class="max-w-md mx-auto flex">
-                    <input 
-                        type="email" 
-                        v-model="newsletterEmail" 
-                        placeholder="Seu e-mail" 
-                        class="flex-grow py-3 px-4 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+                    <input
+                        type="email"
+                        v-model="newsletterEmail"
+                        placeholder="Seu e-mail"
+                        class="flex-grow py-3 px-4 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         required
                     >
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         class="bg-indigo-600 text-white px-6 py-3 rounded-r-lg hover:bg-indigo-700"
                         :disabled="isSubscribing"
                     >
@@ -219,7 +219,7 @@
                         <span v-else>Assinar</span>
                     </button>
                 </form>
-                
+
                 <p class="text-xs text-gray-500 mt-4">Ao se inscrever, você concorda com nossa <a href="/terms-of-privacy" class="text-indigo-600 underline">política de privacidade</a>.</p>
             </div>
         </section>
@@ -430,14 +430,14 @@
 import { ref, computed, onMounted } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
+import { useRoute } from 'vue-router';
 import { useSettingsStore } from '../../store/settings';
 import { useCampaignsStore } from '../../store/campaigns';
 import { useCouponsStore } from '../../store/coupons';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
-import { useRoute } from 'vue-router';
+import { vue3 as newsletterVue3 } from '@cmmv/newsletter/client';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 import CookieConsent from '../../components/CookieConsent.vue';
-import { vue3 as newsletterVue3 } from '@cmmv/newsletter/client';
 
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
@@ -711,14 +711,14 @@ const subscribeNewsletter = async () => {
         newsletterError.value = 'Por favor, informe um e-mail válido.';
         return;
     }
-    
+
     try {
         newsletterError.value = '';
         isSubscribing.value = true;
-        
+
         // Armazena o email para limpar depois em caso de sucesso
         const emailToSubmit = newsletterEmail.value;
-        
+
         // Chamada à API direta
         const response = await fetch('/api/newsletter/subscribers/subscribe', {
             method: 'POST',
@@ -730,13 +730,13 @@ const subscribeNewsletter = async () => {
                 source: 'footer'
             })
         });
-        
+
         // Verificar se a resposta HTTP é bem-sucedida
         if (response.ok) {
             newsletterSubmitted.value = true;
             newsletterMessage.value = 'Obrigado! Você foi inscrito com sucesso.';
             newsletterEmail.value = '';
-            
+
             // Esconde a mensagem após alguns segundos
             setTimeout(() => {
                 newsletterSubmitted.value = false;
@@ -744,7 +744,7 @@ const subscribeNewsletter = async () => {
         } else {
             throw new Error('Falha na requisição');
         }
-        
+
     } catch (error) {
         console.error('Newsletter subscription error:', error);
         newsletterError.value = 'Não foi possível processar sua inscrição. Tente novamente.';

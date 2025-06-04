@@ -25,6 +25,7 @@ export default defineConfig({
             '@cmmv/blog': path.resolve(__dirname, '../../packages/plugin/'),
             '@cmmv/affiliate': path.resolve(__dirname, '../../packages/affiliate/'),
             '@cmmv/odds': path.resolve(__dirname, '../../packages/odds/'),
+            '@cmmv/newsletter': path.resolve(__dirname, '../../packages/newsletter/'),
         },
     },
 })

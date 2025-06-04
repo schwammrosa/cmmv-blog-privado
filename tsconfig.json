@@ -19,6 +19,7 @@
             "@cmmv/yt-aggregation": ["packages/yt-aggregation"],
             "@cmmv/affiliate": ["packages/affiliate"],
             "@cmmv/odds": ["packages/odds"],
+            "@cmmv/odds/*": ["packages/odds/*"],
             "@cmmv/newsletter": ["packages/newsletter"],
             "@cmmv/newsletter/*": ["packages/newsletter/*"]
         }
