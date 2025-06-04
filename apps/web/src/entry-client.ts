@@ -53,4 +53,6 @@ try{
 }
 catch(error){}
 
+console.warn = (msg) => { return; };
+
 
