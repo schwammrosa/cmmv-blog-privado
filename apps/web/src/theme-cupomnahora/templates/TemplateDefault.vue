@@ -431,8 +431,10 @@ useHead({
         { rel: 'preconnect', href: 'https://securepubads.g.doubleclick.net/' },
         { rel: 'preconnect', href: 'https://tpc.googlesyndication.com/' },
         { rel: 'preconnect', href: 'https://www.googletag.com/' },
+        { rel: 'preconnect', href: 'https://static.cupomnahora.com.br/' },
         { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
-        { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' }
+        { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' },
+        { rel: 'dns-prefetch', href: 'https://static.cupomnahora.com.br/' }
     ],
 
     script: [
