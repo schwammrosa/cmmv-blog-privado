@@ -128,7 +128,7 @@ export class MediasService extends AbstractService {
             apiUrl = apiUrl.slice(0, -1);
 
         const paramString = `${image}_${format}_${maxWidth}`;
-        const imageHash = await crypto.createHash('sha1').update(paramString).digest('hex');
+        const imageHash = await crypto.createHash('sha1').update(new Date().getTime().toString()).digest('hex');
         const imageFullpath = path.join(mediasPath, `${imageHash}.${format}`).toLowerCase();
         const imageUrl = `${apiUrl}/images/${imageHash}.${format}`;
 
@@ -147,32 +147,26 @@ export class MediasService extends AbstractService {
                 //@ts-ignore
                 let processor = sharp(buffer);
                 const metadata = await processor.metadata();
-                
-                // Otimizar a imagem antes de enviá-la para o storage e padronizar para 1280x720
-                // Constantes para o formato padrão 16:9
+
                 const targetWidth = 1280;
                 const targetHeight = 720;
-                
-                // Redimensionar para o formato padrão 1280x720 (16:9)
+
                 processor = processor.resize({
                     width: targetWidth,
                     height: targetHeight,
-                    fit: 'cover', // Usa 'cover' para preencher completamente e cortar o excesso
-                    position: 'center' // Centraliza a imagem para corte equilibrado
+                    fit: 'cover',
+                    position: 'center'
                 });
 
-                // Sempre converter para WebP independente do formato original
                 processor = processor.webp({
                     quality: 70,
                     lossless: false,
                     //@ts-ignore
                     reductionEffort: 6
                 });
-                
-                // Obter o buffer otimizado para upload
+
                 const optimizedBuffer = await processor.toBuffer();
-                
-                // Fazer upload do arquivo otimizado (sempre webp)
+
                 const uploadedFile = await blogStorageService.uploadFile({
                     buffer: optimizedBuffer,
                     originalname: `${imageHash}.webp`,
@@ -225,9 +219,6 @@ export class MediasService extends AbstractService {
                     return uploadedFile.url;
                 }
 
-                // A otimização já foi feita antes do upload
-                // Como estamos forçando webp, não precisamos fazer mais nada aqui
-
                 const MediasEntity = Repository.getEntity("MediasEntity");
                 const media = await Repository.findOne(MediasEntity, { sha1: imageHash });
 
@@ -270,7 +261,6 @@ export class MediasService extends AbstractService {
                         return null;
                     }
                 } else if (!media.thumbnail) {
-                    // Create thumbnail for existing media that doesn't have one
                     const thumbnailPath = path.join(mediasPath, `${imageHash}_thumb.webp`);
                     let thumbnailUrl: string | null = null;
 
