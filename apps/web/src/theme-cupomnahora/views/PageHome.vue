@@ -811,7 +811,7 @@ const prevCouponSlide = () => {
         return;
     }
 
-    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+    const maxStartIndex = Math.max(0, numDisplayableCoupons - couponSlidesVisible.value);
 
     if (currentCouponIndex.value > 0) {
         currentCouponIndex.value--;
@@ -827,7 +827,7 @@ const nextCouponSlide = () => {
         return;
     }
 
-    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+    const maxStartIndex = Math.max(0, numDisplayableCoupons - couponSlidesVisible.value);
 
     if (currentCouponIndex.value < maxStartIndex) {
         currentCouponIndex.value++;
@@ -871,12 +871,30 @@ onMounted(async () => {
     await loadData();
     startCarouselInterval();
     initLazyLoading();
+    
+    // Calcular o número adequado de slides visíveis com base no viewport
+    updateCouponSlidesVisible();
+    window.addEventListener('resize', updateCouponSlidesVisible);
 });
 
 onUnmounted(() => {
     stopCarouselInterval();
     cleanupLazyLoading();
+    window.removeEventListener('resize', updateCouponSlidesVisible);
 });
+
+const updateCouponSlidesVisible = () => {
+    // Ajustar o número de slides visíveis baseado na largura da tela
+    if (window.innerWidth < 640) { // sm
+        couponSlidesVisible.value = 1;
+    } else if (window.innerWidth < 768) { // md
+        couponSlidesVisible.value = 2;
+    } else if (window.innerWidth < 1024) { // lg
+        couponSlidesVisible.value = 3;
+    } else {
+        couponSlidesVisible.value = 4;
+    }
+};
 
 watch(() => settings.value['blog.cover'], () => {
     stopCarouselInterval();
