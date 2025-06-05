@@ -2,7 +2,7 @@
     <div class="relative w-full h-full" v-cloak>
         <!-- Optimized Image -->
         <img
-            v-if="src && isHydrated"
+            v-if="src"
             ref="imageElement"
             :src="imageSrc"
             :srcset="useOriginalImage ? undefined : computedSrcset"
@@ -15,8 +15,6 @@
             :fetchpriority="priority"
             :title="title"
             :aria-label="ariaLabel"
-            @load="onImageLoad"
-            @error="onImageError"
         />
 
         <!-- Fallback/Placeholder -->
@@ -76,7 +74,6 @@ interface OptimizedImageProps {
     format?: string;
 }
 
-const isHydrated = ref(false);
 const imageElement = ref<HTMLImageElement | null>(null);
 const isLoaded = ref(false);
 const useOriginalImage = ref(false);
@@ -219,10 +216,6 @@ const imageSrc = computed(() => {
 watch(() => props.src, () => {
     useOriginalImage.value = false;
     isLoaded.value = false;
-});
-
-onMounted(() => {
-    isHydrated.value = true;
 });
 
 onUnmounted(() => {

@@ -87,10 +87,6 @@ export class AffiliateSitemapService {
                             `\t<url>`,
                                 `\t\t<loc>${apiUrl}/desconto/${campaign.slug}</loc>`,
                                 `\t\t<lastmod>${campaign.updatedAt.toISOString()}</lastmod>`,
-                                `\t\t<image:image>`,
-                                    `\t\t\t<image:loc>${campaign.logo}</image:loc>`,
-                                    `\t\t\t<image:caption>${campaign.name}</image:caption>`,
-                                `\t\t</image:image>`,
                             `\t</url>`
                         );
                     } else {

@@ -50,7 +50,9 @@ export class PostsPublicService {
 
     @Cron(CronExpression.EVERY_5_MINUTES)
     async handleCronJobs() {
-        return await this.processCrons.call(this);
+        await this.processCrons.call(this);
+        await this.recalculateCategories.call(this);
+        return true;
     }
 
     /**
@@ -566,19 +568,12 @@ export class PostsPublicService {
             if(data.post.author !== "current-user-id")
                 data.post.authors.push(data.post.author);
 
-            // --- Start Parent Category Inheritance Logic ---
             if (data.post.categories && data.post.categories.length > 0) {
                 try {
-                    this.logger.log(`Original categories for post ${data.post.id || 'new'}: ${data.post.categories.join(', ')}`);
                     const allCategoriesWithParents = await this.getAllParentCategoryIds(data.post.categories, CategoriesEntity);
                     data.post.categories = [...new Set(allCategoriesWithParents)]; // Ensure uniqueness
-                    this.logger.log(`Categories with parents for post ${data.post.id || 'new'}: ${data.post.categories.join(', ')}`);
-                } catch (catError) {
-                    this.logger.error(`Error processing parent categories for post ${data.post.id || 'new'}: ${catError}`);
-                    // Decide if you want to throw the error or proceed without parent inheritance
-                }
+                } catch (catError) {}
             }
-            // --- End Parent Category Inheritance Logic ---
 
             const post: any = await Repository.updateOne(
                 PostsEntity, Repository.queryBuilder({ id: data.post.id }), data.post
@@ -610,7 +605,6 @@ export class PostsPublicService {
             }
 
             await this.upsertTags(data.post.tags);
-            await this.recalculateCategories();
 
             return { result: true };
         }
@@ -621,18 +615,12 @@ export class PostsPublicService {
             if(!data.post.authors || data.post.authors.length === 1)
                 data.post.authors = [user.id];
 
-            // --- Start Parent Category Inheritance Logic for new posts ---
             if (data.post.categories && data.post.categories.length > 0) {
                 try {
-                    this.logger.log(`Original categories for new post: ${data.post.categories.join(', ')}`);
                     const allCategoriesWithParents = await this.getAllParentCategoryIds(data.post.categories, CategoriesEntity);
-                    data.post.categories = [...new Set(allCategoriesWithParents)]; // Ensure uniqueness
-                    this.logger.log(`Categories with parents for new post: ${data.post.categories.join(', ')}`);
-                } catch (catError) {
-                    this.logger.error(`Error processing parent categories for new post: ${catError}`);
-                }
+                    data.post.categories = [...new Set(allCategoriesWithParents)];
+                } catch (catError) {}
             }
-            // --- End Parent Category Inheritance Logic for new posts ---
 
             const post: any = await Repository.insert(PostsEntity, data.post);
 
@@ -657,7 +645,6 @@ export class PostsPublicService {
             }
 
             await this.upsertTags(data.post.tags);
-            await this.recalculateCategories();
 
             return post.data;
         }
@@ -1217,7 +1204,6 @@ export class PostsPublicService {
      * @returns {Promise<any>}
      */
     async deletePost(id: string) {
-        console.log("Deleting post with ID: " + id);
         const PostsEntity = Repository.getEntity("PostsEntity");
         const MetaEntity = Repository.getEntity("MetaEntity");
         const PostsHistoryEntity = Repository.getEntity("PostsHistoryEntity");
@@ -1232,10 +1218,8 @@ export class PostsPublicService {
             deletedAt: new Date()
         });
 
-        if(resultDelete){
+        if(resultDelete)
             await this.recalculateTags();
-            await this.recalculateCategories();
-        }
 
         return { result: resultDelete };
     }
