@@ -279,7 +279,7 @@ async function bootstrap() {
         let template = '';
         let render: (url: string) => Promise<any>;
 
-        if (process.env.NODE_ENV === 'production') {
+        if (fs.existsSync(path.resolve('dist/index.html'))) {
             template = fs.readFileSync(path.resolve('dist/index.html'), 'utf-8');
             const mod = await (new Function('return import("./entry-server.js")')());
             render = mod.render;
