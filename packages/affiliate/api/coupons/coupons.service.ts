@@ -132,7 +132,6 @@ export class CouponsServiceTools {
                     lastError = error;
                     console.warn(`[CouponsService] Attempt ${attempt} failed:`, error.message);
 
-                    // Check if it's a timeout or connection error
                     const isTimeoutError = error.message?.includes('timeout') ||
                                          error.message?.includes('Timeout') ||
                                          error.code === 'UND_ERR_CONNECT_TIMEOUT' ||
@@ -142,12 +141,9 @@ export class CouponsServiceTools {
                                             error.message?.includes('connect') ||
                                             error.message?.includes('ECONNREFUSED');
 
-                    // If it's the last attempt or not a retry-able error, don't wait
-                    if (attempt === maxRetries || (!isTimeoutError && !isConnectionError)) {
+                    if (attempt === maxRetries || (!isTimeoutError && !isConnectionError))
                         break;
-                    }
 
-                    // Wait before retrying
                     if (attempt < maxRetries) {
                         console.log(`[CouponsService] Waiting ${retryDelay}ms before retry...`);
                         await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -220,10 +216,20 @@ export class CouponsServiceTools {
                 try {
                     const savedCoupon = await Repository.insert(AffiliateCouponsEntity, newCoupon);
                     savedCoupons.push(savedCoupon);
-                    //savedCoupons.push(newCoupon);
                 } catch (err) {
                     console.warn(`Failed to save coupon ${coupon.code}: ${err instanceof Error ? err.message : String(err)}`);
                 }
+            }
+
+            if (savedCoupons.length > 0) {
+                try {
+                    const totalCouponsResponse = await this.getCouponsCountByCampaignId(campaignId);
+                    const totalCoupons = totalCouponsResponse?.count || 0;
+
+                    await Repository.update(AffiliateCampaignsEntity, { id: campaignId }, {
+                        coupons: totalCoupons
+                    });
+                } catch (updateError: any) {}
             }
 
             return savedCoupons;
@@ -984,7 +990,7 @@ export class CouponsServiceTools {
             }
 
             const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
-            
+
             // Primeiro tenta encontrar por ID
             let coupon = await Repository.findOne(AffiliateCouponsEntity, {
                 id: couponId
