@@ -9,33 +9,11 @@
             </div>
 
             <div v-else>
-                <!-- Top AdSense Banner -->
-                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full rounded-lg mb-4 sm:mb-6 md:mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
-                    <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
-                        <div v-html="getAdHtml('header')"></div>
-                    </div>
-                    <div class="ad-container ad-banner-top py-2 px-4" v-else>
-                        <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                            <span>Anúncio</span>
-                        </div>
-                    </div>
-                </div>
+
 
                 <!-- Main Content Layout -->
                 <div class="flex flex-col lg:flex-row gap-3 sm:gap-5 md:gap-6 lg:gap-8">
-                    <!-- Left AdSense Sidebar -->
-                    <aside class="xl:w-[160px] shrink-0 hidden xl:block" v-if="adSettings.enableAds">
-                        <div class="sticky top-24">
-                            <div class="ad-container ad-sidebar-left mb-6" v-if="adSettings.adSenseSidebarLeft">
-                                <div ref="sidebarLeftAdContainer"></div>
-                            </div>
-                            <div class="ad-container ad-sidebar-left mb-6" v-else>
-                                <div class="ad-placeholder h-[600px] w-[160px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                    <span>Anúncio</span>
-                                </div>
-                            </div>
-                        </div>
-                    </aside>
+
 
                     <!-- Main Content Area -->
                     <div class="flex-grow">
@@ -68,17 +46,7 @@
                                             post.featureImageCaption }}</p>
                                     </div>
 
-                                    <!-- After Title Ad -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterTitle" class="w-full bg-gray-100 rounded-lg my-3 sm:my-4 md:my-6 overflow-hidden flex justify-center">
-                                        <div class="ad-container ad-after-title py-2 px-4" v-if="getAdHtml('afterTitle')">
-                                            <div v-html="getAdHtml('afterTitle')"></div>
-                                        </div>
-                                        <div class="ad-container ad-after-title py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                                <span>Anúncio</span>
-                                            </div>
-                                        </div>
-                                    </div>
+
 
                                     <!-- Post Header -->
                                     <header class="post-header my-3 sm:my-4 md:my-6">
@@ -228,17 +196,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Mid-content AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full rounded-lg my-4 sm:my-6 md:my-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
-                                        <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
-                                            <div v-html="getAdHtml('inContent')"></div>
-                                        </div>
-                                        <div class="ad-container ad-banner-mid py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                                <span>Anúncio</span>
-                                            </div>
-                                        </div>
-                                    </div>
+
 
                                     <!-- Mais Conteúdo Section -->
                                     <div class="mt-6 sm:mt-8 md:mt-10">
@@ -298,17 +256,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Bottom AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full rounded-lg mt-4 sm:mt-6 md:mt-8 mb-3 sm:mb-4 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
-                                        <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
-                                            <div v-html="getAdHtml('belowContent')"></div>
-                                        </div>
-                                        <div class="ad-container ad-banner-bottom py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                                <span>Anúncio</span>
-                                            </div>
-                                        </div>
-                                    </div>
+
 
                                     <!-- Comments Section foi movida para acima da caixa do autor -->
                                 </div>
@@ -316,29 +264,10 @@
 
                             <!-- Right Column (Widgets + Ads) -->
                             <div class="lg:col-span-1">
-                                <!-- AdSense Rectangle (Top) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center overflow-hidden" style="background-color: var(--bg-secondary);">
-                                    <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
-                                        <div v-html="getAdHtml('sidebarTop')"></div>
-                                    </div>
-                                    <div class="ad-container ad-sidebar-top" v-else>
-                                        <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                            <span>Anúncio</span>
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 <!-- AdSense Rectangle (Middle) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarMid" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center overflow-hidden">
-                                    <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
-                                        <div v-html="getAdHtml('sidebarMid')"></div>
-                                    </div>
-                                    <div class="ad-container ad-sidebar-mid" v-else>
-                                        <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                            <span>Anúncio</span>
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 <!-- Share Widget (oculto em dispositivos móveis) -->
                                 <div class="rounded-lg shadow-md p-3 sm:p-4 md:p-5 mb-4 sm:mb-6 hidden md:block" style="background-color: var(--card-bg); color: var(--text-color);">
@@ -467,16 +396,7 @@
 
 
                                 <!-- AdSense Rectangle (Bottom) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
-                                    <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
-                                        <div v-html="getAdHtml('sidebarBottom')"></div>
-                                    </div>
-                                    <div class="ad-container ad-sidebar-bottom" v-else>
-                                        <div class="ad-placeholder h-[250px] w-full max-w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                            <span>Anúncio</span>
-                                        </div>
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>

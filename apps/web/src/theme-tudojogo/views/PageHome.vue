@@ -257,31 +257,11 @@
                 </div>
             </section>
 
-            <!-- Top AdSense Banner -->
-            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full rounded-lg mb-4 sm:mb-6 md:mb-8 overflow-hidden flex justify-center" style="background-color: var(--bg-secondary);">
-                <div class="ad-container ad-banner-top py-2 px-4" v-intersect="onAdVisible" data-ad-slot="header">
-                    <div v-if="visibleAdSlots.includes('header')" v-html="getAdHtml('header')"></div>
-                    <div v-else class="ad-placeholder w-full h-[90px] flex items-center justify-center">
-                        <span class="text-sm text-gray-400">Publicidade</span>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Main Content Layout -->
             <div class="flex flex-col lg:flex-row gap-4 sm:gap-6 md:gap-8">
-                <!-- Left AdSense Sidebar -->
-                <aside class="xl:w-[160px] shrink-0 hidden xl:block" v-if="adSettings.enableAds">
-                    <div class="sticky top-24">
-                        <div class="ad-container ad-sidebar-left mb-6" v-if="adSettings.adSenseSidebarLeft">
-                            <div ref="sidebarLeftAdContainer"></div>
-                        </div>
-                        <div class="ad-container ad-sidebar-left mb-6" v-else>
-                            <div class="ad-placeholder h-[600px] w-[160px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                <span>Anúncio</span>
-                            </div>
-                        </div>
-                    </div>
-                </aside>
+
 
                 <!-- Main Content Area -->
                 <div class="flex-grow">
@@ -337,15 +317,7 @@
                                 </article>
                             </div>
 
-                            <!-- Mid-content AdSense Banner -->
-                            <div v-if="adSettings.enableAds" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
-                                <div class="ad-container ad-banner-mid py-2 px-4" v-intersect="onAdVisible" data-ad-slot="inContent">
-                                    <div v-if="visibleAdSlots.includes('inContent')" v-html="getAdHtml('inContent')"></div>
-                                    <div v-else class="ad-placeholder w-full h-[90px] flex items-center justify-center">
-                                        <span class="text-sm text-gray-400">Publicidade</span>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- More Posts Section -->
                             <div v-if="posts.length > (isMobile ? 4 : (featuredPost ? 7 : 4))">
@@ -399,14 +371,7 @@
                             </div>
 
                             <!-- Bottom AdSense Banner -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageAfterPosts" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
-                                <div class="ad-container ad-banner-bottom py-2 px-4" v-intersect="onAdVisible" data-ad-slot="belowContent">
-                                    <div v-if="visibleAdSlots.includes('belowContent')" v-html="getAdHtml('belowContent')"></div>
-                                    <div v-else class="ad-placeholder w-full h-[90px] flex items-center justify-center">
-                                        <span class="text-sm text-gray-400">Publicidade</span>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- Loading More Indicator -->
                             <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
@@ -420,15 +385,7 @@
 
                         <!-- Right Column (Widgets + Ads) -->
                         <div class="lg:col-span-1 w-full md:block">
-                            <!-- AdSense Rectangle (Top) -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="rounded-lg shadow-md p-2 mb-4 sm:mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
-                                <div class="ad-container ad-sidebar-top" v-intersect="onAdVisible" data-ad-slot="sidebarTop">
-                                    <div v-if="visibleAdSlots.includes('sidebarTop')" v-html="getAdHtml('sidebarTop')"></div>
-                                    <div v-else class="ad-placeholder w-full h-[250px] flex items-center justify-center">
-                                        <span class="text-sm text-gray-400">Publicidade</span>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- Popular Posts Widget -->
                             <div class="rounded-lg shadow-lg p-3 sm:p-4 md:p-5 mb-4 sm:mb-6 border-t-4 border-[#00A079] md:block" style="background-color: var(--card-bg); color: var(--text-color);">
@@ -479,24 +436,9 @@
                             </div>
 
                             <!-- AdSense Rectangle (Middle) -->
-                            <div class="rounded-lg shadow-md p-2 mb-6 flex justify-center" style="background-color: var(--bg-secondary);">
-                                <div class="ad-container ad-sidebar-mid" v-intersect="onAdVisible" data-ad-slot="sidebarMid">
-                                    <div v-if="visibleAdSlots.includes('sidebarMid')" v-html="getAdHtml('sidebarMid')"></div>
-                                    <div v-else class="ad-placeholder w-full h-[250px] flex items-center justify-center">
-                                        <span class="text-sm text-gray-400">Publicidade</span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- AdSense Rectangle (Bottom) -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarBottom" class="bg-gray-100 rounded-lg shadow-md p-2 mb-6 flex justify-center">
-                                <div class="ad-container ad-sidebar-bottom" v-intersect="onAdVisible" data-ad-slot="sidebarBottom">
-                                    <div v-if="visibleAdSlots.includes('sidebarBottom')" v-html="getAdHtml('sidebarBottom')"></div>
-                                    <div v-else class="ad-placeholder w-full h-[250px] flex items-center justify-center">
-                                        <span class="text-sm text-gray-400">Publicidade</span>
-                                    </div>
-                                </div>
-                            </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -504,8 +446,7 @@
         </div>
     </div>
 
-    <!-- Taboola JS Code -->
-    <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode && taboolaLoaded" v-html="adSettings.taboolaJsCode"></div>
+
 </template>
 
 <script setup lang="ts">

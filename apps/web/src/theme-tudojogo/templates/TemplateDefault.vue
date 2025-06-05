@@ -7,7 +7,7 @@
                     <!-- Logo -->
                     <div class="flex-shrink-0">
                         <a href="/" class="text-2xl font-bold text-white">
-                            <img src="/src/theme-tudojogo/assets/Logo.png" width="147" height="32" alt="Logo" title="Logo">
+                            <img src="../assets/Logo.png" width="147" height="32" alt="Logo" title="Logo">
                         </a>
                     </div>
 
