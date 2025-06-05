@@ -522,14 +522,13 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
         const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
         const campaignsResult = await Repository.findAll(CampaignEntity, {
             active: true,
-            limit: 18
+            limit: 10000
         }, [], {
             order: {
                 highlight: "DESC"
             },
             select: [
-                "id", "name", "logo", "description", "highlight", "slug", "categories",
-                "seoTitle", "seoSubtitle", "seoSmallText", "seoLongText"
+                "id", "name", "logo", "highlight", "slug"
             ]
         });
 
