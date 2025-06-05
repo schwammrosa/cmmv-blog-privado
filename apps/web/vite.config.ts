@@ -30,7 +30,6 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [
             vue(),
-            VitePWA({ registerType: 'autoUpdate' }),
             AutoImport({
                 imports: [
                   unheadVueComposablesImports,

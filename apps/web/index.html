@@ -17,6 +17,15 @@
         <script>
             (adsbygoogle = window.adsbygoogle || []).push({});
         </script>
+        <script>
+            if ('serviceWorker' in navigator) {
+
+                window.addEventListener('load', () => {
+                    console.log('registering service worker');
+                    navigator.serviceWorker.register('/service-worker.js?v=0.0.8');
+                });
+            }
+        </script>
 
         <analytics />
         <custom-js />
