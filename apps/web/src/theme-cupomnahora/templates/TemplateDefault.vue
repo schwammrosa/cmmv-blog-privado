@@ -140,12 +140,12 @@
 
                     <!-- Mobile Menu Button -->
                     <div class="md:hidden flex items-center space-x-3">
-                        <button @click="openSearchModal" class="text-gray-700 hover:text-indigo-600" title="Search" aria-label="Search">
+                        <button @click="openSearchModal" class="text-white hover:text-indigo-200" title="Search" aria-label="Search">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </button>
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-700" title="Navbar" aria-label="Navbar">
+                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-white" title="Navbar" aria-label="Navbar">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path v-if="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                 <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -251,39 +251,15 @@
                         </div>
                     </div>
 
-                    <!-- Links Úteis -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Links Úteis</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-white">Como funciona</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Cashback</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Blog</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Perguntas frequentes</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Contato</a></li>
-                        </ul>
-                    </div>
-
-                    <!-- Categorias -->
-                    <div>
-                        <h3 class="text-xl font-bold mb-4">Categorias</h3>
-                        <ul class="space-y-2">
-                            <li v-for="category in categoriesColumns[0].slice(0, 5)" :key="category.id">
-                                <a :href="`/category/${category.slug}`" class="text-gray-400 hover:text-white">
-                                    {{ category.name }}
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
                     <!-- Lojas Populares -->
                     <div>
-                        <h3 class="text-xl font-bold mb-4">Lojas Populares</h3>
+                        <h3 class="text-xl font-bold mb-4">Lojas Recentes</h3>
                         <ul class="space-y-2">
-                            <li><a href="#" class="text-gray-400 hover:text-white">Amazon</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Magalu</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Shopee</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">AliExpress</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-white">Americanas</a></li>
+                            <li v-for="campaign in recentCampaigns.slice(0, 10)" :key="campaign.id">
+                                <a :href="`/desconto/${campaign.slug}`" class="text-gray-400 hover:text-white">
+                                    {{ campaign.name }}
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -446,6 +422,16 @@ const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
 const route = useRoute();
 const settings = ref<any>(settingsStore.getSettings);
+const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
+
+const recentCampaigns = computed(() => {
+    if (!campaigns.value || campaigns.value.length === 0) return [];
+    // Ordenar por couponCount (quantidade de cupons) como critério de "popularidade"
+    return [...campaigns.value]
+        .filter(campaign => campaign.couponCount > 0)
+        .sort((a, b) => (b.couponCount || 0) - (a.couponCount || 0))
+        .slice(0, 10);
+});
 
 const scripts = computed(() => {
     const baseScripts = [];

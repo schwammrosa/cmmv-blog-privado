@@ -39,16 +39,17 @@
                                             </a>
                                         </div>
 
-                                        <img
-                                            :src="post.featureImage"
-                                            :alt="post.featureImageAlt || post.title"
-                                            class="featured-img md:block hidden"
-                                            width="890"
-                                            height="606"
-                                            loading="lazy"
-                                            title="Imagem de destaque"
-                                            aria-label="Imagem de destaque"
-                                        />
+                                                                <OptimizedImage
+                            :src="post.featureImage"
+                            :alt="post.featureImageAlt || post.title"
+                            class="featured-img md:block hidden imgix-lazy"
+                            width="890"
+                            height="606"
+                            loading="lazy"
+                            priority="high"
+                            icon-size="lg"
+                            :title="post.featureImageAlt || 'Imagem de destaque'"
+                        />
 
                                         <p v-if="post.featureImageCaption" class="image-caption text-neutral-600 text-sm mt-2 text-center">{{
                                             post.featureImageCaption }}</p>
@@ -108,8 +109,8 @@
                                             <!-- Author Avatar -->
                                             <div
                                                 class="w-12 h-12 rounded-full overflow-hidden mr-4 flex-shrink-0 border-2 border-white shadow">
-                                                <img v-if="author.image" :src="author.image" :alt="author.name"
-                                                    class="w-full h-full object-cover" width="44" height="44" />
+                                                                                <OptimizedImage v-if="author.image" :src="author.image" :alt="author.name"
+                                    class="w-full h-full object-cover imgix-lazy" width="44" height="44" icon-size="sm" />
                                                 <div v-else
                                                     class="w-full h-full flex items-center justify-center bg-[#0a5d28] text-white font-bold text-lg">
                                                     {{ authorInitials }}
@@ -238,12 +239,14 @@
                                                 >
                                                     <a :href="`/post/${relatedPost.slug}`" class="block">
                                                         <div class="h-48 overflow-hidden relative">
-                                                            <img
-                                                                v-if="relatedPost.featureImage"
-                                                                :src="relatedPost.featureImage"
-                                                                :alt="relatedPost.title"
-                                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300"
-                                                            />
+                                                                                                        <OptimizedImage
+                                                v-if="relatedPost.featureImage"
+                                                :src="relatedPost.featureImage"
+                                                :alt="relatedPost.title"
+                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
+                                                :hover="true"
+                                                icon-size="md"
+                                            />
                                                             <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -415,12 +418,15 @@
                                         >
                                             <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
                                                 <a :href="`/post/${popularPost.slug}`">
-                                                    <img
-                                                        v-if="popularPost.image || popularPost.featureImage"
-                                                        :src="popularPost.image || popularPost.featureImage"
-                                                        :alt="popularPost.title"
-                                                        class="w-full h-full object-cover"
-                                                    />
+                                                                                        <OptimizedImage
+                                        v-if="popularPost.image || popularPost.featureImage"
+                                        :src="popularPost.image || popularPost.featureImage"
+                                        :alt="popularPost.title"
+                                        class="w-full h-full object-cover imgix-lazy"
+                                        width="80"
+                                        height="64"
+                                        icon-size="sm"
+                                    />
                                                     <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -497,12 +503,12 @@ import { useHead } from '@unhead/vue'
 import { vue3 } from '@cmmv/blog/client'
 import { formatDate, stripHtml } from '../../composables/useUtils'
 import CommentSection from '../../components/CommentSection.vue'
+import OptimizedImage from '../../components/OptimizedImage.vue'
 import { useSettingsStore } from '../../store/settings';
 import { usePostsStore } from '../../store/posts';
 import { useCategoriesStore } from '../../store/categories';
 import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 
-// Declare adsbygoogle for TypeScript
 declare global {
     interface Window {
         adsbygoogle: any[];
@@ -699,23 +705,19 @@ const getAdHtml = (position) => {
 function processPostContent(content) {
     if (!content) return '';
 
-    // Twitter/X URL patterns
     const twitterUrlPatterns = [
         /https?:\/\/(www\.)?twitter\.com\/([a-zA-Z0-9_]+)\/status\/([0-9]+)(\?[^\s]*)?/g,
         /https?:\/\/(www\.)?x\.com\/([a-zA-Z0-9_]+)\/status\/([0-9]+)(\?[^\s]*)?/g
     ];
 
-    // Reddit URL patterns
     const redditUrlPatterns = [
         /https?:\/\/(www\.)?reddit\.com\/r\/([a-zA-Z0-9_]+)\/comments\/([a-zA-Z0-9]+)(?:\/[^\/\s]+)?(?:\/([a-zA-Z0-9]+))?/g
     ];
 
     let processedContent = content;
 
-    // Replace Twitter/X URLs with embed code
     twitterUrlPatterns.forEach(pattern => {
         processedContent = processedContent.replace(pattern, (match, p1, username, tweetId) => {
-            // Create Twitter embed HTML
             return `<div class="twitter-embed">
                 <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
                     <a href="${match}"></a>
@@ -724,10 +726,8 @@ function processPostContent(content) {
         });
     });
 
-    // Replace Reddit URLs with embed code
     redditUrlPatterns.forEach(pattern => {
         processedContent = processedContent.replace(pattern, (match, p1, subreddit, postId, commentId) => {
-            // Create Reddit embed HTML
             return `<div class="reddit-embed">
                 <div class="reddit-card" data-embed-height="500">
                     <a href="${match}"></a>
@@ -736,14 +736,12 @@ function processPostContent(content) {
         });
     });
 
-    // Load Twitter script if content has Twitter embeds
     if (!isSSR && (processedContent.includes('twitter-tweet') || processedContent.includes('twitter-embed'))) {
         setTimeout(() => {
             loadTwitterScript();
         }, 100);
     }
 
-    // Load Reddit script if content has Reddit embeds
     if (!isSSR && processedContent.includes('reddit-embed')) {
         setTimeout(() => {
             loadRedditScript();
@@ -877,7 +875,6 @@ const headData = computed(() => ({
     ],
     link: [
         { rel: 'canonical', href: pageUrl.value },
-        { rel: 'alternate', href: `${settings.value['blog.url']}/feed`, type: 'application/rss+xml', title: settings.value['blog.title'] }
     ],
     script: isSSR ? [
         {

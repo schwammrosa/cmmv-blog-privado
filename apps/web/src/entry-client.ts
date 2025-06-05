@@ -2,7 +2,6 @@ import { createSSRApp } from 'vue'
 import { createHead } from '@unhead/vue/client'
 import { createPiniaInstance } from './store/index.js';
 import { useTheme } from './composables/useTheme.js';
-import dynamicResize from './directives/dynamic-resize.js';
 import App from './App.vue';
 import './style.css';
 
@@ -24,7 +23,6 @@ try{
             const pinia = createPiniaInstance();
             const preloadedData = window.__CMMV_DATA__ || {};
 
-            app.directive('dynamic-resize', dynamicResize);
             app.provide('preloaded', preloadedData)
             app.use(head)
             app.use(pinia);

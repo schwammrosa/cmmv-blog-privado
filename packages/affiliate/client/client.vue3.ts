@@ -106,6 +106,18 @@ export const useAffiliate = () => {
                 console.error(`Failed to fetch coupons for campaign ${campaignId}:`, error);
                 return [];
             }
+        },
+        incrementView: async (couponId: string) => {
+            if (!couponId) {
+                return { success: false };
+            }
+            try {
+                const { data } = await api.post("affiliate/coupons/increment-view", { couponId });
+                return data.value || { success: false };
+            } catch (error) {
+                console.error(`Failed to increment view count for coupon ${couponId}:`, error);
+                return { success: false };
+            }
         }
     };
 

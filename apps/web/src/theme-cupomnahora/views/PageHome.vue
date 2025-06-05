@@ -344,17 +344,19 @@
                          class="bg-white border border-gray-200 rounded-lg p-4 md:p-6 flex flex-col md:flex-row items-center hover:shadow-lg transition-shadow duration-300">
 
                         <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
-                            <img v-if="coupon.campaignLogo"
-                                 :src="getThumbnailUrl(coupon.campaignLogo)"
-                                 :data-src="coupon.campaignLogo"
-                                 :alt="coupon.campaignName"
-                                 class="lazy-image max-w-full max-h-full object-contain rounded"
-                                 loading="lazy" width="102" height="80">
-                            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
-                            </div>
+                            <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" class="block">
+                                <img v-if="coupon.campaignLogo"
+                                     :src="getThumbnailUrl(coupon.campaignLogo)"
+                                     :data-src="coupon.campaignLogo"
+                                     :alt="coupon.campaignName"
+                                     class="lazy-image max-w-full max-h-full object-contain rounded"
+                                     loading="lazy" width="102" height="80">
+                                <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                </div>
+                            </a>
                         </div>
 
                         <div class="flex-grow text-center md:text-left">
@@ -366,8 +368,8 @@
                             <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ coupon.description }}</p>
                             <p class="text-xs text-gray-500">
                                 <span v-if="coupon.verifiedToday">Verificado hoje</span>
-                                <span v-if="coupon.verifiedToday && coupon.usesToday" class="mx-1">•</span>
-                                <span v-if="coupon.usesToday">{{ coupon.usesToday }} usados hoje</span>
+                                <span v-if="coupon.verifiedToday && coupon.views" class="mx-1">•</span>
+                                <span v-if="coupon.views">{{ coupon.views || 0 }} total de visualizações</span>
                             </p>
                         </div>
 
@@ -432,7 +434,7 @@
                         <!-- Blog Posts Dinâmicos -->
                         <div v-for="post in posts.slice(0, 3)" :key="post.id"
                             class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all flex flex-col">
-                            <div class="h-48 overflow-hidden">
+                            <a :href="`/post/${post.slug}`" class="block h-48 overflow-hidden">
                                 <img v-if="post.featureImage"
                                      :src="getThumbnailUrl(post.featureImage)"
                                      :data-src="post.featureImage"
@@ -444,12 +446,14 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                                     </svg>
                                 </div>
-                            </div>
+                            </a>
                             <div class="p-6 flex-1 flex flex-col">
                                 <span class="text-xs font-medium text-indigo-600 mb-2 block">
                                     {{ post.categories && post.categories.length > 0 ? post.categories[0].name : 'Dicas de Economia' }}
                                 </span>
-                                <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 h-14 overflow-hidden">{{ post.title }}</h3>
+                                <a :href="`/post/${post.slug}`" class="block">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 h-14 overflow-hidden hover:text-indigo-600 transition-colors">{{ post.title }}</h3>
+                                </a>
                                 <p class="text-gray-600 mb-4 flex-1 line-clamp-3 h-18">
                                     {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
                                 </p>
@@ -769,8 +773,13 @@ const loadData = async () => {
             promises.push(
                 affiliateAPI.coupons.getMostViewed().then(couponsResponse => {
                     if (couponsResponse) {
-                        featuredCoupons.value = couponsResponse;
-                        couponsStore.setFeaturedCoupons(couponsResponse);
+                        // Converter views para número em cada cupom
+                        const couponsWithNumericViews = couponsResponse.map((coupon: any) => ({
+                            ...coupon,
+                            views: parseInt(String(coupon.views), 10) || 0
+                        }));
+                        featuredCoupons.value = couponsWithNumericViews;
+                        couponsStore.setFeaturedCoupons(couponsWithNumericViews);
                     } else {
                         featuredCoupons.value = [];
                     }
@@ -782,8 +791,13 @@ const loadData = async () => {
             promises.push(
                 affiliateAPI.coupons.getTop25WeeklyCoupons().then(weeklyTopCouponsResponse => {
                     if (weeklyTopCouponsResponse) {
-                        top25Coupons.value = weeklyTopCouponsResponse;
-                        couponsStore.setTop25Coupons(weeklyTopCouponsResponse);
+                        // Converter views para número em cada cupom
+                        const couponsWithNumericViews = weeklyTopCouponsResponse.map((coupon: any) => ({
+                            ...coupon,
+                            views: parseInt(String(coupon.views), 10) || 0
+                        }));
+                        top25Coupons.value = couponsWithNumericViews;
+                        couponsStore.setTop25Coupons(couponsWithNumericViews);
                     } else {
                         top25Coupons.value = [];
                     }
@@ -807,7 +821,7 @@ const prevCouponSlide = () => {
         return;
     }
 
-    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+    const maxStartIndex = Math.max(0, numDisplayableCoupons - couponSlidesVisible.value);
 
     if (currentCouponIndex.value > 0) {
         currentCouponIndex.value--;
@@ -823,7 +837,7 @@ const nextCouponSlide = () => {
         return;
     }
 
-    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+    const maxStartIndex = Math.max(0, numDisplayableCoupons - couponSlidesVisible.value);
 
     if (currentCouponIndex.value < maxStartIndex) {
         currentCouponIndex.value++;
@@ -847,11 +861,43 @@ const openScratchModal = (coupon: any) => {
 
     isScratchModalOpen.value = true;
 
+    // Incrementar a contagem de visualizações
+    if (coupon && (coupon.id || coupon.code)) {
+        incrementCouponView(coupon.id || coupon.code, coupon);
+    }
+
     if (coupon && coupon.code)
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
 
     if (coupon && coupon.deeplink)
         window.location.href = coupon.deeplink;
+};
+
+// Função para incrementar as visualizações do cupom
+const incrementCouponView = async (couponId: string, coupon: any) => {
+    try {
+        const result = await affiliateAPI.coupons.incrementView(couponId);
+        
+        if (result && result.success && result.views !== undefined) {
+            // Atualizar o valor local para refletir imediatamente na UI
+            coupon.views = parseInt(String(result.views), 10) || 0;
+            
+            // Forçar atualização dos arrays para refletir a mudança na UI
+            if (featuredCoupons.value.includes(coupon)) {
+                const updatedFeaturedCoupons = [...featuredCoupons.value];
+                featuredCoupons.value = updatedFeaturedCoupons;
+                couponsStore.setFeaturedCoupons(updatedFeaturedCoupons);
+            }
+            
+            if (top25Coupons.value.includes(coupon)) {
+                const updatedTop25Coupons = [...top25Coupons.value];
+                top25Coupons.value = updatedTop25Coupons;
+                couponsStore.setTop25Coupons(updatedTop25Coupons);
+            }
+        }
+    } catch (err) {
+        console.error('Erro ao incrementar visualizações do cupom:', err);
+    }
 };
 
 const closeScratchModal = () => {
@@ -867,12 +913,30 @@ onMounted(async () => {
     await loadData();
     startCarouselInterval();
     initLazyLoading();
+    
+    // Calcular o número adequado de slides visíveis com base no viewport
+    updateCouponSlidesVisible();
+    window.addEventListener('resize', updateCouponSlidesVisible);
 });
 
 onUnmounted(() => {
     stopCarouselInterval();
     cleanupLazyLoading();
+    window.removeEventListener('resize', updateCouponSlidesVisible);
 });
+
+const updateCouponSlidesVisible = () => {
+    // Ajustar o número de slides visíveis baseado na largura da tela
+    if (window.innerWidth < 640) { // sm
+        couponSlidesVisible.value = 1;
+    } else if (window.innerWidth < 768) { // md
+        couponSlidesVisible.value = 2;
+    } else if (window.innerWidth < 1024) { // lg
+        couponSlidesVisible.value = 3;
+    } else {
+        couponSlidesVisible.value = 4;
+    }
+};
 
 watch(() => settings.value['blog.cover'], () => {
     stopCarouselInterval();
