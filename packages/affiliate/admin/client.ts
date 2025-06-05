@@ -66,6 +66,9 @@ export const useAffiliateClient = () => {
         },
         searchCampaigns: async (query: string) => {
             return api.authRequest(`affiliate/campaigns/search?query=${query}`, "GET");
+        },
+        updateAllCampaignsCouponCount: async () => {
+            return api.authRequest(`affiliate/campaigns/update-all-coupon-counts`, "GET");
         }
     }
 
