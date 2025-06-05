@@ -68,6 +68,8 @@ interface OptimizedImageProps {
     transition?: boolean;
     autoSrcset?: boolean;
     srcsetSizes?: number[];
+    quality?: number;
+    format?: string;
 }
 
 const isHydrated = ref(false);
@@ -85,7 +87,9 @@ const props = withDefaults(defineProps<OptimizedImageProps>(), {
     transition: true,
     autoSrcset: true,
     srcsetSizes: () => [320, 640, 960, 1280, 2560],
-    sizes: '(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 960px) 960px, (max-width: 1280px) 1280px, 2560px'
+    sizes: '(max-width: 320px) 320px, (max-width: 640px) 640px, (max-width: 960px) 960px, (max-width: 1280px) 1280px, 2560px',
+    quality: 75,
+    format: 'auto'
 });
 
 const emit = defineEmits<{
@@ -93,59 +97,50 @@ const emit = defineEmits<{
     error: [event: Event];
 }>();
 
-const generateCloudflareImageUrl = (originalUrl: string, width: number, fit: string = 'contain'): string => {
-    // Check if it's already a Cloudflare Image URL
-    if (originalUrl.includes('/cdn-cgi/image/')) {
+const generateCloudflareImageUrl = (originalUrl: string, width: number, fit: string = 'cover', quality: number = 75, format: string = 'auto'): string => {
+    try {
+        const cfParams = `width=${width},quality=${quality},format=${format},fit=${fit}`;
+        const cfPrefix = `/cdn-cgi/image/${cfParams}`;
+
+        let url: URL;
+        if (originalUrl.startsWith('http')) {
+            url = new URL(originalUrl);
+        } else {
+            const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+            url = new URL(originalUrl, baseUrl || 'https://example.com');
+        }
+
+        if (!url.pathname.includes('/cdn-cgi/image/')) {
+            url.pathname = cfPrefix + url.pathname;
+        } else {
+            url.pathname = url.pathname.replace(
+                /\/cdn-cgi\/image\/[^/]+/,
+                cfPrefix
+            );
+        }
+
+        return url.toString();
+    } catch (error) {
+        console.warn('Error generating Cloudflare URL:', error);
         return originalUrl;
     }
-
-    // Check if it's a relative path or absolute URL
-    if (originalUrl.startsWith('/') || originalUrl.startsWith('http')) {
-        return `/cdn-cgi/image/fit=${fit},width=${width}${originalUrl.startsWith('/') ? '' : '/'}${originalUrl}`;
-    }
-
-    return `/cdn-cgi/image/fit=${fit},width=${width}/${originalUrl}`;
-};
-
-const generateImgixUrl = (originalUrl: string, width: number): string => {
-    // Check if URL already has imgix parameters
-    if (originalUrl.includes('?')) {
-        return `${originalUrl}&w=${width}&auto=format,compress&q=85`;
-    }
-    return `${originalUrl}?w=${width}&auto=format,compress&q=85`;
-};
-
-const generateSrcset = (src: string, sizes: number[]): string => {
+};const generateSrcset = (src: string, sizes: number[]): string => {
     if (!src) return '';
 
     const fit = props.objectFit === 'contain' ? 'contain' : 'cover';
 
     return sizes.map(size => {
-        let resizedUrl = '';
-
-        // Detect URL type and generate appropriate srcset
-        if (src.includes('imgix') || src.includes('?')) {
-            // Imgix or URL with parameters
-            resizedUrl = generateImgixUrl(src, size);
-        } else {
-            // Use Cloudflare Image Resizing
-            resizedUrl = generateCloudflareImageUrl(src, size, fit);
-        }
-
+        const resizedUrl = generateCloudflareImageUrl(src, size, fit, props.quality, props.format);
         return `${resizedUrl} ${size}w`;
     }).join(', ');
 };
 
 const computedSrcset = computed(() => {
-    // Use custom srcset if provided
-    if (props.srcset) {
+    if (props.srcset)
         return props.srcset;
-    }
 
-    // Auto-generate srcset if enabled and src is available
-    if (props.autoSrcset && props.src) {
+    if (props.autoSrcset && props.src)
         return generateSrcset(props.src, props.srcsetSizes);
-    }
 
     return undefined;
 });
@@ -183,7 +178,7 @@ const fallbackIconSize = computed(() => {
 });
 
 const onImageLoad = (event: Event) => {
-    if (isLoaded.value) return; // Prevent multiple executions
+    if (isLoaded.value) return;
 
     isLoaded.value = true;
     emit('load', event);
