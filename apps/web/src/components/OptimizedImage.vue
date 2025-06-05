@@ -4,9 +4,9 @@
         <img
             v-if="src && isHydrated"
             ref="imageElement"
-            :src="src"
-            :srcset="computedSrcset"
-            :sizes="sizes"
+            :src="imageSrc"
+            :srcset="useOriginalImage ? undefined : computedSrcset"
+            :sizes="useOriginalImage ? undefined : sizes"
             :alt="alt || 'Image'"
             :class="imageClasses"
             :width="width"
@@ -47,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useSettingsStore } from '../store/settings';
 
 const settingsStore = useSettingsStore();
@@ -79,6 +79,7 @@ interface OptimizedImageProps {
 const isHydrated = ref(false);
 const imageElement = ref<HTMLImageElement | null>(null);
 const isLoaded = ref(false);
+const useOriginalImage = ref(false);
 
 const props = withDefaults(defineProps<OptimizedImageProps>(), {
     loading: 'lazy',
@@ -192,16 +193,41 @@ const onImageLoad = (event: Event) => {
 };
 
 const onImageError = (event: Event) => {
+    if (!useOriginalImage.value && props.src) {
+        console.warn('Optimized image failed, falling back to original:', props.src);
+        useOriginalImage.value = true;
+        return;
+    }
+
     emit('error', event);
 };
+
+const imageSrc = computed(() => {
+    if (!props.src) return '';
+
+    if (useOriginalImage.value)
+        return props.src;
+
+    if (settings.value['blog.cloudflareImageSrcset']) {
+        const fit = props.objectFit === 'contain' ? 'contain' : 'cover';
+        return generateCloudflareImageUrl(props.src, 1280, fit, props.quality, props.format);
+    }
+
+    return props.src;
+});
+
+watch(() => props.src, () => {
+    useOriginalImage.value = false;
+    isLoaded.value = false;
+});
 
 onMounted(() => {
     isHydrated.value = true;
 });
 
 onUnmounted(() => {
-    // Cleanup if needed
     isLoaded.value = false;
+    useOriginalImage.value = false;
 });
 </script>
 
