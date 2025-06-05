@@ -245,17 +245,7 @@
                 </div>
             </section>
 
-            <!-- Top AdSense Banner -->
-            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
-                <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
-                    <div v-html="getAdHtml('header')"></div>
-                </div>
-                <div class="ad-container ad-banner-top py-2 px-4" v-else>
-                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                        <span>Anúncio</span>
-                    </div>
-                </div>
-            </div>
+
 
             <!-- Main Content Layout -->
             <div class="flex flex-col lg:flex-row gap-8">
@@ -315,17 +305,7 @@
                                 </article>
                             </div>
 
-                            <!-- Mid-content AdSense Banner -->
-                            <div v-if="adSettings.enableAds" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
-                                <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
-                                    <div v-html="getAdHtml('inContent')"></div>
-                                </div>
-                                <div class="ad-container ad-banner-mid py-2 px-4" v-else>
-                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- More Posts Section -->
                             <div v-if="posts.length > (featuredPost ? 5 : 4)">
@@ -379,17 +359,7 @@
                                 </div>
                             </div>
 
-                            <!-- Bottom AdSense Banner -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageAfterPosts" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
-                                <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
-                                    <div v-html="getAdHtml('belowContent')"></div>
-                                </div>
-                                <div class="ad-container ad-banner-bottom py-2 px-4" v-else>
-                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- Loading More Indicator -->
                             <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
@@ -403,17 +373,7 @@
 
                         <!-- Right Column (Widgets + Ads) -->
                         <div class="lg:col-span-1 min-w-[300px]">
-                            <!-- AdSense Rectangle (Top) -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
-                                <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
-                                    <div v-html="getAdHtml('sidebarTop')"></div>
-                                </div>
-                                <div class="ad-container ad-sidebar-top" v-else>
-                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
-                                    </div>
-                                </div>
-                            </div>
+
 
                             <!-- Popular Posts Widget -->
                             <div class="bg-white rounded-lg shadow-md p-5 mb-6">
@@ -458,50 +418,11 @@
                                 </div>
                             </div>
 
-                            <!-- AdSense Rectangle (Middle) -->
-                            <div class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
-                                <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
-                                    <div v-html="getAdHtml('sidebarMid')"></div>
-                                </div>
-                                <div class="ad-container ad-sidebar-mid" v-else>
-                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- Categories Widget -->
-                            <div class="bg-white rounded-lg shadow-md p-5 mb-6">
-                                <h2 class="text-xl font-bold mb-4 pb-2 text-indigo-600 border-b-2 border-indigo-300">
-                                    Categorias
-                                </h2>
 
-                                <ul class="space-y-2">
-                                    <li v-for="category in categories" :key="category.id" class="border-b border-gray-100 last:border-0 pb-2 last:pb-0">
-                                        <a
-                                            :href="`/category/${category.slug}`"
-                                            class="flex justify-between items-center text-gray-700 hover:text-indigo-600 transition-colors"
-                                        >
-                                            {{ category.name }}
-                                            <span class="bg-indigo-600 text-white px-2 py-1 rounded-full text-xs font-medium">
-                                                {{ category.postCount }}
-                                            </span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
 
-                            <!-- AdSense Rectangle (Bottom) -->
-                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarBottom" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
-                                <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
-                                    <div v-html="getAdHtml('sidebarBottom')"></div>
-                                </div>
-                                <div class="ad-container ad-sidebar-bottom" v-else>
-                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                                        <span>Anúncio</span>
-                                    </div>
-                                </div>
-                            </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -509,8 +430,7 @@
         </div>
     </div>
 
-    <!-- Taboola JS Code -->
-    <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
+
 </template>
 
 <script setup lang="ts">

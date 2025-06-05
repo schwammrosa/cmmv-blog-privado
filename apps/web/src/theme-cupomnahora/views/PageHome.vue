@@ -344,17 +344,19 @@
                          class="bg-white border border-gray-200 rounded-lg p-4 md:p-6 flex flex-col md:flex-row items-center hover:shadow-lg transition-shadow duration-300">
 
                         <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
-                            <img v-if="coupon.campaignLogo"
-                                 :src="getThumbnailUrl(coupon.campaignLogo)"
-                                 :data-src="coupon.campaignLogo"
-                                 :alt="coupon.campaignName"
-                                 class="lazy-image max-w-full max-h-full object-contain rounded"
-                                 loading="lazy" width="102" height="80">
-                            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
-                            </div>
+                            <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" class="block">
+                                <img v-if="coupon.campaignLogo"
+                                     :src="getThumbnailUrl(coupon.campaignLogo)"
+                                     :data-src="coupon.campaignLogo"
+                                     :alt="coupon.campaignName"
+                                     class="lazy-image max-w-full max-h-full object-contain rounded"
+                                     loading="lazy" width="102" height="80">
+                                <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                </div>
+                            </a>
                         </div>
 
                         <div class="flex-grow text-center md:text-left">
@@ -432,7 +434,7 @@
                         <!-- Blog Posts Dinâmicos -->
                         <div v-for="post in posts.slice(0, 3)" :key="post.id"
                             class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all flex flex-col">
-                            <div class="h-48 overflow-hidden">
+                            <a :href="`/post/${post.slug}`" class="block h-48 overflow-hidden">
                                 <img v-if="post.featureImage"
                                      :src="getThumbnailUrl(post.featureImage)"
                                      :data-src="post.featureImage"
@@ -444,12 +446,14 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                                     </svg>
                                 </div>
-                            </div>
+                            </a>
                             <div class="p-6 flex-1 flex flex-col">
                                 <span class="text-xs font-medium text-indigo-600 mb-2 block">
                                     {{ post.categories && post.categories.length > 0 ? post.categories[0].name : 'Dicas de Economia' }}
                                 </span>
-                                <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 h-14 overflow-hidden">{{ post.title }}</h3>
+                                <a :href="`/post/${post.slug}`" class="block">
+                                    <h3 class="text-xl font-bold text-gray-800 mb-2 line-clamp-2 h-14 overflow-hidden hover:text-indigo-600 transition-colors">{{ post.title }}</h3>
+                                </a>
                                 <p class="text-gray-600 mb-4 flex-1 line-clamp-3 h-18">
                                     {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
                                 </p>
