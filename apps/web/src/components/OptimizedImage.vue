@@ -48,6 +48,10 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { useSettingsStore } from '../store/settings';
+
+const settingsStore = useSettingsStore();
+const settings = ref<any>(settingsStore.getSettings);
 
 interface OptimizedImageProps {
     src?: string;
@@ -124,8 +128,11 @@ const generateCloudflareImageUrl = (originalUrl: string, width: number, fit: str
         console.warn('Error generating Cloudflare URL:', error);
         return originalUrl;
     }
-};const generateSrcset = (src: string, sizes: number[]): string => {
-    if (!src) return '';
+};
+
+const generateSrcset = (src: string, sizes: number[]): string => {
+
+    if (!src || !settings.value['blog.cloudflareImageSrcset']) return '';
 
     const fit = props.objectFit === 'contain' ? 'contain' : 'cover';
 
