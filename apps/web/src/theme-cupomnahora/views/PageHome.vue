@@ -8,7 +8,7 @@
                     <div class="relative h-[400px]">
                         <img
                             v-if="coverPosts.full && coverPosts.full.featureImage"
-                            :src="getThumbnailUrl(coverPosts.full.featureImage)"
+                            :src="coverPosts.full.featureImage"
                             :data-src="coverPosts.full.featureImage"
                             :alt="coverPosts.full.title"
                             class="lazy-image w-full h-full object-cover"
@@ -51,7 +51,7 @@
                         <a :href="`/post/${post.slug}`" class="block h-full" :aria-label="post.title">
                             <img
                                 v-if="post.featureImage"
-                                :src="getThumbnailUrl(post.featureImage)"
+                                :src="post.featureImage"
                                 :data-src="post.featureImage"
                                 :alt="post.title"
                                 class="lazy-image w-full h-full object-cover"
@@ -131,7 +131,7 @@
                         <div class="relative h-full">
                             <img
                                 v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage"
-                                :src="getThumbnailUrl(coverPosts.splitMain.featureImage)"
+                                :src="coverPosts.splitMain.featureImage"
                                 :data-src="coverPosts.splitMain.featureImage"
                                 :alt="coverPosts.splitMain.title"
                                 class="lazy-image w-full h-full object-cover"
@@ -170,7 +170,7 @@
                             <div class="relative h-full">
                                 <img
                                     v-if="post.featureImage"
-                                    :src="getThumbnailUrl(post.featureImage)"
+                                    :src="post.featureImage"
                                     :data-src="post.featureImage"
                                     :alt="post.title"
                                     class="lazy-image w-full h-full object-cover"
@@ -207,7 +207,7 @@
                         <div class="relative h-[350px]">
                             <img
                                 v-if="post.featureImage"
-                                :src="getThumbnailUrl(post.featureImage)"
+                                :src="post.featureImage"
                                 :data-src="post.featureImage"
                                 :alt="post.title"
                                 class="lazy-image w-full h-full object-cover"
@@ -243,7 +243,7 @@
             </div>
         </section>
 
-        <div class="container mx-auto md:px-0 px-2 pb-12">
+        <div class="container mx-auto md:px-0 px-2 pb-12 mt-8 md:mt-0">
             <!-- Lojas em Destaque -->
             <section class="mb-12">
                 <div class="flex items-center justify-between mb-8">
@@ -267,7 +267,7 @@
                         <div class="text-center">
                             <div class="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
                                 <img v-if="campaign.logo"
-                                     :src="getThumbnailUrl(campaign.logo)"
+                                     :src="campaign.logo"
                                      :data-src="campaign.logo"
                                      :alt="campaign.name"
                                      class="lazy-image max-w-full max-h-full"
@@ -306,7 +306,7 @@
                                     <div class="p-4 pb-3">
                                         <div class="flex-shrink-0 h-24 flex items-center justify-center">
                                             <img v-if="coupon.campaignLogo"
-                                                 :src="getThumbnailUrl(coupon.campaignLogo)"
+                                                 :src="coupon.campaignLogo"
                                                  :data-src="coupon.campaignLogo"
                                                  :alt="coupon.campaignName"
                                                  class="lazy-image max-h-20 max-w-full object-contain"
@@ -379,7 +379,7 @@
                         <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
                             <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" class="block" :aria-label="coupon.campaignName">
                                 <img v-if="coupon.campaignLogo"
-                                     :src="getThumbnailUrl(coupon.campaignLogo)"
+                                     :src="coupon.campaignLogo"
                                      :data-src="coupon.campaignLogo"
                                      :alt="coupon.campaignName"
                                      class="lazy-image max-w-full max-h-full object-contain rounded"
@@ -469,7 +469,7 @@
                             class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all flex flex-col">
                             <a :href="`/post/${post.slug}`" class="block h-48 overflow-hidden">
                                 <img v-if="post.featureImage"
-                                     :src="getThumbnailUrl(post.featureImage)"
+                                     :src="post.featureImage"
                                      :data-src="post.featureImage"
                                      :alt="post.title"
                                      class="lazy-image w-full h-full object-cover"
