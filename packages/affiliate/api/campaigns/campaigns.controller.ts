@@ -105,4 +105,10 @@ export class CampaignsControllerTools {
 
         response.res.end(data);
     }
+
+    @Get("update-all-coupon-counts")
+    @Auth("affiliatecampaigns:update")
+    async updateAllCampaignsCouponCounts(){
+        return await this.campaignsService.updateAllCampaignsCouponCount();
+    }
 }

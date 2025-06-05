@@ -28,7 +28,7 @@ self.addEventListener("install", e => {
 });
 clientsClaim();
 
-const VERSION = "v0.0.6";
+const VERSION = "v0.0.9";
 
 const CACHE_NAMES = {
     ASSETS: "assets-cache-" + VERSION,

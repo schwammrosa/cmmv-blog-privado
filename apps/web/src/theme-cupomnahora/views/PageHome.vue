@@ -8,10 +8,10 @@
                     <div class="relative h-[400px]">
                         <img
                             v-if="coverPosts.full && coverPosts.full.featureImage"
-                            :src="getThumbnailUrl(coverPosts.full.featureImage)"
+                            :src="coverPosts.full.featureImage"
                             :data-src="coverPosts.full.featureImage"
                             :alt="coverPosts.full.title"
-                            class="lazy-image w-full h-full object-cover"
+                            class="w-full h-full object-cover"
                             loading="lazy"
                             width="890"
                             height="606"
@@ -51,10 +51,10 @@
                         <a :href="`/post/${post.slug}`" class="block h-full" :aria-label="post.title">
                             <img
                                 v-if="post.featureImage"
-                                :src="getThumbnailUrl(post.featureImage)"
+                                :src="post.featureImage"
                                 :data-src="post.featureImage"
                                 :alt="post.title"
-                                class="lazy-image w-full h-full object-cover"
+                                class="w-full h-full object-cover"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -131,10 +131,10 @@
                         <div class="relative h-full">
                             <img
                                 v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage"
-                                :src="getThumbnailUrl(coverPosts.splitMain.featureImage)"
+                                :src="coverPosts.splitMain.featureImage"
                                 :data-src="coverPosts.splitMain.featureImage"
                                 :alt="coverPosts.splitMain.title"
-                                class="lazy-image w-full h-full object-cover"
+                                class="w-full h-full object-cover"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -170,10 +170,10 @@
                             <div class="relative h-full">
                                 <img
                                     v-if="post.featureImage"
-                                    :src="getThumbnailUrl(post.featureImage)"
+                                    :src="post.featureImage"
                                     :data-src="post.featureImage"
                                     :alt="post.title"
-                                    class="lazy-image w-full h-full object-cover"
+                                    class="w-full h-full object-cover"
                                     loading="lazy"
                                     :title="post.title"
                                     :aria-label="post.title"
@@ -207,10 +207,10 @@
                         <div class="relative h-[350px]">
                             <img
                                 v-if="post.featureImage"
-                                :src="getThumbnailUrl(post.featureImage)"
+                                :src="post.featureImage"
                                 :data-src="post.featureImage"
                                 :alt="post.title"
-                                class="lazy-image w-full h-full object-cover"
+                                class="w-full h-full object-cover"
                                 loading="lazy"
                                 width="890"
                                 height="606"
@@ -243,7 +243,7 @@
             </div>
         </section>
 
-        <div class="container mx-auto md:px-0 px-2 pb-12">
+        <div class="container mx-auto md:px-0 px-2 pb-12 mt-8 md:mt-0">
             <!-- Lojas em Destaque -->
             <section class="mb-12">
                 <div class="flex items-center justify-between mb-8">
@@ -267,10 +267,10 @@
                         <div class="text-center">
                             <div class="w-16 h-16 mx-auto mb-2 flex items-center justify-center">
                                 <img v-if="campaign.logo"
-                                     :src="getThumbnailUrl(campaign.logo)"
+                                     :src="campaign.logo"
                                      :data-src="campaign.logo"
                                      :alt="campaign.name"
-                                     class="lazy-image max-w-full max-h-full"
+                                     class="max-w-full max-h-full"
                                      loading="lazy" width="64" height="64"
                                      :aria-label="campaign.name">
                                 <div v-else class="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
@@ -306,10 +306,10 @@
                                     <div class="p-4 pb-3">
                                         <div class="flex-shrink-0 h-24 flex items-center justify-center">
                                             <img v-if="coupon.campaignLogo"
-                                                 :src="getThumbnailUrl(coupon.campaignLogo)"
+                                                 :src="coupon.campaignLogo"
                                                  :data-src="coupon.campaignLogo"
                                                  :alt="coupon.campaignName"
-                                                 class="lazy-image max-h-20 max-w-full object-contain"
+                                                 class="max-h-20 max-w-full object-contain"
                                                  loading="lazy" width="102" height="80">
                                             <div v-else class="w-20 h-20 bg-gray-200 flex items-center justify-center rounded-md">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -379,10 +379,10 @@
                         <div class="w-24 h-16 md:w-32 md:h-20 flex-shrink-0 mb-4 md:mb-0 md:mr-6 flex items-center justify-center">
                             <a :href="coupon.campaignSlug ? `/desconto/${coupon.campaignSlug}` : '#'" class="block" :aria-label="coupon.campaignName">
                                 <img v-if="coupon.campaignLogo"
-                                     :src="getThumbnailUrl(coupon.campaignLogo)"
+                                     :src="coupon.campaignLogo"
                                      :data-src="coupon.campaignLogo"
                                      :alt="coupon.campaignName"
-                                     class="lazy-image max-w-full max-h-full object-contain rounded"
+                                     class="max-w-full max-h-full object-contain rounded"
                                      loading="lazy" width="102" height="80"
                                      :aria-label="coupon.campaignName">
                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center rounded-md">
@@ -469,10 +469,10 @@
                             class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all flex flex-col">
                             <a :href="`/post/${post.slug}`" class="block h-48 overflow-hidden">
                                 <img v-if="post.featureImage"
-                                     :src="getThumbnailUrl(post.featureImage)"
+                                     :src="post.featureImage"
                                      :data-src="post.featureImage"
                                      :alt="post.title"
-                                     class="lazy-image w-full h-full object-cover"
+                                     class="w-full h-full object-cover"
                                      loading="lazy" width="360" height="192">
                                 <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -554,81 +554,6 @@ const couponSlidesVisible = ref(3);
 
 const isScratchModalOpen = ref(false);
 const selectedCouponForScratch = ref<any | null>(null);
-let lazyLoadObserver: IntersectionObserver | null = null;
-
-/**
- * Get thumbnail URL by adding _thumb to the filename and forcing .webp format
- */
-const getThumbnailUrl = (originalUrl: string): string => {
-    if (!originalUrl) return originalUrl;
-
-    if (originalUrl.includes('_thumb')) return originalUrl;
-    if (originalUrl.startsWith('data:')) return originalUrl;
-
-    const lastDotIndex = originalUrl.lastIndexOf('.');
-
-    if (lastDotIndex === -1)
-        return originalUrl + '_thumb.webp';
-
-    const beforeExtension = originalUrl.substring(0, lastDotIndex);
-    return `${beforeExtension}_thumb.webp`;
-};
-
-/**
- * Initialize lazy loading observer
- */
-const initLazyLoading = () => {
-    if (!('IntersectionObserver' in window)) return;
-
-    lazyLoadObserver = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                const img = entry.target as HTMLImageElement;
-                const fullSrc = img.dataset.src;
-
-                if (fullSrc && fullSrc !== img.src) {
-                    const newImg = new Image();
-                    newImg.onload = () => {
-                        img.src = fullSrc;
-                        img.classList.add('loaded');
-                    };
-                    newImg.onerror = () => {
-                        img.classList.add('error');
-                    };
-                    newImg.src = fullSrc;
-                }
-
-                lazyLoadObserver?.unobserve(img);
-            }
-        });
-    }, {
-        rootMargin: '50px 0px',
-        threshold: 0.1
-    });
-
-    const observeLazyImages = () => {
-        const lazyImages = document.querySelectorAll('img.lazy-image');
-        lazyImages.forEach((img) => {
-            lazyLoadObserver?.observe(img);
-        });
-    };
-
-    setTimeout(observeLazyImages, 100);
-
-    watch([posts, campaigns, featuredCoupons, top25Coupons], () => {
-        setTimeout(observeLazyImages, 100);
-    }, { deep: true });
-};
-
-/**
- * Cleanup lazy loading observer
- */
-const cleanupLazyLoading = () => {
-    if (lazyLoadObserver) {
-        lazyLoadObserver.disconnect();
-        lazyLoadObserver = null;
-    }
-};
 
 const coverSettings = computed(() => {
     try {
@@ -943,16 +868,12 @@ onServerPrefetch(async () => {
 onMounted(async () => {
     await loadData();
     startCarouselInterval();
-    initLazyLoading();
-
-    // Calcular o número adequado de slides visíveis com base no viewport
     updateCouponSlidesVisible();
     window.addEventListener('resize', updateCouponSlidesVisible);
 });
 
 onUnmounted(() => {
     stopCarouselInterval();
-    cleanupLazyLoading();
     window.removeEventListener('resize', updateCouponSlidesVisible);
 });
 
@@ -986,7 +907,7 @@ watch(() => settings.value['blog.cover'], () => {
 </script>
 
 <style scoped>
-.lazy-image {
+.{
     transition: opacity 0.3s ease-in-out;
     opacity: 0.8;
 }

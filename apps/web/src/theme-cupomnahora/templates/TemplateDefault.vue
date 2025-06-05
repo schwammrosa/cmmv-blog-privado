@@ -663,6 +663,7 @@ const checkCouponInUrl = async () => {
             let foundCoupon: any = null;
             let relatedCampaign: any = null;
 
+            // Primeiro tenta encontrar nos stores locais
             if (couponsStore.getFeaturedCoupons.length > 0)
                 foundCoupon = couponsStore.getFeaturedCoupons.find(c => c.code === displayCode);
 
@@ -683,22 +684,66 @@ const checkCouponInUrl = async () => {
                 }
             }
 
+                        // Se não encontrou nos stores, tenta buscar via API
+            if (!foundCoupon) {
+                try {
+                    // Tenta buscar em todas as campanhas via API
+                    const allCampaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
+                    if (allCampaigns && Array.isArray(allCampaigns)) {
+                        for (const campaign of allCampaigns) {
+                            if (campaign.coupons && Array.isArray(campaign.coupons)) {
+                                const couponFound = campaign.coupons.find((coupon: any) => coupon.code === displayCode);
+                                if (couponFound) {
+                                    foundCoupon = couponFound;
+                                    relatedCampaign = campaign;
+                                    break;
+                                }
+                            }
+
+                            // Se a campanha não tem coupons carregados, tenta buscar
+                            if (!campaign.coupons && campaign.id) {
+                                try {
+                                    const campaignCoupons = await affiliateAPI.coupons.getByCampaignId(campaign.id);
+                                    if (campaignCoupons && Array.isArray(campaignCoupons)) {
+                                        const couponFound = campaignCoupons.find((coupon: any) => coupon.code === displayCode);
+                                        if (couponFound) {
+                                            foundCoupon = couponFound;
+                                            relatedCampaign = campaign;
+                                            break;
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.warn(`Erro ao buscar cupons da campanha ${campaign.id}:`, error);
+                                }
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.warn('Não foi possível buscar cupons via API:', error);
+                }
+            }
+
             if (foundCoupon) {
+                // Garantir que temos os dados da campanha
                 if (!foundCoupon.campaignName || !foundCoupon.campaignLogo) {
-                    if (!relatedCampaign) {
+                    if (!relatedCampaign && foundCoupon.campaignId) {
                         const campaigns = campaignsStore.getCampaigns || [];
                         relatedCampaign = campaigns.find(c => c.id === foundCoupon.campaignId);
                     }
 
                     selectedCouponForScratch.value = {
                         ...foundCoupon,
-                        campaignName: relatedCampaign?.name || 'Loja',
-                        campaignLogo: relatedCampaign?.logo || null
+                        campaignName: relatedCampaign?.name || foundCoupon.campaignName || 'Loja',
+                        campaignLogo: relatedCampaign?.logo || foundCoupon.campaignLogo || null
                     };
                 } else {
                     selectedCouponForScratch.value = foundCoupon;
                 }
+
+                // Abrir o modal
                 isScratchModalOpen.value = true;
+            } else {
+                console.warn(`Cupom com código "${displayCode}" não encontrado`);
             }
         } catch (error) {
             console.error('Erro ao processar código do cupom:', error);
@@ -712,6 +757,12 @@ const closeScratchModal = () => {
 };
 
 onMounted(async () => {
+    // Aguarda um pouco para garantir que os stores estejam carregados
+    setTimeout(async () => {
+        await checkCouponInUrl();
+    }, 500);
+
+    // Também verifica imediatamente
     await checkCouponInUrl();
 });
 
