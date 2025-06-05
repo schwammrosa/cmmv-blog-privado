@@ -368,8 +368,8 @@
                             <p class="text-gray-600 text-sm mb-2 line-clamp-2">{{ coupon.description }}</p>
                             <p class="text-xs text-gray-500">
                                 <span v-if="coupon.verifiedToday">Verificado hoje</span>
-                                <span v-if="coupon.verifiedToday && coupon.usesToday" class="mx-1">•</span>
-                                <span v-if="coupon.usesToday">{{ coupon.usesToday }} usados hoje</span>
+                                <span v-if="coupon.verifiedToday && coupon.views" class="mx-1">•</span>
+                                <span v-if="coupon.views">{{ coupon.views || 0 }} total de visualizações</span>
                             </p>
                         </div>
 
@@ -773,8 +773,13 @@ const loadData = async () => {
             promises.push(
                 affiliateAPI.coupons.getMostViewed().then(couponsResponse => {
                     if (couponsResponse) {
-                        featuredCoupons.value = couponsResponse;
-                        couponsStore.setFeaturedCoupons(couponsResponse);
+                        // Converter views para número em cada cupom
+                        const couponsWithNumericViews = couponsResponse.map((coupon: any) => ({
+                            ...coupon,
+                            views: parseInt(String(coupon.views), 10) || 0
+                        }));
+                        featuredCoupons.value = couponsWithNumericViews;
+                        couponsStore.setFeaturedCoupons(couponsWithNumericViews);
                     } else {
                         featuredCoupons.value = [];
                     }
@@ -786,8 +791,13 @@ const loadData = async () => {
             promises.push(
                 affiliateAPI.coupons.getTop25WeeklyCoupons().then(weeklyTopCouponsResponse => {
                     if (weeklyTopCouponsResponse) {
-                        top25Coupons.value = weeklyTopCouponsResponse;
-                        couponsStore.setTop25Coupons(weeklyTopCouponsResponse);
+                        // Converter views para número em cada cupom
+                        const couponsWithNumericViews = weeklyTopCouponsResponse.map((coupon: any) => ({
+                            ...coupon,
+                            views: parseInt(String(coupon.views), 10) || 0
+                        }));
+                        top25Coupons.value = couponsWithNumericViews;
+                        couponsStore.setTop25Coupons(couponsWithNumericViews);
                     } else {
                         top25Coupons.value = [];
                     }
@@ -811,7 +821,7 @@ const prevCouponSlide = () => {
         return;
     }
 
-    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+    const maxStartIndex = Math.max(0, numDisplayableCoupons - couponSlidesVisible.value);
 
     if (currentCouponIndex.value > 0) {
         currentCouponIndex.value--;
@@ -827,7 +837,7 @@ const nextCouponSlide = () => {
         return;
     }
 
-    const maxStartIndex = numDisplayableCoupons - couponSlidesVisible.value;
+    const maxStartIndex = Math.max(0, numDisplayableCoupons - couponSlidesVisible.value);
 
     if (currentCouponIndex.value < maxStartIndex) {
         currentCouponIndex.value++;
@@ -851,11 +861,43 @@ const openScratchModal = (coupon: any) => {
 
     isScratchModalOpen.value = true;
 
+    // Incrementar a contagem de visualizações
+    if (coupon && (coupon.id || coupon.code)) {
+        incrementCouponView(coupon.id || coupon.code, coupon);
+    }
+
     if (coupon && coupon.code)
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
 
     if (coupon && coupon.deeplink)
         window.location.href = coupon.deeplink;
+};
+
+// Função para incrementar as visualizações do cupom
+const incrementCouponView = async (couponId: string, coupon: any) => {
+    try {
+        const result = await affiliateAPI.coupons.incrementView(couponId);
+        
+        if (result && result.success && result.views !== undefined) {
+            // Atualizar o valor local para refletir imediatamente na UI
+            coupon.views = parseInt(String(result.views), 10) || 0;
+            
+            // Forçar atualização dos arrays para refletir a mudança na UI
+            if (featuredCoupons.value.includes(coupon)) {
+                const updatedFeaturedCoupons = [...featuredCoupons.value];
+                featuredCoupons.value = updatedFeaturedCoupons;
+                couponsStore.setFeaturedCoupons(updatedFeaturedCoupons);
+            }
+            
+            if (top25Coupons.value.includes(coupon)) {
+                const updatedTop25Coupons = [...top25Coupons.value];
+                top25Coupons.value = updatedTop25Coupons;
+                couponsStore.setTop25Coupons(updatedTop25Coupons);
+            }
+        }
+    } catch (err) {
+        console.error('Erro ao incrementar visualizações do cupom:', err);
+    }
 };
 
 const closeScratchModal = () => {
@@ -871,12 +913,30 @@ onMounted(async () => {
     await loadData();
     startCarouselInterval();
     initLazyLoading();
+    
+    // Calcular o número adequado de slides visíveis com base no viewport
+    updateCouponSlidesVisible();
+    window.addEventListener('resize', updateCouponSlidesVisible);
 });
 
 onUnmounted(() => {
     stopCarouselInterval();
     cleanupLazyLoading();
+    window.removeEventListener('resize', updateCouponSlidesVisible);
 });
+
+const updateCouponSlidesVisible = () => {
+    // Ajustar o número de slides visíveis baseado na largura da tela
+    if (window.innerWidth < 640) { // sm
+        couponSlidesVisible.value = 1;
+    } else if (window.innerWidth < 768) { // md
+        couponSlidesVisible.value = 2;
+    } else if (window.innerWidth < 1024) { // lg
+        couponSlidesVisible.value = 3;
+    } else {
+        couponSlidesVisible.value = 4;
+    }
+};
 
 watch(() => settings.value['blog.cover'], () => {
     stopCarouselInterval();

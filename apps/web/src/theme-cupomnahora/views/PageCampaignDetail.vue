@@ -155,7 +155,7 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
-                                            <span>{{ 100 + Math.floor(Math.random() * 500) }} usados hoje</span>
+                                            <span>{{ (coupon.views || 0) }} total de visualizações</span>
                                         </div>
                                     </div>
                                 </div>
@@ -269,11 +269,14 @@ const codesCount = computed(() => coupons.value.filter(coupon => coupon.code).le
 const offersCount = computed(() => coupons.value.filter(coupon => !coupon.code).length);
 const expiredCount = computed(() => coupons.value.filter(coupon => new Date(coupon.expiration) < new Date()).length);
 
+const totalViews = computed(() => coupons.value.reduce((acc, coupon) => acc + coupon.views, 0));
+
 const filteredCoupons = computed(() => {
     if (activeFilter.value === 'all') return coupons.value;
     if (activeFilter.value === 'codes') return coupons.value.filter(coupon => coupon.code);
     if (activeFilter.value === 'offers') return coupons.value.filter(coupon => !coupon.code);
     if (activeFilter.value === 'expired') return coupons.value.filter(coupon => new Date(coupon.expiration) < new Date());
+    if (activeFilter.value === 'views') return coupons.value.filter(coupon => coupon.views > 0);
     return coupons.value;
 });
 
@@ -296,6 +299,10 @@ const headData = computed(() => ({
         {
             property: 'og:url',
             content: `${settings.value?.['blog.url'] || 'https://cupomnahora.com.br'}/desconto/${route.params.slug}`
+        },
+        {
+            name: 'views',
+            content: `Total de visualizações: ${totalViews.value}`
         }
     ]
 }));
@@ -326,11 +333,18 @@ const loadData = async () => {
         let campaignCoupons = campaign.value.coupons;
 
         if (campaignCoupons && campaignCoupons.length > 0) {
-            coupons.value = campaignCoupons.map((c: any) => ({
-                ...c,
-                campaignName: campaign.value.name,
-                campaignLogo: c.campaignLogo || campaign.value.logo
-            }));
+            
+            coupons.value = campaignCoupons.map((c: any) => {                
+                // Converter views para número, independentemente do tipo
+                const viewsAsNumber = parseInt(String(c.views), 10) || 0;
+                
+                return {
+                    ...c,
+                    campaignName: campaign.value.name,
+                    campaignLogo: c.campaignLogo || campaign.value.logo,
+                    views: viewsAsNumber
+                };
+            });
         }
 
         loading.value = false;
@@ -380,6 +394,19 @@ const openCouponModal = (coupon: any) => {
 
     isScratchModalOpen.value = true;
 
+    // Incrementar a contagem de visualizações
+    
+    // Verificar se temos um ID disponível ou usar outra propriedade única
+    if (coupon) {
+        // Se não tiver ID, vamos usar o código como identificador único
+        const identifier = coupon.id || coupon.code;
+        if (identifier) {
+            incrementCouponView(identifier, coupon);
+        } else {
+            console.error('Não foi possível identificar o cupom para incrementar visualizações:', coupon);
+        }
+    }
+
     if (coupon && coupon.code)
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
 
@@ -390,6 +417,27 @@ const openCouponModal = (coupon: any) => {
 const closeCouponModal = () => {
     isScratchModalOpen.value = false;
     selectedCouponForScratch.value = null;
+};
+
+// Função para incrementar as visualizações do cupom
+const incrementCouponView = async (couponId: string, coupon: any) => {
+    try {
+        if (!isSSR) {
+            const result = await affiliateAPI.coupons.incrementView(couponId);
+
+            if (result && result.success && result.views !== undefined) {
+                // Atualizar o valor local para refletir imediatamente na UI
+                // Garantir que views seja um número
+                coupon.views = parseInt(String(result.views), 10) || 0;
+                
+                // Forçar atualização da UI - como estamos modificando um objeto dentro de um array
+                const updatedCoupons = [...coupons.value];
+                coupons.value = updatedCoupons;
+            }
+        }
+    } catch (err) {
+        console.error('Erro ao incrementar visualizações do cupom:', err);
+    }
 };
 
 const extractDiscountPercentage = (title: string) => {
