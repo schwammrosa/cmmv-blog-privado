@@ -22,7 +22,7 @@
             <div v-else class="bg-white rounded-lg p-6">
                 <div class="flex flex-col md:flex-row items-center md:items-start gap-6 mb-8">
                     <div class="w-[160px] h-[125px] flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
-                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" width="160" height="125">
+                        <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" width="160" height="125" :aria-label="campaign.name">
                         <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -35,7 +35,6 @@
                             <h1 v-else class="text-3xl font-bold text-gray-800 mb-2">Cupons de desconto {{ campaign.name }}</h1>
                             <p class="text-gray-500 mb-2 text-sm">Atualizado em {{ formatDate(new Date()) }}</p>
                             <h2 v-if="campaign.seoSubtitle" class="text-md text-gray-800 mb-2">{{ campaign.seoSubtitle }}</h2>
-
                             <p v-if="campaign.seoSmallText" class="text-gray-600 mt-2 text-sm">{{ campaign.seoSmallText }}</p>
                             <p v-else-if="campaign.description" class="text-gray-600 mt-2 text-sm">{{ campaign.description }}</p>
                             <p class="text-gray-700 mt-4">Encontramos {{ coupons.length }} cupons de desconto para {{ campaign.name }} →</p>
@@ -51,6 +50,7 @@
                             @click="setFilter('all')"
                             class="px-3 py-1.5 rounded-md text-sm font-medium"
                             :class="activeFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                            :aria-label="`Filtrar por todos os cupons`"
                         >
                             Todos ({{ coupons.length }})
                         </button>
@@ -62,6 +62,7 @@
                                 activeFilter === 'codes' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
                                 codesCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
                             ]"
+                            :aria-label="`Filtrar por cupons com código`"
                         >
                             Códigos ({{ codesCount }})
                         </button>
@@ -73,6 +74,7 @@
                                 activeFilter === 'offers' ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
                                 offersCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
                             ]"
+                            :aria-label="`Filtrar por cupons sem código`"
                         >
                             Ofertas ({{ offersCount }})
                         </button>
@@ -84,6 +86,7 @@
                                 activeFilter === 'expired' ? 'bg-gray-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
                                 expiredCount === 0 ? 'opacity-50 cursor-not-allowed' : ''
                             ]"
+                            :aria-label="`Filtrar por cupons expirados`"
                         >
                             Expirados ({{ expiredCount }})
                         </button>
@@ -124,7 +127,6 @@
                                 <div class="flex-grow md:pr-6">
                                     <h3 class="text-lg md:text-xl font-semibold text-gray-800 mb-2">{{ coupon.title }}</h3>
 
-                                    <!-- Cashback info -->
                                     <div v-if="coupon.cashbackPercentage" class="text-sm text-indigo-600 font-medium mb-2 flex items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -134,8 +136,6 @@
                                     </div>
 
                                     <p class="text-gray-600 text-sm mb-3">{{ coupon.description }}</p>
-
-                                    <!-- Validade e verificação -->
                                     <div class="flex flex-wrap gap-x-4 gap-y-2 text-xs text-gray-500 mb-4">
                                         <div class="flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -168,7 +168,10 @@
                                             new Date(coupon.expiration) < new Date() ?
                                                 'border-gray-400 bg-gray-100 expired' :
                                                 'border-green-400 hover:border-green-500'
-                                        ]">
+                                        ]"
+                                        :aria-label="coupon.title"
+                                        :title="coupon.title"
+                                    >
 
                                         <!-- Para cupons expirados - mostrar código completo diretamente -->
                                         <div v-if="new Date(coupon.expiration) < new Date()"
@@ -206,8 +209,10 @@
                                     <a v-else
                                         :href="coupon.link || coupon.linkRef || '#'"
                                         target="_blank"
-                                        class="group relative w-full h-12 overflow-hidden bg-orange-500 to-red-600 border border-orange-400 rounded-lg transition-all duration-300 hover:shadow-lg hover:from-orange-600 hover:to-red-700 flex items-center justify-center">
-
+                                        :aria-label="coupon.title"
+                                        :title="coupon.title"
+                                        class="group relative w-full h-12 overflow-hidden bg-orange-500 to-red-600 border border-orange-400 rounded-lg transition-all duration-300 hover:shadow-lg hover:from-orange-600 hover:to-red-700 flex items-center justify-center"
+                                    >
                                         <div class="flex items-center text-white font-medium">
                                             <span class="text-sm text-white font-medium">VER OFERTA</span>
                                         </div>
@@ -235,7 +240,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onServerPrefetch } from 'vue';
+import { ref, computed, onMounted, onServerPrefetch } from 'vue';
 import { useHead } from '@unhead/vue';
 import { useRoute } from 'vue-router';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
@@ -333,11 +338,10 @@ const loadData = async () => {
         let campaignCoupons = campaign.value.coupons;
 
         if (campaignCoupons && campaignCoupons.length > 0) {
-            
-            coupons.value = campaignCoupons.map((c: any) => {                
-                // Converter views para número, independentemente do tipo
+
+            coupons.value = campaignCoupons.map((c: any) => {
                 const viewsAsNumber = parseInt(String(c.views), 10) || 0;
-                
+
                 return {
                     ...c,
                     campaignName: campaign.value.name,
@@ -395,7 +399,7 @@ const openCouponModal = (coupon: any) => {
     isScratchModalOpen.value = true;
 
     // Incrementar a contagem de visualizações
-    
+
     // Verificar se temos um ID disponível ou usar outra propriedade única
     if (coupon) {
         // Se não tiver ID, vamos usar o código como identificador único
@@ -419,18 +423,13 @@ const closeCouponModal = () => {
     selectedCouponForScratch.value = null;
 };
 
-// Função para incrementar as visualizações do cupom
 const incrementCouponView = async (couponId: string, coupon: any) => {
     try {
         if (!isSSR) {
             const result = await affiliateAPI.coupons.incrementView(couponId);
 
             if (result && result.success && result.views !== undefined) {
-                // Atualizar o valor local para refletir imediatamente na UI
-                // Garantir que views seja um número
                 coupon.views = parseInt(String(result.views), 10) || 0;
-                
-                // Forçar atualização da UI - como estamos modificando um objeto dentro de um array
                 const updatedCoupons = [...coupons.value];
                 coupons.value = updatedCoupons;
             }

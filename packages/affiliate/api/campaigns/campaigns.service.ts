@@ -146,9 +146,6 @@ Example structure to follow (start directly with content, no wrapper sections):
 <ul class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6">
     <li class="leading-relaxed">List item with details</li>
 </ul>
-<div class="border-l-4 border-green-500 pl-4 mb-4">
-    <p class="text-gray-600 leading-relaxed"><strong class="font-semibold text-gray-800">Pro Tip:</strong> Important advice here</p>
-</div>
 
 Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting and without container wrappers.`;
 
