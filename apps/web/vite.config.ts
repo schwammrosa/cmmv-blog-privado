@@ -45,7 +45,9 @@ export default defineConfig(({ mode }) => {
             minify: 'terser',
             outDir: 'dist',
             rollupOptions: {
-                input: path.resolve(__dirname, 'index.html'),
+                input: {
+                    index: path.resolve(__dirname, 'index.html'),
+                },
             },
             manualChunks(id: string) {
                 if (id.includes('node_modules')) {

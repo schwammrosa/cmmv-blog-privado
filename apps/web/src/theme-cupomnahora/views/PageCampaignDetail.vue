@@ -500,17 +500,13 @@ const openCouponModal = (coupon: any) => {
 
     isScratchModalOpen.value = true;
 
-    // Incrementar a contagem de visualizações
-
-    // Verificar se temos um ID disponível ou usar outra propriedade única
     if (coupon) {
-        // Se não tiver ID, vamos usar o código como identificador único
         const identifier = coupon.id || coupon.code;
-        if (identifier) {
+
+        if (identifier)
             incrementCouponView(identifier, coupon);
-        } else {
+        else
             console.error('Não foi possível identificar o cupom para incrementar visualizações:', coupon);
-        }
     }
 
     if (coupon && coupon.code)

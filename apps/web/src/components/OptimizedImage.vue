@@ -15,8 +15,6 @@
             :fetchpriority="priority"
             :title="title"
             :aria-label="ariaLabel"
-            @load="onImageLoad"
-            @error="onImageError"
         />
 
         <!-- Fallback/Placeholder -->
