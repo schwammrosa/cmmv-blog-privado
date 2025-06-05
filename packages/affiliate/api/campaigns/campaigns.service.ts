@@ -1,5 +1,11 @@
-import { Service, Application, Config, Logger } from "@cmmv/core";
-import { Repository } from "@cmmv/repository";
+import {
+    Service, Application, Config, Logger,
+    Cron, CronExpression
+} from "@cmmv/core";
+import {
+    Repository,
+    MoreThanOrEqual
+} from "@cmmv/repository";
 //@ts-ignore
 import { MediasService } from "@cmmv/blog";
 //@ts-ignore
@@ -20,6 +26,11 @@ interface AIJob {
 export class CampaignsServiceTools {
     private readonly logger = new Logger("CampaignsService");
     private aiJobs: Map<string, AIJob> = new Map();
+
+    @Cron(CronExpression.EVERY_HOUR)
+    async handleCronJobs() {
+        return await this.updateAllCampaignsCouponCount.call(this);
+    }
 
     /**
      * Update the logo of a campaign
@@ -143,9 +154,6 @@ Example structure to follow (start directly with content, no wrapper sections):
 <ul class="list-disc list-inside space-y-2 mb-4 text-gray-600 ml-6">
     <li class="leading-relaxed">List item with details</li>
 </ul>
-<div class="border-l-4 border-green-500 pl-4 mb-4">
-    <p class="text-gray-600 leading-relaxed"><strong class="font-semibold text-gray-800">Pro Tip:</strong> Important advice here</p>
-</div>
 
 Respond only with the HTML formatted text using Tailwind CSS classes, without JSON formatting and without container wrappers.`;
 
@@ -493,6 +501,157 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
     }
 
     /**
+     * Update all campaigns with their current coupon counts
+     * This function gets all campaigns and updates their coupon count field
+     * @returns Summary of updated campaigns
+     */
+    async updateAllCampaignsCouponCount() {
+        try {
+            const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
+            const couponsService = Application.resolveProvider(CouponsServiceTools);
+
+            const campaignsResult = await Repository.findAll(CampaignEntity, {
+                limit: 10000
+            }, [], {
+                select: ["id", "name", "active"]
+            });
+
+            if (!campaignsResult || !campaignsResult.data || campaignsResult.data.length === 0) {
+                return {
+                    success: true,
+                    message: "No campaigns found",
+                    updated: 0,
+                    errors: 0
+                };
+            }
+
+            const campaigns = campaignsResult.data;
+            let updatedCount = 0;
+            let errorCount = 0;
+            const errors: string[] = [];
+
+            this.logger.log(`Starting coupon count update for ${campaigns.length} campaigns`);
+
+            const batchSize = 10;
+            for (let i = 0; i < campaigns.length; i += batchSize) {
+                const batch = campaigns.slice(i, i + batchSize);
+
+                await Promise.all(batch.map(async (campaign: any) => {
+                    try {
+                        const couponCountResponse = await couponsService.getCouponsCountByCampaignId(campaign.id);
+                        const couponCount = couponCountResponse?.count || 0;
+
+                        await Repository.update(CampaignEntity, { id: campaign.id }, {
+                            coupons: couponCount
+                        });
+
+                        updatedCount++;
+                        this.logger.log(`Updated campaign ${campaign.name} (${campaign.id}) with ${couponCount} coupons`);
+
+                    } catch (error: any) {
+                        errorCount++;
+                        const errorMessage = `Failed to update campaign ${campaign.name} (${campaign.id}): ${error.message}`;
+                        errors.push(errorMessage);
+                        this.logger.error(errorMessage);
+                    }
+                }));
+
+                if (i + batchSize < campaigns.length)
+                    await new Promise(resolve => setTimeout(resolve, 100));
+            }
+
+            const summary = {
+                success: true,
+                message: `Coupon count update completed`,
+                total: campaigns.length,
+                updated: updatedCount,
+                errors: errorCount,
+                errorDetails: errors.length > 0 ? errors : undefined
+            };
+
+            this.logger.log(`Coupon count update completed: ${updatedCount} updated, ${errorCount} errors`);
+            return summary;
+
+        } catch (error: any) {
+            this.logger.error(`Error updating campaign coupon counts: ${error.message}`);
+            throw new Error(`Failed to update campaign coupon counts: ${error.message}`);
+        }
+    }
+
+    /**
+     * Get all campaigns with their current coupon counts (admin version)
+     * This version includes inactive campaigns and is for admin use
+     * @param filters Optional filters for campaigns
+     * @returns The list of campaigns with coupon counts
+     */
+    async getAllCampaignsWithCouponCounts(filters: any = {}) {
+        try {
+            const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
+
+            const queryFilters: any = {};
+
+            if (filters.search && filters.searchField) {
+                queryFilters.search = filters.search;
+                queryFilters.searchField = filters.searchField;
+            }
+
+            if (filters.limit) queryFilters.limit = filters.limit;
+            if (filters.offset) queryFilters.offset = filters.offset;
+
+            const sortOptions: any = {};
+            if (filters.sortBy && filters.sort) {
+                sortOptions.order = {
+                    [filters.sortBy]: filters.sort.toUpperCase()
+                };
+            }
+
+            const campaignsResult = await Repository.findAll(CampaignEntity, queryFilters, [], sortOptions);
+
+            if (!campaignsResult || !campaignsResult.data || campaignsResult.data.length === 0) {
+                return {
+                    data: [],
+                    count: 0,
+                    pagination: {
+                        limit: filters.limit || 10,
+                        offset: filters.offset || 0
+                    }
+                };
+            }
+
+            const couponsService = Application.resolveProvider(CouponsServiceTools);
+            const campaignsWithCounts = [];
+
+            for (const campaign of campaignsResult.data) {
+                try {
+                    const couponCountResponse = await couponsService.getCouponsCountByCampaignId(campaign.id);
+                    campaignsWithCounts.push({
+                        ...campaign,
+                        couponCount: couponCountResponse?.count || 0
+                    });
+                } catch (err) {
+                    campaignsWithCounts.push({
+                        ...campaign,
+                        couponCount: 0
+                    });
+                }
+            }
+
+            return {
+                data: campaignsWithCounts,
+                count: campaignsResult.count || campaignsWithCounts.length,
+                pagination: {
+                    limit: filters.limit || 10,
+                    offset: filters.offset || 0
+                }
+            };
+
+        } catch (error: any) {
+            this.logger.error(`Error getting campaigns with coupon counts: ${error.message}`);
+            throw new Error(`Failed to get campaigns with coupon counts: ${error.message}`);
+        }
+    }
+
+    /**
      * Get the list of campaigns that are public
      * @returns The list of campaigns
      */
@@ -521,9 +680,11 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
             active: true,
             limit: 10000
         }, [], {
+            order: {
+                highlight: "DESC"
+            },
             select: [
-                "id", "name", "logo", "description", "highlight", "slug", "categories",
-                "seoTitle", "seoSubtitle", "seoSmallText", "seoLongText"
+                "id", "name", "logo", "highlight", "slug"
             ]
         });
 
@@ -563,6 +724,93 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
 
             return (a.name || "").localeCompare(b.name || "");
         });
+
+        return campaignsWithCounts;
+    }
+
+    /**
+     * Get a campaign by its slug
+     * @param slug The slug of the campaign
+     * @returns The campaign
+     */
+    async getCampaignBySlug(slug: string) {
+        const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
+        const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
+        const campaign = await Repository.findOne(CampaignEntity, {
+            slug,
+            active: true
+        });
+
+        if (!campaign)
+            throw new Error(`Campaign with slug ${slug} not found`);
+
+        const coupons = await Repository.findAll(AffiliateCouponsEntity, {
+            campaign: campaign.id,
+            active: true,
+            expiration: MoreThanOrEqual(new Date(Date.now() - 60 * 60 * 24 * 60 * 1000)),
+            limit: 100
+        }, [], {
+            order: {
+                expiration: "DESC"
+            },
+            select: [
+                "type", "typeDiscount", "title", "description",
+                "code", "expiration", "deeplink", "views"
+            ]
+        });
+
+        return {
+            id: campaign.id,
+            name: campaign.name,
+            logo: campaign.logo,
+            description: campaign.description,
+            seoTitle: campaign.seoTitle,
+            seoSubtitle: campaign.seoSubtitle,
+            seoSmallText: campaign.seoSmallText,
+            seoLongText: campaign.seoLongText,
+            coupons: coupons?.data || []
+        };
+    }
+
+    /**
+     * Search for campaigns by name
+     * @param query The query to search for
+     * @returns The campaigns that match the query
+     */
+    async searchCampaigns(query: string) {
+        const AffiliateCampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
+
+        const campaignsResult = await Repository.findAll(AffiliateCampaignsEntity, {
+            search: query,
+            searchField: "name",
+            active: true,
+            limit: 10,
+        }, [], {
+            select: [
+                "id", "name", "logo", "slug"
+            ]
+        });
+
+        if (!campaignsResult || campaignsResult.data.length === 0)
+            return [];
+
+        const couponsService = Application.resolveProvider(CouponsServiceTools);
+        const campaignsWithCounts = [];
+
+        for (const campaign of campaignsResult.data) {
+            try {
+                const couponCountResponse = await couponsService.getCouponsCountByCampaignId(campaign.id);
+                campaignsWithCounts.push({
+                    ...campaign,
+                    couponCount: couponCountResponse?.count || 0
+                });
+            } catch (err) {
+                campaignsWithCounts.push({
+                    ...campaign,
+                    couponCount: 0
+                });
+            }
+        }
 
         return campaignsWithCounts;
     }

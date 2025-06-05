@@ -103,7 +103,7 @@ export class MediasService extends AbstractService {
     async getImageUrl(
         image: string,
         format: string = "webp",
-        maxWidth: number = 1024,
+        maxWidth: number = 1280, // Padrão agora é 1280 (formato 16:9 com altura 720)
         alt: string = "",
         caption: string = ""
     ) {
@@ -119,14 +119,16 @@ export class MediasService extends AbstractService {
         if(!fs.existsSync(mediasPath))
             await fs.mkdirSync(mediasPath, { recursive: true });
 
-        format = format.toLowerCase(); //bugfix
+        // Ignoramos o formato solicitado e usamos sempre webp
+        const originalFormat = format.toLowerCase();
+        format = "webp"; // Forçamos sempre webp para armazenamento
         let apiUrl = Config.get<string>("blog.url", process.env.API_URL);
 
         if(apiUrl.endsWith("/"))
             apiUrl = apiUrl.slice(0, -1);
 
         const paramString = `${image}_${format}_${maxWidth}`;
-        const imageHash = await crypto.createHash('sha1').update(paramString).digest('hex');
+        const imageHash = await crypto.createHash('sha1').update(new Date().getTime().toString()).digest('hex');
         const imageFullpath = path.join(mediasPath, `${imageHash}.${format}`).toLowerCase();
         const imageUrl = `${apiUrl}/images/${imageHash}.${format}`;
 
@@ -146,10 +148,29 @@ export class MediasService extends AbstractService {
                 let processor = sharp(buffer);
                 const metadata = await processor.metadata();
 
+                const targetWidth = 1280;
+                const targetHeight = 720;
+
+                processor = processor.resize({
+                    width: targetWidth,
+                    height: targetHeight,
+                    fit: 'cover',
+                    position: 'center'
+                });
+
+                processor = processor.webp({
+                    quality: 70,
+                    lossless: false,
+                    //@ts-ignore
+                    reductionEffort: 6
+                });
+
+                const optimizedBuffer = await processor.toBuffer();
+
                 const uploadedFile = await blogStorageService.uploadFile({
-                    buffer: buffer,
-                    originalname: `${imageHash}.${format}`,
-                    mimetype: `image/${format}`
+                    buffer: optimizedBuffer,
+                    originalname: `${imageHash}.webp`,
+                    mimetype: `image/webp`
                 });
 
                 if(uploadedFile){
@@ -184,68 +205,18 @@ export class MediasService extends AbstractService {
                             sha1: imageHash,
                             filepath: uploadedFile.url,
                             name: image,
-                            format: format,
+                            format: 'webp', // Sempre webp como formato final
+                            originalFormat: originalFormat, // Preservamos o formato original como informação
                             width: metadata.width,
                             height: metadata.height,
                             alt: alt,
                             caption: caption,
-                            size: metadata.size,
+                            size: optimizedBuffer.length,
                             thumbnail: uploadedThumbnail?.url || null
                         });
                     }
 
                     return uploadedFile.url;
-                }
-
-                if (metadata.width && metadata.width > maxWidth) {
-                    //@ts-ignore
-                    const aspectRatio = metadata.width / metadata.height;
-                    const newHeight = Math.round(maxWidth / aspectRatio);
-
-                    processor = processor.resize(maxWidth, newHeight, {
-                        fit: 'inside',
-                        withoutEnlargement: true
-                    });
-                }
-
-                switch (format.toLowerCase()) {
-                    case 'webp':
-                        processor = processor.webp({
-                            quality: 70,
-                            lossless: false,
-                            //@ts-ignore
-                            reductionEffort: 6
-                        });
-                        break;
-                    case 'jpeg':
-                    case 'jpg':
-                        processor = processor.jpeg({
-                            quality: 70,
-                            progressive: true
-                        });
-                        break;
-                    case 'png':
-                        processor = processor.png({
-                            compressionLevel: 9,
-                            progressive: false,
-                            adaptiveFiltering: true
-                        });
-                        break;
-                    case 'avif':
-                        processor = processor.avif({
-                            quality: 70,
-                            lossless: false,
-                            effort: 7
-                        });
-                        break;
-                    default:
-                        processor = processor.webp({
-                            quality: 70,
-                            lossless: false,
-                            //@ts-ignore
-                            reductionEffort: 6
-                        });
-                        break;
                 }
 
                 const MediasEntity = Repository.getEntity("MediasEntity");
@@ -276,7 +247,8 @@ export class MediasService extends AbstractService {
                             sha1: imageHash,
                             filepath: imageFullpath,
                             name: image,
-                            format: format,
+                            format: 'webp', // Sempre webp como formato final
+                            originalFormat: originalFormat, // Preservamos o formato original
                             width: metadata.width,
                             height: metadata.height,
                             alt: alt,
@@ -289,7 +261,6 @@ export class MediasService extends AbstractService {
                         return null;
                     }
                 } else if (!media.thumbnail) {
-                    // Create thumbnail for existing media that doesn't have one
                     const thumbnailPath = path.join(mediasPath, `${imageHash}_thumb.webp`);
                     let thumbnailUrl: string | null = null;
 

@@ -1,7 +1,9 @@
-import { Service } from '@cmmv/core';
+import {
+    Service, Cron, CronExpression
+} from '@cmmv/core';
 
 import {
-    Repository, In, MoreThanOrEqual
+    Repository, In, MoreThanOrEqual, LessThan
 } from "@cmmv/repository"
 
 import {
@@ -18,6 +20,96 @@ export class AnalyticsService {
         setInterval(() => {
             this.generateReport();
         }, 1000 * 60 * 30);
+    }
+
+    /**
+     * Cron job to clean up old analytics access records
+     * Runs daily at 2:00 AM
+     */
+    @Cron(CronExpression.EVERY_DAY_AT_2AM)
+    async handleDailyCleanup() {
+        return await this.cleanupOldAnalyticsAccess.call(this);
+    }
+
+    /**
+     * Clean up old analytics access records (older than 30 days)
+     * This helps maintain database performance and reduce storage usage
+     * @returns Summary of cleanup operation
+     */
+    async cleanupOldAnalyticsAccess() {
+        try {
+            const AnalyticsAccessEntity = Repository.getEntity("AnalyticsAccessEntity");
+
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            const cutoffTime = thirtyDaysAgo.getTime();
+
+            console.log(`[AnalyticsService] Starting cleanup of analytics access records older than ${thirtyDaysAgo.toISOString()}`);
+
+            const recordsToDelete = await Repository.count(AnalyticsAccessEntity, {
+                startTime: LessThan(cutoffTime)
+            });
+
+            if (recordsToDelete === 0) {
+                console.log('[AnalyticsService] No old analytics access records found to cleanup');
+                return {
+                    success: true,
+                    message: 'No old records found',
+                    deletedCount: 0
+                };
+            }
+
+            const batchSize = 1000;
+            let totalDeleted = 0;
+            let batchCount = 0;
+
+            while (true) {
+                const oldRecords = await Repository.findAll(AnalyticsAccessEntity, {
+                    startTime: LessThan(cutoffTime),
+                    limit: batchSize
+                }, [], {
+                    select: ["id"]
+                });
+
+                if (!oldRecords || !oldRecords.data || oldRecords.data.length === 0)
+                    break;
+
+                const idsToDelete = oldRecords.data.map((record: any) => record.id);
+
+                await Repository.delete(AnalyticsAccessEntity, {
+                    id: In(idsToDelete)
+                });
+
+                totalDeleted += idsToDelete.length;
+                batchCount++;
+
+                console.log(`[AnalyticsService] Deleted batch ${batchCount}: ${idsToDelete.length} records (total: ${totalDeleted})`);
+
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                if (totalDeleted >= recordsToDelete)
+                    break;
+            }
+
+            const summary = {
+                success: true,
+                message: `Analytics access cleanup completed`,
+                deletedCount: totalDeleted,
+                cutoffDate: thirtyDaysAgo.toISOString(),
+                batchesProcessed: batchCount
+            };
+
+            console.log(`[AnalyticsService] Cleanup completed: ${totalDeleted} old analytics access records deleted in ${batchCount} batches`);
+            return summary;
+
+        } catch (error: any) {
+            console.error(`[AnalyticsService] Error during analytics access cleanup: ${error.message}`);
+            return {
+                success: false,
+                error: error.message,
+                deletedCount: 0
+            };
+        }
     }
 
     /**
@@ -311,5 +403,14 @@ export class AnalyticsService {
             totalAccess,
             uniqueAccess
         };
+    }
+
+    /**
+     * Manual cleanup trigger for administrative purposes
+     * @returns Cleanup operation summary
+     */
+    async manualCleanup() {
+        console.log('[AnalyticsService] Manual cleanup triggered');
+        return await this.cleanupOldAnalyticsAccess();
     }
 }

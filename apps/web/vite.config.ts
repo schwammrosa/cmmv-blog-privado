@@ -30,7 +30,6 @@ export default defineConfig(({ mode }) => {
     return {
         plugins: [
             vue(),
-            VitePWA({ registerType: 'autoUpdate' }),
             AutoImport({
                 imports: [
                   unheadVueComposablesImports,
@@ -45,7 +44,9 @@ export default defineConfig(({ mode }) => {
             minify: 'terser',
             outDir: 'dist',
             rollupOptions: {
-                input: path.resolve(__dirname, 'index.html'),
+                input: {
+                    index: path.resolve(__dirname, 'index.html'),
+                },
             },
             manualChunks(id: string) {
                 if (id.includes('node_modules')) {
@@ -67,7 +68,9 @@ export default defineConfig(({ mode }) => {
                 '@cmmv/affiliate': path.resolve(__dirname, '../../packages/affiliate/'),
                 '@cmmv/affiliate/*': path.resolve(__dirname, '../../packages/affiliate/*'),
                 '@cmmv/odds': path.resolve(__dirname, '../../packages/odds/'),
-                '@cmmv/odds/*': path.resolve(__dirname, '../../packages/odds/*')
+                '@cmmv/odds/*': path.resolve(__dirname, '../../packages/odds/*'),
+                '@cmmv/newsletter': path.resolve(__dirname, '../../packages/newsletter/'),
+                '@cmmv/newsletter/*': path.resolve(__dirname, '../../packages/newsletter/*')
             },
         },
         server: {
@@ -95,6 +98,9 @@ export default defineConfig(({ mode }) => {
                 '/page-sitemap.xml': { target: apiUrl },
                 '/category-sitemap.xml': { target: apiUrl },
                 '/tag-sitemap.xml': { target: apiUrl },
+                '/affiliate/sitemap.xml': { target: apiUrl },
+                '/affiliate/affiliate-campaign-sitemap.xml': { target: apiUrl },
+                '/affiliate/affiliate-category-sitemap.xml': { target: apiUrl },
                 '/robots.txt': { target: apiUrl },
                 '/images': {
                     target: apiUrl,
