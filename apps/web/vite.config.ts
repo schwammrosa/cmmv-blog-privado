@@ -97,6 +97,9 @@ export default defineConfig(({ mode }) => {
                 '/page-sitemap.xml': { target: apiUrl },
                 '/category-sitemap.xml': { target: apiUrl },
                 '/tag-sitemap.xml': { target: apiUrl },
+                '/affiliate/sitemap.xml': { target: apiUrl },
+                '/affiliate/affiliate-campaign-sitemap.xml': { target: apiUrl },
+                '/affiliate/affiliate-category-sitemap.xml': { target: apiUrl },
                 '/robots.txt': { target: apiUrl },
                 '/images': {
                     target: apiUrl,

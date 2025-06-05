@@ -510,7 +510,6 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
             const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
             const couponsService = Application.resolveProvider(CouponsServiceTools);
 
-            // Get all campaigns
             const campaignsResult = await Repository.findAll(CampaignEntity, {
                 limit: 10000
             }, [], {
@@ -557,10 +556,8 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
                     }
                 }));
 
-                // Small delay between batches to prevent overloading
-                if (i + batchSize < campaigns.length) {
+                if (i + batchSize < campaigns.length)
                     await new Promise(resolve => setTimeout(resolve, 100));
-                }
             }
 
             const summary = {
@@ -591,7 +588,6 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
         try {
             const CampaignEntity = Repository.getEntity("AffiliateCampaignsEntity");
 
-            // Build query filters
             const queryFilters: any = {};
 
             if (filters.search && filters.searchField) {
@@ -599,11 +595,9 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
                 queryFilters.searchField = filters.searchField;
             }
 
-            // Add pagination
             if (filters.limit) queryFilters.limit = filters.limit;
             if (filters.offset) queryFilters.offset = filters.offset;
 
-            // Build sort options
             const sortOptions: any = {};
             if (filters.sortBy && filters.sort) {
                 sortOptions.order = {
@@ -611,7 +605,6 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
                 };
             }
 
-            // Get campaigns
             const campaignsResult = await Repository.findAll(CampaignEntity, queryFilters, [], sortOptions);
 
             if (!campaignsResult || !campaignsResult.data || campaignsResult.data.length === 0) {
@@ -628,7 +621,6 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
             const couponsService = Application.resolveProvider(CouponsServiceTools);
             const campaignsWithCounts = [];
 
-            // Get coupon counts for each campaign
             for (const campaign of campaignsResult.data) {
                 try {
                     const couponCountResponse = await couponsService.getCouponsCountByCampaignId(campaign.id);
@@ -637,7 +629,6 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
                         couponCount: couponCountResponse?.count || 0
                     });
                 } catch (err) {
-                    // If there's an error getting coupon count, default to 0
                     campaignsWithCounts.push({
                         ...campaign,
                         couponCount: 0
