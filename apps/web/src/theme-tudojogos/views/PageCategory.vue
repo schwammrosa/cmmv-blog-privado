@@ -50,7 +50,7 @@
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <!-- Aqui mostramos sempre a categoria atual -->
                                 <div class="absolute top-2 left-2">
-                                    <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
+                                    <span class="bg-[#5046e5] text-white px-3 py-1 rounded-full text-xs font-medium">
                                         {{ category.name }}
                                     </span>
                                 </div>

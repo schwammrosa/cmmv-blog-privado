@@ -49,7 +49,7 @@
                             <div class="flex gap-2">
                                 <!-- Facebook -->
                                 <a
-                                    class="bg-blue-600 hover:bg-blue-700 w-8 h-8 rounded-full flex items-center justify-center text-white transition-colors"
+                                    class="gamer-button w-8 h-8 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                     rel="nofollow noopener"
                                     :href="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl)"
                                     onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"
@@ -62,7 +62,7 @@
 
                                 <!-- Twitter -->
                                 <a
-                                    class="bg-sky-500 hover:bg-sky-600 w-8 h-8 rounded-full flex items-center justify-center text-white transition-colors"
+                                    class="gamer-button w-8 h-8 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                     rel="nofollow noopener"
                                     :href="'https://twitter.com/share?text=' + encodeURIComponent(page.title) + '&url=' + encodeURIComponent(pageUrl)"
                                     onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"
@@ -75,7 +75,7 @@
 
                                 <!-- LinkedIn -->
                                 <a
-                                    class="bg-blue-700 hover:bg-blue-800 w-8 h-8 rounded-full flex items-center justify-center text-white transition-colors"
+                                    class="gamer-button w-8 h-8 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                     rel="nofollow noopener"
                                     :href="'https://www.linkedin.com/shareArticle?mini=true&url=' + encodeURIComponent(pageUrl) + '&title=' + encodeURIComponent(page.title)"
                                     onclick="window.open(this.href, 'linkedin-share', 'width=490,height=530');return false;"
@@ -88,7 +88,7 @@
 
                                 <!-- WhatsApp -->
                                 <a
-                                    class="bg-green-500 hover:bg-green-600 w-8 h-8 rounded-full flex items-center justify-center text-white transition-colors"
+                                    class="bg-green-500 hover:bg-green-600 w-8 h-8 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                     rel="nofollow noopener"
                                     :href="'https://api.whatsapp.com/send?text=' + encodeURIComponent(page.title + ' ' + pageUrl)"
                                     data-action="share/whatsapp/share"
