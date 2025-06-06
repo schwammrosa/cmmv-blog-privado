@@ -907,11 +907,6 @@ watch(() => settings.value['blog.cover'], () => {
 </script>
 
 <style scoped>
-.{
-    transition: opacity 0.3s ease-in-out;
-    opacity: 0.8;
-}
-
 .lazy-image.loaded {
     opacity: 1;
 }
