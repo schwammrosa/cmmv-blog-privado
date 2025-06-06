@@ -470,7 +470,7 @@ const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
 const route = useRoute();
 const settings = ref<any>(settingsStore.getSettings);
-const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
+const campaigns = computed(() => campaignsStore.getCampaigns || []);
 
 const recentCampaigns = computed(() => {
     if (!campaigns.value || campaigns.value.length === 0) return [];
@@ -757,6 +757,18 @@ const closeScratchModal = () => {
 };
 
 onMounted(async () => {
+    // Carrega as campanhas para o rodapé sem isso, o rodapé não carrega
+    if (!campaigns.value || campaigns.value.length === 0) {
+        try {
+            const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
+            if (campaignsData && Array.isArray(campaignsData)) {
+                campaignsStore.setCampaigns(campaignsData);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar campanhas para o rodapé:', error);
+        }
+    }
+    
     // Aguarda um pouco para garantir que os stores estejam carregados
     setTimeout(async () => {
         await checkCouponInUrl();
