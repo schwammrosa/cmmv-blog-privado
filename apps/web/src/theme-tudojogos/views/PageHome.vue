@@ -359,7 +359,7 @@
                                 <div class="flex items-center space-x-2">
                                     <button 
                                         @click="maisConteudoPage > 1 && maisConteudoPage--" 
-                                        class="px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors" 
+                                        class="px-3 py-1 rounded-md transition-colors gamer-button" 
                                         :class="{'opacity-50 cursor-not-allowed': maisConteudoPage === 1}">
                                         &laquo; Anterior
                                     </button>
@@ -369,7 +369,7 @@
                                             v-if="shouldShowPageButton(pageNum)"
                                             @click="maisConteudoPage = pageNum" 
                                             class="px-3 py-1 rounded-md transition-colors" 
-                                            :class="maisConteudoPage === pageNum ? 'bg-[#0a5d28] text-white' : 'border border-gray-300 hover:bg-gray-100'">
+                                            :class="maisConteudoPage === pageNum ? 'gamer-button' : 'border border-gray-300 hover:border-green-200'">
                                             {{ pageNum }}
                                         </button>
                                         <span v-else-if="pageNum === 2 && maisConteudoPage > 4" class="px-2">...</span>
@@ -378,7 +378,7 @@
                                     
                                     <button 
                                         @click="maisConteudoPage < maisConteudoTotalPages && maisConteudoPage++" 
-                                        class="px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
+                                        class="px-3 py-1 rounded-md transition-colors gamer-button"
                                         :class="{'opacity-50 cursor-not-allowed': maisConteudoPage === maisConteudoTotalPages}">
                                         Próximo &raquo;
                                     </button>
@@ -442,7 +442,7 @@
                             </div>
 
                             <!-- AdSense Rectangle (Middle) -->
-                            <div class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarMid" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
                                 <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
                                     <div v-html="getAdHtml('sidebarMid')"></div>
                                 </div>

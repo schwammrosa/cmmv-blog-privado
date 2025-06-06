@@ -26,6 +26,11 @@
   100% { background-position: 0% 50%; }
 }
 
+.text-shadow-gamer {
+  text-shadow: 2px 2px 4px rgba(10, 93, 40, 0.7), 0 0 1px rgba(0, 0, 0, 0.5);
+  color: #111827;
+}
+
 /* Estilo para o corpo da página */
 body {
   font-family: 'Rajdhani', 'Orbitron', sans-serif;

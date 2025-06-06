@@ -1,100 +1,92 @@
 <template>
-    <div class="w-full relative bg-neutral-100">
+    <div class="w-full relative bg-[#0a0a1a]">
         <div class="lg:max-w-4xl md:max-w-3xl mx-auto">
-            <div v-if="!data.tag" class="bg-white rounded-lg p-6">
+            <div v-if="!data.tag" class="bg-[#0a0a1a] rounded-lg p-6 text-gray-100 border border-[#303443]">
                 <div class="text-center">
-                    <h1 class="text-2xl font-bold text-neutral-800 mb-4">Tag não encontrada</h1>
-                    <p class="text-neutral-600">A tag que você está procurando não existe ou está indisponível.</p>
+                    <h1 class="text-2xl font-bold text-white mb-4">Tag não encontrada</h1>
+                    <p class="text-gray-300">A tag que você está procurando não existe ou está indisponível.</p>
                 </div>
             </div>
 
-            <div v-else class="bg-white rounded-lg p-6 article-container overflow-hidden">
-                <header class="border-b border-neutral-200 pb-4 mb-6 pr-4 pt-4">
-                    <h1 class="text-3xl font-bold text-neutral-900 mb-3">Tag: {{ data.tag.name }}</h1>
-                    <p v-if="data.tag.description" class="text-neutral-600 mb-4">{{ data.tag.description }}</p>
-                    <div class="text-sm text-neutral-500">{{ data.tag.postCount }} posts com esta tag</div>
+            <div v-else class="bg-[#0a0a1a] rounded-lg p-6 article-container overflow-hidden text-gray-100 border border-[#303443]">
+                <header class="border-b border-[#303443] pb-4 mb-6 pt-4 text-center">
+                    <div class="bg-[#6600cc] py-2 px-8 rounded-md inline-block mb-3">
+                        <h1 class="text-3xl font-bold text-white uppercase">{{ data.tag.name }}</h1>
+                    </div>
+                    <p v-if="data.tag.description" class="text-gray-300 mb-4">{{ data.tag.description }}</p>
+                    <div class="text-sm text-gray-400">{{ data.tag.postCount }} posts com esta tag</div>
                 </header>
 
                 <!-- Initial loading state -->
                 <div v-if="loading && posts.length === 0" class="flex justify-center items-center py-20">
-                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0a5d28]"></div>
+                    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4ade80]"></div>
                 </div>
 
-                <!-- Posts List -->
-                <div v-else-if="posts.length > 0"
-                    class="space-y-10 post-content prose prose-sm sm:prose prose-neutral max-w-none">
-                    <article v-for="post in posts" :key="post.id"
-                        class="border-b border-neutral-200 pb-8 last:border-0">
-                        <!-- Feature Image -->
-                        <a :href="`/post/${post.slug}`" class="block mb-4" aria-label="Ler mais sobre este post">
-                            <div v-if="post.featureImage" class="relative aspect-video overflow-hidden rounded-lg">
-                                <OptimizedImage :src="post.featureImage" :alt="post.featureImageAlt || post.title"
-                                    class="w-full h-full object-cover imgix-lazy" :hover="true" icon-size="lg" />
+                <!-- Posts List Grid -->
+                <div v-else-if="posts.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
+                    <article
+                        v-for="post in posts"
+                        :key="post.id"
+                        class="bg-[#0a0a1a] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-[#303443] hover:border-[#6600cc] text-gray-100 h-full flex flex-col"
+                    >
+                        <a :href="`/post/${post.slug}`" class="block">
+                            <div class="h-48 overflow-hidden relative group">
+                                <OptimizedImage
+                                    v-if="post.featureImage"
+                                    :src="post.featureImage"
+                                    :alt="post.featureImageAlt || post.title"
+                                    class="w-full h-full object-cover imgix-lazy transition-transform duration-500 group-hover:scale-110"
+                                    width="300"
+                                    height="180"
+                                    loading="lazy"
+                                    priority="low"
+                                    icon-size="sm"
+                                />
+                                <div v-else class="w-full h-full bg-[#0a0a1a] border border-[#303443] flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <!-- Aqui mostramos sempre a tag atual -->
+                                <div class="absolute top-2 left-2">
+                                    <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
+                                        {{ data.tag.name }}
+                                    </span>
+                                </div>
                             </div>
                         </a>
-
-                        <!-- Post Title -->
-                        <h2 class="text-2xl font-bold text-neutral-900 mb-3">
-                            <a :href="`/post/${post.slug}`" class="hover:text-[#0a5d28] transition-colors"
-                                aria-label="Ler mais sobre este post">
-                                {{ post.title }}
+                        <div class="p-4 flex-grow flex flex-col">
+                            <a :href="`/post/${post.slug}`" class="block mb-auto">
+                                <h3 class="text-lg font-bold text-white mb-2 hover:text-[#00ccff] transition-colors line-clamp-2 border-l-2 border-[#6600cc] pl-2">
+                                    {{ post.title }}
+                                </h3>
                             </a>
-                        </h2>
-
-                        <!-- Post Meta -->
-                        <div class="flex items-center mb-4 text-sm text-neutral-600">
-                            <div class="flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
+                            <p class="text-gray-300 text-sm mb-3 line-clamp-2">
+                                {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
+                            </p>
+                            <div class="flex justify-between items-center text-xs text-gray-400 mt-auto">
+                                <span v-if="post.author && getAuthor(post)">Por {{ getAuthor(post).name }}</span>
                                 <span>{{ formatDate(post.publishedAt || post.updatedAt) }}</span>
                             </div>
-                        </div>
-
-                        <!-- Post Excerpt -->
-                        <div v-if="post.excerpt" class="text-neutral-700 mb-4">
-                            {{ post.excerpt }}
-                        </div>
-                        <div v-else-if="post.content" class="text-neutral-700 mb-4">
-                            {{ stripHtml(post.content).substring(0, 200) }}{{ stripHtml(post.content).length > 200 ?
-                            '...' : '' }}
-                        </div>
-
-                        <!-- Tags -->
-                        <div v-if="post.tags && post.tags.length > 0" class="mb-4 flex flex-wrap gap-2">
-                            <a v-for="tag in post.tags" :key="tag" :href="`/tag/${tag.slug}`"
-                                class="bg-neutral-100 text-neutral-700 text-sm px-3 py-1 rounded-full hover:bg-neutral-200 transition-colors">
-                                {{ tag.name }}
-                            </a>
-                        </div>
-
-                        <!-- Read More Button -->
-                        <div class="mt-4">
-                            <a :href="`/post/${post.slug}`"
-                                class="inline-flex items-center text-[#0a5d28] font-medium hover:text-[#064019] transition-colors">
-                                Ler mais
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1" viewBox="0 0 20 20"
-                                    fill="currentColor">
-                                    <path fill-rule="evenodd"
-                                        d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </a>
                         </div>
                     </article>
                 </div>
 
                 <!-- No posts state -->
                 <div v-else-if="!loading && posts.length === 0" class="text-center py-16">
-                    <h2 class="text-2xl font-bold mb-2 text-neutral-800">Nenhum post encontrado com esta tag</h2>
-                    <p class="text-neutral-600">Volte mais tarde para novos conteúdos!</p>
+                    <h2 class="text-2xl font-bold mb-2 text-white">Nenhum post encontrado com esta tag</h2>
+                    <p class="text-gray-300">Volte mais tarde para novos conteúdos!</p>
                 </div>
 
                 <!-- Loading more indicator -->
                 <div v-if="loadingMore" class="mt-8 flex justify-center items-center py-6">
-                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#4ade80]"></div>
+                </div>
+                
+                <!-- No more posts indicator -->
+                <div v-if="!hasMorePosts && posts.length > 0 && !loadingMore" class="mt-8 text-center py-4 text-gray-400">
+                    Você chegou ao final dos posts
                 </div>
 
                 <!-- Intersection observer target -->
@@ -129,6 +121,18 @@ const hasMorePosts = ref(true);
 const currentPage = ref(0);
 const observerTarget = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
+
+const stripHtml = (html) => {
+    if (!html) return '';
+    return html.replace(/<\/?[^>]+(>|$)/g, '');
+};
+
+const getAuthor = (post) => {
+    if (!post) return null;
+    if (post.author) return post.author;
+    if (settings.value && settings.value.author) return settings.value.author;
+    return null;
+};
 
 const pageUrl = computed(() => {
     // @ts-ignore

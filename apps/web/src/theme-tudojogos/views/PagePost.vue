@@ -1,7 +1,7 @@
 <template>
-    <div class="w-full relative bg-neutral-100">
+    <div class="w-full relative bg-[#0a0a1a]">
         <div class="w-full max-w-[1200px] mx-auto px-4">
-            <div v-if="!post" class="bg-white rounded-lg p-6">
+            <div v-if="!post" class="bg-[#191a30] text-gray-100 rounded-lg p-6 border border-[#303443]">
                 <div class="text-center">
                     <h1 class="text-2xl font-bold text-neutral-800 mb-4">Post não encontrado</h1>
                     <p class="text-neutral-600">O post que você está procurando não existe ou está indisponível.</p>
@@ -10,31 +10,31 @@
 
             <div v-else>
                 <!-- Top AdSense Banner -->
-                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full bg-[#0a0a1a] rounded-lg mb-8 overflow-hidden flex justify-center border border-[#303443]">
                     <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
                         <div v-html="getAdHtml('header')"></div>
                     </div>
                     <div class="ad-container ad-banner-top py-2 px-4" v-else>
-                        <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                        <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0d1117] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
                             <span>Anúncio</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Main Content Layout -->
-                <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex flex-col lg:flex-row gap-8 bg-[#0a0a1a] p-4 rounded-lg">
                     <!-- Main Content Area -->
                     <div class="flex-grow">
                         <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
                             <!-- Main Post Content (2 columns width) -->
-                            <div class="lg:col-span-3 bg-white rounded-lg p-4 relative">
+                            <div class="lg:col-span-3 bg-[#0a0a1a] rounded-lg p-4 relative shadow-md border border-[#303443] text-gray-100">
                                 <div class="w-full mx-auto overflow-hidden">
-                                    <h1 class="post-title text-neutral-900 text-3xl md:text-4xl font-bold break-words mb-4">{{ post.title }}</h1>
+                                    <h1 class="post-title text-3xl md:text-4xl font-bold break-words mb-4 text-shadow-gamer" style="color: #ffffff !important;">{{ post.title }}</h1>
 
                                     <div v-if="post.featureImage" class="post-featured-image relative overflow-hidden rounded-lg max-h-[400px]">
                                         <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
                                             <a v-for="category in post.categories" :key="category.id" :href="`/category/${category.slug}`"
-                                                class="px-3 py-1 bg-[#0a5d28] text-white text-sm font-medium rounded-full shadow-sm hover:bg-[#064019] transition-all">
+                                                class="px-3 py-1 gamer-button text-sm font-medium rounded-full shadow-sm transition-all">
                                                 {{ category.name }}
                                             </a>
                                         </div>
@@ -61,16 +61,16 @@
                                             <div v-html="getAdHtml('afterTitle')"></div>
                                         </div>
                                         <div class="ad-container ad-after-title py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
                                                 <span>Anúncio</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Post Header -->
-                                    <header class="post-header my-6">
+                                    <header class="post-header my-6 bg-gradient-to-r from-[#6600cc]/20 to-transparent p-3 rounded-lg border border-[#303443] shadow-md">
                                         <div class="post-meta flex items-center">
-                                            <div class="flex items-center text-neutral-600 text-sm">
+                                            <div class="flex items-center text-gray-300 text-sm">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
                                                     stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -86,7 +86,7 @@
                                     </header>
 
                                     <!-- Post Content -->
-                                    <div class="post-content text-neutral-800 prose prose-sm sm:prose prose-neutral max-w-none overflow-hidden">
+                                    <div class="post-content text-gray-100 prose prose-sm sm:prose prose-invert prose-a:text-[#0a5d28] prose-a:hover:text-[#00cc44] max-w-none overflow-hidden">
                                         <div v-html="processPostContent(post.content)"></div>
                                     </div>
 
@@ -95,7 +95,7 @@
                                         <div v-if="post.tags && post.tags.length > 0" class="post-tags">
                                             <div class="tags-list flex flex-wrap gap-2">
                                                 <a v-for="tag in post.tags" :key="tag" :href="`/tag/${tag.slug}`"
-                                                    class="tag bg-neutral-100 text-neutral-700 hover:bg-neutral-200 px-3 py-1 rounded-full text-sm">
+                                                    class="tag bg-[#0d1117] text-gray-200 hover:border-[#6600cc] border border-[#303443] px-3 py-1 rounded-full text-sm transition-colors">
                                                     {{ tag.name }}
                                                 </a>
                                             </div>
@@ -104,7 +104,7 @@
 
                                     <!-- Author Box -->
                                     <div v-if="author"
-                                        class="mb-10 p-6 bg-neutral-50 rounded-lg border border-neutral-200 mt-8">
+                                        class="mb-10 p-6 bg-[#0d1117] rounded-lg border border-[#303443] mt-8 text-gray-100 shadow-md">
                                         <div class="flex items-center mb-4">
                                             <!-- Author Avatar -->
                                             <div
@@ -112,20 +112,20 @@
                                                                                 <OptimizedImage v-if="author.image" :src="author.image" :alt="author.name"
                                     class="w-full h-full object-cover imgix-lazy" width="44" height="44" icon-size="sm" />
                                                 <div v-else
-                                                    class="w-full h-full flex items-center justify-center bg-[#0a5d28] text-white font-bold text-lg">
+                                                    class="w-full h-full flex items-center justify-center bg-[#6600cc] text-white font-bold text-lg">
                                                     {{ authorInitials }}
                                                 </div>
                                             </div>
 
                                             <!-- Author Info -->
                                             <div class="flex-1 min-w-0">
-                                                <span class="text-md font-semibold text-neutral-800 mb-1 break-words">
+                                                <span class="text-md font-semibold text-white mb-1 break-words">
                                                     <a :href="`/author/${author.slug}`" class="hover:underline">
                                                         {{ author.name }}
                                                     </a>
                                                 </span>
                                                 <p v-if="author.location"
-                                                    class="text-xs text-neutral-600 flex items-center">
+                                                    class="text-xs text-gray-300 flex items-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5 flex-shrink-0" fill="none"
                                                         viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -139,14 +139,14 @@
                                         </div>
 
                                         <!-- Author Bio -->
-                                        <div v-if="author.bio" class="text-sm leading-relaxed text-neutral-700 mb-4">
+                                        <div v-if="author.bio" class="text-sm leading-relaxed text-gray-300 mb-4">
                                             {{ author.bio }}
                                         </div>
 
                                         <!-- Social Links -->
                                         <div class="flex flex-wrap gap-3">
                                             <a v-if="author.website" :href="author.website" target="_blank" rel="noopener noreferrer"
-                                                class="inline-flex items-center px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 rounded-full text-sm text-neutral-700 transition-colors">
+                                                class="inline-flex items-center px-3 py-1.5 bg-[#0d1117] hover:bg-[#6600cc]/30 border border-[#303443] rounded-full text-sm text-gray-200 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24"
                                                     stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -156,7 +156,7 @@
                                             </a>
                                             <a v-if="author.twitter" :href="`https://twitter.com/${author.twitter}`" target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="inline-flex items-center px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 rounded-full text-sm text-neutral-700 transition-colors">
+                                                class="inline-flex items-center px-3 py-1.5 bg-[#0d1117] hover:bg-[#6600cc]/30 border border-[#303443] rounded-full text-sm text-gray-200 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" viewBox="0 0 24 24"
                                                     fill="currentColor">
                                                     <path
@@ -166,7 +166,7 @@
                                             </a>
                                             <a v-if="author.facebook" :href="`https://facebook.com/${author.facebook}`" target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="inline-flex items-center px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 rounded-full text-sm text-neutral-700 transition-colors">
+                                                class="inline-flex items-center px-3 py-1.5 bg-[#0d1117] hover:bg-[#6600cc]/30 border border-[#303443] rounded-full text-sm text-gray-200 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" viewBox="0 0 24 24"
                                                     fill="currentColor">
                                                     <path
@@ -176,7 +176,7 @@
                                             </a>
                                             <a v-if="author.instagram" :href="`https://instagram.com/${author.instagram}`" target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="inline-flex items-center px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 rounded-full text-sm text-neutral-700 transition-colors">
+                                                class="inline-flex items-center px-3 py-1.5 bg-[#0d1117] hover:bg-[#6600cc]/30 border border-[#303443] rounded-full text-sm text-gray-200 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" viewBox="0 0 24 24"
                                                     fill="currentColor">
                                                     <path
@@ -186,7 +186,7 @@
                                             </a>
                                             <a v-if="author.linkedin" :href="`https://linkedin.com/in/${author.linkedin}`" target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="inline-flex items-center px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 rounded-full text-sm text-neutral-700 transition-colors">
+                                                class="inline-flex items-center px-3 py-1.5 bg-[#0d1117] hover:bg-[#6600cc]/30 border border-[#303443] rounded-full text-sm text-gray-200 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" viewBox="0 0 24 24"
                                                     fill="currentColor">
                                                     <path
@@ -196,7 +196,7 @@
                                             </a>
                                             <a v-if="author.github" :href="`https://github.com/${author.github}`" target="_blank"
                                                 rel="noopener noreferrer"
-                                                class="inline-flex items-center px-3 py-1.5 bg-neutral-200 hover:bg-neutral-300 rounded-full text-sm text-neutral-700 transition-colors">
+                                                class="inline-flex items-center px-3 py-1.5 bg-[#0d1117] hover:bg-[#6600cc]/30 border border-[#303443] rounded-full text-sm text-gray-200 transition-colors">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-1.5" viewBox="0 0 24 24"
                                                     fill="currentColor">
                                                     <path
@@ -208,12 +208,12 @@
                                     </div>
 
                                     <!-- Mid-content AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full bg-[#0a0a1a] rounded-lg my-8 overflow-hidden flex justify-center border border-[#303443]">
                                         <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
                                             <div v-html="getAdHtml('inContent')"></div>
                                         </div>
                                         <div class="ad-container ad-banner-mid py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
                                                 <span>Anúncio</span>
                                             </div>
                                         </div>
@@ -221,37 +221,41 @@
 
                                     <!-- Mais Conteúdo Section -->
                                     <div class="mt-10">
-                                        <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                        <h2 class="text-xl font-bold mb-6 pb-2 text-white border-b-2 border-[#ffcc00] titulo-gamer bg-[#6600cc]/20 pl-2 py-1 rounded-t-md">
                                             Mais Conteúdo
                                         </h2>
 
                                         <div ref="relatedPostsObserver" class="min-h-[200px]">
                                             <div v-if="!relatedPostsLoaded" class="flex justify-center items-center py-6">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>
-                                                <span class="ml-3 text-gray-600">Carregando posts relacionados...</span>
+                                                <span class="ml-3 text-gray-300">Carregando posts relacionados...</span>
                                             </div>
 
                                             <div v-else-if="relatedPosts.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                                                 <article
                                                     v-for="relatedPost in relatedPosts"
                                                     :key="relatedPost.id"
-                                                    class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                                    class="bg-[#0a0a1a] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-[#303443] hover:border-[#6600cc] text-gray-100"
                                                 >
                                                     <a :href="`/post/${relatedPost.slug}`" class="block">
-                                                        <div class="h-48 overflow-hidden relative">
-                                                                                                        <OptimizedImage
-                                                v-if="relatedPost.featureImage"
-                                                :src="relatedPost.featureImage"
-                                                :alt="relatedPost.title"
-                                                class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 imgix-lazy"
-                                                :hover="true"
-                                                icon-size="md"
-                                            />
-                                                            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                                </svg>
-                                                            </div>
+                                                        <div class="h-48 overflow-hidden relative group">
+                                                             <OptimizedImage
+                                                                 v-if="relatedPost.featureImage"
+                                                                 :src="relatedPost.featureImage"
+                                                                 :alt="relatedPost.title"
+                                                                 class="w-full h-full object-cover imgix-lazy transition-transform duration-500 group-hover:scale-110"
+                                                                 width="300"
+                                                                 height="180"
+                                                                 loading="lazy"
+                                                                 priority="low"
+                                                                 icon-size="sm"
+                                                             />
+                                                             <div v-else class="w-full h-full bg-[#0a0a1a] border border-[#303443] flex items-center justify-center">
+                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                 </svg>
+                                                             </div>
+                                                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                             <div v-if="relatedPost.categories && relatedPost.categories.length > 0" class="absolute top-2 left-2">
                                                                 <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
                                                                     {{ relatedPost.categories[0].name }}
@@ -261,14 +265,14 @@
                                                     </a>
                                                     <div class="p-4">
                                                         <a :href="`/post/${relatedPost.slug}`" class="block">
-                                                            <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                            <h3 class="text-lg font-bold text-white mb-2 hover:text-[#00ccff] transition-colors line-clamp-2 border-l-2 border-[#6600cc] pl-2">
                                                                 {{ relatedPost.title }}
                                                             </h3>
                                                         </a>
-                                                        <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                                                        <p class="text-gray-300 text-sm mb-3 line-clamp-2">
                                                             {{ relatedPost.excerpt || stripHtml(relatedPost.content).substring(0, 120) + '...' }}
                                                         </p>
-                                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                                        <div class="flex justify-between items-center text-xs text-gray-400">
                                                             <span v-if="getAuthor(relatedPost)">Por {{ getAuthor(relatedPost).name }}</span>
                                                             <span>{{ formatDate(relatedPost.publishedAt || relatedPost.updatedAt) }}</span>
                                                         </div>
@@ -304,37 +308,37 @@
                             <!-- Right Column (Widgets + Ads) -->
                             <div class="lg:col-span-1 min-w-[300px]">
                                 <!-- AdSense Rectangle (Top) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px]">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop" class="bg-[#0a0a1a] rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px] border-t-2 border-[#6600cc]">
                                     <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
                                         <div v-html="getAdHtml('sidebarTop')"></div>
                                     </div>
                                     <div class="ad-container ad-sidebar-top" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <div class="ad-placeholder h-[250px] w-[300px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
                                             <span>Anúncio</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- AdSense Rectangle (Middle) -->
-                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarMid" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px]">
+                                <div v-if="adSettings.enableAds && adSettings.articlePageSidebarMid" class="bg-[#0a0a1a] rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px] border-t-2 border-[#6600cc]">
                                     <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
                                         <div v-html="getAdHtml('sidebarMid')"></div>
                                     </div>
                                     <div class="ad-container ad-sidebar-mid" v-else>
-                                        <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <div class="ad-placeholder h-[250px] w-[300px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
                                             <span>Anúncio</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Share Widget -->
-                                <div class="bg-white rounded-lg shadow-md p-5 mb-6">
-                                    <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                <div class="bg-[#0a0a1a] rounded-lg shadow-md p-5 mb-6 border border-[#303443] border-l-4 border-l-[#6600cc] text-gray-100 sticky top-24">
+                                    <h2 class="text-xl font-bold mb-4 pb-2 text-white border-b-2 border-[#ffcc00] titulo-gamer bg-[#6600cc]/20 pl-2 py-1 rounded-t-md">
                                         Compartilhar
                                     </h2>
                                     <div class="flex flex-wrap gap-2">
                                         <!-- Facebook -->
-                                        <a class="bg-blue-600 hover:bg-blue-700 w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
+                                        <a class="gamer-button w-10 h-10 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                             rel="nofollow noopener"
                                             :href="'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(pageUrl)"
                                             onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;"
@@ -347,7 +351,7 @@
                                         </a>
 
                                         <!-- Twitter -->
-                                        <a class="bg-sky-500 hover:bg-sky-600 w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
+                                        <a class="gamer-button w-10 h-10 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                             rel="nofollow noopener"
                                             :href="'https://twitter.com/share?text=' + encodeURIComponent(post.title) + '&url=' + encodeURIComponent(pageUrl)"
                                             onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;"
@@ -360,7 +364,7 @@
                                         </a>
 
                                         <!-- LinkedIn -->
-                                        <a class="bg-blue-700 hover:bg-blue-800 w-10 h-10 rounded-full flex items-center justify-center text-white transition-colors"
+                                        <a class="gamer-button w-10 h-10 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                             rel="nofollow noopener"
                                             :href="'https://www.linkedin.com/shareArticle?mini=true&url=' + encodeURIComponent(pageUrl) + '&title=' + encodeURIComponent(post.title)"
                                             onclick="window.open(this.href, 'linkedin-share', 'width=490,height=530');return false;"
@@ -388,7 +392,7 @@
 
                                         <!-- Copy link button -->
                                         <button @click="copyPageUrl"
-                                            class="bg-neutral-200 hover:bg-neutral-300 w-10 h-10 rounded-full flex items-center justify-center text-neutral-600 transition-colors relative"
+                                            class="gamer-button w-10 h-10 rounded-full flex items-center justify-center text-white transition-all transform hover:scale-110"
                                             title="Copiar link">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -696,12 +700,20 @@ function processPostContent(content) {
     ];
 
     let processedContent = content;
+    
+    // Adicionar CSS para forçar os links a ficarem verdes claro
+    const styleTag = '<style>.post-content a { color: #4ade80 !important; } .post-content a:hover { color: #86efac !important; }</style>';
+    processedContent = styleTag + processedContent;
+    
+    // Substituir diretamente os links para verde claro (abordagem alternativa)
+    const linkRegex = /<a ([^>]*)>/g;
+    processedContent = processedContent.replace(linkRegex, '<a $1 style="color: #4ade80 !important;">');
 
     twitterUrlPatterns.forEach(pattern => {
         processedContent = processedContent.replace(pattern, (match, p1, username, tweetId) => {
             return `<div class="twitter-embed">
                 <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
-                    <a href="${match}"></a>
+                    <a href="${match}" style="color: #0a5d28 !important;"></a>
                 </blockquote>
             </div>`;
         });
@@ -711,7 +723,7 @@ function processPostContent(content) {
         processedContent = processedContent.replace(pattern, (match, p1, subreddit, postId, commentId) => {
             return `<div class="reddit-embed">
                 <div class="reddit-card" data-embed-height="500">
-                    <a href="${match}"></a>
+                    <a href="${match}" style="color: #0a5d28 !important;"></a>
                 </div>
             </div>`;
         });
