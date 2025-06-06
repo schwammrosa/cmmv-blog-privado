@@ -243,9 +243,10 @@
                                                     v-for="relatedPost in relatedPosts"
                                                     :key="relatedPost.id"
                                                     class="bg-[#0a0a1a] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-[#303443] hover:border-[#6600cc] text-gray-100"
+                                                    data-v-f8103284
                                                 >
-                                                    <a :href="`/post/${relatedPost.slug}`" class="block">
-                                                        <div class="h-48 overflow-hidden relative group">
+                                                    <a :href="`/post/${relatedPost.slug}`" class="block group">
+                                                        <div class="overflow-hidden relative" style="height: 180px; width: 100%; aspect-ratio: 16/9;">
                                                              <OptimizedImage
                                                                  v-if="relatedPost.featureImage"
                                                                  :src="relatedPost.featureImage"
@@ -444,9 +445,9 @@
                                             </div>
                                             <div class="flex-grow">
                                                 <a :href="`/post/${popularPost.slug}`" class="block">
-                                                    <h4 class="text-sm font-semibold text-white hover:text-[#00ccff] transition-colors line-clamp-2">
+                                                    <h3 class="text-sm font-semibold text-white hover:text-[#00ccff] transition-colors line-clamp-2">
                                                         {{ popularPost.title }}
-                                                    </h4>
+                                                    </h3>
                                                 </a>
                                                 <span class="text-xs text-gray-300 mt-1 block">
                                                     {{ formatDate(popularPost.publishedAt || popularPost.updatedAt) }}

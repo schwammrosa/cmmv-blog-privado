@@ -105,19 +105,53 @@ export const useSettingsStore = defineStore('settings', {
             const gaId = state.data?.['blog.googleAnalyticsId'];
             if (!gaId) return [];
 
+            // Implementação otimizada para carregar o Google Tag Manager sob demanda
+            // Reduzindo o impacto inicial na performance com carregamento diferido
             return [
                 {
                     children: `
+                        // Carregamento diferido do Google Tag Manager
                         window.dataLayer = window.dataLayer || [];
                         function gtag(){dataLayer.push(arguments);}
+
+                        // Configuração inicial
                         gtag('js', new Date());
-                        gtag('config', '${gaId}');
+                        gtag('config', '${gaId}', { 'send_page_view': false });
+                        
+                        // Função para carregar o script GTM apenas quando o usuário interage com a página
+                        function loadGtm() {
+                            // Verificar se o script já foi carregado
+                            if (window.gtmLoaded) return;
+                            window.gtmLoaded = true;
+                            
+                            // Carregar o script GTM de forma assíncrona
+                            const script = document.createElement('script');
+                            script.src = 'https://www.googletagmanager.com/gtag/js?id=${gaId}';
+                            script.async = true;
+                            script.defer = true;
+                            document.head.appendChild(script);
+                            
+                            // Enviar pageview após o carregamento
+                            script.onload = function() {
+                                gtag('event', 'page_view');
+                            };
+                        }
+                        
+                        // Adicionar eventos para detectar interação do usuário
+                        if (document.readyState === 'complete') {
+                            setTimeout(loadGtm, 3000); // Carregar após 3 segundos se a página já estiver carregada
+                        } else {
+                            window.addEventListener('load', () => {
+                                setTimeout(loadGtm, 3000); // Carregar após 3 segundos depois que a página carregou
+                            });
+                        }
+                        
+                        // Eventos de interação que acionam o carregamento imediato
+                        ['mousedown', 'keydown', 'touchstart', 'scroll'].forEach(event => {
+                            document.addEventListener(event, loadGtm, { once: true, passive: true });
+                        });
                     `,
                     type: 'text/javascript'
-                },
-                {
-                    src: `https://www.googletagmanager.com/gtag/js?id=${gaId}`,
-                    async: true
                 }
             ];
         },

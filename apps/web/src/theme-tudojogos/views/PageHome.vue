@@ -244,10 +244,11 @@
                                     v-for="post in posts.slice(isMobile ? 0 : (featuredPost ? 3 : 0), isMobile ? 4 : (featuredPost ? 7 : 4))"
                                     :key="post.id"
                                     class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 h-auto sm:h-[150px]"
+                                    data-v-f8103284
                                 >
                                     <div class="flex flex-col sm:flex-row h-full">
-                                        <a :href="`/post/${post.slug}`" class="block w-full h-48 sm:w-1/3 sm:h-auto overflow-hidden">
-                                            <div class="h-full w-full overflow-hidden relative">
+                                        <a :href="`/post/${post.slug}`" class="block w-full sm:w-1/3 overflow-hidden" style="min-height: 120px; aspect-ratio: 4/3;">
+                                            <div class="h-full w-full overflow-hidden relative" style="min-height: inherit;">
                                                 <OptimizedImage
                                                     :src="post.featureImage"
                                                     :alt="post.title"
@@ -306,9 +307,10 @@
                                         v-for="post in paginatedMaisConteudo"
                                         :key="post.id"
                                         class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                        data-v-f8103284
                                     >
                                         <a :href="`/post/${post.slug}`" class="block">
-                                            <div class="h-48 overflow-hidden relative">
+                                            <div class="overflow-hidden relative" style="height: 192px; width: 100%; aspect-ratio: 16/9;">
                                                 <OptimizedImage
                                                     :src="post.featureImage"
                                                     :alt="post.title"
@@ -426,9 +428,9 @@
                                         </div>
                                         <div class="flex-grow">
                                             <a :href="`/post/${post.slug}`" class="block">
-                                                <h4 class="text-sm font-semibold text-white hover:text-[#00ccff] transition-colors line-clamp-2">
+                                                <h3 class="text-sm font-semibold text-white hover:text-[#00ccff] transition-colors line-clamp-2">
                                                     {{ post.title }}
-                                                </h4>
+                                                </h3>
                                             </a>
                                             <span class="text-xs text-gray-500 mt-1 block flex items-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

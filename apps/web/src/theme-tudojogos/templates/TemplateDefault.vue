@@ -239,9 +239,9 @@
                             <span class="absolute bottom-0 left-0 w-10 h-1 bg-gradient-to-r from-[#6600cc] to-[#00ccff]"></span>
                         </h3>
                         <ul class="space-y-2">
-                            <li><router-link to="/contact" class="text-gray-300 gamer-link">Contato</router-link></li>
-                            <li><router-link to="/terms-of-service" class="text-gray-300 gamer-link">Termos de Uso</router-link></li>
-                            <li><router-link to="/terms-of-privacy" class="text-gray-300 gamer-link">Política de Privacidade</router-link></li>
+                            <li><a href="/contact" class="text-gray-300 gamer-link">Contato</a></li>
+                            <li><a href="/terms-of-service" class="text-gray-300 gamer-link">Termos de Uso</a></li>
+                            <li><a href="/terms-of-privacy" class="text-gray-300 gamer-link">Política de Privacidade</a></li>
                         </ul>
                     </div>
                     
@@ -341,7 +341,7 @@
                                                     <img :src="post.featureImage" :alt="post.title" class="w-full h-full object-cover" loading="lazy" />
                                                 </div>
                                                 <div class="p-4 flex-grow">
-                                                    <h4 class="font-bold text-gray-900 mb-1">{{ post.title }}</h4>
+                                                    <h3 class="font-bold text-gray-900 mb-1">{{ post.title }}</h3>
                                                     <p v-if="post.excerpt" class="text-sm text-gray-600 line-clamp-2">
                                                         {{ post.excerpt }}
                                                     </p>
