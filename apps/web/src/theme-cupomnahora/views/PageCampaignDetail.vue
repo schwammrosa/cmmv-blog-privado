@@ -22,7 +22,7 @@
             <div v-else class="bg-white rounded-lg p-2 md:p-6">
                 <!-- Desktop Layout -->
                 <div class="hidden md:flex md:flex-row items-start gap-6 mb-8">
-                    <div class="w-[160px] h-[125px] flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
+                    <div class="w-[160px] h-full flex-shrink-0 flex items-center justify-center bg-gray-100 rounded-lg overflow-hidden">
                         <img v-if="campaign.logo" :src="campaign.logo" :alt="campaign.name" width="160" height="125" :aria-label="campaign.name">
                         <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
