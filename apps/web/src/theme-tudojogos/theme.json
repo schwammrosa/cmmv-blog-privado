@@ -1,0 +1,8 @@
+{
+    "name": "TudoJogos",
+    "description": "Site especializado em jogos e entretenimento",
+    "author": "Robson Schwamm Rosa",
+    "version": "0.0.1",
+    "preview": "/src/theme-tudojogos/assets/preview.png",
+    "url": "https://tudojogos.com.br"
+}

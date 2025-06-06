@@ -1,0 +1,826 @@
+<template>
+    <div class="w-full max-w-[1200px] mx-auto px-4">
+        <div v-if="error" class="text-center py-16 bg-white rounded-lg shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-2xl font-bold mb-2 text-gray-800">Erro ao carregar posts</h2>
+            <p class="text-gray-600 mb-4">Não foi possível carregar os posts. Por favor, tente novamente.</p>
+            <button @click="loadPosts" class="px-4 py-2 bg-[#0a5d28] text-white rounded-md hover:bg-[#064019] transition-colors">
+                Tentar novamente
+            </button>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="posts.length === 0" class="text-center py-16 bg-white rounded-lg shadow-md">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-2xl font-bold mb-2 text-gray-800">Nenhum post encontrado</h2>
+            <p class="text-gray-600">Volte mais tarde para novos conteúdos!</p>
+        </div>
+
+        <div v-else>
+            <!-- Cover Section -->
+            <section v-if="posts.length > 0" class="mb-8 md:block hidden">
+                <!-- Full Layout (default) -->
+                <div v-if="coverSettings.layoutType === 'full' || !coverSettings.layoutType" class="bg-white rounded-lg overflow-hidden shadow-md">
+                    <a v-if="coverPosts.full" :href="`/post/${coverPosts.full.slug}`" class="block">
+                        <div class="relative h-[400px]">
+                            <OptimizedImage
+                                :src="coverPosts.full?.featureImage"
+                                :alt="coverPosts.full?.title"
+                                :title="coverPosts.full?.title"
+                                aria-label="Cover Image"
+                                width="890"
+                                height="606"
+                                loading="lazy"
+                                priority="high"
+                                icon-size="lg"
+                            />
+                            <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
+                                <div v-if="coverPosts.full && coverPosts.full.categories && coverPosts.full.categories.length > 0" class="mb-2">
+                                    <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
+                                        {{ coverPosts.full.categories[0].name }}
+                                    </span>
+                                </div>
+                                <h2 v-if="coverPosts.full" class="text-2xl md:text-3xl font-bold mb-3 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/30 inline-block py-1 px-2 rounded">{{ coverPosts.full.title }}</h2>
+                                <p v-if="coverPosts.full" class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
+                                    {{ coverPosts.full.excerpt || stripHtml(coverPosts.full.content).substring(0, 150) + '...' }}
+                                </p>
+                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                    Continuar lendo
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Carousel Layout -->
+                <div v-else-if="coverSettings.layoutType === 'carousel'" class="bg-white rounded-lg overflow-hidden shadow-md">
+                    <div class="relative h-[400px]">
+                        <div v-for="(post, index) in coverPosts.carousel" :key="post.id"
+                             class="absolute w-full h-full transition-opacity duration-500 ease-in-out"
+                             :class="{ 'opacity-100': currentCarouselIndex === index, 'opacity-0': currentCarouselIndex !== index }">
+                            <a :href="`/post/${post.slug}`" class="block h-full">
+                                <OptimizedImage
+                                    :src="post.featureImage"
+                                    :alt="post.title"
+                                    :title="post.title"
+                                    aria-label="Cover Image"
+                                    width="890"
+                                    height="606"
+                                    loading="lazy"
+                                    priority="high"
+                                    icon-size="lg"
+                                />
+                                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
+                                    <div v-if="post.categories && post.categories.length > 0" class="mb-2">
+                                        <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
+                                            {{ post.categories[0].name }}
+                                        </span>
+                                    </div>
+                                    <h2 class="text-2xl md:text-3xl font-bold mb-3 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/30 inline-block py-1 px-2 rounded">{{ post.title }}</h2>
+                                    <p class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
+                                        {{ post.excerpt || stripHtml(post.content).substring(0, 150) + '...' }}
+                                    </p>
+                                    <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                        Continuar lendo
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Carousel Controls -->
+                        <div class="absolute top-0 bottom-0 left-0 flex items-center">
+                            <button @click="prevCarouselSlide" class="bg-black/30 hover:bg-black/50 text-white p-2 rounded-r-md focus:outline-none z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="absolute top-0 bottom-0 right-0 flex items-center">
+                            <button @click="nextCarouselSlide" class="bg-black/30 hover:bg-black/50 text-white p-2 rounded-l-md focus:outline-none z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Carousel Indicators -->
+                        <div class="absolute bottom-3 left-0 right-0 flex justify-center space-x-2 z-10">
+                            <button
+                                v-for="(_, index) in coverPosts.carousel"
+                                :key="index"
+                                @click="currentCarouselIndex = index"
+                                class="w-3 h-3 rounded-full bg-white/50 focus:outline-none"
+                                :class="{ 'bg-white': currentCarouselIndex === index }"
+                            ></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Split Layout (1 large, 2 small) -->
+                <div v-else-if="coverSettings.layoutType === 'split'" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="md:col-span-2 bg-white rounded-lg overflow-hidden shadow-md">
+                        <a v-if="coverPosts.splitMain" :href="`/post/${coverPosts.splitMain.slug}`" class="block h-full">
+                            <div class="relative h-full">
+                                <OptimizedImage
+                                    :src="coverPosts.splitMain?.featureImage"
+                                    :alt="coverPosts.splitMain?.title"
+                                    :title="coverPosts.splitMain?.title"
+                                    aria-label="Cover Image"
+                                    width="890"
+                                    height="606"
+                                    loading="lazy"
+                                    priority="high"
+                                    icon-size="lg"
+                                />
+                                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
+                                    <div v-if="coverPosts.splitMain && coverPosts.splitMain.categories && coverPosts.splitMain.categories.length > 0" class="mb-2">
+                                        <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
+                                            {{ coverPosts.splitMain.categories[0].name }}
+                                        </span>
+                                    </div>
+                                    <h2 v-if="coverPosts.splitMain" class="text-xl md:text-2xl font-bold mb-3 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/30 inline-block py-1 px-2 rounded">{{ coverPosts.splitMain.title }}</h2>
+                                    <p v-if="coverPosts.splitMain" class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
+                                        {{ coverPosts.splitMain.excerpt || stripHtml(coverPosts.splitMain.content).substring(0, 150) + '...' }}
+                                    </p>
+                                    <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                        Continuar lendo
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="md:col-span-1 flex flex-col gap-4">
+                        <div v-for="(post, index) in coverPosts.splitSide" :key="post.id" class="flex-1 bg-white rounded-lg overflow-hidden shadow-md">
+                            <a :href="`/post/${post.slug}`" class="block h-full">
+                                <div class="relative h-full">
+                                    <OptimizedImage
+                                        :src="post.featureImage"
+                                        :alt="post.title"
+                                        loading="lazy"
+                                        icon-size="md"
+                                    />
+                                    <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
+                                        <div v-if="post.categories && post.categories.length > 0" class="mb-2">
+                                            <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
+                                                {{ post.categories[0].name }}
+                                            </span>
+                                        </div>
+                                        <h3 class="text-base font-bold mb-2 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/30 inline-block py-1 px-2 rounded">{{ post.title }}</h3>
+                                        <span class="text-sm text-white hover:text-[#ffcc00] transition-colors drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 px-2 py-1 rounded inline-block">
+                                            Continuar lendo &rarr;
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dual Layout (2 equal columns) -->
+                <div v-else-if="coverSettings.layoutType === 'dual'" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div v-for="post in coverPosts.dual" :key="post.id" class="bg-white rounded-lg overflow-hidden shadow-md">
+                        <a :href="`/post/${post.slug}`" class="block">
+                            <div class="relative h-[350px]">
+                                <OptimizedImage
+                                    :src="post.featureImage"
+                                    :alt="post.title"
+                                    :title="post.title"
+                                    aria-label="Cover Image"
+                                    width="890"
+                                    height="606"
+                                    loading="lazy"
+                                    priority="high"
+                                    icon-size="lg"
+                                />
+                                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
+                                    <div v-if="post.categories && post.categories.length > 0" class="mb-2">
+                                        <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
+                                            {{ post.categories[0].name }}
+                                        </span>
+                                    </div>
+                                    <h2 class="text-xl md:text-2xl font-bold mb-3 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/30 inline-block py-1 px-2 rounded">{{ post.title }}</h2>
+                                    <p class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
+                                        {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
+                                    </p>
+                                    <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
+                                        Continuar lendo
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top AdSense Banner -->
+            <div v-if="adSettings.enableAds && adSettings.homePageHeader" class="w-full bg-gray-100 rounded-lg mb-8 overflow-hidden flex justify-center">
+                <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
+                    <div v-html="getAdHtml('header')"></div>
+                </div>
+                <div class="ad-container ad-banner-top py-2 px-4" v-else>
+                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                        <span>Anúncio</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Layout -->
+            <div class="flex flex-col lg:flex-row gap-8">
+                <div class="flex-grow">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2">
+                            <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                Últimas Notícias
+                            </h2>
+
+                            <div class="grid grid-cols-1 gap-6">
+                                <article
+                                    v-for="post in posts.slice(featuredPost ? 1 : 0, featuredPost ? 5 : 4)"
+                                    :key="post.id"
+                                    class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 h-auto sm:h-[150px]"
+                                >
+                                    <div class="flex flex-col sm:flex-row h-full">
+                                        <a :href="`/post/${post.slug}`" class="block w-full h-48 sm:w-1/3 sm:h-auto overflow-hidden">
+                                            <div class="h-full w-full overflow-hidden relative">
+                                                <OptimizedImage
+                                                    :src="post.featureImage"
+                                                    :alt="post.title"
+                                                    width="160"
+                                                    height="120"
+                                                    loading="lazy"
+                                                    priority="high"
+                                                    :hover="true"
+                                                    icon-size="md"
+                                                    class="w-full h-full object-cover"
+                                                />
+                                                <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
+                                                    <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
+                                                        {{ post.categories[0].name }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="p-3 sm:p-4 flex-grow flex flex-col justify-center">
+                                        <a :href="`/post/${post.slug}`" class="block">
+                                            <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-1 sm:mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                {{ post.title }}
+                                            </h3>
+                                        </a>
+                                        <p class="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
+                                            {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
+                                        </p>
+                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                            <span v-if="getAuthor(post)">Por {{ getAuthor(post).name }}</span>
+                                            <span>{{ formatDate(post.publishedAt) }}</span>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <!-- Mid-content AdSense Banner -->
+                            <div v-if="adSettings.enableAds" class="w-full bg-gray-100 rounded-lg my-8 overflow-hidden flex justify-center">
+                                <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
+                                    <div v-html="getAdHtml('inContent')"></div>
+                                </div>
+                                <div class="ad-container ad-banner-mid py-2 px-4" v-else>
+                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div v-if="posts.length > (featuredPost ? 5 : 4)">
+                                <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                    Mais Conteúdo
+                                </h2>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                                    <article
+                                        v-for="post in paginatedMaisConteudo"
+                                        :key="post.id"
+                                        class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300"
+                                    >
+                                        <a :href="`/post/${post.slug}`" class="block">
+                                            <div class="h-48 overflow-hidden relative">
+                                                <OptimizedImage
+                                                    :src="post.featureImage"
+                                                    :alt="post.title"
+                                                    width="360"
+                                                    height="192"
+                                                    loading="lazy"
+                                                    :hover="true"
+                                                    icon-size="md"
+                                                />
+                                                <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2">
+                                                    <span class="bg-[#ffcc00] text-[#333] px-2 py-1 rounded-md text-xs font-medium">
+                                                        {{ post.categories[0].name }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </a>
+                                        <div class="p-4">
+                                            <a :href="`/post/${post.slug}`" class="block">
+                                                <h3 class="text-lg font-bold text-gray-800 mb-2 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                    {{ post.title }}
+                                                </h3>
+                                            </a>
+                                            <p class="text-gray-600 text-sm mb-3 line-clamp-2">
+                                                {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
+                                            </p>
+                                            <div class="flex justify-between items-center text-xs text-gray-500">
+                                                <span v-if="getAuthor(post)">Por {{ getAuthor(post).name }}</span>
+                                                <span>{{ formatDate(post.publishedAt) }}</span>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            </div>
+
+                            <div v-if="adSettings.enableAds && adSettings.homePageAfterPosts" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
+                                <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
+                                    <div v-html="getAdHtml('belowContent')"></div>
+                                </div>
+                                <div class="ad-container ad-banner-bottom py-2 px-4" v-else>
+                                    <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Paginação -->
+                            <div class="mt-8 flex justify-center">
+                                <div class="flex items-center space-x-2">
+                                    <button 
+                                        @click="maisConteudoPage > 1 && maisConteudoPage--" 
+                                        class="px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors" 
+                                        :class="{'opacity-50 cursor-not-allowed': maisConteudoPage === 1}">
+                                        &laquo; Anterior
+                                    </button>
+                                    
+                                    <template v-for="pageNum in maisConteudoTotalPages" :key="pageNum">
+                                        <button 
+                                            v-if="shouldShowPageButton(pageNum)"
+                                            @click="maisConteudoPage = pageNum" 
+                                            class="px-3 py-1 rounded-md transition-colors" 
+                                            :class="maisConteudoPage === pageNum ? 'bg-[#0a5d28] text-white' : 'border border-gray-300 hover:bg-gray-100'">
+                                            {{ pageNum }}
+                                        </button>
+                                        <span v-else-if="pageNum === 2 && maisConteudoPage > 4" class="px-2">...</span>
+                                        <span v-else-if="pageNum === maisConteudoTotalPages - 1 && maisConteudoPage < maisConteudoTotalPages - 3" class="px-2">...</span>
+                                    </template>
+                                    
+                                    <button 
+                                        @click="maisConteudoPage < maisConteudoTotalPages && maisConteudoPage++" 
+                                        class="px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-100 transition-colors"
+                                        :class="{'opacity-50 cursor-not-allowed': maisConteudoPage === maisConteudoTotalPages}">
+                                        Próximo &raquo;
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column (Widgets + Ads) -->
+                        <div class="lg:col-span-1 min-w-[300px]">
+                            <!-- AdSense Rectangle (Top) -->
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarTop" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
+                                <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
+                                    <div v-html="getAdHtml('sidebarTop')"></div>
+                                </div>
+                                <div class="ad-container ad-sidebar-top" v-else>
+                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Popular Posts Widget -->
+                            <div class="bg-white rounded-lg shadow-md p-5 mb-6">
+                                <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
+                                    Mais Populares
+                                </h2>
+
+                                <div class="space-y-4">
+                                    <div
+                                        v-for="post in popularPosts"
+                                        :key="post.id"
+                                        class="flex gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                                    >
+                                        <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
+                                            <a :href="`/post/${post.slug}`">
+                                                <OptimizedImage
+                                                    :src="post.image"
+                                                    :alt="post.title"
+                                                    width="80"
+                                                    height="64"
+                                                    loading="lazy"
+                                                    icon-size="sm"
+                                                />
+                                            </a>
+                                        </div>
+                                        <div class="flex-grow">
+                                            <a :href="`/post/${post.slug}`" class="block">
+                                                <h4 class="text-sm font-semibold text-gray-800 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                    {{ post.title }}
+                                                </h4>
+                                            </a>
+                                            <span class="text-xs text-gray-500 mt-1 block">
+                                                {{ formatDate(post.publishedAt) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- AdSense Rectangle (Middle) -->
+                            <div class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
+                                <div class="ad-container ad-sidebar-mid" v-if="getAdHtml('sidebarMid')">
+                                    <div v-html="getAdHtml('sidebarMid')"></div>
+                                </div>
+                                <div class="ad-container ad-sidebar-mid" v-else>
+                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+
+
+
+                            <!-- AdSense Rectangle (Bottom) -->
+                            <div v-if="adSettings.enableAds && adSettings.homePageSidebarBottom" class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
+                                <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
+                                    <div v-html="getAdHtml('sidebarBottom')"></div>
+                                </div>
+                                <div class="ad-container ad-sidebar-bottom" v-else>
+                                    <div class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                        <span>Anúncio</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Taboola JS Code -->
+    <div v-if="adSettings.enableAds && adSettings.enableTaboolaAds && adSettings.taboolaJsCode" v-html="adSettings.taboolaJsCode"></div>
+</template>
+
+<script setup lang="ts">
+import {
+    ref, computed, onMounted,
+    onUnmounted, watch, nextTick, provide
+} from 'vue';
+import { useHead } from '@unhead/vue';
+import { vue3 } from '@cmmv/blog/client';
+import { useSettingsStore } from '../../store/settings';
+import { useCategoriesStore } from '../../store/categories';
+import { usePostsStore } from '../../store/posts';
+import { useMostAccessedPostsStore } from '../../store/mostaccessed';
+import { formatDate, stripHtml } from '../../composables/useUtils';
+import { useAds } from '../../composables/useAds';
+import OptimizedImage from '../../components/OptimizedImage.vue';
+
+declare global {
+    interface Window {
+        adsbygoogle: any[];
+        workbox: any;
+        imgix: any;
+    }
+}
+
+const settingsStore = useSettingsStore();
+const categoriesStore = useCategoriesStore();
+const postsStore = usePostsStore();
+const mostAccessedStore = useMostAccessedPostsStore();
+const blogAPI = vue3.useBlog();
+
+const rawSettings = computed(() => settingsStore.getSettings);
+const settings = computed<Record<string, any>>(() => {
+    const settingsObj = rawSettings.value || {};
+    const blogSettings: Record<string, any> = {};
+    Object.keys(settingsObj).forEach(key => {
+        if (key.startsWith('blog.')) {
+            const shortKey = key.replace('blog.', '');
+            blogSettings[shortKey] = settingsObj[key];
+        }
+    });
+    return blogSettings;
+});
+const categories = ref<any[]>(categoriesStore.getCategories || []);
+const posts = ref<any[]>(postsStore.getPosts || []);
+const popularPosts = ref<any[]>(mostAccessedStore.getMostAccessedPosts || []);
+const loading = ref(true);
+const loadingMore = ref(false);
+const error = ref(null);
+const currentPage = ref(0);
+// Paginação para a seção Mais Conteúdo
+const maisConteudoPage = ref(1);
+const maisConteudoPerPage = ref(6);
+const maisConteudoTotalPages = computed(() => {
+    const totalItems = posts.value.length - (featuredPost ? 5 : 4);
+    return Math.max(1, Math.ceil(totalItems / maisConteudoPerPage.value));
+});
+
+const paginatedMaisConteudo = computed(() => {
+    const startIndex = featuredPost ? 5 : 4;
+    const offset = (maisConteudoPage.value - 1) * maisConteudoPerPage.value;
+    return posts.value.slice(startIndex + offset, startIndex + offset + maisConteudoPerPage.value);
+});
+
+const shouldShowPageButton = (pageNum: number) => {
+    // Sempre mostrar a primeira e última página
+    if (pageNum === 1 || pageNum === maisConteudoTotalPages.value) return true;
+    
+    // Mostrar páginas próximas à página atual
+    if (Math.abs(pageNum - maisConteudoPage.value) <= 1) return true;
+    
+    return false;
+};
+
+const currentCarouselIndex = ref(0);
+const carouselInterval = ref<number | null>(null);
+const sidebarLeftAdContainer = ref<HTMLElement | null>(null);
+const hydrated = ref(false);
+
+const adPluginSettings = computed(() => {
+    return settings.value || {};
+});
+
+const {
+    adSettings, getAdHtml,
+    loadAdScripts, loadSidebarLeftAd
+} = useAds(adPluginSettings.value, 'home');
+
+const coverSettings = computed(() => {
+    try {
+        const config = settings.value.cover;
+        return config ? JSON.parse(config) : { layoutType: 'full' };
+    } catch (err) {
+        console.error('Error parsing cover settings:', err);
+        return { layoutType: 'full' };
+    }
+});
+
+const hasCoverConfig = computed(() => {
+    return !!settings.value.cover && Object.keys(coverSettings.value).length > 0;
+});
+
+const coverPosts = computed(() => {
+    if (!posts.value.length) return {};
+
+    const result: any = {
+        full: posts.value[0],
+        carousel: posts.value.slice(0, 3),
+        splitMain: posts.value[0],
+        splitSide: posts.value.slice(1, 3),
+        dual: posts.value.slice(0, 2)
+    };
+
+    if (hasCoverConfig.value) {
+        const config = coverSettings.value;
+        const shouldRespectSelectedPosts = config.respectSelectedPosts !== false;
+
+        if (shouldRespectSelectedPosts) {
+            if (config.layoutType === 'full' && config.fullCover?.postId) {
+                const configPost = posts.value.find(p => p.id === config.fullCover.postId);
+                if (configPost) result.full = configPost;
+            }
+
+            if (config.layoutType === 'carousel' && Array.isArray(config.carousel)) {
+                const carouselPostIds = config.carousel
+                    .filter(item => item && item.postId)
+                    .map(item => item.postId);
+
+                if (carouselPostIds.length) {
+                    const configPosts = carouselPostIds
+                        .map((id: string) => posts.value.find(p => p.id === id))
+                        .filter(Boolean);
+
+                    if (configPosts.length) result.carousel = configPosts;
+                }
+            }
+
+            if (config.layoutType === 'split') {
+                // Main post
+                if (config.split?.main?.postId) {
+                    const mainPost = posts.value.find(p => p.id === config.split.main.postId);
+                    if (mainPost) result.splitMain = mainPost;
+                }
+
+                if (Array.isArray(config.split?.secondary)) {
+                    const secondaryPostIds = config.split.secondary
+                        .filter(item => item && item.postId)
+                        .map(item => item.postId);
+
+                    if (secondaryPostIds.length) {
+                        const secondaryPosts = secondaryPostIds
+                            .map((id: string) => posts.value.find(p => p.id === id))
+                            .filter(Boolean);
+
+                        if (secondaryPosts.length) result.splitSide = secondaryPosts;
+                    }
+                }
+            }
+
+            if (config.layoutType === 'dual' && Array.isArray(config.dual)) {
+                const dualPostIds = config.dual
+                    .filter(item => item && item.postId)
+                    .map(item => item.postId);
+
+                if (dualPostIds.length) {
+                    const configPosts = dualPostIds
+                        .map((id: string) => posts.value.find(p => p.id === id))
+                        .filter(Boolean);
+
+                    if (configPosts.length) result.dual = configPosts;
+                }
+            }
+        }
+    }
+
+    return result;
+});
+
+const startCarouselInterval = () => {
+    if (coverSettings.value.layoutType === 'carousel' && coverPosts.value.carousel?.length > 1) {
+        carouselInterval.value = window.setInterval(() => {
+            nextCarouselSlide();
+        }, 5000);
+    }
+};
+
+const stopCarouselInterval = () => {
+    if (carouselInterval.value) {
+        clearInterval(carouselInterval.value);
+        carouselInterval.value = null;
+    }
+};
+
+const nextCarouselSlide = () => {
+    stopCarouselInterval();
+    if (coverPosts.value.carousel?.length) {
+        currentCarouselIndex.value = (currentCarouselIndex.value + 1) % coverPosts.value.carousel.length;
+    }
+    startCarouselInterval();
+};
+
+const prevCarouselSlide = () => {
+    stopCarouselInterval();
+    if (coverPosts.value.carousel?.length) {
+        currentCarouselIndex.value = (currentCarouselIndex.value - 1 + coverPosts.value.carousel.length) % coverPosts.value.carousel.length;
+    }
+    startCarouselInterval();
+};
+
+const headData = ref({
+    title: settings.value.title,
+    meta: [
+        { name: 'description', content: settings.value.description },
+        { name: 'keywords', content: settings.value.keywords },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:title', content: settings.value.title },
+        { property: 'og:description', content: settings.value.description },
+        { property: 'og:image', content: settings.value.logo }
+    ],
+    link: [
+        { rel: 'canonical', href: settings.value.url },
+        { rel: 'alternate', href: `${settings.value.url}/feed`, type: 'application/rss+xml', title: settings.value.title }
+    ]
+});
+
+useHead(headData);
+
+const pagination = ref({
+    total: 0,
+    limit: 12,
+    offset: 0
+});
+
+const featuredPost = computed(() => {
+    return posts.value.length > 0 ? posts.value[0] : null;
+});
+
+const reviewPosts = computed(() => {
+    const reviewCategory = categories.value.find(cat =>
+        cat.name.toLowerCase() === 'review' ||
+        cat.name.toLowerCase() === 'reviews' ||
+        cat.name.toLowerCase() === 'análise' ||
+        cat.name.toLowerCase() === 'análises');
+
+    if (reviewCategory) {
+        return posts.value.filter(post =>
+            post.categories &&
+            post.categories.some(cat => cat.id === reviewCategory.id)
+        ).slice(0, 2);
+    } else {
+        const middleIndex = Math.min(Math.floor(posts.value.length / 2), 5);
+        return posts.value.slice(middleIndex, middleIndex + 2);
+    }
+});
+
+const loadPosts = async () => {
+    try {
+        loading.value = true;
+        error.value = null;
+
+        // Carregamos todos os posts de uma vez, com um limite generoso
+        const response: any = await blogAPI.posts.getAll(0, 50);
+
+        if (response) {
+            posts.value = response.posts;
+
+            pagination.value = {
+                total: response.meta?.pagination?.total || 0,
+                limit: response.meta?.pagination?.limit || 12,
+                offset: response.meta?.pagination?.offset || 0
+            };
+
+            // Resetar a página atual para a primeira
+            maisConteudoPage.value = 1;
+
+            if (!categories.value.length) {
+                try {
+                    const categoriesResponse = await blogAPI.categories.getAll();
+                    if (categoriesResponse) {
+                        categories.value = categoriesResponse;
+                    }
+                } catch (err) {
+                    console.error('Failed to load categories:', err);
+                }
+            }
+        }
+    } catch (err: any) {
+        console.error('Failed to load posts:', err);
+        error.value = err;
+    } finally {
+        loading.value = false;
+    }
+};
+
+const getAuthor = (post: any) => {
+    if (!post.authors || !post.authors.length) return null;
+    return post.authors.find((author: any) => author.id === post.author);
+};
+
+
+
+// Provide hydrated state to child components
+provide('hydrated', hydrated);
+
+onMounted(async () => {
+    loading.value = false;
+    hydrated.value = true;
+    startCarouselInterval();
+    loadAdScripts();
+    loadSidebarLeftAd(sidebarLeftAdContainer.value);
+
+    await nextTick();
+});
+
+onUnmounted(() => {
+    stopCarouselInterval();
+});
+
+watch(() => settings.value['blog.cover'], () => {
+    stopCarouselInterval();
+    startCarouselInterval();
+}, { deep: true });
+
+watch(() => posts.value.length, async () => {
+    await nextTick();
+});
+</script>
+
+<style scoped>
+@media (max-width: 1280px) {
+    .ad-sidebar-left {
+        display: none;
+    }
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ad-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px dashed #ccc;
+    border-radius: 4px;
+}
+
+
+</style>
+
+
