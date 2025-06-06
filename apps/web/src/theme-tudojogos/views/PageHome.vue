@@ -38,18 +38,20 @@
                                 priority="high"
                                 icon-size="lg"
                             />
-                            <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
-                                <div v-if="coverPosts.full && coverPosts.full.categories && coverPosts.full.categories.length > 0" class="mb-2">
-                                    <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium">
+                            <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white feature-content">
+                                <div v-if="coverPosts.full && coverPosts.full.categories && coverPosts.full.categories.length > 0" class="mb-3">
+                                    <span class="bg-[#ffcc00] text-[#333] px-3 py-1 rounded-md text-sm font-medium category-tag gamer-tag">
                                         {{ coverPosts.full.categories[0].name }}
                                     </span>
                                 </div>
-                                <h2 v-if="coverPosts.full" class="text-2xl md:text-3xl font-bold mb-3 text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)] bg-black/30 inline-block py-1 px-2 rounded">{{ coverPosts.full.title }}</h2>
-                                <p v-if="coverPosts.full" class="text-gray-100 mb-4 line-clamp-2 drop-shadow-[0_1px_1px_rgba(0,0,0,0.8)] bg-black/25 p-2 rounded max-w-2xl">
+                                <h2 v-if="coverPosts.full" class="text-2xl md:text-3xl font-bold mb-3 text-white feature-title py-2 px-3 rounded">
+                                    <span class="gamer-highlight">{{ coverPosts.full.title }}</span>
+                                </h2>
+                                <p v-if="coverPosts.full" class="feature-excerpt mb-4 line-clamp-2 p-3 rounded max-w-2xl">
                                     {{ coverPosts.full.excerpt || stripHtml(coverPosts.full.content).substring(0, 150) + '...' }}
                                 </p>
-                                <span class="inline-block bg-[#0a5d28] hover:bg-[#064019] text-white px-4 py-2 rounded-md transition-colors">
-                                    Continuar lendo
+                                <span class="inline-block gamer-button px-4 py-2 rounded-md read-more-btn transition-all">
+                                    <span class="relative z-10">Continuar lendo</span>
                                 </span>
                             </div>
                         </div>
@@ -233,8 +235,8 @@
                 <div class="flex-grow">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2">
-                            <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
-                                Últimas Notícias
+                            <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00] titulo-gamer">
+                                <span>Últimas Notícias</span>
                             </h2>
 
                             <div class="grid grid-cols-1 gap-6">
@@ -294,9 +296,9 @@
                                 </div>
                             </div>
 
-                            <div v-if="posts.length > (featuredPost ? 5 : 4)">
-                                <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
-                                    Mais Conteúdo
+                            <div v-if="posts.length > (featuredPost ? 5 : 4)" class="mais-conteudo-section">
+                                <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00] titulo-gamer">
+                                    <span>Mais Conteúdo</span>
                                 </h2>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -399,18 +401,18 @@
                             </div>
 
                             <!-- Popular Posts Widget -->
-                            <div class="bg-white rounded-lg shadow-md p-5 mb-6">
-                                <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00]">
-                                    Mais Populares
+                            <div class="bg-white rounded-lg shadow-md p-5 mb-6 gamer-popular-posts">
+                                <h2 class="text-xl font-bold mb-4 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00] titulo-gamer">
+                                    <span>Mais Populares</span>
                                 </h2>
 
                                 <div class="space-y-4">
                                     <div
                                         v-for="post in popularPosts"
                                         :key="post.id"
-                                        class="flex gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0"
+                                        class="flex gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0 post-popular-item hover:transform hover:-translate-y-1 transition-all duration-300"
                                     >
-                                        <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
+                                        <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md border border-[#303443] shadow-md">
                                             <a :href="`/post/${post.slug}`">
                                                 <OptimizedImage
                                                     :src="post.image"
@@ -424,11 +426,14 @@
                                         </div>
                                         <div class="flex-grow">
                                             <a :href="`/post/${post.slug}`" class="block">
-                                                <h4 class="text-sm font-semibold text-gray-800 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                <h4 class="text-sm font-semibold text-gray-800 hover:text-[#00ccff] transition-colors line-clamp-2">
                                                     {{ post.title }}
                                                 </h4>
                                             </a>
-                                            <span class="text-xs text-gray-500 mt-1 block">
+                                            <span class="text-xs text-gray-500 mt-1 block flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
                                                 {{ formatDate(post.publishedAt) }}
                                             </span>
                                         </div>

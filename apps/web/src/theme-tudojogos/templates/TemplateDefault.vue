@@ -1,23 +1,23 @@
 <template>
-    <div class="flex flex-col min-h-screen bg-gray-100">
+    <div class="flex flex-col min-h-screen gamer-main-bg text-gray-200">
         <!-- Header -->
-        <header class="bg-[#0a5d28] sticky top-0 z-50 shadow-md">
+        <header class="gamer-header sticky top-0 z-50 shadow-md">
             <div class="max-w-[1200px] mx-auto px-4">
                 <div class="flex justify-between items-center h-14">
                     <!-- Logo -->
-                    <div class="flex-shrink-0">
-                        <a href="/" class="text-2xl font-bold text-white">
-                            <img src="/src/theme-tudojogos/assets/logo.webp" width="147" height="32" alt="Logo" title="Logo">
-                        </a>
+                    <div class="flex-shrink-0 flex items-center h-full">
+                        <router-link to="/" class="text-white flex items-center h-full py-2">
+                            <img src="/src/theme-tudojogos/assets/Logo.webp" alt="TudoJogos Logo" class="h-10 max-h-full object-contain">
+                        </router-link>
                     </div>
 
                     <!-- Desktop Navigation -->
-                    <nav class="hidden md:flex items-center space-x-1">
+                    <nav class="hidden md:flex items-center space-x-1 gamer-nav">
                         <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
                             <div v-if="mainNavCategories.childrenMap[category.id]" class="relative">
                                 <button
                                     @click="(e) => toggleDropdown(category.id, e)"
-                                    class="dropdown-toggle text-white hover:bg-[#064019] dark:hover:bg-[#0a5d28] hover:text-[#ffcc00] px-2 py-1 rounded text-sm flex items-center whitespace-nowrap transition-colors"
+                                    class="dropdown-toggle text-white hover:bg-[#064019] px-2 py-1 rounded text-sm flex items-center whitespace-nowrap transition-colors"
                                     :class="{'bg-[#064019] text-[#ffcc00]': openDropdowns[category.id]}"
                                 >
                                     {{ category.name }}
@@ -27,11 +27,11 @@
                                 </button>
                                 <div
                                     v-show="openDropdowns[category.id]"
-                                    class="dropdown-menu absolute left-0 mt-1 w-48 rounded-md shadow-lg bg-[#0a5d28] ring-1 ring-black ring-opacity-5 z-10"
+                                    class="dropdown-menu gamer-dropdown absolute left-0 mt-1 w-48 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-10"
                                 >
                                     <a v-for="child in mainNavCategories.childrenMap[category.id]" :key="child.id"
                                         :href="`/category/${child.slug}`"
-                                        class="block text-white hover:bg-[#064019] hover:text-[#ffcc00] px-3 py-2 text-sm transition-colors"
+                                        class="block text-white px-3 py-2 text-sm transition-colors"
                                     >
                                         {{ child.name }}
                                     </a>
@@ -39,7 +39,7 @@
                             </div>
                             <a v-else
                                 :href="`/category/${category.slug}`"
-                                class="text-white hover:bg-[#064019] dark:hover:bg-[#0a5d28] hover:text-[#ffcc00] px-2 py-1 rounded text-sm whitespace-nowrap transition-colors"
+                                class="text-white px-2 py-1 rounded text-sm whitespace-nowrap transition-colors"
                             >
                                 {{ category.name }}
                             </a>
@@ -47,7 +47,7 @@
                     </nav>
 
                     <!-- Social and Search -->
-                    <div class="hidden md:flex items-center space-x-3">
+                    <div class="hidden md:flex items-center space-x-3 gamer-social">
                         <a v-if="settings['blog.facebook']" :href="`https://facebook.com/${settings['blog.facebook']}`" target="_blank" rel="noopener noreferrer" title="Facebook" class="text-white hover:text-[#ffcc00] transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -114,13 +114,13 @@
                 </div>
 
                 <!-- Mobile Menu -->
-                <div v-show="mobileMenuOpen" class="md:hidden py-3 border-t border-[#064019]">
+                <div v-show="mobileMenuOpen" class="md:hidden py-3 gamer-mobile-menu">
                     <div class="flex flex-col gap-1">
                         <template v-for="category in mainNavCategories.rootCategories" :key="category.id">
                             <div v-if="mainNavCategories.childrenMap[category.id]" class="w-full">
                                 <button
                                     @click="(e) => toggleDropdown(category.id, e)"
-                                    class="dropdown-toggle flex items-center justify-between w-full text-white hover:bg-[#064019] dark:hover:bg-[#0a5d28] hover:text-[#ffcc00] rounded px-3 py-2 text-sm"
+                                    class="dropdown-toggle flex items-center justify-between w-full text-white rounded px-3 py-2 text-sm"
                                     :class="{'bg-[#064019] text-[#ffcc00]': openDropdowns[category.id]}"
                                 >
                                     {{ category.name }}
@@ -128,12 +128,12 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </button>
-                                <div v-show="openDropdowns[category.id]" class="pl-4 py-1 bg-[#064019] rounded mt-1">
+                                <div v-show="openDropdowns[category.id]" class="pl-4 py-1 gamer-dropdown rounded mt-1">
                                     <a
                                         v-for="child in mainNavCategories.childrenMap[category.id]"
                                         :key="child.id"
                                         :href="`/category/${child.slug}`"
-                                        class="block px-4 py-2 text-sm text-white hover:bg-[#0a5d28] hover:text-[#ffcc00] rounded"
+                                        class="block px-4 py-2 text-sm text-white rounded"
                                     >
                                         {{ child.name }}
                                     </a>
@@ -142,7 +142,7 @@
                             <a
                                 v-else
                                 :href="`/category/${category.slug}`"
-                                class="block text-white hover:bg-[#064019] dark:hover:bg-[#0a5d28] hover:text-[#ffcc00] rounded px-3 py-2 text-sm"
+                                class="block text-white rounded px-3 py-2 text-sm"
                             >
                                 {{ category.name }}
                             </a>
@@ -150,7 +150,7 @@
                     </div>
 
                     <!-- Social Icons for Mobile -->
-                    <div class="flex justify-center space-x-6 mt-3 pt-3 border-t border-[#064019]">
+                    <div class="flex justify-center space-x-6 mt-3 pt-3 border-t gamer-footer-border gamer-social">
                         <a href="#" class="text-white hover:text-[#ffcc00] transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -172,7 +172,7 @@
         </header>
 
         <!-- Main content -->
-        <main class="flex-grow container mx-auto md:px-4 md:py-6">
+        <main class="flex-grow container mx-auto md:px-4 md:py-6 text-gamer-text">
             <div class="flex flex-col lg:flex-row gap-6">
                 <router-view />
             </div>
@@ -181,13 +181,13 @@
 
 
         <!-- Footer -->
-        <footer class="bg-[#333333] text-white">
+        <footer class="gamer-footer text-white">
             <div class="max-w-[1200px] mx-auto px-4 py-12">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
                         <h3 class="text-lg font-bold mb-4 relative pb-3">
                             Sobre o TudoJogos
-                            <span class="absolute bottom-0 left-0 w-10 h-1 bg-[#0a5d28]"></span>
+                            <span class="absolute bottom-0 left-0 w-10 h-1 bg-gradient-to-r from-[#6600cc] to-[#00ccff]"></span>
                         </h3>
                         <p class="text-gray-300 text-sm mb-8">
                             Portal especializado em notícias, reviews e conteúdo sobre o mundo dos games.
@@ -236,14 +236,14 @@
                     <div>
                         <h3 class="text-lg font-bold mb-4 relative pb-3">
                             Links Rápidos
-                            <span class="absolute bottom-0 left-0 w-10 h-1 bg-[#0a5d28]"></span>
+                            <span class="absolute bottom-0 left-0 w-10 h-1 bg-gradient-to-r from-[#6600cc] to-[#00ccff]"></span>
                         </h3>
                         <ul class="space-y-2">
-                            <li><router-link to="/contact" class="text-gray-300 hover:text-[#ffcc00] transition-colors">Contato</router-link></li>
-                            <li><router-link to="/tag/news" class="text-gray-300 hover:text-[#ffcc00] transition-colors">Notícias</router-link></li>
-                            <li><router-link to="/tag/reviews" class="text-gray-300 hover:text-[#ffcc00] transition-colors">Reviews</router-link></li>
-                            <li><router-link to="/terms-of-service" class="text-gray-300 hover:text-[#ffcc00] transition-colors">Termos de Uso</router-link></li>
-                            <li><router-link to="/terms-of-privacy" class="text-gray-300 hover:text-[#ffcc00] transition-colors">Política de Privacidade</router-link></li>
+                            <li><router-link to="/contact" class="text-gray-300 gamer-link">Contato</router-link></li>
+                            <li><router-link to="/tag/news" class="text-gray-300 gamer-link">Notícias</router-link></li>
+                            <li><router-link to="/tag/reviews" class="text-gray-300 gamer-link">Reviews</router-link></li>
+                            <li><router-link to="/terms-of-service" class="text-gray-300 gamer-link">Termos de Uso</router-link></li>
+                            <li><router-link to="/terms-of-privacy" class="text-gray-300 gamer-link">Política de Privacidade</router-link></li>
                         </ul>
                     </div>
                     
@@ -251,18 +251,18 @@
                     <div>
                         <h3 class="text-lg font-bold mb-4 relative pb-3">
                             Newsletter
-                            <span class="absolute bottom-0 left-0 w-10 h-1 bg-[#0a5d28]"></span>
+                            <span class="absolute bottom-0 left-0 w-10 h-1 bg-gradient-to-r from-[#6600cc] to-[#00ccff]"></span>
                         </h3>
                         <p class="text-gray-300 mb-4">
                             Receba as últimas notícias e atualizações diretamente no seu e-mail.
                             Fique por dentro de tudo sobre o universo gamer.
                         </p>
-                        <form class="w-full">
+                        <form class="w-full gamer-newsletter">
                             <div class="flex flex-col space-y-3">
                                 <input type="email" placeholder="Seu email"
-                                    class="w-full px-4 py-3 rounded-md border-0 bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#0a5d28]">
+                                    class="w-full px-4 py-3 rounded-md border-0 text-white placeholder-gray-400 focus:outline-none">
                                 <button type="submit" 
-                                    class="bg-[#0a5d28] hover:bg-[#097d36] text-white font-medium px-4 py-3 rounded-md transition-colors whitespace-nowrap w-full">
+                                    class="gamer-button text-white font-medium px-4 py-3 rounded-md transition-colors whitespace-nowrap w-full">
                                     Assinar
                                 </button>
                             </div>
@@ -270,7 +270,7 @@
                     </div>
                 </div>
 
-                <div class="border-t border-gray-700 mt-8 pt-6 text-center">
+                <div class="border-t gamer-footer-border mt-8 pt-6 text-center">
                     <p class="text-gray-400 text-sm">
                         &copy; {{ new Date().getFullYear() }} TudoJogos - Todos os direitos reservados.
                     </p>
@@ -279,17 +279,17 @@
         </footer>
 
         <!-- Search Modal -->
-        <div v-if="searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="search-modal" role="dialog" aria-modal="true">
+        <div v-if="searchModalOpen" class="fixed inset-0 z-50 overflow-y-auto gamer-search-modal" aria-labelledby="search-modal" role="dialog" aria-modal="true">
             <div class="flex items-start justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 <div class="fixed inset-0 bg-black/50 transition-opacity" aria-hidden="true" @click="closeSearchModal" style="backdrop-filter: blur(4px);"></div>
 
                 <!-- Modal panel -->
-                <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
+                <div class="inline-block align-bottom gamer-search-modal-content rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full relative z-10">
                     <div class="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
                             <div class="w-full">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-100" id="modal-title">
                                         Pesquisar
                                     </h3>
                                     <button @click="closeSearchModal" class="text-gray-400 hover:text-gray-500 focus:outline-none">
@@ -370,7 +370,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, onBeforeUnmount } from 'vue';
+import { ref, computed, onMounted, watch, onBeforeUnmount, nextTick } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
@@ -402,6 +402,14 @@ useHead({
         {
             rel: 'stylesheet',
             href: '/src/theme-tudojogos/style.css'
+        },
+        {
+            rel: 'stylesheet',
+            href: '/src/theme-tudojogos/gamer-style.css'
+        },
+        {
+            rel: 'stylesheet',
+            href: 'https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700&display=swap'
         },
         {
             rel: 'icon',
@@ -582,6 +590,47 @@ onMounted(async () => {
     document.documentElement.classList.remove('dark');
     localStorage.setItem('theme', 'light');
     document.addEventListener('click', closeDropdownsOnClickOutside);
+    
+    // Aplicar estilos gamer aos componentes após o carregamento completo
+    nextTick(() => {
+        // Aplicar estilos após um pequeno delay para garantir que o DOM esteja carregado
+        setTimeout(() => {
+            // Aplicar aos cartões de posts
+            document.querySelectorAll('.post-item, article, .post').forEach(post => {
+                post.classList.add('post-card');
+            });
+            
+            // Aplicar aos botões de continuar lendo
+            document.querySelectorAll('a.more-link, a.read-more, button.more, .button').forEach(btn => {
+                btn.classList.add('read-more-btn');
+            });
+            
+            // Encontrar links com texto "Continuar"
+            document.querySelectorAll('a').forEach(link => {
+                if (link.textContent && link.textContent.includes('Continuar')) {
+                    link.classList.add('read-more-btn');
+                }
+            });
+            
+            // Aplicar às tags e categorias
+            document.querySelectorAll('.tag, .category, .tags a, .categories a').forEach(tag => {
+                tag.classList.add('post-tag');
+            });
+            
+            // Aplicar aos títulos de seções
+            document.querySelectorAll('h2.widget-title, h3.widget-title, h2.section-heading, h3.section-heading').forEach(title => {
+                title.classList.add('section-title');
+            });
+            
+            // Aplicar aos links de paginação
+            document.querySelectorAll('.pagination a, .nav-links a, .page-numbers').forEach(page => {
+                page.classList.add('pagination-item');
+                if(page.classList.contains('current')) {
+                    page.classList.add('active');
+                }
+            });
+        }, 500);
+    });
 });
 
 onBeforeUnmount(() => {
