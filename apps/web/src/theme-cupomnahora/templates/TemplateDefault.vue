@@ -255,7 +255,7 @@
         <!-- Footer -->
         <footer class="bg-gray-800 text-white pt-12 pb-6">
             <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
                     <!-- Sobre -->
                     <div>
                         <h3 class="text-xl font-bold mb-4">Sobre MeuCupom</h3>
@@ -288,7 +288,8 @@
                             <a
                                 v-if="settings['blog.instagram']"
                                 :href="`https://instagram.com/${settings['blog.instagram']}`"
-                                target="_blank" class="text-gray-400 hover:text-white"
+                                target="_blank"
+                                class="text-gray-400 hover:text-white"
                                 aria-label="Instagram"
                                 title="Instagram"
                             >
@@ -303,12 +304,36 @@
                     <div>
                         <h3 class="text-xl font-bold mb-4">Lojas Recentes</h3>
                         <ul class="space-y-2">
-                            <li v-for="campaign in recentCampaigns.slice(0, 10)" :key="campaign.id">
+                            <li v-for="campaign in recentCampaigns.slice(0, 5)" :key="campaign.id">
                                 <a :href="`/desconto/${campaign.slug}`" class="text-gray-400 hover:text-white">
                                     {{ campaign.name }}
                                 </a>
                             </li>
                         </ul>
+                    </div>
+
+                    <!-- Datas Especiais -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Datas especiais</h3>
+                        <ul v-if="!isLoadingSpecialDates && activeSpecialDates.length > 0" class="space-y-2">
+                            <li v-for="date in activeSpecialDates.slice(0, 5)" :key="date.id">
+                                <a :href="`/ofertas/${date.slug}`" class="text-gray-400 hover:text-white">
+                                    {{ date.name }}
+                                </a>
+                            </li>
+                        </ul>
+                        <div v-else-if="isLoadingSpecialDates" class="text-gray-500">
+                            <div class="flex items-center space-x-2">
+                                <svg class="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Carregando datas especiais...</span>
+                            </div>
+                        </div>
+                        <p v-else class="text-gray-500">
+                            Nenhuma data especial disponível no momento.
+                        </p>
                     </div>
                 </div>
 
@@ -457,20 +482,31 @@ import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
 import { useCampaignsStore } from '../../store/campaigns';
 import { useCouponsStore } from '../../store/coupons';
+import { useSpecialDatesStore } from '../../store/specialdates';
 import { vue3 as affiliateVue3 } from '@cmmv/affiliate/client';
 import { useRoute } from 'vue-router';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 import CookieConsent from '../../components/CookieConsent.vue';
 import { vue3 as newsletterVue3 } from '@cmmv/newsletter/client';
+import { vue3 as specialDatesVue3 } from '@cmmv/special-dates/client';
 
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
 const settingsStore = useSettingsStore();
 const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
+const specialDatesStore = useSpecialDatesStore();
 const route = useRoute();
 const settings = ref<any>(settingsStore.getSettings);
-const campaigns = ref<any[]>(campaignsStore.getCampaigns || []);
+const campaigns = computed(() => campaignsStore.getCampaigns || []);
+const isLoadingSpecialDates = ref(true);
+
+// Computed property para as datas especiais filtradas e ativas
+const activeSpecialDates = computed(() => {
+    const dates = specialDatesStore.getActiveDates;
+    console.log('[TemplateDefault] Active special dates computed:', dates.length);
+    return dates;
+});
 
 const recentCampaigns = computed(() => {
     if (!campaigns.value || campaigns.value.length === 0) return [];
@@ -756,16 +792,6 @@ const closeScratchModal = () => {
     selectedCouponForScratch.value = null;
 };
 
-onMounted(async () => {
-    // Aguarda um pouco para garantir que os stores estejam carregados
-    setTimeout(async () => {
-        await checkCouponInUrl();
-    }, 500);
-
-    // Também verifica imediatamente
-    await checkCouponInUrl();
-});
-
 const newsletterAPI = newsletterVue3.useNewsletter();
 const newsletterEmail = ref('');
 const newsletterSubmitted = ref(false);
@@ -819,4 +845,49 @@ const isValidEmail = (email: string) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
 };
+
+onMounted(async () => {
+    console.log('[TemplateDefault] Component mounted');
+    
+    // Carregar campanhas
+    if (!campaigns.value || campaigns.value.length === 0) {
+        try {
+            const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
+            if (campaignsData && Array.isArray(campaignsData)) {
+                campaignsStore.setCampaigns(campaignsData);
+            }
+        } catch (error) {
+            console.error('Erro ao carregar campanhas para o rodapé:', error);
+        }
+    }
+    
+    // Garantir que as datas especiais são carregadas
+    try {
+        isLoadingSpecialDates.value = true;
+        console.log('[TemplateDefault] Loading special dates, store status:', specialDatesStore.hasLoaded ? 'loaded' : 'not loaded');
+        
+        // Verificar se os dados são válidos, mesmo se já estiverem carregados
+        const hasValidData = specialDatesStore.hasValidData;
+        
+        if (!specialDatesStore.hasLoaded || !hasValidData) {
+            console.log('[TemplateDefault] Store not loaded or data invalid, fetching data');
+            const specialDatesAPI = specialDatesVue3.useSpecialDates();
+            const specialDatesData = await specialDatesAPI.dates.getAll();
+            console.log('[TemplateDefault] Special dates API response received');
+            specialDatesStore.setSpecialDates(specialDatesData);
+        } else {
+            console.log('[TemplateDefault] Store already loaded with valid data');
+        }
+    } catch (error) {
+        console.error('[TemplateDefault] Erro ao carregar datas especiais:', error);
+    } finally {
+        isLoadingSpecialDates.value = false;
+        console.log('[TemplateDefault] Finished loading special dates');
+    }
+    
+    // Verificar cupons na URL
+    setTimeout(async () => {
+        await checkCouponInUrl();
+    }, 500);
+});
 </script>

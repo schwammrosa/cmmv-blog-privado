@@ -18,6 +18,7 @@ import { ytFeedRoutes } from '@cmmv/yt-aggregation/admin/router';
 import { affiliateRoutes } from '@cmmv/affiliate/admin/router';
 import { oddsRoutes } from '@cmmv/odds/admin/router';
 import { newsletterRoutes } from '@cmmv/newsletter/admin/router';
+import { specialDatesRoutes } from '@cmmv/special-dates/admin/router';
 
 const mergedRoutes = mergePluginRoutes(
     adminRoutes,
@@ -28,7 +29,8 @@ const mergedRoutes = mergePluginRoutes(
         ytFeedRoutes,
         affiliateRoutes,
         oddsRoutes,
-        newsletterRoutes
+        newsletterRoutes,
+        specialDatesRoutes
     ]
 );
 
