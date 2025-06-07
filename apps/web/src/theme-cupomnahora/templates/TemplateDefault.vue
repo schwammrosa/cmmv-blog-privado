@@ -255,7 +255,7 @@
         <!-- Footer -->
         <footer class="bg-gray-800 text-white pt-12 pb-6">
             <div class="container mx-auto px-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-8">
                     <!-- Sobre -->
                     <div>
                         <h3 class="text-xl font-bold mb-4">Sobre MeuCupom</h3>
@@ -288,7 +288,8 @@
                             <a
                                 v-if="settings['blog.instagram']"
                                 :href="`https://instagram.com/${settings['blog.instagram']}`"
-                                target="_blank" class="text-gray-400 hover:text-white"
+                                target="_blank"
+                                class="text-gray-400 hover:text-white"
                                 aria-label="Instagram"
                                 title="Instagram"
                             >
@@ -303,12 +304,25 @@
                     <div>
                         <h3 class="text-xl font-bold mb-4">Lojas Recentes</h3>
                         <ul class="space-y-2">
-                            <li v-for="campaign in recentCampaigns.slice(0, 10)" :key="campaign.id">
+                            <li v-for="campaign in recentCampaigns.slice(0, 5)" :key="campaign.id">
                                 <a :href="`/desconto/${campaign.slug}`" class="text-gray-400 hover:text-white">
                                     {{ campaign.name }}
                                 </a>
                             </li>
                         </ul>
+                    </div>
+
+                    <!-- Datas Especiais -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Datas especiais</h3>
+                        <ul class="space-y-2" v-if="specialDates && specialDates.length > 0">
+                            <li v-for="date in specialDates.slice(0, 5)" :key="date.id">
+                                <a :href="`/ofertas/${date.slug}`" class="text-gray-400 hover:text-white">
+                                    {{ date.name }}
+                                </a>
+                            </li>
+                        </ul>
+                        <p v-else class="text-gray-500">Carregando datas especiais...</p>
                     </div>
                 </div>
 
@@ -462,6 +476,7 @@ import { useRoute } from 'vue-router';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 import CookieConsent from '../../components/CookieConsent.vue';
 import { vue3 as newsletterVue3 } from '@cmmv/newsletter/client';
+import { vue3 as specialDatesVue3 } from '@cmmv/special-dates/client';
 
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
@@ -471,6 +486,7 @@ const couponsStore = useCouponsStore();
 const route = useRoute();
 const settings = ref<any>(settingsStore.getSettings);
 const campaigns = computed(() => campaignsStore.getCampaigns || []);
+const specialDates = ref<any[]>([]);
 
 const recentCampaigns = computed(() => {
     if (!campaigns.value || campaigns.value.length === 0) return [];
@@ -756,6 +772,8 @@ const closeScratchModal = () => {
     selectedCouponForScratch.value = null;
 };
 
+const specialDatesAPI = specialDatesVue3.useSpecialDates();
+
 onMounted(async () => {
     // Carrega as campanhas para o rodapé sem isso, o rodapé não carrega
     if (!campaigns.value || campaigns.value.length === 0) {
@@ -767,6 +785,27 @@ onMounted(async () => {
         } catch (error) {
             console.error('Erro ao carregar campanhas para o rodapé:', error);
         }
+    }
+
+    try {
+        const specialDatesData = await specialDatesAPI.dates.getAll();
+        console.log('Datas especiais (resposta completa):', specialDatesData);
+        
+        // Extrair o valor da resposta do formato correto
+        if (specialDatesData && specialDatesData.data && specialDatesData.data.value) {
+            if (specialDatesData.data.value.data) {
+                // Acessar o array dentro de data.value.data
+                specialDates.value = specialDatesData.data.value.data.filter((d: any) => d.active);
+            } else {
+                specialDates.value = specialDatesData.data.value.filter((d: any) => d.active);
+            }
+        } else if (Array.isArray(specialDatesData)) {
+            specialDates.value = specialDatesData.filter((d: any) => d.active);
+        }
+        
+        console.log('Datas especiais processadas:', specialDates.value);
+    } catch (error) {
+        console.error('Erro ao carregar datas especiais:', error);
     }
     
     // Aguarda um pouco para garantir que os stores estejam carregados
