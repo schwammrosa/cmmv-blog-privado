@@ -22,14 +22,33 @@ export const useSpecialDates = () => {
     const dates = {
         getAll: async () => {
             try {
-                return await api.get("special-dates", "special_dates_all", {
+                //console.log('[SpecialDatesClient] Fetching all special dates');
+                const response = await api.get("special-dates", "special_dates_all", {
                     headers: {
                         Authorization: 'Bearer ' + localStorage.getItem('token') || ''
                     }
                 });
+                
+                //console.log('[SpecialDatesClient] Response received:', 
+                //    response ? 'data present' : 'no data',
+                //    Array.isArray(response) ? `array length: ${response.length}` : 'not array');
+                
+                // Garantir um formato consistente na resposta
+                if (!response) {
+                    //console.warn('[SpecialDatesClient] Empty response, returning empty array');
+                    return { data: [] };
+                }
+                
+                // Se for um array, encapsular em um objeto com propriedade data
+                if (Array.isArray(response)) {
+                    //console.log('[SpecialDatesClient] Converting array response to object format');
+                    return { data: response };
+                }
+                
+                return response;
             } catch (error) {
-                console.error("Special Dates getAll error:", error);
-                throw error;
+                //console.error("[SpecialDatesClient] Special Dates getAll error:", error);
+                return { data: [] };
             }
         },
         
@@ -55,12 +74,12 @@ export const useSpecialDates = () => {
                             const allDates = await dates.getAll();
                             return Array.isArray(allDates) ? allDates.find(d => d.slug === slug) : null;
                         } catch (finalError) {
-                            console.error("Special Dates all fallbacks failed:", finalError);
+                            //console.error("Special Dates all fallbacks failed:", finalError);
                             throw finalError;
                         }
                     }
                 }
-                console.error("Special Dates getBySlug error:", error);
+                //console.error("Special Dates getBySlug error:", error);
                 throw error;
             }
         },
