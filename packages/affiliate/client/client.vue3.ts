@@ -64,6 +64,13 @@ export const useAffiliate = () => {
         getBySlug: async (slug: string) => {
             const { data } = await api.get<any[]>(`affiliate/campaigns/public/${slug}`, `campaign`);
             return data.value || [];
+        },
+        getBySpecialDate: async (specialDateId: string) => {
+            if (!specialDateId) {
+                return [];
+            }
+            const { data } = await api.get<any[]>(`affiliate/campaigns/public?specialDateId=${specialDateId}`, `campaigns_special_date_${specialDateId}`);
+            return data.value || [];
         }
     };
 

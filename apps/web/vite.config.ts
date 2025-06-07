@@ -70,7 +70,9 @@ export default defineConfig(({ mode }) => {
                 '@cmmv/odds': path.resolve(__dirname, '../../packages/odds/'),
                 '@cmmv/odds/*': path.resolve(__dirname, '../../packages/odds/*'),
                 '@cmmv/newsletter': path.resolve(__dirname, '../../packages/newsletter/'),
-                '@cmmv/newsletter/*': path.resolve(__dirname, '../../packages/newsletter/*')
+                '@cmmv/newsletter/*': path.resolve(__dirname, '../../packages/newsletter/*'),
+                '@cmmv/special-dates': path.resolve(__dirname, '../../packages/special-dates/'),
+                '@cmmv/special-dates/*': path.resolve(__dirname, '../../packages/special-dates/*')
             },
         },
         server: {

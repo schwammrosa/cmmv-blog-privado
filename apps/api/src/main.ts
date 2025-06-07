@@ -12,6 +12,7 @@ import { AIContentModule } from "@cmmv/ai-content";
 import { AffiliateModule } from "@cmmv/affiliate";
 import { OddsModule } from "@cmmv/odds";
 import { NewsletterModule } from "@cmmv/newsletter";
+import { SpecialDatesModule } from "@cmmv/special-dates";
 
 Application.create({
     httpAdapter: DefaultAdapter,
@@ -26,7 +27,8 @@ Application.create({
         AIContentModule,
         AffiliateModule,
         OddsModule,
-        NewsletterModule
+        NewsletterModule,
+        SpecialDatesModule
     ],
     providers: [
         Repository,
