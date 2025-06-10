@@ -160,7 +160,6 @@ export class ImportService {
     async importWordpress(req: any) {
         return new Promise<any>((resolve, reject) => {
             try {
-                console.log("Processing WordPress import request");
 
                 if (req.file || (req.files && req.files.file) || (req.body && req.body.file)) {
                     return this.processMiddlewareParsedFile(req)
@@ -168,7 +167,6 @@ export class ImportService {
                         .catch(error => reject(error));
                 }
 
-                console.log("Reading file from request stream");
 
                 if (!req.headers || !req.headers['content-type']) {
                     return reject({
@@ -204,11 +202,8 @@ export class ImportService {
                     let fileError: FileError = null;
 
                     bb.on('file', (fieldname: string, fileStream: NodeJS.ReadableStream, info: StreamInfo) => {
-                        console.log(`Processing file upload: ${fieldname}, filename: ${info.filename}`);
-
                         if (fieldname !== 'file') {
-                            console.log(`Skipping non-'file' field: ${fieldname}`);
-                            fileStream.resume(); // Skip this stream
+                            fileStream.resume();
                             return;
                         }
 
@@ -218,33 +213,23 @@ export class ImportService {
                         fileStream.pipe(writeStream);
 
                         fileStream.on('error', (error: Error) => {
-                            console.error('Error reading file stream:', error);
                             fileError = error;
                             writeStream.end();
                         });
 
                         writeStream.on('error', (error: Error) => {
-                            console.error('Error writing to temp file:', error);
                             fileError = error;
-                            fileStream.resume(); // drain the stream
+                            fileStream.resume();
                         });
-                    });
-
-                    bb.on('field', (fieldname: string, value: string) => {
-                        console.log(`Form field: ${fieldname}=${value}`);
                     });
 
                     bb.on('close', async () => {
                         try {
-                            if (fileError) {
+                            if (fileError)
                                 throw new Error(`File upload error: ${fileError.message}`);
-                            }
 
-                            if (!fileFound) {
+                            if (!fileFound)
                                 throw new Error('No file uploaded. Make sure to send the file with field name "file"');
-                            }
-
-                            console.log(`File saved to ${tempFilePath}, now processing XML`);
 
                             const xmlContent = await fs.promises.readFile(tempFilePath, 'utf-8');
 
@@ -268,11 +253,7 @@ export class ImportService {
                                 ? wpData.rss.channel.item
                                 : [wpData.rss.channel.item];
 
-                            console.log(`WordPress import started: Found ${items.length} items`);
-
                             const importId = uuidv4();
-
-                            // Initialize progress tracking
                             this.importProgress[importId] = {
                                 id: importId,
                                 platform: 'wordpress',
@@ -402,8 +383,6 @@ export class ImportService {
             const items = Array.isArray(wpData.rss.channel.item)
                 ? wpData.rss.channel.item
                 : [wpData.rss.channel.item];
-
-            console.log(`WordPress import started: Found ${items.length} items`);
 
             const importId = uuidv4();
 
@@ -724,17 +703,12 @@ export class ImportService {
         if (!content) return '';
 
         let processedContent = content;
-
-        // First process YouTube embeds to ensure they're handled before we remove WordPress comments
         const youtubeBlockPattern = /<!-- wp:embed[\s\S]*?youtube.com\/watch\?v=([a-zA-Z0-9_-]+)[\s\S]*?<!-- \/wp:embed -->/g;
 
         processedContent = processedContent.replace(youtubeBlockPattern, (match, videoId) => {
-            console.log(`Found YouTube embed, video ID: ${videoId}`);
-
             return `<iframe title="YouTube Video" width="720" height="405" data-lazy="true" src="https://www.youtube.com/embed/${videoId}?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
         });
 
-        // Process plain YouTube URLs
         const plainYoutubeUrlPattern = /https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)/g;
 
         processedContent = processedContent.replace(plainYoutubeUrlPattern, (match, videoId) => {
@@ -746,7 +720,6 @@ export class ImportService {
             return `<iframe title="YouTube Video" width="720" height="405" data-lazy="true" src="https://www.youtube.com/embed/${videoId}?feature=oembed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
         });
 
-        // Process WordPress image blocks
         const imageBlockPattern = /<!-- wp:image[\s\S]*?<figure[^>]*><img[^>]*src="([^"]+)[^>]*\/>(?:<figcaption>([^<]*)<\/figcaption>)?<\/figure>\s*<!-- \/wp:image -->/g;
 
         processedContent = processedContent.replace(imageBlockPattern, (match, imageUrl, caption) => {
@@ -754,7 +727,6 @@ export class ImportService {
                 const filename = imageUrl.split('/').pop();
                 if (!filename) return match;
 
-                // Extract dimensions before removing the suffix
                 const dimensionsMatch = filename.match(/-(\d+)x(\d+)(\.[^.]+)$/);
                 let width = 0;
                 let height = 0;
@@ -762,14 +734,10 @@ export class ImportService {
                 if (dimensionsMatch) {
                     width = parseInt(dimensionsMatch[1], 10);
                     height = parseInt(dimensionsMatch[2], 10);
-
-                    // Store dimensions for future reference
                     this.imagesSizes[filename] = { width, height };
                 }
 
                 const cleanFilename = filename.replace(/-\d+x\d+(\.[^.]+)$/, '$1');
-                console.log(`Processing image: ${filename} -> ${cleanFilename} (${width}x${height})`);
-
                 const newImagePath = `/images/${cleanFilename}`;
 
                 const widthAttr = width ? ` width="${width}"` : '';
@@ -786,14 +754,12 @@ export class ImportService {
             }
         });
 
-        // Also process regular img tags not in blocks
         const imgTagPattern = /<img[^>]*src="([^"]+)\/([^\/]+\.(jpg|jpeg|png|gif|webp))"[^>]*>/g;
 
         processedContent = processedContent.replace(imgTagPattern, (match, urlPath, filename) => {
             try {
                 if (urlPath.includes('/images/')) return match;
 
-                // Extract dimensions before removing the suffix
                 const dimensionsMatch = filename.match(/-(\d+)x(\d+)(\.[^.]+)$/);
                 let width = 0;
                 let height = 0;
@@ -801,8 +767,6 @@ export class ImportService {
                 if (dimensionsMatch) {
                     width = parseInt(dimensionsMatch[1], 10);
                     height = parseInt(dimensionsMatch[2], 10);
-
-                    // Store dimensions for future reference
                     this.imagesSizes[filename] = { width, height };
                 }
 
@@ -810,15 +774,11 @@ export class ImportService {
 
                 const altMatch = match.match(/alt="([^"]*)"/);
                 const alt = altMatch ? altMatch[1] : '';
-
-                console.log(`Processing img tag: ${filename} -> ${cleanFilename} (${width}x${height})`);
-
                 const widthAttr = width ? ` width="${width}"` : '';
                 const heightAttr = height ? ` height="${height}"` : '';
 
                 return `<img src="/images/${cleanFilename}" alt="${alt}"${widthAttr}${heightAttr} />`;
             } catch (error) {
-                console.error('Error processing img tag:', error);
                 return match;
             }
         });

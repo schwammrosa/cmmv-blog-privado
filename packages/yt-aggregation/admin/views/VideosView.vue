@@ -508,10 +508,8 @@ const loadChannels = async (): Promise<void> => {
             sort: 'asc'
         });
 
-        if (response && response.data) {
+        if (response && response.data)
             channels.value = response.data || [];
-            console.log(`Loaded ${channels.value.length} channels`);
-        }
     } catch (err: unknown) {
         console.error('Failed to load channels:', err);
     }

@@ -22,9 +22,7 @@
             "@cmmv/odds": ["../../packages/odds"],
             "@cmmv/odds/*": ["../../packages/odds/*"],
             "@cmmv/newsletter": ["../../packages/newsletter"],
-            "@cmmv/newsletter/*": ["../../packages/newsletter/*"],
-            "@cmmv/special-dates": ["../../packages/special-dates"],
-            "@cmmv/special-dates/*": ["../../packages/special-dates/*"]
+            "@cmmv/newsletter/*": ["../../packages/newsletter/*"]
         }
     },
     "ts-node": {

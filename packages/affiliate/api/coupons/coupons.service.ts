@@ -119,18 +119,15 @@ export class CouponsServiceTools {
 
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
-                    console.log(`[CouponsService] Attempting to generate content (attempt ${attempt}/${maxRetries})`);
                     generatedText = await aiService.generateContent(prompt);
 
                     if (generatedText) {
-                        console.log(`[CouponsService] Content generated successfully on attempt ${attempt}`);
                         break;
                     } else {
                         throw new Error('Empty response from AI service');
                     }
                 } catch (error: any) {
                     lastError = error;
-                    console.warn(`[CouponsService] Attempt ${attempt} failed:`, error.message);
 
                     const isTimeoutError = error.message?.includes('timeout') ||
                                          error.message?.includes('Timeout') ||
@@ -144,16 +141,13 @@ export class CouponsServiceTools {
                     if (attempt === maxRetries || (!isTimeoutError && !isConnectionError))
                         break;
 
-                    if (attempt < maxRetries) {
-                        console.log(`[CouponsService] Waiting ${retryDelay}ms before retry...`);
+                    if (attempt < maxRetries)
                         await new Promise(resolve => setTimeout(resolve, retryDelay));
-                    }
                 }
             }
 
-            if (!generatedText) {
+            if (!generatedText)
                 throw new Error(`Failed to generate content after ${maxRetries} attempts. Last error: ${lastError?.message || 'Unknown error'}`);
-            }
 
             let coupons = [];
 
@@ -169,7 +163,6 @@ export class CouponsServiceTools {
                 }
 
                 jsonText = jsonText.replace(/```json\s*/g, '').replace(/```\s*$/g, '').trim();
-                console.log('Extracted JSON text:', jsonText.substring(0, 100) + '...');
             } else {
                 jsonText = JSON.stringify(generatedText);
             }
@@ -543,28 +536,23 @@ export class CouponsServiceTools {
         try {
             const aiService = Application.resolveProvider<any>(AIContentService);
 
-            // Retry logic for AI service calls
             let generatedText;
             let lastError;
             const maxRetries = 3;
-            const retryDelay = 5000; // 5 seconds
+            const retryDelay = 5000;
 
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
-                    console.log(`[CouponsService] Attempting to generate content (attempt ${attempt}/${maxRetries})`);
                     generatedText = await aiService.generateContent(prompt);
 
                     if (generatedText) {
-                        console.log(`[CouponsService] Content generated successfully on attempt ${attempt}`);
                         break;
                     } else {
                         throw new Error('Empty response from AI service');
                     }
                 } catch (error: any) {
                     lastError = error;
-                    console.warn(`[CouponsService] Attempt ${attempt} failed:`, error.message);
 
-                    // Check if it's a timeout or connection error
                     const isTimeoutError = error.message?.includes('timeout') ||
                                          error.message?.includes('Timeout') ||
                                          error.code === 'UND_ERR_CONNECT_TIMEOUT' ||
@@ -574,24 +562,17 @@ export class CouponsServiceTools {
                                             error.message?.includes('connect') ||
                                             error.message?.includes('ECONNREFUSED');
 
-                    // If it's the last attempt or not a retry-able error, don't wait
-                    if (attempt === maxRetries || (!isTimeoutError && !isConnectionError)) {
+                    if (attempt === maxRetries || (!isTimeoutError && !isConnectionError))
                         break;
-                    }
 
-                    // Wait before retrying
-                    if (attempt < maxRetries) {
-                        console.log(`[CouponsService] Waiting ${retryDelay}ms before retry...`);
+                    if (attempt < maxRetries)
                         await new Promise(resolve => setTimeout(resolve, retryDelay));
-                    }
                 }
             }
 
-            if (!generatedText) {
+            if (!generatedText)
                 throw new Error(`Failed to generate content after ${maxRetries} attempts. Last error: ${lastError?.message || 'Unknown error'}`);
-            }
 
-            // Parse the JSON response
             let parsedContent;
             try {
                 const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
@@ -602,15 +583,12 @@ export class CouponsServiceTools {
 
                 parsedContent = JSON.parse(jsonContent);
 
-                // Ensure title doesn't exceed 100 characters
-                if (parsedContent.title && parsedContent.title.length > 100) {
+                if (parsedContent.title && parsedContent.title.length > 100)
                     parsedContent.title = parsedContent.title.substring(0, 97) + '...';
-                }
             } catch (parseError) {
                 throw new Error('Failed to parse AI generated content');
             }
 
-            // Generate continuation content for SEO enhancement
             const continuationPrompt = `
             You are a content generator for a coupon and discount website that uses the TipTap editor.
 
@@ -646,17 +624,11 @@ export class CouponsServiceTools {
             let continuationText;
             for (let attempt = 1; attempt <= maxRetries; attempt++) {
                 try {
-                    console.log(`[CouponsService] Attempting to generate continuation (attempt ${attempt}/${maxRetries})`);
                     continuationText = await aiService.generateContent(continuationPrompt);
 
-                    if (continuationText) {
-                        console.log(`[CouponsService] Continuation generated successfully on attempt ${attempt}`);
+                    if (continuationText)
                         break;
-                    }
                 } catch (error: any) {
-                    console.warn(`[CouponsService] Continuation attempt ${attempt} failed:`, error.message);
-
-                    // Check if it's a timeout or connection error
                     const isTimeoutError = error.message?.includes('timeout') ||
                                          error.message?.includes('Timeout') ||
                                          error.code === 'UND_ERR_CONNECT_TIMEOUT' ||
@@ -666,16 +638,11 @@ export class CouponsServiceTools {
                                             error.message?.includes('connect') ||
                                             error.message?.includes('ECONNREFUSED');
 
-                    // If it's the last attempt or not a retry-able error, don't wait
-                    if (attempt === maxRetries || (!isTimeoutError && !isConnectionError)) {
+                    if (attempt === maxRetries || (!isTimeoutError && !isConnectionError))
                         break;
-                    }
 
-                    // Wait before retrying
-                    if (attempt < maxRetries) {
-                        console.log(`[CouponsService] Waiting ${retryDelay}ms before continuation retry...`);
+                    if (attempt < maxRetries)
                         await new Promise(resolve => setTimeout(resolve, retryDelay));
-                    }
                 }
             }
 
@@ -688,7 +655,6 @@ export class CouponsServiceTools {
                         const parsedContinuation = JSON.parse(continuationJsonContent);
 
                         if (parsedContinuation.continuation) {
-                            // Combine the original content with the continuation
                             const lastClosingTagMatch = parsedContent.content.match(/<\/[^>]+>$/);
 
                             if (lastClosingTagMatch) {
@@ -702,26 +668,17 @@ export class CouponsServiceTools {
                             }
                         }
                     }
-                } catch (continuationError) {
-                    console.warn('Failed to parse continuation text, using only original content');
-                }
-            } else {
-                console.warn('Failed to generate continuation content, using only original content');
+                } catch (continuationError) {}
             }
 
-            // Generate cover image search
             let coverImage = null;
-            try {
-                console.log(`[CouponsService] Searching for cover image...`);
 
-                // Extract keywords for image search
+            try {
                 const searchKeywords = [
                     campaign.name.toLowerCase(),
                     'discount', 'coupon', 'sale', 'shopping',
                     'deals', 'offers', 'savings'
                 ];
-
-                // Add campaign-specific keywords
                 if (campaign.description) {
                     const descWords = campaign.description.toLowerCase()
                         .split(' ')
@@ -730,7 +687,6 @@ export class CouponsServiceTools {
                     searchKeywords.push(...descWords);
                 }
 
-                // Add content-based keywords from title
                 if (parsedContent.title) {
                     const titleWords = parsedContent.title.toLowerCase()
                         .replace(/[^\w\s]/g, '')
@@ -740,7 +696,6 @@ export class CouponsServiceTools {
                     searchKeywords.push(...titleWords);
                 }
 
-                // Try different search combinations
                 const searchQueries = [
                     `${campaign.name} shopping discount`,
                     `${campaign.name} sale offers`,
@@ -752,15 +707,9 @@ export class CouponsServiceTools {
 
                 coverImage = await this.searchCoverImage(searchQueries);
 
-                if (coverImage) {
-                    console.log(`[CouponsService] Cover image found: ${coverImage}`);
-                } else {
-                    console.log(`[CouponsService] No suitable cover image found, using campaign logo or default`);
+                if (!coverImage)
                     coverImage = campaign.logo || null;
-                }
-
             } catch (imageError) {
-                console.warn('Failed to search for cover image:', imageError);
                 coverImage = campaign.logo || null;
             }
 
@@ -781,7 +730,6 @@ export class CouponsServiceTools {
             };
 
         } catch (error: any) {
-            console.error('Error generating best coupons post:', error);
             throw new Error(`Failed to generate content: ${error.message}`);
         }
     }
@@ -918,18 +866,13 @@ export class CouponsServiceTools {
      */
     private async searchCoverImage(searchQueries: string[]): Promise<string | null> {
         try {
-            // Unsplash API configuration
             const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
 
-            if (!unsplashAccessKey) {
-                console.warn('[CouponsService] Unsplash access key not configured');
+            if (!unsplashAccessKey)
                 return null;
-            }
 
             for (const query of searchQueries) {
                 try {
-                    console.log(`[CouponsService] Searching images for: "${query}"`);
-
                     const response = await fetch(
                         `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&page=1&per_page=10&orientation=landscape`,
                         {
@@ -948,7 +891,6 @@ export class CouponsServiceTools {
                     const data = await response.json();
 
                     if (data.results && data.results.length > 0) {
-                        // Filter images that are high quality and appropriate
                         const suitableImages = data.results.filter((image: any) =>
                             image.width >= 1200 &&
                             image.height >= 600 &&
@@ -957,16 +899,12 @@ export class CouponsServiceTools {
                         );
 
                         if (suitableImages.length > 0) {
-                            // Get a random image from the first 3 results
                             const randomIndex = Math.floor(Math.random() * Math.min(3, suitableImages.length));
                             const selectedImage = suitableImages[randomIndex];
-
-                            // Return the regular quality URL (suitable for web use)
                             return selectedImage.urls.regular;
                         }
                     }
                 } catch (queryError) {
-                    console.warn(`[CouponsService] Error searching for "${query}":`, queryError);
                     continue;
                 }
             }

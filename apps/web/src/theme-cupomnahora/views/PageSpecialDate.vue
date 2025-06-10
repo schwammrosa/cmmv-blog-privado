@@ -18,7 +18,7 @@
         <!-- Intro Ofertas -->
         <div class="offers-intro">
             <p>
-                Economize nas compras com <strong>{{ campaigns.length || '0' }} cupons</strong> de desconto para {{ specialDate.name }}. 
+                Economize nas compras com <strong>{{ campaigns.length || '0' }} cupons</strong> de desconto para {{ specialDate.name }}.
                 Encontre os melhores cupons, promoções e ofertas exclusivas selecionados para esta data especial.
             </p>
         </div>
@@ -31,7 +31,7 @@
                 </div>
                 <div class="offer-info">
                     <h3 class="offer-percentage">
-                        {{ campaign.discount || 'até 10%' }} 
+                        {{ campaign.discount || 'até 10%' }}
                         <span>de cashback</span>
                     </h3>
                     <div class="offer-count">+{{ campaign.couponCount || 5 }} cupons</div>
@@ -51,7 +51,7 @@
         </div>
 
         <!-- Informação de desenvolvimento -->
-         
+
         <div class="featured-offer">
             <div class="in-development-message">
                 <h2>Em desenvolvimento</h2>
@@ -59,7 +59,7 @@
                 <p>Todo:</p>
                 <p> [ ] Criar relacionamento com as lojas (campanhas)</p>
                 <p> [ ] Carregar cupons de desconto das lojas</p>
-                
+
             </div>
         </div>
 
@@ -86,40 +86,29 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { useSpecialDates } from '@cmmv/special-dates/client/client.vue3';
 import { useAffiliate } from '@cmmv/affiliate/client/client.vue3';
 
 const route = useRoute();
 const specialDate = ref<any>({});
 const campaigns = ref<any[]>([]);
-const { dates } = useSpecialDates();
+const { dates } = useAffiliate();
 const { campaigns: affiliateCampaigns } = useAffiliate();
 
 onMounted(async () => {
     const slug = route.params.slug as string;
-    console.log("Slug recebido:", slug);
-    
+
     if (slug) {
         try {
-            console.log("Buscando data especial para slug:", slug);
             const response = await dates.getBySlug(slug);
-            console.log("Resposta completa da API:", response);
-            
-            // Estrutura correta: response.data.value
+
             if (response && response.data && response.data.value) {
-                console.log("Extraindo dados de response.data.value");
                 specialDate.value = response.data.value;
             } else if (response && response.result) {
-                console.log("Estrutura com 'result' encontrada");
                 specialDate.value = response.result;
             } else {
-                console.log("Usando estrutura direta da resposta");
                 specialDate.value = response;
             }
-            
-            console.log("Data especial após processamento:", specialDate.value);
-            
-            // Simulando campanhas temporariamente - Remova isto quando tiver dados reais
+
             campaigns.value = [
                 {
                     id: '1',
@@ -164,21 +153,6 @@ onMounted(async () => {
                     couponCount: 40
                 }
             ];
-            
-            /*
-            // Carregar campanhas relacionadas se disponível
-            if (specialDate.value && specialDate.value.id) {
-                try {
-                    // Assumindo que exista um método para buscar campanhas por data especial
-                    // Se não existir, você precisará implementá-lo
-                    const campaignsData = await affiliateCampaigns.getBySpecialDate(specialDate.value.id);
-                    campaigns.value = campaignsData || [];
-                } catch (error) {
-                    console.error("Erro ao buscar campanhas:", error);
-                    campaigns.value = [];
-                }
-            }
-           */
         } catch (error) {
             console.error("Erro ao buscar dados da data especial:", error);
         }
@@ -464,19 +438,19 @@ onMounted(async () => {
         height: auto;
         padding: 3rem 1rem;
     }
-    
+
     .banner-hero h1 {
         font-size: 1.8rem;
     }
-    
+
     .featured-offer {
         flex-direction: column;
         padding: 1.5rem;
         gap: 1rem;
     }
-    
+
     .featured-store-logo {
         margin-bottom: 1rem;
     }
 }
-</style> 
+</style>

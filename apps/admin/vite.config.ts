@@ -55,7 +55,6 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
                 await new Promise(resolve => setTimeout(resolve, delay));
                 return fetchWhitelabelApiUrls(retryCount + 1, maxRetries);
             } else {
-                console.log('Max retries reached, continuing with build process');
                 return false;
             }
         }
@@ -104,7 +103,6 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
 
         Object.entries(whitelabelApiUrls).forEach(([id, url]) => {
             const pattern = `/${id}`;
-            console.log(`Creating proxy for whitelabel: ${pattern} -> ${url}`);
 
             proxyConfig[pattern] = {
                 target: url,
@@ -162,9 +160,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
                 '@cmmv/odds': path.resolve(__dirname, '../../packages/odds/'),
                 '@cmmv/odds/*': path.resolve(__dirname, '../../packages/odds/*'),
                 '@cmmv/newsletter': path.resolve(__dirname, '../../packages/newsletter/'),
-                '@cmmv/newsletter/*': path.resolve(__dirname, '../../packages/newsletter/*'),
-                '@cmmv/special-dates': path.resolve(__dirname, '../../packages/special-dates/'),
-                '@cmmv/special-dates/*': path.resolve(__dirname, '../../packages/special-dates/*')
+                '@cmmv/newsletter/*': path.resolve(__dirname, '../../packages/newsletter/*')
             }
         },
         server: {

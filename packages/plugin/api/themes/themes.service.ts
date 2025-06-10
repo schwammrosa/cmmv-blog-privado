@@ -32,17 +32,17 @@ export class ThemesPublicService {
     async getInstalledThemes() {
         try {
             const themeCurrentName = Config.get("blog.theme", "default");
-            
+
             // Garantir que a URL tenha um protocolo válido
             let frontendUrl = process.env.FRONTEND_URL || '';
             if (frontendUrl && !frontendUrl.startsWith('http')) {
                 frontendUrl = `http://${frontendUrl}`;
             }
-            
+
             // Verificar se temos uma URL válida
             if (!frontendUrl) {
                 console.warn('FRONTEND_URL not defined, returning default theme only');
-                return { 
+                return {
                     data: [{
                         namespace: 'default',
                         name: 'Default',
@@ -51,10 +51,10 @@ export class ThemesPublicService {
                         author: 'CMMV',
                         version: '1.0.0',
                         preview: null,
-                    }] 
+                    }]
                 };
             }
-            
+
             const themes = await fetch(`${frontendUrl}/themas`);
             const themeList: any[] = await themes.json();
             let themesData: any[] = [];
@@ -76,9 +76,9 @@ export class ThemesPublicService {
             return { data: themesData };
         } catch (error) {
             console.error('Error fetching themes:', error);
-            
+
             // Retornar pelo menos o tema padrão para não quebrar a interface
-            return { 
+            return {
                 data: [{
                     namespace: 'default',
                     name: 'Default',
@@ -87,7 +87,7 @@ export class ThemesPublicService {
                     author: 'CMMV',
                     version: '1.0.0',
                     preview: null,
-                }] 
+                }]
             };
         }
     }
@@ -135,16 +135,13 @@ export class ThemesPublicService {
         try {
             Config.set("blog.theme", themeName.toLowerCase());
             await this.settingsService.updateSetting("blog.theme", themeName.toLowerCase());
-            
-            // Garantir que a URL tenha um protocolo válido
+
             let frontendUrl = process.env.FRONTEND_URL || '';
-            if (frontendUrl && !frontendUrl.startsWith('http')) {
+            if (frontendUrl && !frontendUrl.startsWith('http'))
                 frontendUrl = `http://${frontendUrl}`;
-            }
-            
-            // Verificar se temos uma URL válida antes de fazer a chamada
+
             if (frontendUrl) {
-                const response = await fetch(`${frontendUrl}/set-thema`, {
+                await fetch(`${frontendUrl}/set-thema`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -154,16 +151,10 @@ export class ThemesPublicService {
                         theme: themeName.toLowerCase()
                     })
                 });
-                
-                console.log(await response.text());
-            } else {
-                console.warn('FRONTEND_URL not defined, theme activated but not synchronized with frontend');
             }
-            
+
             return { message: "Theme set as active" };
         } catch (error) {
-            console.error('Error setting active theme:', error);
-            // Ainda retornamos uma mensagem de sucesso já que a configuração foi atualizada localmente
             return { message: "Theme set as active (frontend sync failed)" };
         }
     }

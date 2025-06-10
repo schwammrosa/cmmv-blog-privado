@@ -666,14 +666,11 @@ const saveCategory = async () => {
         formLoading.value = true
         formErrors.value = {}
 
-        // Validate
         if (!categoryForm.value.name.trim()) {
             formErrors.value.name = 'Category name is required'
             formLoading.value = false
             return
         }
-
-        console.log('Category form image value before save:', categoryForm.value.image)
 
         const categoryData = {
             name: categoryForm.value.name.trim(),
@@ -681,18 +678,14 @@ const saveCategory = async () => {
             image: categoryForm.value.image && categoryForm.value.image.trim() ? categoryForm.value.image.trim() : null
         }
 
-        // If image is base64 (starts with 'data:'), handle it like CampaignView.vue
         if (isEditing.value && categoryForm.value.image && categoryForm.value.image.startsWith('data:')) {
             try {
                 const imageBackup = categoryForm.value.image
 
-                // First save without the image (set to existing image if editing, empty if creating)
                 if (isEditing.value && categoryToEdit.value)
                     categoryData.image = categoryToEdit.value.image || null
                 else
                     categoryData.image = null
-
-                console.log('Category data being sent (without base64 image):', categoryData)
 
                 let category
                 let categoryId
@@ -710,13 +703,10 @@ const saveCategory = async () => {
                     throw new Error('Unable to update image: Missing category ID')
                 }
 
-                // Now process the image using updateImage method
-                console.log('Calling updateImage with ID:', categoryId, 'and base64 length:', imageBackup.length)
                 const imageResponse = await oddsClient.categories.updateImage(categoryId, imageBackup)
-                console.log('Image update response:', imageResponse)
 
-                // Extract the image URL from response and update the category
                 let processedImageUrl = null
+
                 if (imageResponse && imageResponse.url) {
                     processedImageUrl = imageResponse.url
                 } else if (imageResponse && imageResponse.data && imageResponse.data.url) {
@@ -731,7 +721,6 @@ const saveCategory = async () => {
                         ...categoryData,
                         image: processedImageUrl
                     })
-                    console.log('Category updated with processed image URL:', processedImageUrl)
                 }
 
                 showNotification('success', isEditing.value ? 'Category updated successfully' : 'Category created successfully')
@@ -749,9 +738,6 @@ const saveCategory = async () => {
                 return
             }
         } else {
-            // Regular save (no base64 image)
-            console.log('Category data being sent:', categoryData)
-
             if (isEditing.value) {
                 await oddsClient.categories.update(categoryToEdit.value.id, categoryData)
                 showNotification('success', 'Category updated successfully')
@@ -854,9 +840,7 @@ const handleFileSelect = (event) => {
         const reader = new FileReader()
         reader.onload = (e) => {
             filePreviewUrl.value = e.target.result
-            // Directly set the image as base64 data URL (like CampaignView.vue)
             categoryForm.value.image = e.target.result
-            console.log('Image set as base64, length:', e.target.result.length)
         }
         reader.readAsDataURL(file)
     }

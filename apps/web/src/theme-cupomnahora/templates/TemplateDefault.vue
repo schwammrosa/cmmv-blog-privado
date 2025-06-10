@@ -488,7 +488,6 @@ import { useRoute } from 'vue-router';
 import CouponScratchModal from '../components/CouponScratchModal.vue';
 import CookieConsent from '../../components/CookieConsent.vue';
 import { vue3 as newsletterVue3 } from '@cmmv/newsletter/client';
-import { vue3 as specialDatesVue3 } from '@cmmv/special-dates/client';
 
 const blogAPI = vue3.useBlog();
 const affiliateAPI = affiliateVue3.useAffiliate();
@@ -501,10 +500,8 @@ const settings = ref<any>(settingsStore.getSettings);
 const campaigns = computed(() => campaignsStore.getCampaigns || []);
 const isLoadingSpecialDates = ref(true);
 
-// Computed property para as datas especiais filtradas e ativas
 const activeSpecialDates = computed(() => {
     const dates = specialDatesStore.getActiveDates;
-    console.log('[TemplateDefault] Active special dates computed:', dates.length);
     return dates;
 });
 
@@ -847,45 +844,27 @@ const isValidEmail = (email: string) => {
 };
 
 onMounted(async () => {
-    console.log('[TemplateDefault] Component mounted');
-    
-    // Carregar campanhas
     if (!campaigns.value || campaigns.value.length === 0) {
         try {
             const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
             if (campaignsData && Array.isArray(campaignsData)) {
                 campaignsStore.setCampaigns(campaignsData);
             }
-        } catch (error) {
-            console.error('Erro ao carregar campanhas para o rodapé:', error);
-        }
+        } catch (error) {}
     }
-    
-    // Garantir que as datas especiais são carregadas
+
     try {
         isLoadingSpecialDates.value = true;
-        console.log('[TemplateDefault] Loading special dates, store status:', specialDatesStore.hasLoaded ? 'loaded' : 'not loaded');
-        
-        // Verificar se os dados são válidos, mesmo se já estiverem carregados
         const hasValidData = specialDatesStore.hasValidData;
-        
+
         if (!specialDatesStore.hasLoaded || !hasValidData) {
-            console.log('[TemplateDefault] Store not loaded or data invalid, fetching data');
-            const specialDatesAPI = specialDatesVue3.useSpecialDates();
-            const specialDatesData = await specialDatesAPI.dates.getAll();
-            console.log('[TemplateDefault] Special dates API response received');
+            const specialDatesData = await affiliateVue3.useAffiliate().dates.getAll();
             specialDatesStore.setSpecialDates(specialDatesData);
-        } else {
-            console.log('[TemplateDefault] Store already loaded with valid data');
         }
-    } catch (error) {
-        console.error('[TemplateDefault] Erro ao carregar datas especiais:', error);
     } finally {
         isLoadingSpecialDates.value = false;
-        console.log('[TemplateDefault] Finished loading special dates');
     }
-    
-    // Verificar cupons na URL
+
     setTimeout(async () => {
         await checkCouponInUrl();
     }, 500);

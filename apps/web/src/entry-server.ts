@@ -49,18 +49,14 @@ export async function setup(){
     categoriesData = await categories.json();
     postsData = await posts.json();
     mostAccessedPostsData = await mostAccessedPosts.json();
-    
-    // Tratamento para as datas especiais
+
     if (specialDates.ok) {
         try {
             specialDatesData = await specialDates.json();
-            //console.log('[SSR] Special dates data loaded:', Array.isArray(specialDatesData) ? specialDatesData.length : 'object');
         } catch (error) {
-            //console.error('[SSR] Error parsing special dates response:', error);
             specialDatesData = { data: [] };
         }
     } else {
-        //console.error('[SSR] Failed to fetch special dates, status:', specialDates.status);
         specialDatesData = { data: [] };
     }
 }

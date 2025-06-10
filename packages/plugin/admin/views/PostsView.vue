@@ -1329,7 +1329,6 @@ function updateAllScheduleTimes() {
 }
 
 watch(scheduleInterval, (newInterval, oldInterval) => {
-    console.log(`Interval changed from ${oldInterval} to ${newInterval}`)
     updateAllScheduleTimes()
 }, { immediate: false })
 
@@ -1592,9 +1591,6 @@ async function processBulkImages() {
         } else {
             showNotification('warning', `Processadas ${successCount} de ${selectedPostsForImageProcess.value.length} imagens. ${failedCount} imagens não puderam ser processadas mas foram preservadas.`);
         }
-
-        if (failedImages.length > 0)
-            console.log('Imagens que não puderam ser processadas (preservadas):', failedImages);
 
         imageProcessingLoading.value = false;
         closeBulkImageProcessDialog();

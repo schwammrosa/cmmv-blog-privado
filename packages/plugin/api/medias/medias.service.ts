@@ -147,12 +147,12 @@ export class MediasService extends AbstractService {
                 //@ts-ignore
                 let processor = sharp(buffer);
                 const metadata = await processor.metadata();
-                
+
                 // Otimizar a imagem antes de enviá-la para o storage e padronizar para 1280x720
                 // Constantes para o formato padrão 16:9
                 const targetWidth = 1280;
                 const targetHeight = 720;
-                
+
                 // Redimensionar para o formato padrão 1280x720 (16:9)
                 processor = processor.resize({
                     width: targetWidth,
@@ -168,10 +168,10 @@ export class MediasService extends AbstractService {
                     //@ts-ignore
                     reductionEffort: 6
                 });
-                
+
                 // Obter o buffer otimizado para upload
                 const optimizedBuffer = await processor.toBuffer();
-                
+
                 // Fazer upload do arquivo otimizado (sempre webp)
                 const uploadedFile = await blogStorageService.uploadFile({
                     buffer: optimizedBuffer,
@@ -376,10 +376,7 @@ export class MediasService extends AbstractService {
             const optimizedBuffer = await processor.toBuffer();
 
             if (optimizedBuffer.length < originalSize * 0.9) {
-                console.log(`Optimized image ${hash}: ${originalSize} -> ${optimizedBuffer.length} bytes (${Math.round((1 - optimizedBuffer.length / originalSize) * 100)}% reduction)`);
-
                 fs.writeFileSync(imageFullpath, optimizedBuffer);
-
                 const MediasEntity = Repository.getEntity("MediasEntity");
 
                 await Repository.update(MediasEntity, { sha1: hash.split('.')[0] }, {
@@ -391,7 +388,6 @@ export class MediasService extends AbstractService {
 
             return imageBuffer;
         } catch (error) {
-            console.error(`Error optimizing image ${hash}:`, error);
             return fs.readFileSync(imageFullpath);
         }
     }
@@ -788,7 +784,6 @@ export class MediasService extends AbstractService {
 
                     duplicatesToRemove.push(duplicate);
                     originalFileInfo.duplicates.push(duplicate);
-                    console.log(`Found duplicate: ${file} (original: ${originalFilename})`);
                 } else {
                     fileMap.set(originalBaseName + "-" + suffix + ext, {
                         filename: file,
@@ -833,8 +828,6 @@ export class MediasService extends AbstractService {
         }
 
         const resultMessage = `Cleanup completed: ${removedCount} duplicate files removed from ${duplicatesToRemove.length} identified.`;
-        console.log(resultMessage);
-
         MediasService.reprocessProgress.status = 'completed';
         MediasService.reprocessProgress.message = resultMessage;
 
@@ -946,7 +939,6 @@ export class MediasService extends AbstractService {
                         filepath: fullPath,
                         format: ext
                     });
-                    console.log(`Updated filepath for hash ${hash}: ${fullPath}`);
                 }
 
                 const imageBuffer = fs.readFileSync(fullPath);
@@ -1361,11 +1353,8 @@ export class MediasService extends AbstractService {
      * @returns Result with statistics about what was deleted and what was skipped
      */
     async bulkDeleteMedias(ids: string[], createBackup: boolean = false) {
-        console.log('MediasService.bulkDeleteMedias called with:', ids, 'createBackup:', createBackup);
-        
         try {
             if (!ids || ids.length === 0) {
-                console.log('No IDs provided, returning early');
                 return {
                     success: false,
                     message: "No media IDs provided",
@@ -1378,41 +1367,29 @@ export class MediasService extends AbstractService {
             }
 
             let backupResult: any = null;
-            
-            // Note: Backup functionality temporarily disabled to avoid circular dependency
-            // Will be re-enabled in a future update with proper dependency injection
-            if (createBackup) {
-                console.log('Backup requested but currently disabled due to circular dependency issue');
-            }
-
             const MediasEntity = Repository.getEntity("MediasEntity");
             const PostsEntity = Repository.getEntity("PostsEntity");
-            
+
             const deleted: string[] = [];
             const skipped: Array<{id: string, reason: string, posts?: string[]}> = [];
             const errors: Array<{id: string, error: string}> = [];
 
             for (const id of ids) {
                 try {
-                    console.log(`Processing media ID: ${id}`);
-                    
-                    // Find the media record
                     const media = await Repository.findOne(MediasEntity, { id });
-                    
+
                     if (!media) {
-                        console.log(`Media not found for ID: ${id}`);
                         errors.push({ id, error: "Media not found" });
                         continue;
                     }
 
-                    // Check if media is used in posts
                     const mediaUrl = this.buildMediaUrl(media);
                     const linkedPosts = await this.findPostsUsingMedia(mediaUrl, PostsEntity);
 
                     if (linkedPosts.length > 0) {
                         const postTitles = linkedPosts.map(p => p.title || p.slug || p.id).slice(0, 3);
                         const reason = `Used in ${linkedPosts.length} post(s): ${postTitles.join(', ')}${linkedPosts.length > 3 ? '...' : ''}`;
-                        
+
                         skipped.push({
                             id,
                             reason,
@@ -1421,42 +1398,33 @@ export class MediasService extends AbstractService {
                         continue;
                     }
 
-                    // Remove from external storage if it's a remote URL
                     if (media.filepath && media.filepath.startsWith('http')) {
                         const blogStorageService = Application.resolveProvider(BlogStorageService);
                         await blogStorageService.deleteFile(media.filepath);
                     }
 
-                    // Remove thumbnail from external storage if it's a remote URL
                     if (media.thumbnail && media.thumbnail.startsWith('http')) {
                         const blogStorageService = Application.resolveProvider(BlogStorageService);
                         await blogStorageService.deleteFile(media.thumbnail);
                     }
 
-                    // Delete local media file if it exists
-                    if (media.filepath && fs.existsSync(media.filepath)) {
+                    if (media.filepath && fs.existsSync(media.filepath))
                         await fs.promises.unlink(media.filepath);
-                    }
 
-                    // Delete local thumbnail file if it exists
                     if (media.thumbnail && !media.thumbnail.startsWith('http')) {
                         const thumbnailPath = media.thumbnail.replace(/.*\/images\//, path.join(cwd(), "medias", "images") + "/");
-                        if (fs.existsSync(thumbnailPath)) {
+
+                        if (fs.existsSync(thumbnailPath))
                             await fs.promises.unlink(thumbnailPath);
-                        }
                     }
 
-                    // Delete from database
                     await Repository.delete(MediasEntity, { id });
                     deleted.push(id);
-
                 } catch (error: any) {
                     console.error(`Error deleting media ${id}:`, error);
                     errors.push({ id, error: error.message || 'Unknown error' });
                 }
             }
-
-            console.log(`Processing completed - deleted: ${deleted.length}, skipped: ${skipped.length}, errors: ${errors.length}`);
 
             const totalRequested = ids.length;
             const totalDeleted = deleted.length;
@@ -1478,7 +1446,6 @@ export class MediasService extends AbstractService {
                 backup: backupResult
             };
 
-            console.log('Bulk delete completed, returning result:', result);
             return result;
         } catch (error: any) {
             console.error('Bulk delete method error:', error);
@@ -1501,20 +1468,20 @@ export class MediasService extends AbstractService {
      */
     private buildMediaUrl(media: any): string {
         const apiUrl = Config.get<string>("blog.url", process.env.API_URL);
-        
+
         if (media.filepath && media.filepath.startsWith("https://")) {
             return media.filepath;
         }
-        
+
         if (media.sha1 && media.format) {
             return `${apiUrl}/images/${media.sha1}.${media.format}`.toLowerCase();
         }
-        
+
         if (media.filepath) {
             const filename = path.basename(media.filepath);
             return `${apiUrl}/images/${filename}`.toLowerCase();
         }
-        
+
         return '';
     }
 
@@ -1558,7 +1525,7 @@ export class MediasService extends AbstractService {
      */
     private getMediaUrlVariations(mediaUrl: string): string[] {
         const variations = [mediaUrl];
-        
+
         // Add variation without protocol
         if (mediaUrl.startsWith('http://')) {
             variations.push(mediaUrl.replace('http://', 'https://'));
@@ -1705,11 +1672,11 @@ export class MediasService extends AbstractService {
                         imageBuffer = fs.readFileSync(media.filepath);
                     } else if (media.filepath && (media.filepath.startsWith('http://') || media.filepath.startsWith('https://'))) {
                         try {
-                            console.log(`Fetching image from URL: ${media.filepath}`);
                             const response = await fetch(media.filepath);
-                            if (!response.ok) {
+
+                            if (!response.ok)
                                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                            }
+
                             const arrayBuffer = await response.arrayBuffer();
                             imageBuffer = Buffer.from(arrayBuffer);
                         } catch (fetchError: any) {
@@ -1719,11 +1686,9 @@ export class MediasService extends AbstractService {
                             continue;
                         }
                     } else if (media.sha1 && media.format) {
-                        // Try to find by hash
                         const hashFilePath = path.join(mediasPath, `${media.sha1}.${media.format}`);
                         if (fs.existsSync(hashFilePath)) {
                             imageBuffer = fs.readFileSync(hashFilePath);
-                            // Update the filepath in database
                             await Repository.update(MediasEntity, { id: media.id }, {
                                 filepath: hashFilePath
                             });
@@ -1737,7 +1702,6 @@ export class MediasService extends AbstractService {
                         continue;
                     }
 
-                    // Validate image dimensions
                     //@ts-ignore
                     const metadata = await sharp(imageBuffer).metadata();
                     if (!metadata.width || !metadata.height || metadata.width <= 0 || metadata.height <= 0) {
@@ -1747,7 +1711,6 @@ export class MediasService extends AbstractService {
                         continue;
                     }
 
-                    // Generate thumbnail
                     //@ts-ignore
                     const thumbnailBuffer = await sharp(imageBuffer)
                         .resize(16, 16, {
@@ -1759,7 +1722,6 @@ export class MediasService extends AbstractService {
 
                     let thumbnailUrl: string | null = null;
 
-                    // Check if we should upload to external storage
                     try {
                         const cleanThumbnailBuffer = Buffer.from(new Uint8Array(thumbnailBuffer));
 
@@ -1772,25 +1734,20 @@ export class MediasService extends AbstractService {
                         if (uploadedThumbnail && uploadedThumbnail.url) {
                             thumbnailUrl = uploadedThumbnail.url;
                         }
-                    } catch (uploadError: any) {
-                        console.log('External storage upload failed, falling back to local storage:', uploadError.message);
-                    }
+                    } catch (uploadError: any) {}
 
-                    // Fall back to local storage if external upload failed
                     if (!thumbnailUrl) {
                         const thumbnailPath = path.join(mediasPath, `${media.sha1}_thumb.webp`);
                         await fs.promises.writeFile(thumbnailPath, thumbnailBuffer);
                         thumbnailUrl = `${apiUrl}/images/${media.sha1}_thumb.webp`;
                     }
 
-                    // Update the media record with thumbnail URL
                     await Repository.update(MediasEntity, { id: media.id }, {
                         thumbnail: thumbnailUrl
                     });
 
                     created++;
                     MediasService.reprocessProgress.details.added = created;
-
                 } catch (error) {
                     console.error(`Error generating thumbnail for media ID ${media.id}:`, error);
                     failed++;

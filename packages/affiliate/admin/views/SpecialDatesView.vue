@@ -37,7 +37,7 @@
         <div v-if="loading" class="text-center py-12"><div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500 mx-auto"></div></div>
         <div v-else-if="error" class="text-center py-12 text-red-500">{{ error }}</div>
         <div v-else-if="specialDates.length === 0" class="text-center py-12 text-neutral-500">No special dates found.</div>
-        
+
         <div v-else class="bg-neutral-800 rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-neutral-700">
@@ -105,12 +105,12 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
-import { useSpecialDatesClient } from '../client';
+import { useAffiliateClient } from '../client';
 import Pagination from '@cmmv/blog/admin/components/Pagination.vue';
 import DeleteDialog from '@cmmv/blog/admin/components/DeleteDialog.vue';
 import ToastNotification from '@cmmv/blog/admin/components/ToastNotification.vue';
 
-const client = useSpecialDatesClient();
+const client = useAffiliateClient();
 
 const specialDates = ref([]);
 const loading = ref(true);
@@ -263,4 +263,4 @@ const toggleSearchDropdown = () => {
 };
 
 onMounted(loadData);
-</script> 
+</script>

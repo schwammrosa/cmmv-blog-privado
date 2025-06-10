@@ -1649,18 +1649,14 @@ export class PostsPublicService {
             const PostsEntity = Repository.getEntity("PostsEntity");
             const currentTimestamp = new Date().getTime();
 
-            // Buscar todos os posts agendados
             const posts = await Repository.findAll(PostsEntity, {
                 status: "cron",
-                limit: 1000 // Garantir que todos os posts sejam retornados
+                limit: 1000
             });
 
             if (posts && posts.data.length > 0) {
-                //console.log(`[processCrons] Verificando ${posts.data.length} posts agendados. Timestamp atual: ${currentTimestamp}`);
-
                 for (const post of posts.data) {
                     if (post.autoPublishAt && post.autoPublishAt <= currentTimestamp) {
-                        //console.log(`[processCrons] Publicando post ${post.id} (agendado para ${new Date(post.autoPublishAt).toISOString()})`);
                         await this.publishPost(post.id);
                     }
                 }
@@ -1677,20 +1673,14 @@ export class PostsPublicService {
      */
     async publishPost(id: string) {
         try {
-            console.log("Publishing scheduled post with ID: " + id);
-            console.log(`Publishing scheduled post with ID: ${id}`);
             const PostsEntity = Repository.getEntity("PostsEntity");
             const post = await Repository.findOne(PostsEntity, { id });
 
-            if (!post) {
-                console.error(`Post with ID ${id} not found for publishing`);
+            if (!post)
                 throw new Error(`Post with ID ${id} not found`);
-            }
 
-            if (post.status !== 'cron') {
-                console.log(`Post with ID ${id} is not in 'cron' status, current status: ${post.status}`);
+            if (post.status !== 'cron')
                 return { result: false, message: "Post is not scheduled for publication" };
-            }
 
             const updateData = {
                 status: 'published',
@@ -1699,13 +1689,10 @@ export class PostsPublicService {
 
             await Repository.updateOne(PostsEntity, { id }, updateData);
 
-            if (post.pushNotification === true) {
+            if (post.pushNotification === true)
                 await this.eventsService.emit("posts.published", post);
-                console.log(`Push notification event emitted for post ${id}`);
-            }
 
             const siteUrl = Config.get("blog.url") || "";
-            //console.log(`Clearing CDN cache for homepage after publishing scheduled post ${id}`);
 
             try {
                 const cdnService = Application.resolveProvider(CDNService);
@@ -1713,8 +1700,6 @@ export class PostsPublicService {
             } catch (error) {
                 console.error(`Error clearing CDN cache: ${error instanceof Error ? error.message : String(error)}`);
             }
-
-            //console.log(`Successfully published post with ID: ${id}`);
 
             return {
                 result: true,

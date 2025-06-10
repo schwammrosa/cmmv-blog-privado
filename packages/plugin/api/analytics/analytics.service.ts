@@ -44,14 +44,11 @@ export class AnalyticsService {
             thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
             const cutoffTime = thirtyDaysAgo.getTime();
 
-            console.log(`[AnalyticsService] Starting cleanup of analytics access records older than ${thirtyDaysAgo.toISOString()}`);
-
             const recordsToDelete = await Repository.count(AnalyticsAccessEntity, {
                 startTime: LessThan(cutoffTime)
             });
 
             if (recordsToDelete === 0) {
-                console.log('[AnalyticsService] No old analytics access records found to cleanup');
                 return {
                     success: true,
                     message: 'No old records found',
@@ -83,8 +80,6 @@ export class AnalyticsService {
                 totalDeleted += idsToDelete.length;
                 batchCount++;
 
-                console.log(`[AnalyticsService] Deleted batch ${batchCount}: ${idsToDelete.length} records (total: ${totalDeleted})`);
-
                 await new Promise(resolve => setTimeout(resolve, 100));
 
                 if (totalDeleted >= recordsToDelete)
@@ -99,11 +94,8 @@ export class AnalyticsService {
                 batchesProcessed: batchCount
             };
 
-            console.log(`[AnalyticsService] Cleanup completed: ${totalDeleted} old analytics access records deleted in ${batchCount} batches`);
             return summary;
-
         } catch (error: any) {
-            console.error(`[AnalyticsService] Error during analytics access cleanup: ${error.message}`);
             return {
                 success: false,
                 error: error.message,
@@ -410,7 +402,6 @@ export class AnalyticsService {
      * @returns Cleanup operation summary
      */
     async manualCleanup() {
-        console.log('[AnalyticsService] Manual cleanup triggered');
         return await this.cleanupOldAnalyticsAccess();
     }
 }
