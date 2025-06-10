@@ -6,7 +6,18 @@ export class AffiliateSpecialDatesService {
     constructor() {}
 
     async getSpecialDates(queries: any) {
-        const SpecialDatesEntity = Repository.getEntity("SpecialDatesEntity");
-        return await Repository.findAll(SpecialDatesEntity, queries);
+        const AffiliateSpecialDatesEntity = Repository.getEntity("AffiliateSpecialDatesEntity");
+
+        if (queries.slug) {
+            const result = await Repository.findOne(AffiliateSpecialDatesEntity, { slug: queries.slug });
+            return result;
+        }
+
+        return await Repository.findAll(AffiliateSpecialDatesEntity, queries);
+    }
+
+    async findBySlug(slug: string) {
+        const AffiliateSpecialDatesEntity = Repository.getEntity("AffiliateSpecialDatesEntity");
+        return await Repository.findOne(AffiliateSpecialDatesEntity, { slug: slug });
     }
 }

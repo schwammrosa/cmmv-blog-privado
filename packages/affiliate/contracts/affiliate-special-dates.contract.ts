@@ -4,14 +4,14 @@ import {
 } from "@cmmv/core";
 
 @Contract({
-    namespace: 'AffiliateSpecialDates',
+    namespace: 'Affiliate',
     controllerName: 'AffiliateSpecialDates',
     controllerCustomPath: 'affiliate/special-dates',
     protoPackage: 'affiliate',
     subPath: '/affiliate',
     generateController: true,
     generateBoilerplates: false,
-    auth: false,
+    auth: true,
     options: {
         moduleContract: true,
         databaseSchemaName: "affiliate_special_dates",

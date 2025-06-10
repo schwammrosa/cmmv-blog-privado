@@ -112,7 +112,7 @@ export class AffiliateCampaignsContract extends AbstractContract {
         protoType: 'string',
         nullable: true,
         index: true,
-        unique: true
+        //unique: true
     })
     slug!: string;
 
