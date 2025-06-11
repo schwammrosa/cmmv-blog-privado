@@ -315,22 +315,13 @@
                     <!-- Datas Especiais -->
                     <div>
                         <h3 class="text-xl font-bold mb-4">Datas especiais</h3>
-                        <ul v-if="!isLoadingSpecialDates && activeSpecialDates.length > 0" class="space-y-2">
+                        <ul v-if="activeSpecialDates.length > 0" class="space-y-2">
                             <li v-for="date in activeSpecialDates.slice(0, 5)" :key="date.id">
                                 <a :href="`/ofertas/${date.slug}`" class="text-gray-400 hover:text-white">
                                     {{ date.name }}
                                 </a>
                             </li>
                         </ul>
-                        <div v-else-if="isLoadingSpecialDates" class="text-gray-500">
-                            <div class="flex items-center space-x-2">
-                                <svg class="animate-spin h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Carregando datas especiais...</span>
-                            </div>
-                        </div>
                         <p v-else class="text-gray-500">
                             Nenhuma data especial disponível no momento.
                         </p>
@@ -476,7 +467,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onServerPrefetch } from 'vue';
 import { vue3 } from '@cmmv/blog/client';
 import { useHead } from '@unhead/vue'
 import { useSettingsStore } from '../../store/settings';
@@ -498,7 +489,6 @@ const specialDatesStore = useSpecialDatesStore();
 const route = useRoute();
 const settings = ref<any>(settingsStore.getSettings);
 const campaigns = computed(() => campaignsStore.getCampaigns || []);
-const isLoadingSpecialDates = ref(true);
 
 const activeSpecialDates = computed(() => {
     const dates = specialDatesStore.getActiveDates;
@@ -696,7 +686,6 @@ const checkCouponInUrl = async () => {
             let foundCoupon: any = null;
             let relatedCampaign: any = null;
 
-            // Primeiro tenta encontrar nos stores locais
             if (couponsStore.getFeaturedCoupons.length > 0)
                 foundCoupon = couponsStore.getFeaturedCoupons.find(c => c.code === displayCode);
 
@@ -717,10 +706,8 @@ const checkCouponInUrl = async () => {
                 }
             }
 
-                        // Se não encontrou nos stores, tenta buscar via API
             if (!foundCoupon) {
                 try {
-                    // Tenta buscar em todas as campanhas via API
                     const allCampaigns = await affiliateAPI.campaigns.getAllWithCouponCounts();
                     if (allCampaigns && Array.isArray(allCampaigns)) {
                         for (const campaign of allCampaigns) {
@@ -733,7 +720,6 @@ const checkCouponInUrl = async () => {
                                 }
                             }
 
-                            // Se a campanha não tem coupons carregados, tenta buscar
                             if (!campaign.coupons && campaign.id) {
                                 try {
                                     const campaignCoupons = await affiliateAPI.coupons.getByCampaignId(campaign.id);
@@ -757,7 +743,6 @@ const checkCouponInUrl = async () => {
             }
 
             if (foundCoupon) {
-                // Garantir que temos os dados da campanha
                 if (!foundCoupon.campaignName || !foundCoupon.campaignLogo) {
                     if (!relatedCampaign && foundCoupon.campaignId) {
                         const campaigns = campaignsStore.getCampaigns || [];
@@ -773,7 +758,6 @@ const checkCouponInUrl = async () => {
                     selectedCouponForScratch.value = foundCoupon;
                 }
 
-                // Abrir o modal
                 isScratchModalOpen.value = true;
             } else {
                 console.warn(`Cupom com código "${displayCode}" não encontrado`);
@@ -843,27 +827,42 @@ const isValidEmail = (email: string) => {
     return re.test(email);
 };
 
-onMounted(async () => {
+const loadTemplateData = async () => {
+    const promises = [];
+
     if (!campaigns.value || campaigns.value.length === 0) {
-        try {
-            const campaignsData = await affiliateAPI.campaigns.getAllWithCouponCounts();
-            if (campaignsData && Array.isArray(campaignsData)) {
-                campaignsStore.setCampaigns(campaignsData);
-            }
-        } catch (error) {}
+        promises.push(
+            affiliateAPI.campaigns.getAllWithCouponCounts()
+                .then(campaignsData => {
+                    if (campaignsData && Array.isArray(campaignsData)) {
+                        campaignsStore.setCampaigns(campaignsData);
+                    }
+                })
+                .catch(error => console.error('Erro ao carregar campanhas:', error))
+        );
     }
 
-    try {
-        isLoadingSpecialDates.value = true;
-        const hasValidData = specialDatesStore.hasValidData;
-
-        if (!specialDatesStore.hasLoaded || !hasValidData) {
-            const specialDatesData = await affiliateVue3.useAffiliate().dates.getAll();
-            specialDatesStore.setSpecialDates(specialDatesData);
-        }
-    } finally {
-        isLoadingSpecialDates.value = false;
+    if (specialDatesStore.getSpecialDates.length === 0) {
+        promises.push(
+            affiliateVue3.useAffiliate().dates.getAll()
+                .then(specialDatesData => {
+                    specialDatesStore.setSpecialDates(specialDatesData);
+                })
+                .catch(error => console.error('Erro ao carregar datas especiais:', error))
+        );
     }
+
+    if (promises.length > 0) {
+        await Promise.all(promises);
+    }
+};
+
+onServerPrefetch(async () => {
+    await loadTemplateData();
+});
+
+onMounted(async () => {
+    await loadTemplateData();
 
     setTimeout(async () => {
         await checkCouponInUrl();
