@@ -4,6 +4,7 @@ import {
     Queries,
     Param
 } from "@cmmv/http";
+import { Application } from "@cmmv/core";
 
 import {
     AffiliateSpecialDatesService
@@ -20,7 +21,7 @@ export class AffiliateSpecialDatesController {
     })
     async getSpecialDates(@Queries() queries: any) {
         if (queries.slug) {
-            const SpecialDatesEntity = Repository.getEntity("SpecialDatesEntity");
+            const SpecialDatesEntity = Repository.getEntity("AffiliateSpecialDatesEntity");
             const result = await Repository.findOne(SpecialDatesEntity, { slug: queries.slug });
             return result;
         }
@@ -32,7 +33,7 @@ export class AffiliateSpecialDatesController {
         exclude: true
     })
     async findBySlug(@Param("slug") slug: string) {
-        const SpecialDatesEntity = Repository.getEntity("SpecialDatesEntity");
+        const SpecialDatesEntity = Repository.getEntity("AffiliateSpecialDatesEntity");
         const result = await Repository.findOne(SpecialDatesEntity, { slug: slug });
         return result;
     }
@@ -41,7 +42,8 @@ export class AffiliateSpecialDatesController {
         exclude: true
     })
     async getCampaignsBySpecialDate(@Param("specialDateId") specialDateId: string) {
-        return await this.specialDatesService.getCampaignsBySpecialDate(specialDateId);
+        const service = Application.resolveProvider(AffiliateSpecialDatesService);
+        return await service.getCampaignsBySpecialDate(specialDateId);
     }
 
     @Get("campaigns/slug/:slug", {

@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 export const useSpecialDatesStore = defineStore('specialdates', {
     state: () => ({
         specialDates: [] as any[],
+        specialDateBySlug: {} as Record<string, any>,
     }),
     actions: {
         setSpecialDates(data: any) {
@@ -24,8 +25,14 @@ export const useSpecialDatesStore = defineStore('specialdates', {
             
             this.specialDates = datesArray || [];
         },
+        setSpecialDateForSlug(slug: string, data: any) {
+            if (slug && data) {
+                this.specialDateBySlug[slug] = data;
+            }
+        },
         reset() {
             this.specialDates = []
+            this.specialDateBySlug = {}
         }
     },
     getters: {
@@ -36,6 +43,9 @@ export const useSpecialDatesStore = defineStore('specialdates', {
             }
             
             return state.specialDates.filter((date: any) => date && date.active);
+        },
+        getSpecialDateBySlug: (state) => (slug: string) => {
+            return state.specialDateBySlug[slug] || null;
         },
     }
 })
