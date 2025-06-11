@@ -69,6 +69,10 @@ export const useAffiliateClient = () => {
         },
         updateAllCampaignsCouponCount: async () => {
             return api.authRequest(`affiliate/campaigns/update-all-coupon-counts`, "GET");
+        },
+        getAllCampaignsWithCouponCounts: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`affiliate/campaigns/with-coupon-counts?${query}`, "GET");
         }
     }
 
@@ -188,6 +192,9 @@ export const useAffiliateClient = () => {
         },
         delete: async (id: string) => {
             return api.authRequest(`affiliate/special-dates/${id}`, "DELETE");
+        },
+        getCampaignsBySpecialDate: async (specialDateId: string) => {
+            return api.authRequest(`affiliate/special-dates/campaigns/${specialDateId}`, "GET");
         }
     }
 

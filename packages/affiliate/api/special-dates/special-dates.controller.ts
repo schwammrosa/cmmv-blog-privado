@@ -36,4 +36,18 @@ export class AffiliateSpecialDatesController {
         const result = await Repository.findOne(SpecialDatesEntity, { slug: slug });
         return result;
     }
+
+    @Get("campaigns/:specialDateId", {
+        exclude: true
+    })
+    async getCampaignsBySpecialDate(@Param("specialDateId") specialDateId: string) {
+        return await this.specialDatesService.getCampaignsBySpecialDate(specialDateId);
+    }
+
+    @Get("campaigns/slug/:slug", {
+        exclude: true
+    })
+    async getCampaignsBySpecialDateSlug(@Param("slug") slug: string) {
+        return await this.specialDatesService.getCampaignsBySpecialDateSlug(slug);
+    }
 }

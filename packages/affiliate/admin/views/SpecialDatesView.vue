@@ -88,6 +88,62 @@
                         <textarea v-model="form.description" placeholder="Description" class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white" required></textarea>
                         <input v-model="form.slug" @input="isSlugManuallyEdited = true" placeholder="Slug (optional)" class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white">
                         <input v-model="form.image" placeholder="Image URL (optional)" class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white">
+                        
+                        <!-- Campaigns Selection -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-medium text-neutral-300">Campanhas Associadas</label>
+                            
+                            <!-- Search for campaigns -->
+                            <div class="relative mb-3">
+                                <input 
+                                    v-model="campaignSearchQuery"
+                                    type="text"
+                                    placeholder="Search campaigns..."
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white text-sm"
+                                >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 absolute right-3 top-3 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            
+                            <!-- Selected count -->
+                            <div v-if="form.campaigns.length > 0" class="text-xs text-neutral-400 mb-2">
+                                Selected ({{ form.campaigns.length }}): 
+                                <button @click="clearSelectedCampaigns" class="text-red-400 hover:text-red-300 ml-1">Clear all</button>
+                            </div>
+                            
+                            <!-- Campaigns list -->
+                            <div class="max-h-48 overflow-y-auto bg-neutral-700 border border-neutral-600 rounded-md">
+                                <div v-if="campaignsLoading" class="p-3 text-neutral-400 text-sm">Carregando campanhas...</div>
+                                <div v-else-if="filteredCampaigns.length === 0" class="p-3 text-neutral-400 text-sm">
+                                    {{ campaignSearchQuery ? 'Nenhuma campanha encontrada para a busca.' : 'Nenhuma campanha disponível.' }}
+                                </div>
+                                <div v-else class="grid grid-cols-1 gap-0">
+                                    <label v-for="campaign in filteredCampaigns" :key="campaign.id" 
+                                           class="flex items-center p-3 hover:bg-neutral-600 cursor-pointer border-b border-neutral-600 last:border-b-0 transition-colors">
+                                        <input 
+                                            type="checkbox" 
+                                            :value="campaign.id" 
+                                            v-model="form.campaigns" 
+                                            class="h-4 w-4 text-blue-600 rounded mr-3 flex-shrink-0">
+                                        <div class="flex items-center min-w-0 flex-1">
+                                            <img v-if="campaign.logo" 
+                                                 :src="campaign.logo" 
+                                                 :alt="campaign.name" 
+                                                 class="w-8 h-8 rounded object-cover mr-3 flex-shrink-0">
+                                            <div class="min-w-0 flex-1">
+                                                <div class="text-sm text-white font-medium truncate">{{ campaign.name }}</div>
+                                                <div v-if="campaign.description" class="text-xs text-neutral-400 truncate">{{ campaign.description }}</div>
+                                            </div>
+                                            <div v-if="!campaign.active" class="ml-2 px-2 py-1 bg-red-900 text-red-200 text-xs rounded flex-shrink-0">
+                                                Inativa
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <label class="flex items-center"><input type="checkbox" v-model="form.active" class="h-4 w-4 text-blue-600 rounded mr-2"><span class="text-sm text-neutral-300">Active</span></label>
                     </div>
                     <div class="p-6 border-t border-neutral-700 flex justify-end space-x-3">
@@ -104,7 +160,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { useAffiliateClient } from '../client';
 import Pagination from '@cmmv/blog/admin/components/Pagination.vue';
 import DeleteDialog from '@cmmv/blog/admin/components/DeleteDialog.vue';
@@ -119,10 +175,11 @@ const refreshing = ref(false);
 
 const showDialog = ref(false);
 const isEditing = ref(false);
-const form = ref({ name: '', description: '', slug: '', image: '', active: true });
+const form = ref({ name: '', description: '', slug: '', image: '', campaigns: [], active: true });
 const formLoading = ref(false);
 const editId = ref(null);
 const isSlugManuallyEdited = ref(false);
+const availableCampaigns = ref([]);
 
 const showDeleteDialog = ref(false);
 const itemToDelete = ref(null);
@@ -131,6 +188,35 @@ const notification = ref({ show: false, message: '', type: 'success' });
 const pagination = ref({ current: 1, lastPage: 1, perPage: 10, total: 0 });
 const filters = ref({ search: '', page: 1 });
 const showSearchDropdown = ref(false);
+
+const campaignSearchQuery = ref('');
+const campaignsLoading = ref(false);
+
+// Computed property for filtered campaigns
+const filteredCampaigns = computed(() => {
+    if (!availableCampaigns.value) return [];
+    
+    let campaigns = availableCampaigns.value;
+    
+    // Filter by search query
+    if (campaignSearchQuery.value.trim()) {
+        const query = campaignSearchQuery.value.toLowerCase().trim();
+        campaigns = campaigns.filter(campaign => 
+            campaign.name.toLowerCase().includes(query) ||
+            (campaign.description && campaign.description.toLowerCase().includes(query))
+        );
+    }
+    
+    // Sort: active campaigns first, then by name
+    return campaigns.sort((a, b) => {
+        // Active campaigns first
+        if (a.active && !b.active) return -1;
+        if (!a.active && b.active) return 1;
+        
+        // Then sort by name
+        return a.name.localeCompare(b.name);
+    });
+});
 
 const loadData = async () => {
     loading.value = true;
@@ -188,23 +274,28 @@ watch(() => form.value.name, (newName) => {
 });
 
 const resetForm = () => {
-    form.value = { name: '', description: '', slug: '', image: '', active: true };
+    form.value = { name: '', description: '', slug: '', image: '', campaigns: [], active: true };
     editId.value = null;
     isEditing.value = false;
     isSlugManuallyEdited.value = false;
 };
 
-const openAddDialog = () => {
+const openAddDialog = async () => {
     resetForm();
+    await loadCampaigns();
     showDialog.value = true;
 };
 
-const openEditDialog = (item) => {
+const openEditDialog = async (item) => {
     resetForm();
     isEditing.value = true;
     editId.value = item.id;
-    form.value = { ...item };
+    form.value = { 
+        ...item, 
+        campaigns: item.campaigns || [] 
+    };
     isSlugManuallyEdited.value = true;
+    await loadCampaigns();
     showDialog.value = true;
 };
 
@@ -260,6 +351,40 @@ const showNotification = (type, message) => {
 
 const toggleSearchDropdown = () => {
     showSearchDropdown.value = !showSearchDropdown.value;
+};
+
+const loadCampaigns = async () => {
+    campaignsLoading.value = true;
+    try {
+        const apiFilters = {
+            limit: 1000,
+            offset: 0,
+            sortBy: 'name',
+            sort: 'asc',
+            active: 'true'
+        };
+
+        // Use the same logic as CampaignView.vue
+        const response = await client.campaigns.getAllCampaignsWithCouponCounts ?
+            await client.campaigns.getAllCampaignsWithCouponCounts(apiFilters) :
+            await client.campaigns.get(apiFilters);
+
+        if (response && response.data) {
+            availableCampaigns.value = response.data || [];
+        } else {
+            availableCampaigns.value = [];
+        }
+    } catch (e) {
+        console.error('Failed to load campaigns:', e);
+        availableCampaigns.value = [];
+        showNotification('error', 'Failed to load campaigns: ' + (e.message || 'Unknown error'));
+    } finally {
+        campaignsLoading.value = false;
+    }
+};
+
+const clearSelectedCampaigns = () => {
+    form.value.campaigns = [];
 };
 
 onMounted(loadData);

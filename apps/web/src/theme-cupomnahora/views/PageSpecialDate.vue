@@ -25,7 +25,12 @@
 
         <!-- Grid de Ofertas -->
         <div class="offers-grid" v-if="campaigns && campaigns.length > 0">
-            <div v-for="campaign in campaigns" :key="campaign.id" class="offer-card">
+            <router-link 
+                v-for="campaign in campaigns" 
+                :key="campaign.id" 
+                :to="`/desconto/${campaign.slug}`"
+                class="offer-card"
+            >
                 <div class="offer-logo">
                     <img :src="campaign.logo || '/src/theme-cupomnahora/assets/store-placeholder.png'" :alt="campaign.name" />
                 </div>
@@ -36,7 +41,7 @@
                     </h3>
                     <div class="offer-count">+{{ campaign.couponCount || 5 }} cupons</div>
                 </div>
-            </div>
+            </router-link>
         </div>
 
         <!-- Sem Ofertas -->
@@ -50,16 +55,23 @@
             <p>Não há campanhas disponíveis para {{ specialDate.name }} no momento. Volte em breve para novas ofertas!</p>
         </div>
 
-        <!-- Informação de desenvolvimento -->
-
-        <div class="featured-offer">
-            <div class="in-development-message">
-                <h2>Em desenvolvimento</h2>
-                <!--Todo-->
-                <p>Todo:</p>
-                <p> [ ] Criar relacionamento com as lojas (campanhas)</p>
-                <p> [ ] Carregar cupons de desconto das lojas</p>
-
+        <!-- Cupons em Destaque -->
+        <div v-if="campaigns && campaigns.length > 0" class="coupons-section">
+            <h2 class="section-title">Melhores Cupons para {{ specialDate.name }}</h2>
+            <div class="coupons-grid">
+                <div v-for="campaign in campaigns.slice(0, 6)" :key="`coupon-${campaign.id}`" class="coupon-card">
+                    <div class="coupon-header">
+                        <img :src="campaign.logo || '/src/theme-cupomnahora/assets/store-placeholder.png'" :alt="campaign.name" class="coupon-logo">
+                        <div class="coupon-store">{{ campaign.name }}</div>
+                    </div>
+                    <div class="coupon-content">
+                        <div class="coupon-title">{{ campaign.discount || 'até 10%' }} de desconto</div>
+                        <div class="coupon-description">Oferta especial para {{ specialDate.name }}</div>
+                        <router-link :to="`/desconto/${campaign.slug}`" class="coupon-btn">
+                            Ver {{ campaign.couponCount || 0 }} Cupons
+                        </router-link>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -91,8 +103,7 @@ import { useAffiliate } from '@cmmv/affiliate/client/client.vue3';
 const route = useRoute();
 const specialDate = ref<any>({});
 const campaigns = ref<any[]>([]);
-const { dates } = useAffiliate();
-const { campaigns: affiliateCampaigns } = useAffiliate();
+const { dates, campaigns: affiliateCampaigns, coupons: affiliateCoupons } = useAffiliate();
 
 onMounted(async () => {
     const slug = route.params.slug as string;
@@ -109,50 +120,41 @@ onMounted(async () => {
                 specialDate.value = response;
             }
 
-            campaigns.value = [
-                {
-                    id: '1',
-                    name: 'Vivara',
-                    logo: 'https://logodownload.org/wp-content/uploads/2019/10/vivara-logo-0.png',
-                    discount: '10%',
-                    couponCount: 19
-                },
-                {
-                    id: '2',
-                    name: 'Renner',
-                    logo: 'https://logodownload.org/wp-content/uploads/2014/07/renner-logo-1.png',
-                    discount: 'até 3,1%',
-                    couponCount: 40
-                },
-                {
-                    id: '3',
-                    name: 'O Boticário',
-                    logo: 'https://logodownload.org/wp-content/uploads/2014/10/boticario-logo-0.png',
-                    discount: '3,1%',
-                    couponCount: 40
-                },
-                {
-                    id: '4',
-                    name: 'Casas Bahia',
-                    logo: 'https://logodownload.org/wp-content/uploads/2014/05/casas-bahia-logo-0-novo.png',
-                    discount: 'até 12%',
-                    couponCount: 40
-                },
-                {
-                    id: '5',
-                    name: 'Samsung',
-                    logo: 'https://logodownload.org/wp-content/uploads/2014/01/samsung-logo-0-2048x2048.png',
-                    discount: '2%',
-                    couponCount: 40
-                },
-                {
-                    id: '6',
-                    name: 'Shein',
-                    logo: 'https://logodownload.org/wp-content/uploads/2021/06/shein-logo-0-2048x2048.png',
-                    discount: '1,7%',
-                    couponCount: 40
+            // Buscar as campanhas relacionadas à data especial
+            if (specialDate.value && specialDate.value.id) {
+                const relatedCampaigns = await affiliateCampaigns.getBySpecialDate(specialDate.value.id);
+                
+                // Se usar slug
+                if (!relatedCampaigns || relatedCampaigns.length === 0) {
+                    const relatedCampaignsBySlug = await affiliateCampaigns.getBySpecialDateSlug(slug);
+                    campaigns.value = relatedCampaignsBySlug || [];
+                } else {
+                    campaigns.value = relatedCampaigns;
                 }
-            ];
+
+                // Buscar contagem de cupons para cada campanha
+                if (campaigns.value && campaigns.value.length > 0) {
+                    const campaignsWithCounts = await Promise.all(
+                        campaigns.value.map(async (campaign: any) => {
+                            try {
+                                const couponCount = await affiliateCoupons.getCountByCampaignId(campaign.id);
+                                return {
+                                    ...campaign,
+                                    couponCount: couponCount?.count || 0,
+                                    discount: 'até 10%' // Placeholder, pode ser customizado
+                                };
+                            } catch (error) {
+                                return {
+                                    ...campaign,
+                                    couponCount: 0,
+                                    discount: 'até 10%'
+                                };
+                            }
+                        })
+                    );
+                    campaigns.value = campaignsWithCounts;
+                }
+            }
         } catch (error) {
             console.error("Erro ao buscar dados da data especial:", error);
         }
@@ -433,6 +435,96 @@ onMounted(async () => {
     to { transform: rotate(360deg); }
 }
 
+/* Seção de cupons */
+.coupons-section {
+    margin: 3rem 0;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.coupons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+}
+
+.coupon-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1px solid #edf2f7;
+}
+
+.coupon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+
+.coupon-header {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.coupon-logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-right: 1rem;
+}
+
+.coupon-store {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 1.1rem;
+}
+
+.coupon-content {
+    padding: 1.5rem;
+}
+
+.coupon-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #4f46e5;
+    margin-bottom: 0.5rem;
+}
+
+.coupon-description {
+    color: #718096;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.coupon-btn {
+    display: inline-block;
+    background-color: #4f46e5;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    font-size: 0.9rem;
+}
+
+.coupon-btn:hover {
+    background-color: #4338ca;
+    text-decoration: none;
+    color: white;
+}
+
 @media (max-width: 768px) {
     .banner-hero {
         height: auto;
@@ -451,6 +543,23 @@ onMounted(async () => {
 
     .featured-store-logo {
         margin-bottom: 1rem;
+    }
+
+    .coupons-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .coupon-header {
+        padding: 1rem;
+    }
+
+    .coupon-content {
+        padding: 1rem;
     }
 }
 </style>
