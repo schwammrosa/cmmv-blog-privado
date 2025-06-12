@@ -550,7 +550,7 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
 
                     } catch (error: any) {
                         errorCount++;
-                        const errorMessage = `Failed to update campaign ${campaign.name} (${campaign.id}): ${error.message}`;
+                        const errorMessage = `Failed to update campaign ${campaign.name} (${campaign.id}): ${error?.message || JSON.stringify(error) || String(error)}`;
                         errors.push(errorMessage);
                         this.logger.error(errorMessage);
                     }

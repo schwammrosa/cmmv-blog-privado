@@ -707,10 +707,8 @@ const saveBlogPost = async (): Promise<void> => {
         // Process the image for the blog post
         let processedImage = null;
         try {
-            const response = await adminClient.medias.processImage({
-                image: selectedVideo.value.thumbnailUrl,
-                format: 'webp',
-                maxWidth: 1200,
+            const response = await adminClient.medias.importFromUrl({
+                url: selectedVideo.value.thumbnailUrl,
                 alt: blogPost.value.title,
                 caption: ''
             });
