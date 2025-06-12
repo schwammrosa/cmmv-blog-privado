@@ -107,12 +107,12 @@ export class AffiliateCampaignsContract extends AbstractContract {
         index: true
     })
     highlight!: boolean;
-
+    
     @ContractField({
         protoType: 'string',
         nullable: true,
         index: true,
-        unique: true
+       // unique: true
     })
     slug!: string;
 

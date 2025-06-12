@@ -18,7 +18,9 @@ import {
 interface ProcessImageInterface {
     image: string;
     format: string;
-    maxWidth: number;
+    width?: number;
+    height?: number;
+    quality?: number;
     alt: string;
     caption: string;
 }
@@ -55,8 +57,15 @@ export class MediasController {
     @ContentType("application/json")
     @Raw()
     async processImage(@Body() body: ProcessImageInterface) {
-        const url = await this.mediasService.getImageUrl(body.image, body.format, body.maxWidth, body.alt, body.caption);
-        return { url };
+        return this.mediasService.getImageUrl(
+            body.image,
+            body.format,
+            body.width,
+            body.height,
+            body.quality,
+            body.alt,
+            body.caption
+        );
     }
 
     @Put("medias/:id", { exclude: true })

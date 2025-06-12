@@ -69,7 +69,14 @@ export const useAffiliate = () => {
             if (!specialDateId) {
                 return [];
             }
-            const { data } = await api.get<any[]>(`affiliate/campaigns/public?specialDateId=${specialDateId}`, `campaigns_special_date_${specialDateId}`);
+            const { data } = await api.get<any[]>(`affiliate/special-dates/campaigns/${specialDateId}`, `campaigns_special_date_${specialDateId}`);
+            return data.value || [];
+        },
+        getBySpecialDateSlug: async (slug: string) => {
+            if (!slug) {
+                return [];
+            }
+            const { data } = await api.get<any[]>(`affiliate/special-dates/campaigns/slug/${slug}`, `campaigns_special_date_slug_${slug}`);
             return data.value || [];
         }
     };
@@ -130,53 +137,17 @@ export const useAffiliate = () => {
 
     const dates = {
         getAll: async () => {
-            try {
-                const response = await api.get("special-dates", "special_dates_all", {
-                    headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem('token') || ''
-                    }
-                });
-
-                if (!response)
-                    return { data: [] };
-
-                if (Array.isArray(response))
-                    return { data: response };
-
-                return response;
-            } catch (error) {
-                return { data: [] };
-            }
+            const { data } = await api.get<any[]>("affiliate/special-dates", "special_dates_all");
+            return data.value || [];
         },
 
         getBySlug: async (slug: string) => {
             try {
-                const result = await api.get(`special-dates/find-by-slug/${slug}`, `special_date_${slug}`, {
-                    headers: {
-                        Authorization: 'Bearer ' + localStorage.getItem('token') || ''
-                    }
-                });
-                return result;
+                const { data } = await api.get<any>(`affiliate/special-dates/find-by-slug/${slug}`, `special_date_${slug}`);
+                return data.value || null;
             } catch (error) {
-                if (error.response && (error.response.status === 401 || error.response.status === 500)) {
-                    try {
-                        const result = await api.get(`special-dates?slug=${slug}`, `special_date_query_${slug}`, {
-                            headers: {
-                                Authorization: 'Bearer ' + localStorage.getItem('token') || ''
-                            }
-                        });
-                        return Array.isArray(result) && result.length > 0 ? result[0] : null;
-                    } catch (fallbackError) {
-                        try {
-                            const allDates = await dates.getAll();
-                            return Array.isArray(allDates) ? allDates.find(d => d.slug === slug) : null;
-                        } catch (finalError) {
-                            throw finalError;
-                        }
-                    }
-                }
-
-                throw error;
+                console.error(`Error fetching special date by slug ${slug}:`, error);
+                return null;
             }
         },
     };
