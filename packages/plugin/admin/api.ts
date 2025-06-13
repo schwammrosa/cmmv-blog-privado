@@ -67,10 +67,10 @@ export function useApi() {
     const getApiPath = (path: string) => {
         if (currentWhitelabelId.value && whitelabelUrls.value[currentWhitelabelId.value]) {
             const baseUrl = whitelabelUrls.value[currentWhitelabelId.value];
-            return `${baseUrl}/${path}`;
+            return `/proxy?url=${encodeURIComponent(`${baseUrl}/${path}`)}`;
         }
 
-        return `/api/${path}`;
+        return `proxy?url=${encodeURIComponent(`${window.location.origin}/api/${path}`)}`;
     }
 
     const getHeaders = (headers?: object) => {

@@ -92,7 +92,6 @@ const setupWhitelabelProxies = (app) => {
 
         console.log(`Setting up proxy: ${pattern} -> ${url}`);
 
-        // Setup proxy for all HTTP methods
         const proxyHandler = proxy({
             target: url,
             changeOrigin: true,
@@ -105,7 +104,6 @@ const setupWhitelabelProxies = (app) => {
             }
         });
 
-        // Wrapper para adicionar logs detalhados
         const loggingProxyHandler = (req, res, next) => {
             const originalUrl = req.url;
             const targetUrl = url;
@@ -118,7 +116,6 @@ const setupWhitelabelProxies = (app) => {
             console.log(`🎯 [${id}] Final URL: ${finalUrl}`);
             console.log(`📋 [${id}] Headers:`, JSON.stringify(req.headers, null, 2));
 
-            // Interceptar resposta para log de erro
             const originalEnd = res.end;
             res.end = function(chunk, encoding) {
                 if (res.statusCode >= 400) {
@@ -180,19 +177,16 @@ const setupMainApiProxy = (app) => {
         }
     };
 
-    // Main API proxy
     const mainApiProxy = proxy({
         ...baseProxyOptions,
         pathRewrite: { '^/api': '' }
     });
 
-    // Admin API proxy (more specific route)
     const adminApiProxy = proxy({
         ...baseProxyOptions,
         pathRewrite: { '^/api/admin': '' }
     });
 
-    // Images proxy
     const imagesProxy = proxy({
         ...baseProxyOptions
     });
@@ -235,11 +229,8 @@ const initServer = async () => {
     console.log(`📁 Static Directory: ${serverConfig.staticDir}`);
 
     const app = cmmv.default();
-
-    // Setup main API proxies first
     setupMainApiProxy(app);
 
-    // Try to fetch whitelabel configurations
     console.log('🔍 Fetching whitelabel configurations...');
     const success = await fetchWhitelabelApiUrls();
 
@@ -272,15 +263,109 @@ const initServer = async () => {
         });
     });
 
+    const setupGenericProxy = () => {
+        const proxyHandler = async (req, res) => {
+            const targetUrl = req.query.url;
+            console.log(targetUrl)
+
+            if (!targetUrl) {
+                res.code(400);
+                res.type('application/json');
+                return res.send(JSON.stringify({
+                    error: 'Missing URL parameter',
+                    message: 'Please provide a target URL via ?url=<target_url>'
+                }));
+            }
+
+            try {
+                new URL(targetUrl);
+            } catch (error) {
+                res.code(400);
+                res.type('application/json');
+                return res.send(JSON.stringify({
+                    error: 'Invalid URL',
+                    message: 'The provided URL is not valid'
+                }));
+            }
+
+            try {
+                const proxyHeaders = { ...req.headers };
+                delete proxyHeaders.host;
+                delete proxyHeaders.connection;
+                delete proxyHeaders['content-length'];
+
+                const fetchOptions = {
+                    method: req.method,
+                    headers: proxyHeaders,
+                    timeout: serverConfig.proxy.timeout || 30000
+                };
+
+                if (req.method !== 'GET' && req.method !== 'HEAD') {
+                    if (req.body) {
+                        if (typeof req.body === 'string') {
+                            fetchOptions.body = req.body;
+                        } else {
+                            fetchOptions.body = JSON.stringify(req.body);
+                        }
+                    }
+                }
+
+                const response = await fetch(targetUrl, fetchOptions);
+                res.code(response.status);
+
+                response.headers.forEach((value, key) => {
+                    if (!['content-encoding', 'transfer-encoding', 'connection'].includes(key.toLowerCase()))
+                        res.header(key, value);
+                });
+
+                const responseBody = await response.text();
+
+                try {
+                    const jsonData = JSON.parse(responseBody);
+                    res.type('application/json');
+                    console.log(`✅ [Generic Proxy] Successfully proxied to ${targetUrl}`);
+                    return res.send(responseBody);
+                } catch (e) {
+                    res.type('text/plain');
+                    console.log(`✅ [Generic Proxy] Successfully proxied to ${targetUrl} (as text)`);
+                    return res.send(responseBody);
+                }
+
+            } catch (error) {
+                console.error(`❌ [Generic Proxy] Error:`, error.message);
+
+                if (!res.sent) {
+                    res.code(502);
+                    res.type('application/json');
+                    return res.send(JSON.stringify({
+                        error: 'Proxy Error',
+                        message: 'Failed to connect to target URL',
+                        targetUrl: targetUrl,
+                        details: error.message
+                    }));
+                }
+            }
+        };
+
+        // Register proxy routes for all HTTP methods
+        app.get('/proxy', proxyHandler);
+        app.post('/proxy', proxyHandler);
+        app.put('/proxy', proxyHandler);
+        app.delete('/proxy', proxyHandler);
+        app.patch('/proxy', proxyHandler);
+        app.options('/proxy', proxyHandler);
+        app.head('/proxy', proxyHandler);
+    };
+
+    setupGenericProxy();
+
     app.get('/', (req, res) => {
         res.setHeader('Content-Type', 'text/html');
         res.send(fs.readFileSync(path.resolve(serverConfig.staticDir, 'index.html'), 'utf8'));
     });
 
-    // Serve static files (this should be last)
     app.use(serverStatic(serverConfig.staticDir));
 
-    // Start the server
     app.listen({ host: serverConfig.host, port: serverConfig.port })
     .then(server => {
         const addr = server.address();
@@ -298,6 +383,7 @@ const initServer = async () => {
 
         console.log(`\n🔍 Health check: http://${addr.address}:${addr.port}/health`);
         console.log(`📊 Whitelabels info: http://${addr.address}:${addr.port}/whitelabels`);
+        console.log(`🔄 Generic proxy: http://${addr.address}:${addr.port}/proxy?url=<target_url>`);
         console.log(`\n🎉 Server is ready for requests!`);
     })
     .catch(err => {
