@@ -1143,7 +1143,8 @@ const campaignForm = ref({
     seoTitle: '',
     seoSubtitle: '',
     seoSmallText: '',
-    seoLongText: ''
+    seoLongText: '',
+    coupons: 0
 })
 const campaignToEdit = ref(null)
 const formErrors = ref({})
@@ -1360,7 +1361,8 @@ const openAddDialog = async () => {
         seoTitle: '',
         seoSubtitle: '',
         seoSmallText: '',
-        seoLongText: ''
+        seoLongText: '',
+        coupons: 0
     }
     formErrors.value = {}
     categorySearch.value = ''
@@ -1397,7 +1399,8 @@ const openEditDialog = async (campaign) => {
         seoTitle: campaign.seoTitle || '',
         seoSubtitle: campaign.seoSubtitle || '',
         seoSmallText: campaign.seoSmallText || '',
-        seoLongText: campaign.seoLongText || ''
+        seoLongText: campaign.seoLongText || '',
+        coupons: campaign.coupons || 0
     }
     formErrors.value = {}
     categorySearch.value = ''
@@ -1429,7 +1432,8 @@ const closeDialog = () => {
         seoTitle: '',
         seoSubtitle: '',
         seoSmallText: '',
-        seoLongText: ''
+        seoLongText: '',
+        coupons: 0
     }
     formErrors.value = {}
     campaignToEdit.value = null
