@@ -142,9 +142,9 @@ export class PostsPublicService {
                 if(post.featureImage){
                     post.featureImage = await this.processImageIfNeeded(
                         post.featureImage,
-                        "webp", 
-                        1200, 
-                        675, 
+                        "webp",
+                        1200,
+                        675,
                         80,
                         "",
                         ""
@@ -173,9 +173,9 @@ export class PostsPublicService {
                 for(const author of authorsData.data){
                     author.image = await this.processImageIfNeeded(
                         author.image,
-                        "webp", 
-                        128, 
-                        128, 
+                        "webp",
+                        128,
+                        128,
                         80,
                         author.name,
                         author.name
@@ -183,9 +183,9 @@ export class PostsPublicService {
 
                     author.coverImage = await this.processImageIfNeeded(
                         author.coverImage,
-                        "webp", 
-                        1024, 
-                        300, 
+                        "webp",
+                        1024,
+                        300,
                         80,
                         author.name,
                         author.name
@@ -303,9 +303,9 @@ export class PostsPublicService {
                 if(post.featureImage){
                     post.featureImage = await this.processImageIfNeeded(
                         post.featureImage,
-                        "webp", 
-                        1200, 
-                        675, 
+                        "webp",
+                        1200,
+                        675,
                         80,
                         "",
                         ""
@@ -334,9 +334,9 @@ export class PostsPublicService {
                 for(const author of authorsData.data){
                     author.image = await this.processImageIfNeeded(
                         author.image,
-                        "webp", 
-                        128, 
-                        128, 
+                        "webp",
+                        128,
+                        128,
                         80,
                         author.name,
                         author.name
@@ -344,9 +344,9 @@ export class PostsPublicService {
 
                     author.coverImage = await this.processImageIfNeeded(
                         author.coverImage,
-                        "webp", 
-                        1024, 
-                        300, 
+                        "webp",
+                        1024,
+                        300,
                         80,
                         author.name,
                         author.name
@@ -1772,19 +1772,19 @@ export class PostsPublicService {
      * @returns URL da imagem processada ou a original se já for uma URL
      */
     private async processImageIfNeeded(
-        imageData: string | null | undefined, 
-        format: string = "webp", 
-        width: number, 
-        height: number, 
+        imageData: string | null | undefined,
+        format: string = "webp",
+        width: number,
+        height: number,
         quality: number = 80,
         alt: string = "",
         caption: string = ""
     ): Promise<string | null | undefined> {
         if (!imageData) return imageData;
-        
+
         // Se a imagem já for uma URL, não reprocessa
         if (imageData.startsWith('http')) return imageData;
-        
+
         return await this.mediasService.getImageUrl(
             imageData,
             format,
