@@ -130,6 +130,7 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
     };
 
     return {
+        root: path.resolve(__dirname, '.'),
         plugins: [vue()],
         build: {
             chunkSizeWarningLimit: 1000000,
