@@ -1,7 +1,7 @@
 import { Module } from '@cmmv/core';
 
 import {
-    AffiliateSpecialDatesService
+    AffiliateSpecialDatesServiceTools
 } from "./special-dates.service";
 
 import {
@@ -9,6 +9,6 @@ import {
 } from "./special-dates.controller";
 
 export const AffiliateSpecialDatesModule = new Module('affiliate-special-dates', {
-    providers: [AffiliateSpecialDatesService],
+    providers: [AffiliateSpecialDatesServiceTools],
     controllers: [AffiliateSpecialDatesController]
 });

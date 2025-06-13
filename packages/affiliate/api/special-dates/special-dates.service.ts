@@ -7,7 +7,7 @@ import {
 } from "@cmmv/repository";
 
 @Service()
-export class AffiliateSpecialDatesService {
+export class AffiliateSpecialDatesServiceTools {
     private readonly logger = new Logger("AffiliateSpecialDatesService");
 
     /**
