@@ -97,7 +97,7 @@ const setupWhitelabelProxies = (app) => {
             target: url,
             changeOrigin: true,
             pathRewrite: {
-                [`^${pattern}`]: ''
+                [`^${pattern}`]: '/api'
             },
             timeout: serverConfig.proxy.timeout || 30000,
             headers: {
@@ -105,21 +105,63 @@ const setupWhitelabelProxies = (app) => {
             }
         });
 
+        // Wrapper para adicionar logs detalhados
+        const loggingProxyHandler = (req, res, next) => {
+            const originalUrl = req.url;
+            const targetUrl = url;
+            const rewrittenPath = originalUrl.replace(new RegExp(`^${pattern}`), '/api');
+            const finalUrl = `${targetUrl}${rewrittenPath}`;
+
+            console.log(`🔄 [${id}] Proxying: ${req.method} ${originalUrl}`);
+            console.log(`📍 [${id}] Target: ${targetUrl}`);
+            console.log(`🔀 [${id}] Rewritten: ${rewrittenPath}`);
+            console.log(`🎯 [${id}] Final URL: ${finalUrl}`);
+            console.log(`📋 [${id}] Headers:`, JSON.stringify(req.headers, null, 2));
+
+            // Interceptar resposta para log de erro
+            const originalEnd = res.end;
+            res.end = function(chunk, encoding) {
+                if (res.statusCode >= 400) {
+                    console.error(`❌ [${id}] Error ${res.statusCode} for ${req.method} ${originalUrl}`);
+                    console.error(`🔗 [${id}] Was trying to reach: ${finalUrl}`);
+                } else {
+                    console.log(`✅ [${id}] Success ${res.statusCode} for ${req.method} ${originalUrl}`);
+                }
+                originalEnd.call(this, chunk, encoding);
+            };
+
+            try {
+                return proxyHandler(req, res, next);
+            } catch (error) {
+                console.error(`💥 [${id}] Proxy error:`, error);
+                if (!res.headersSent) {
+                    res.statusCode = 502;
+                    res.end(JSON.stringify({
+                        error: 'Proxy Error',
+                        message: `Failed to proxy to ${targetUrl}`,
+                        whitelabelId: id,
+                        originalUrl: originalUrl,
+                        targetUrl: finalUrl
+                    }));
+                }
+            }
+        };
+
         // Define routes for all HTTP methods
-        app.get(`${pattern}/*`, proxyHandler);
-        app.post(`${pattern}/*`, proxyHandler);
-        app.put(`${pattern}/*`, proxyHandler);
-        app.delete(`${pattern}/*`, proxyHandler);
-        app.patch(`${pattern}/*`, proxyHandler);
-        app.options(`${pattern}/*`, proxyHandler);
+        app.get(`${pattern}/*`, loggingProxyHandler);
+        app.post(`${pattern}/*`, loggingProxyHandler);
+        app.put(`${pattern}/*`, loggingProxyHandler);
+        app.delete(`${pattern}/*`, loggingProxyHandler);
+        app.patch(`${pattern}/*`, loggingProxyHandler);
+        app.options(`${pattern}/*`, loggingProxyHandler);
 
         // Also handle the exact pattern without /*
-        app.get(pattern, proxyHandler);
-        app.post(pattern, proxyHandler);
-        app.put(pattern, proxyHandler);
-        app.delete(pattern, proxyHandler);
-        app.patch(pattern, proxyHandler);
-        app.options(pattern, proxyHandler);
+        app.get(pattern, loggingProxyHandler);
+        app.post(pattern, loggingProxyHandler);
+        app.put(pattern, loggingProxyHandler);
+        app.delete(pattern, loggingProxyHandler);
+        app.patch(pattern, loggingProxyHandler);
+        app.options(pattern, loggingProxyHandler);
     });
 };
 
