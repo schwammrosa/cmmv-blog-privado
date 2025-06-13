@@ -2,9 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import cmmv, { serverStatic } from '@cmmv/server';
 
-import {
-    createProxyMiddleware
-} from 'http-proxy-middleware';
+import { proxy } from '@cmmv/proxy';
 
 import serverConfig from './server.config.js';
 
@@ -94,37 +92,34 @@ const setupWhitelabelProxies = (app) => {
 
         console.log(`Setting up proxy: ${pattern} -> ${url}`);
 
-        app.use(pattern, createProxyMiddleware({
+        // Setup proxy for all HTTP methods
+        const proxyHandler = proxy({
             target: url,
             changeOrigin: true,
-            secure: false,
-            pathRewrite: (path) => {
-                return path.replace(new RegExp(`^${pattern}`), '');
+            pathRewrite: {
+                [`^${pattern}`]: ''
             },
-            onProxyReq: (proxyReq, req) => {
-                // Forward refresh token
-                const refreshToken = req.headers['refresh-token'];
-                if (refreshToken) {
-                    proxyReq.setHeader('refresh-token', refreshToken);
-                }
-
-                // Forward whitelabel ID
-                const whitelabelId = req.headers['x-whitelabel-id'];
-                if (whitelabelId) {
-                    proxyReq.setHeader('x-whitelabel-id', whitelabelId);
-                }
-
-                console.log(`Proxying ${req.method} ${req.url} to ${url}`);
-            },
-            onError: (err, req, res) => {
-                console.error(`Proxy error for ${pattern}:`, err.message);
-                res.status(502).json({
-                    error: 'Proxy Error',
-                    message: 'Failed to proxy request to whitelabel service',
-                    whitelabelId: id
-                });
+            timeout: serverConfig.proxy.timeout || 30000,
+            headers: {
+                ...serverConfig.proxy.headers
             }
-        }));
+        });
+
+        // Define routes for all HTTP methods
+        app.get(`${pattern}/*`, proxyHandler);
+        app.post(`${pattern}/*`, proxyHandler);
+        app.put(`${pattern}/*`, proxyHandler);
+        app.delete(`${pattern}/*`, proxyHandler);
+        app.patch(`${pattern}/*`, proxyHandler);
+        app.options(`${pattern}/*`, proxyHandler);
+
+        // Also handle the exact pattern without /*
+        app.get(pattern, proxyHandler);
+        app.post(pattern, proxyHandler);
+        app.put(pattern, proxyHandler);
+        app.delete(pattern, proxyHandler);
+        app.patch(pattern, proxyHandler);
+        app.options(pattern, proxyHandler);
     });
 };
 
@@ -134,79 +129,57 @@ const setupWhitelabelProxies = (app) => {
 const setupMainApiProxy = (app) => {
     console.log(`🔧 Setting up main API proxy: /api -> ${serverConfig.apiUrl}`);
 
-    const proxyOptions = {
+    const baseProxyOptions = {
         target: serverConfig.apiUrl,
         changeOrigin: serverConfig.proxy.changeOrigin,
-        secure: serverConfig.proxy.secure,
-        timeout: serverConfig.proxy.timeout,
-        proxyTimeout: serverConfig.proxy.proxyTimeout,
-        onProxyReq: (proxyReq, req) => {
-            // Forward authentication headers
-            const refreshToken = req.headers['refresh-token'];
-            if (refreshToken) {
-                proxyReq.setHeader('refresh-token', refreshToken);
-            }
-
-            const whitelabelId = req.headers['x-whitelabel-id'];
-            if (whitelabelId) {
-                proxyReq.setHeader('x-whitelabel-id', whitelabelId);
-            }
-
-            const authorization = req.headers['authorization'];
-            if (authorization) {
-                proxyReq.setHeader('authorization', authorization);
-            }
-
-            console.log(`🔄 Proxying ${req.method} ${req.url} to main API`);
-        },
-        onError: (err, req, res) => {
-            console.error('❌ Main API proxy error:', err.message);
-            if (!res.headersSent) {
-                res.status(502).json({
-                    error: 'API Proxy Error',
-                    message: 'Failed to proxy request to main API',
-                    timestamp: new Date().toISOString()
-                });
-            }
+        timeout: serverConfig.proxy.timeout || 30000,
+        headers: {
+            ...serverConfig.proxy.headers
         }
     };
 
     // Main API proxy
-    app.use('/api', createProxyMiddleware({
-        ...proxyOptions,
+    const mainApiProxy = proxy({
+        ...baseProxyOptions,
         pathRewrite: { '^/api': '' }
-    }));
+    });
 
     // Admin API proxy (more specific route)
-    app.use('/api/admin', createProxyMiddleware({
-        ...proxyOptions,
-        pathRewrite: { '^/api/admin': '' },
-        onError: (err, req, res) => {
-            console.error('❌ Admin API proxy error:', err.message);
-            if (!res.headersSent) {
-                res.status(502).json({
-                    error: 'Admin API Proxy Error',
-                    message: 'Failed to proxy request to admin API',
-                    timestamp: new Date().toISOString()
-                });
-            }
-        }
-    }));
+    const adminApiProxy = proxy({
+        ...baseProxyOptions,
+        pathRewrite: { '^/api/admin': '' }
+    });
 
     // Images proxy
-    app.use('/images', createProxyMiddleware({
-        ...proxyOptions,
-        onError: (err, req, res) => {
-            console.error('❌ Images proxy error:', err.message);
-            if (!res.headersSent) {
-                res.status(404).json({
-                    error: 'Image Proxy Error',
-                    message: 'Failed to proxy image request',
-                    timestamp: new Date().toISOString()
-                });
-            }
-        }
-    }));
+    const imagesProxy = proxy({
+        ...baseProxyOptions
+    });
+
+    // Define routes for main API
+    app.get('/api/*', mainApiProxy);
+    app.post('/api/*', mainApiProxy);
+    app.put('/api/*', mainApiProxy);
+    app.delete('/api/*', mainApiProxy);
+    app.patch('/api/*', mainApiProxy);
+    app.options('/api/*', mainApiProxy);
+
+    // Define routes for admin API
+    app.get('/api/admin/*', adminApiProxy);
+    app.post('/api/admin/*', adminApiProxy);
+    app.put('/api/admin/*', adminApiProxy);
+    app.delete('/api/admin/*', adminApiProxy);
+    app.patch('/api/admin/*', adminApiProxy);
+    app.options('/api/admin/*', adminApiProxy);
+
+    // Define routes for images
+    app.get('/images/*', imagesProxy);
+    app.post('/images/*', imagesProxy);
+    app.put('/images/*', imagesProxy);
+    app.delete('/images/*', imagesProxy);
+    app.patch('/images/*', imagesProxy);
+    app.options('/images/*', imagesProxy);
+
+    console.log('✅ Main API proxy routes configured');
 };
 
 /**
