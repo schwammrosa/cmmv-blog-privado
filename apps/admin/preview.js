@@ -5,7 +5,7 @@ import { spawn } from 'node:child_process'
 const mode = process.env.MODE || 'production'
 const env = loadEnv(mode, process.cwd(), '')
 
-const port = env.VITE_PORT || '4173'
+const port = env.VITE_PORT || '5002'
 const host = env.VITE_HOST || '0.0.0.0'
 
 const proc = spawn(
