@@ -262,7 +262,8 @@ export class PostsPublicService {
             select: [
                 "id", "title", "slug",
                 "authors", "author", "featureImage", "publishedAt",
-                "updatedAt", "createdAt", "comments", "views"
+                "updatedAt", "createdAt", "comments", "views", "tags", "excerpt",
+                "categories"
             ],
             order: {
                 publishedAt: "DESC",
