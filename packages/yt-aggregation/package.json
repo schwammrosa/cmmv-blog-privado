@@ -1,6 +1,6 @@
 {
     "name": "@cmmv/yt-aggregation",
-    "version": "0.1.29",
+    "version": "0.1.31",
     "description": "Youtube Aggregation package for CMMV",
     "scripts": {
         "build": "tsup"
