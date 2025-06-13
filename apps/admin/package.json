@@ -1,13 +1,13 @@
 {
     "name": "cmmv-blog-admin",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "private": true,
     "description": "Blog admin package for CMMV",
     "type": "module",
     "scripts": {
         "dev": "vite --clearScreen false",
-        "build": "echo admin",
-        "start": "vite",
+        "build": "vite build",
+        "start": "node preview.js",
         "lint": "eslint \"src/**/*.ts\""
     },
     "devDependencies": {

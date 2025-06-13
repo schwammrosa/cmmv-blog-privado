@@ -202,19 +202,16 @@ import CouponScratchModal from '../components/CouponScratchModal.vue';
 const route = useRoute();
 const slug = route.params.slug as string;
 
-// Stores
 const campaignsStore = useCampaignsStore();
 const couponsStore = useCouponsStore();
 const specialDatesStore = useSpecialDatesStore();
 const affiliateAPI = affiliateVue3.useAffiliate();
 
-// State from Stores
 const specialDate = computed(() => specialDatesStore.getSpecialDateBySlug(slug));
 const campaigns = computed(() => campaignsStore.getCampaignsBySpecialDateSlug(slug));
 const allCoupons = computed(() => (couponsStore.getCouponsBySpecialDateSlug(slug) || { all: [] }).all);
 const featuredCoupons = computed(() => (couponsStore.getCouponsBySpecialDateSlug(slug) || { featured: [] }).featured);
 
-// Local component state
 const loading = ref(true);
 const error = ref<any>(null);
 const isScratchModalOpen = ref(false);
@@ -226,7 +223,6 @@ const loadData = async () => {
         loading.value = true;
         error.value = null;
 
-        // 1. Carregar dados da special date
         const dateData = await affiliateAPI.dates.getBySlug(slug);
 
         if (!dateData || !dateData.id) {
@@ -236,16 +232,15 @@ const loadData = async () => {
             couponsStore.setCouponsForSpecialDate(slug, { featured: [], all: [] });
             return;
         }
+
         specialDatesStore.setSpecialDateForSlug(slug, dateData);
 
-        // 2. Carregar campanhas relacionadas
         const campaignsData = await affiliateAPI.campaigns.getBySpecialDate(dateData.id);
         const campaignsList = (campaignsData && typeof campaignsData === 'object' && !Array.isArray(campaignsData))
             ? Object.values(campaignsData)
             : (campaignsData || []);
 
         if (campaignsList.length > 0) {
-            // 3. Buscar contagem de cupons e depois os cupons
             const campaignsWithCounts = await Promise.all(
                 campaignsList.map(async (campaign: any) => {
                     try {
@@ -256,6 +251,7 @@ const loadData = async () => {
                     }
                 })
             );
+
             campaignsStore.setCampaignsForSpecialDate(slug, campaignsWithCounts);
 
             const couponPromises = campaignsWithCounts.map(async (campaign: any) => {
