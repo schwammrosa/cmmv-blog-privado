@@ -266,7 +266,6 @@ const initServer = async () => {
     const setupGenericProxy = () => {
         const proxyHandler = async (req, res) => {
             const targetUrl = req.query.url;
-            console.log(targetUrl)
 
             if (!targetUrl) {
                 res.code(400);
@@ -318,26 +317,31 @@ const initServer = async () => {
                         res.header(key, value);
                 });
 
-                const responseBody = await response.text();
+                const responseBody = (response.headers.get('content-type') === 'application/json') ?
+                await response.json() : await response.text();
 
                 try {
-                    const jsonData = JSON.parse(responseBody);
-                    res.type('application/json');
-                    console.log(`✅ [Generic Proxy] Successfully proxied to ${targetUrl}`);
-                    return res.send(responseBody);
+                    if(response.headers.get('content-type').includes('application/json')) {
+                        res.res.setHeader("Content-Type", response.headers.get('content-type'));
+                        res.res.write(responseBody);
+                    } else {
+                        res.res.setHeader("Content-Type", response.headers.get('content-type'));
+                        res.res.write(responseBody);
+                    }
+
+                    res.res.end();
                 } catch (e) {
-                    res.type('text/plain');
-                    console.log(`✅ [Generic Proxy] Successfully proxied to ${targetUrl} (as text)`);
-                    return res.send(responseBody);
+                    res.res.setHeader("Content-Type", "text/plain");
+                    res.res.write(responseBody);
+                    res.res.end();
                 }
 
             } catch (error) {
                 console.error(`❌ [Generic Proxy] Error:`, error.message);
 
                 if (!res.sent) {
-                    res.code(502);
-                    res.type('application/json');
-                    return res.send(JSON.stringify({
+                    res.res.setHeader("Content-Type", "application/json");
+                    res.res.write(JSON.stringify({
                         error: 'Proxy Error',
                         message: 'Failed to connect to target URL',
                         targetUrl: targetUrl,
