@@ -1,4 +1,5 @@
 import { loadEnv } from 'vite';
+import path from 'node:path';
 
 const mode = process.env.MODE || 'production';
 const env = loadEnv(mode, process.cwd(), '');
@@ -9,9 +10,8 @@ export const serverConfig = {
     host: '0.0.0.0',
     apiUrl: env.VITE_API_URL || 'http://localhost:5000',
     allowedHosts: env.VITE_ALLOWED_HOSTS || 'blog.cmmv.io',
-    staticDir: 'dist',
+    staticDir: path.resolve('dist'),
 
-    // Retry configuration for whitelabel API
     whitelabel: {
         maxRetries: 10,
         timeout: 5000,
@@ -20,7 +20,6 @@ export const serverConfig = {
         backoffMultiplier: 1.5
     },
 
-    // Proxy configuration
     proxy: {
         changeOrigin: true,
         secure: false,

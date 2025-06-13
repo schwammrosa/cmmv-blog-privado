@@ -1,30 +1,30 @@
 # CMMV Blog Admin Server
 
-Este é o servidor de produção para a interface administrativa do CMMV Blog. Ele replica toda a funcionalidade de proxy do Vite em ambiente de produção, incluindo suporte a whitelabels dinâmicos.
+This is the production server for the CMMV Blog administrative interface. It replicates all Vite proxy functionality in production environment, including dynamic whitelabel support.
 
-## 🚀 Características
+## 🚀 Features
 
-- **Proxy Dinâmico**: Configura automaticamente proxies para whitelabels baseado em dados da API
-- **Retry Logic**: Sistema robusto de retry com exponential backoff para buscar configurações de whitelabel
-- **Health Checks**: Endpoints para monitoramento da saúde do servidor
-- **Logs Detalhados**: Sistema de logging com emojis para fácil identificação
-- **Configuração Centralizada**: Toda configuração em arquivo separado
+- **Dynamic Proxy**: Automatically configures proxies for whitelabels based on API data
+- **Retry Logic**: Robust retry system with exponential backoff to fetch whitelabel configurations
+- **Health Checks**: Endpoints for server health monitoring
+- **Detailed Logs**: Logging system with emojis for easy identification
+- **Centralized Configuration**: All configuration in separate file
 
-## 📁 Estrutura de Arquivos
+## 📁 File Structure
 
 ```
 apps/admin/
-├── server.js          # Servidor principal
-├── server.config.js   # Configuração centralizada  
-├── package.json       # Dependências
-└── dist/             # Arquivos estáticos buildados
+├── server.js          # Main server
+├── server.config.js   # Centralized configuration  
+├── package.json       # Dependencies
+└── dist/             # Built static files
 ```
 
-## 🔧 Configuração
+## 🔧 Configuration
 
-### Variáveis de Ambiente
+### Environment Variables
 
-Crie um arquivo `.env` na raiz do projeto:
+Create a `.env` file at the project root:
 
 ```env
 VITE_API_URL=http://localhost:5000
@@ -32,7 +32,7 @@ VITE_PORT=5002
 VITE_ALLOWED_HOSTS=blog.cmmv.io,localhost
 ```
 
-### Configurações do Servidor (server.config.js)
+### Server Configuration (server.config.js)
 
 ```javascript
 export const serverConfig = {
@@ -41,7 +41,7 @@ export const serverConfig = {
     host: '0.0.0.0',
     apiUrl: 'http://localhost:5000',
     
-    // Configuração de retry para whitelabels
+    // Retry configuration for whitelabels
     whitelabel: {
         maxRetries: 10,
         timeout: 5000,
@@ -52,31 +52,31 @@ export const serverConfig = {
 };
 ```
 
-## 🌐 Rotas de Proxy
+## 🌐 Proxy Routes
 
-### Proxies Principais
+### Main Proxies
 
-- `/api/*` → `${API_URL}/*` (API principal)
-- `/api/admin/*` → `${API_URL}/*` (API administrativa)
-- `/images/*` → `${API_URL}/images/*` (Imagens)
+- `/api/*` → `${API_URL}/*` (Main API)
+- `/api/admin/*` → `${API_URL}/*` (Administrative API)
+- `/images/*` → `${API_URL}/images/*` (Images)
 
-### Proxies Dinâmicos (Whitelabels)
+### Dynamic Proxies (Whitelabels)
 
-Para cada whitelabel configurado:
+For each configured whitelabel:
 - `/${WHITELABEL_ID}/*` → `${WHITELABEL_API_URL}/*`
 
-Exemplo:
+Example:
 - `/client1/*` → `https://client1-api.example.com/*`
 - `/client2/*` → `https://client2-api.example.com/*`
 
-## 📊 Endpoints de Monitoramento
+## 📊 Monitoring Endpoints
 
 ### Health Check
 ```
 GET /health
 ```
 
-Retorna:
+Returns:
 ```json
 {
     "status": "healthy",
@@ -91,12 +91,12 @@ Retorna:
 }
 ```
 
-### Informações de Whitelabels
+### Whitelabel Information
 ```
 GET /whitelabels
 ```
 
-Retorna:
+Returns:
 ```json
 {
     "count": 2,
@@ -108,25 +108,25 @@ Retorna:
 }
 ```
 
-## 🚀 Como Executar
+## 🚀 How to Run
 
-### Desenvolvimento
+### Development
 ```bash
 cd apps/admin
 pnpm dev
 ```
 
-### Produção
+### Production
 ```bash
-# 1. Build da aplicação
+# 1. Build the application
 cd apps/admin
 pnpm build
 
-# 2. Instalar dependências de produção
+# 2. Install production dependencies
 pnpm install --prod
 
-# 3. Iniciar servidor
-pnpm start
+# 3. Start server
+pnpm start:server
 ```
 
 ### Docker
@@ -145,14 +145,14 @@ EXPOSE 5002
 CMD ["node", "server.js"]
 ```
 
-## 🔄 Funcionamento do Sistema de Whitelabels
+## 🔄 Whitelabel System Operation
 
-1. **Inicialização**: Servidor tenta buscar configurações de whitelabel da API principal
-2. **Retry Logic**: Se falhar, faz retry com exponential backoff (até 10 tentativas)
-3. **Configuração Dinâmica**: Para cada whitelabel encontrado, cria um proxy específico
-4. **Fallback**: Se não conseguir buscar whitelabels, continua funcionando apenas com proxies principais
+1. **Initialization**: Server attempts to fetch whitelabel configurations from main API
+2. **Retry Logic**: If it fails, retries with exponential backoff (up to 10 attempts)
+3. **Dynamic Configuration**: For each whitelabel found, creates a specific proxy
+4. **Fallback**: If unable to fetch whitelabels, continues working with main proxies only
 
-### Exemplo de Flow
+### Example Flow
 
 ```
 1. Server Start → GET /whitelabel/admin
@@ -165,17 +165,17 @@ CMD ["node", "server.js"]
    - /client2/* → https://api.client2.com/*
 ```
 
-## 🛠️ Headers Forwarded
+## 🛠️ Forwarded Headers
 
-O servidor automaticamente forwards os seguintes headers:
+The server automatically forwards the following headers:
 
-- `refresh-token`: Token de refresh para autenticação
-- `x-whitelabel-id`: ID do whitelabel para identificação
-- `authorization`: Token de autorização
+- `refresh-token`: Refresh token for authentication
+- `x-whitelabel-id`: Whitelabel ID for identification
+- `authorization`: Authorization token
 
-## 🐛 Logs e Debugging
+## 🐛 Logs and Debugging
 
-O servidor produz logs detalhados:
+The server produces detailed logs:
 
 ```
 🚀 Starting CMMV Admin Server...
@@ -197,31 +197,32 @@ O servidor produz logs detalhados:
 📊 Whitelabels info: http://0.0.0.0:5002/whitelabels
 ```
 
-## 📝 Scripts Disponíveis
+## 📝 Available Scripts
 
 ```json
 {
     "dev": "vite --clearScreen false",
     "build": "vite build", 
-    "start": "node server.js",
+    "start": "vite",
+    "start:server": "node server.js",
     "lint": "eslint \"src/**/*.ts\""
 }
 ```
 
 ## 🔒 Graceful Shutdown
 
-O servidor suporta graceful shutdown através dos sinais:
+The server supports graceful shutdown through signals:
 - `SIGINT` (Ctrl+C)
 - `SIGTERM`
 
-## 📦 Dependências
+## 📦 Dependencies
 
-### Principais
-- `@cmmv/server`: Servidor HTTP do framework CMMV
-- `http-proxy-middleware`: Middleware para proxies HTTP
-- `vite`: Para carregar variáveis de ambiente
+### Main Dependencies
+- `@cmmv/server`: CMMV framework HTTP server
+- `http-proxy-middleware`: HTTP proxy middleware
+- `vite`: For loading environment variables
 
-### Estrutura
+### Structure
 ```json
 {
     "dependencies": {

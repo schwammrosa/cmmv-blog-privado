@@ -1,5 +1,11 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import cmmv, { serverStatic } from '@cmmv/server';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+
+import {
+    createProxyMiddleware
+} from 'http-proxy-middleware';
+
 import serverConfig from './server.config.js';
 
 const whitelabelApiUrls = {};
@@ -229,7 +235,6 @@ const initServer = async () => {
         console.warn('⚠️  No whitelabel configurations found, continuing without whitelabel proxies');
     }
 
-    // Health check endpoint
     app.get('/health', (req, res) => {
         res.json({
             status: 'healthy',
@@ -244,13 +249,17 @@ const initServer = async () => {
         });
     });
 
-    // Whitelabel info endpoint
     app.get('/whitelabels', (req, res) => {
         res.json({
             count: Object.keys(whitelabelApiUrls).length,
             whitelabels: whitelabelApiUrls,
             timestamp: new Date().toISOString()
         });
+    });
+
+    app.get('/', (req, res) => {
+        res.setHeader('Content-Type', 'text/html');
+        res.send(fs.readFileSync(path.resolve(serverConfig.staticDir, 'index.html'), 'utf8'));
     });
 
     // Serve static files (this should be last)
