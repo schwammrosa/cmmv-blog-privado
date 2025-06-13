@@ -1325,9 +1325,10 @@ export class MediasService extends AbstractService {
 
             const MediasEntity = Repository.getEntity("MediasEntity");
             const PostsEntity = Repository.getEntity("PostsEntity");
+            const CampaignsEntity = Repository.getEntity("AffiliateCampaignsEntity");
 
             const deleted: string[] = [];
-            const skipped: Array<{id: string, reason: string, posts?: string[]}> = [];
+            const skipped: Array<{id: string, reason: string, posts?: string[], campaigns?: string[]}> = [];
             const errors: Array<{id: string, error: string}> = [];
 
             for (const id of ids) {
@@ -1350,6 +1351,19 @@ export class MediasService extends AbstractService {
                             id,
                             reason,
                             posts: postTitles
+                        });
+                        continue;
+                    }
+
+                    const linkedCampaigns = await this.findCampaignsUsingMedia(mediaUrl, CampaignsEntity);
+                    if (linkedCampaigns.length > 0) {
+                        const campaignNames = linkedCampaigns.map(c => c.name || c.id).slice(0, 3);
+                        const reason = `Used in ${linkedCampaigns.length} campaign(s): ${campaignNames.join(', ')}${linkedCampaigns.length > 3 ? '...' : ''}`;
+
+                        skipped.push({
+                            id,
+                            reason,
+                            campaigns: campaignNames
                         });
                         continue;
                     }
@@ -1581,6 +1595,66 @@ export class MediasService extends AbstractService {
             const contentStr = JSON.stringify(post.lexicalContent);
             for (const variation of mediaVariations) {
                 if (contentStr.includes(variation)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Find campaigns that use a specific media URL
+     * @param mediaUrl The media URL to search for
+     * @param CampaignsEntity Campaigns entity
+     * @returns Array of campaigns using the media
+     */
+    private async findCampaignsUsingMedia(mediaUrl: string, CampaignsEntity: any): Promise<any[]> {
+        if (!mediaUrl) return [];
+
+        try {
+            const campaigns = await Repository.findAll(CampaignsEntity, {
+                limit: 10000
+            });
+
+            const linkedCampaigns: any[] = [];
+            const mediaVariations = this.getMediaUrlVariations(mediaUrl);
+
+            if (campaigns && campaigns.data) {
+                for (const campaign of campaigns.data) {
+                    if (this.campaignUsesMedia(campaign, mediaVariations)) {
+                        linkedCampaigns.push(campaign);
+                    }
+                }
+            }
+
+            return linkedCampaigns;
+        } catch (error) {
+            console.error('Error searching for campaigns using media:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Check if a campaign uses any of the media URL variations
+     * @param campaign Campaign record
+     * @param mediaVariations Array of media URL variations
+     * @returns True if campaign uses the media
+     */
+    private campaignUsesMedia(campaign: any, mediaVariations: string[]): boolean {
+        // Check logo field
+        if (campaign.logo) {
+            for (const variation of mediaVariations) {
+                if (campaign.logo.includes(variation)) {
+                    return true;
+                }
+            }
+        }
+
+        // Check seoLongText field
+        if (campaign.seoLongText) {
+             for (const variation of mediaVariations) {
+                if (campaign.seoLongText.includes(variation)) {
                     return true;
                 }
             }
