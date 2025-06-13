@@ -137,7 +137,7 @@ export const useAffiliate = () => {
 
     const dates = {
         getAll: async () => {
-            const { data } = await api.get<any[]>("affiliate/special-dates", "special_dates_all");
+            const { data } = await api.get<any[]>("affiliate/special-dates/public", "special_dates_all");
             return data.value || [];
         },
 
