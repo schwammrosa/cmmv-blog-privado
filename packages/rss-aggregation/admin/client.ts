@@ -52,7 +52,22 @@ export const useFeedClient = () => {
             const encodedUrl = encodeURIComponent(url);
             return api.authRequest(`feed/parser/parseContentAll?url=${encodedUrl}`, "GET");
         },
-        createRaw: (data: any) => api.authRequest("feed/parser/createRaw", "POST", data)
+        createRaw: (data: any) => api.authRequest("feed/parser/createRaw", "POST", data),
+        refine: async (payload: { url: string; parser: any }) => {
+            return await api.authRequest('feed/parser/refine', 'POST', payload);
+        },
+        testCustomParser: async (payload: { url:string, parserData: any}) => {
+            return await api.authRequest('feed/parser/test-custom', 'POST', payload);
+        },
+        analyzeAll: async () => {
+            return await api.authRequest('feed/parser/analyze-all', 'GET');
+        },
+        createParser: async (data: any) => {
+            return await api.authRequest('feed/parser', 'POST', data);
+        },
+        updateParser: async (id: string, data: any) => {
+            return await api.authRequest(`feed/parser/${id}`, 'PUT', data);
+        }
     };
 
     return {
