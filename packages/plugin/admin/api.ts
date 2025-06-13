@@ -71,8 +71,7 @@ export function useApi() {
             `${baseUrl}/${path}` : `/proxy?url=${encodeURIComponent(`${baseUrl}/${path}`)}`;
         }
 
-        return window.location.origin.includes('localhost') ?
-        `/api/${path}` : `proxy?url=${encodeURIComponent(`${window.location.origin}/api/${path}`)}`;
+        return `/api/${path}`;
     }
 
     const getHeaders = (headers?: object) => {
