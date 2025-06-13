@@ -1,13 +1,14 @@
 {
     "name": "cmmv-blog-admin",
-    "version": "0.0.15",
+    "version": "0.0.16",
     "private": true,
     "description": "Blog admin package for CMMV",
     "type": "module",
     "scripts": {
         "dev": "vite --clearScreen false",
         "build": "vite build",
-        "start": "node preview.js",
+        "start": "vite",
+        "start:server": "node server.js",
         "lint": "eslint \"src/**/*.ts\""
     },
     "devDependencies": {
@@ -44,6 +45,7 @@
         "@tiptap/vue-3": "^2.11.7",
         "chart.js": "^4.4.8",
         "firebase": "^11.8.0",
+        "http-proxy-middleware": "^3.0.3",
         "lightningcss": "^1.29.3",
         "tailwindcss": "^4.0.17",
         "tiptap-extension-resize-image": "^1.2.1",
