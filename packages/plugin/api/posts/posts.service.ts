@@ -100,7 +100,8 @@ export class PostsPublicService {
             select: [
                 "id", "title", "slug", "content", "status", "autoPublishAt",
                 "authors", "author", "categories", "featureImage", "publishedAt",
-                "updatedAt", "createdAt", "comments", "views"
+                "updatedAt", "createdAt", "comments", "views", "tags", "excerpt",
+                "categories"
             ],
             order: {
                 publishedAt: "DESC",
