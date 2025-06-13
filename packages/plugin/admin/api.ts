@@ -72,7 +72,7 @@ export function useApi() {
         }
 
         return window.location.origin.includes('localhost') ?
-        `api/${path}` : `proxy?url=${encodeURIComponent(`${window.location.origin}/api/${path}`)}`;
+        `/api/${path}` : `proxy?url=${encodeURIComponent(`${window.location.origin}/api/${path}`)}`;
     }
 
     const getHeaders = (headers?: object) => {
@@ -102,9 +102,6 @@ export function useApi() {
 
                 let apiPath = isRoot ? `/api/${path}` : getApiPath(path);
                 apiPath += (apiPath.includes("?")) ? `&t=${new Date().getTime()}` : `?t=${new Date().getTime()}`
-
-                console.log(`🔄 API Request: ${method} ${apiPath}`);
-                console.log(`🏷️  Whitelabel: ${currentWhitelabelId.value || 'none'}`);
 
                 const response = await fetch(
                     apiPath,

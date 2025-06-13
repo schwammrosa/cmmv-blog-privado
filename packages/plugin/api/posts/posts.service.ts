@@ -119,74 +119,29 @@ export class PostsPublicService {
             select: [ "id", "name", "slug", "description" ]
         });
 
+        const authorsData = await Repository.findAll(ProfilesEntity, {
+            limit: 100
+        }, [], {
+            select: [
+                'id', 'user', 'name', 'slug', 'image', 'coverImage',
+                'bio', 'website', 'location', 'facebook', 'twitter', 'locale',
+                'visibility', 'metaTitle', 'metaDescription', 'lastSeen',
+                'commentNotifications', 'mentionNotifications', 'recommendationNotifications'
+            ]
+        });
+
         if(posts){
             let userIdsIn: string[] = [];
-            let categoryIdsIn: string[] = [];
 
             for (const post of posts.data) {
                 if (post.status === 'cron' && post.autoPublishAt)
                     post.scheduledPublishDate = new Date(post.autoPublishAt).toLocaleString();
 
-                userIdsIn = [...userIdsIn, ...post.authors];
-
                 if(post.author !== "current-user-id")
                     userIdsIn.push(post.author);
 
-                if(post.categories && post.categories.length > 0){
-                    categoryIdsIn = [...categoryIdsIn, ...post.categories];
-
-                    const categoriesData = await Repository.findAll(CategoriesEntity, {
-                        limit: 100
-                    }, [], {
-                        select: [ "id", "name", "slug", "description" ]
-                    });
-
-                    post.categories = (categoriesData) ? categoriesData.data : [];
-                }
-            }
-
-            const authorsData = await Repository.findAll(ProfilesEntity, {
-                limit: 100
-            }, [], {
-                select: [
-                    'id', 'user', 'name', 'slug', 'image', 'coverImage',
-                    'bio', 'website', 'location', 'facebook', 'twitter', 'locale',
-                    'visibility', 'metaTitle', 'metaDescription', 'lastSeen',
-                    'commentNotifications', 'mentionNotifications', 'recommendationNotifications'
-                ]
-            });
-
-            /*if(authorsData){
-                for(const author of authorsData.data){
-                    author.image = await this.processImageIfNeeded(
-                        author.image,
-                        "webp",
-                        128,
-                        128,
-                        80,
-                        author.name,
-                        author.name
-                    );
-
-                    author.coverImage = await this.processImageIfNeeded(
-                        author.coverImage,
-                        "webp",
-                        1024,
-                        300,
-                        80,
-                        author.name,
-                        author.name
-                    );
-                }
-            }*/
-
-            authors = (authorsData) ? authorsData.data : [];
-            categories = (categoriesData) ? categoriesData.data : [];
-
-            for(const post of posts.data){
-                post.categories = post.categories.map((category: any) => {
-                    return categories.find((c: any) => c.id === category);
-                });
+                if(post.author)
+                    post.author = authorsData?.data?.find((author: any) => author.user === post.author);
             }
         }
 
@@ -194,8 +149,8 @@ export class PostsPublicService {
             posts: (posts) ? posts.data : [],
             count: (posts) ? posts.count : 0,
             pagination: (posts) ? posts.pagination : null,
-            authors,
-            categories
+            authors: authorsData?.data,
+            categories: categoriesData?.data
         };
     }
 
