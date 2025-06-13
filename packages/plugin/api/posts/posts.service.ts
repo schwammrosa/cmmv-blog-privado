@@ -107,7 +107,6 @@ export class PostsPublicService {
                 publishedAt: "DESC",
                 status: "ASC",
                 autoPublishAt: "DESC",
-
             }
         });
 
@@ -131,7 +130,6 @@ export class PostsPublicService {
                     categoryIdsIn = [...categoryIdsIn, ...post.categories];
 
                     const categoriesData = await Repository.findAll(CategoriesEntity, {
-                        id: In(post.categories),
                         limit: 100
                     }, [], {
                         select: [ "id", "name", "slug", "description" ]
@@ -139,27 +137,9 @@ export class PostsPublicService {
 
                     post.categories = (categoriesData) ? categoriesData.data : [];
                 }
-
-                if(post.featureImage){
-                    post.featureImage = await this.processImageIfNeeded(
-                        post.featureImage,
-                        "webp",
-                        1200,
-                        675,
-                        80,
-                        "",
-                        ""
-                    );
-                }
             }
 
-            //@ts-ignore
-            const usersIn = [...new Set(userIdsIn)];
-            //@ts-ignore
-            const categoryIn = [...new Set(categoryIdsIn)];
-
             const authorsData = await Repository.findAll(ProfilesEntity, {
-                user: In(usersIn),
                 limit: 100
             }, [], {
                 select: [
@@ -170,7 +150,7 @@ export class PostsPublicService {
                 ]
             });
 
-            if(authorsData){
+            /*if(authorsData){
                 for(const author of authorsData.data){
                     author.image = await this.processImageIfNeeded(
                         author.image,
@@ -192,12 +172,11 @@ export class PostsPublicService {
                         author.name
                     );
                 }
-            }
+            }*/
 
             authors = (authorsData) ? authorsData.data : [];
 
             const categoriesData = await Repository.findAll(CategoriesEntity, {
-                id: In(categoryIn),
                 limit: 100
             }, [], {
                 select: [ "id", "name", "slug", "description" ]
