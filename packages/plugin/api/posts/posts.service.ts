@@ -113,6 +113,12 @@ export class PostsPublicService {
         let authors: any[] = [];
         let categories: any[] = [];
 
+        const categoriesData = await Repository.findAll(CategoriesEntity, {
+            limit: 100
+        }, [], {
+            select: [ "id", "name", "slug", "description" ]
+        });
+
         if(posts){
             let userIdsIn: string[] = [];
             let categoryIdsIn: string[] = [];
@@ -175,14 +181,13 @@ export class PostsPublicService {
             }*/
 
             authors = (authorsData) ? authorsData.data : [];
-
-            const categoriesData = await Repository.findAll(CategoriesEntity, {
-                limit: 100
-            }, [], {
-                select: [ "id", "name", "slug", "description" ]
-            });
-
             categories = (categoriesData) ? categoriesData.data : [];
+
+            for(const post of posts.data){
+                post.categories = post.categories.map((category: any) => {
+                    return categories.find((c: any) => c.id === category);
+                });
+            }
         }
 
         return {
