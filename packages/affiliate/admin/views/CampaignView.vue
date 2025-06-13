@@ -1473,6 +1473,7 @@ const saveCampaign = async () => {
         });
 
         const campaignData = {
+            ...campaignForm.value,
             name: campaignForm.value.name.trim(),
             url: campaignForm.value.url.trim(),
             logo: campaignForm.value.logo,
@@ -1487,7 +1488,8 @@ const saveCampaign = async () => {
             seoTitle: campaignForm.value.seoTitle || '',
             seoSubtitle: campaignForm.value.seoSubtitle || '',
             seoSmallText: campaignForm.value.seoSmallText || '',
-            seoLongText: campaignForm.value.seoLongText || ''
+            seoLongText: campaignForm.value.seoLongText || '',
+            coupons: campaignForm.value.coupons
         }
 
         if (campaignForm.value.logo && campaignForm.value.logo.startsWith('data:')) {

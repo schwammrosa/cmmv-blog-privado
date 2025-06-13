@@ -55,7 +55,7 @@ export class CampaignsServiceTools {
             logo: logoUrl
         });
 
-        return { affected: affectedRows};
+        return { affected: affectedRows };
     }
 
     /**
