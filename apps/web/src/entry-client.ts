@@ -22,6 +22,7 @@ try{
             const app = createSSRApp(App)
             const pinia = createPiniaInstance();
             const preloadedData = window.__CMMV_DATA__ || {};
+            const routerModules = import.meta.glob('../theme-*/router.ts');
 
             app.provide('preloaded', preloadedData)
             app.use(head)
@@ -30,7 +31,13 @@ try{
             if ((window as any).__PINIA__)
                 pinia.state.value = (window as any).__PINIA__;
 
-            const { router } = await useTheme();
+            //@ts-ignore
+            const theme = pinia?.settings?.data?.["blog.theme"] || import.meta.env.VITE_DEFAULT_THEME;
+            const importFn = routerModules[`./theme-${theme}/router.ts`];
+            //@ts-ignore
+            const { createRouter } = await importFn();
+            const router = createRouter();
+
             app.use(router);
             router.isReady().then(() => app.mount('#app', true))
         }
