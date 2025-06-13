@@ -1,6 +1,6 @@
 {
     "name": "@cmmv/blog",
-    "version": "0.1.5",
+    "version": "0.1.14",
     "description": "Blog plugin for CMMV",
     "keywords": [
         "cmmv",
@@ -55,7 +55,7 @@
     "scripts": {
         "dev": "turbo run dev",
         "build:release": "turbo run build --filter=@cmmv/blog",
-        "build": "pnpm build:api && pnpm build:web",
+        "build": "pnpm build:api && pnpm build:web && pnpm build:admin",
         "build:api": "cd apps/api && pnpm build",
         "build:admin": "cd apps/admin && pnpm build",
         "build:web": "cd apps/web && pnpm build",

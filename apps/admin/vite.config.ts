@@ -130,10 +130,12 @@ export default defineConfig(async ({ mode }: ConfigEnv): Promise<UserConfig> => 
     };
 
     return {
+        root: path.resolve(__dirname, '.'),
         plugins: [vue()],
         build: {
             chunkSizeWarningLimit: 1000000,
             rollupOptions: {
+                input: path.resolve(__dirname, 'index.html'),
                 output: {
                     manualChunks: {
                         'vue': ['vue', 'vue-router', 'pinia']
