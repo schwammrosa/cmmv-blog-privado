@@ -5,16 +5,31 @@ This folder contains scripts to automate project version incrementing.
 ## Available Scripts
 
 ### `version-bump.js`
-Main script that increments the patch version (e.g. 0.1.0 → 0.1.1) in:
+Main script that can increment versions or set specific versions in:
 - Main project package.json
 - All packages in `/packages`
 - All apps in `/apps`
 
 **Manual usage:**
 ```bash
+# Increment patch version (0.1.0 → 0.1.1)
 node tools/version-bump.js
-# or
 pnpm run version:bump
+
+# Increment minor version (0.1.0 → 0.2.0)
+node tools/version-bump.js --type minor
+pnpm run version:bump:minor
+
+# Increment major version (0.1.0 → 1.0.0)
+node tools/version-bump.js --type major
+pnpm run version:bump:major
+
+# Set specific version
+node tools/version-bump.js --set 2.0.0
+pnpm run version:set -- 2.0.0
+
+# Show help
+node tools/version-bump.js --help
 ```
 
 ### `setup-version-hook.js`
@@ -37,8 +52,15 @@ pnpm run version:remove
 ## How It Works
 
 1. **Automatic Hook**: When the hook is configured, the `version-bump.js` script runs automatically before each commit
-2. **Version Increment**: The script identifies all `package.json` files in `/packages` and `/apps` directories and increments the patch version
+2. **Version Increment**: The script identifies all `package.json` files in `/packages` and `/apps` directories and increments versions based on the specified type
 3. **Automatic Staging**: Modified `package.json` files are automatically added to the commit
+
+## Version Types
+
+- **patch** (default): 0.1.0 → 0.1.1 (bug fixes)
+- **minor**: 0.1.0 → 0.2.0 (new features, backward compatible)
+- **major**: 0.1.0 → 1.0.0 (breaking changes)
+- **set**: Manually set a specific version (e.g., 2.0.0)
 
 ## Affected File Structure
 
@@ -77,7 +99,17 @@ cmmv-blog/
 
 3. **To test manually:**
    ```bash
+   # Increment patch version
    pnpm run version:bump
+   
+   # Increment minor version
+   pnpm run version:bump:minor
+   
+   # Increment major version  
+   pnpm run version:bump:major
+   
+   # Set specific version
+   pnpm run version:set -- 1.5.0
    ```
 
 ## Example Output

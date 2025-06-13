@@ -1,6 +1,6 @@
 {
     "name": "@cmmv/blog",
-    "version": "0.1.2",
+    "version": "0.1.5",
     "description": "Blog plugin for CMMV",
     "keywords": [
         "cmmv",
@@ -70,6 +70,9 @@
         "clean:packages": "find ./packages -name 'node_modules' -prune -o -type f \\( -name '*.d.ts' -o -name '*.js' -o -name '*.js.map' \\) -exec rm -f {} +",
         "clean": "pnpm run clean:packages > /dev/null 2>&1",
         "version:bump": "node tools/version-bump.js",
+        "version:bump:minor": "node tools/version-bump.js --type minor",
+        "version:bump:major": "node tools/version-bump.js --type major",
+        "version:set": "node tools/version-bump.js --set",
         "version:setup": "node tools/setup-version-hook.js",
         "version:remove": "node tools/setup-version-hook.js remove",
         "prepare": "husky"
