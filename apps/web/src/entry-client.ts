@@ -46,12 +46,11 @@ try{
     }
 
     function waitForCMMVData() {
-        if (window.__CMMV_DATA__) {
+        if (window.__CMMV_DATA__ && window.__PINIA__) {
             main();
         } else {
             const checkInterval = setInterval(() => {
-                if (window.__CMMV_DATA__) {
-                    console.log("CMMV_DATA found")
+                if (window.__CMMV_DATA__ && window.__PINIA__) {
                     clearInterval(checkInterval);
                     main();
                 }
