@@ -50,9 +50,7 @@ export class PostsPublicService {
 
     @Cron(CronExpression.EVERY_5_MINUTES)
     async handleCronJobs() {
-        await this.processCrons.call(this);
-        await this.recalculateCategories.call(this);
-        return true;
+        return await this.processCrons.call(this);
     }
 
     /**
@@ -142,12 +140,14 @@ export class PostsPublicService {
                 }
 
                 if(post.featureImage){
-                    post.featureImage = await this.mediasService.getImageUrl(
+                    post.featureImage = await this.processImageIfNeeded(
                         post.featureImage,
-                        "webp",
-                        1200,
-                        post.featureImageAlt,
-                        post.featureImageCaption
+                        "webp", 
+                        1200, 
+                        675, 
+                        80,
+                        "",
+                        ""
                     );
                 }
             }
@@ -171,18 +171,22 @@ export class PostsPublicService {
 
             if(authorsData){
                 for(const author of authorsData.data){
-                    author.image = await this.mediasService.getImageUrl(
+                    author.image = await this.processImageIfNeeded(
                         author.image,
-                        "webp",
-                        128,
+                        "webp", 
+                        128, 
+                        128, 
+                        80,
                         author.name,
                         author.name
                     );
 
-                    author.coverImage = await this.mediasService.getImageUrl(
+                    author.coverImage = await this.processImageIfNeeded(
                         author.coverImage,
-                        "webp",
-                        1024,
+                        "webp", 
+                        1024, 
+                        300, 
+                        80,
                         author.name,
                         author.name
                     );
@@ -297,12 +301,14 @@ export class PostsPublicService {
                 }
 
                 if(post.featureImage){
-                    post.featureImage = await this.mediasService.getImageUrl(
+                    post.featureImage = await this.processImageIfNeeded(
                         post.featureImage,
-                        "webp",
-                        1200,
-                        post.featureImageAlt,
-                        post.featureImageCaption
+                        "webp", 
+                        1200, 
+                        675, 
+                        80,
+                        "",
+                        ""
                     );
                 }
             }
@@ -326,18 +332,22 @@ export class PostsPublicService {
 
             if(authorsData){
                 for(const author of authorsData.data){
-                    author.image = await this.mediasService.getImageUrl(
+                    author.image = await this.processImageIfNeeded(
                         author.image,
-                        "webp",
-                        128,
+                        "webp", 
+                        128, 
+                        128, 
+                        80,
                         author.name,
                         author.name
                     );
 
-                    author.coverImage = await this.mediasService.getImageUrl(
+                    author.coverImage = await this.processImageIfNeeded(
                         author.coverImage,
-                        "webp",
-                        1024,
+                        "webp", 
+                        1024, 
+                        300, 
+                        80,
                         author.name,
                         author.name
                     );
@@ -475,13 +485,9 @@ export class PostsPublicService {
             const currentId = queue.shift();
             if (!currentId) continue;
 
-            // Fetch the full category object to inspect its structure
             const category: CategoryWithParent | null = await Repository.findOne(CategoriesEntity,
                 { id: currentId }
             );
-
-            // CRUCIAL LOG: Inspect the structure of the fetched category object
-            this.logger.log(`Fetched category object for ID ${currentId}: ${JSON.stringify(category)}`);
 
             if (category && category.parentCategory) {
                 let parentId: string | null = null;
@@ -571,8 +577,10 @@ export class PostsPublicService {
             if (data.post.categories && data.post.categories.length > 0) {
                 try {
                     const allCategoriesWithParents = await this.getAllParentCategoryIds(data.post.categories, CategoriesEntity);
-                    data.post.categories = [...new Set(allCategoriesWithParents)]; // Ensure uniqueness
-                } catch (catError) {}
+                    data.post.categories = [...new Set(allCategoriesWithParents)];
+                } catch (catError) {
+                    this.logger.error(`Error processing parent categories for post ${data.post.id || 'new'}: ${catError}`);
+                }
             }
 
             const post: any = await Repository.updateOne(
@@ -605,6 +613,7 @@ export class PostsPublicService {
             }
 
             await this.upsertTags(data.post.tags);
+            await this.recalculateCategories();
 
             return { result: true };
         }
@@ -619,8 +628,11 @@ export class PostsPublicService {
                 try {
                     const allCategoriesWithParents = await this.getAllParentCategoryIds(data.post.categories, CategoriesEntity);
                     data.post.categories = [...new Set(allCategoriesWithParents)];
-                } catch (catError) {}
+                } catch (catError) {
+                    this.logger.error(`Error processing parent categories for new post: ${catError}`);
+                }
             }
+            // --- End Parent Category Inheritance Logic for new posts ---
 
             const post: any = await Repository.insert(PostsEntity, data.post);
 
@@ -645,6 +657,7 @@ export class PostsPublicService {
             }
 
             await this.upsertTags(data.post.tags);
+            await this.recalculateCategories();
 
             return post.data;
         }
@@ -808,12 +821,14 @@ export class PostsPublicService {
 
         if(post){
             if(post.featureImage){
-                post.featureImage = await this.mediasService.getImageUrl(
+                post.featureImage = await this.processImageIfNeeded(
                     post.featureImage,
                     "webp",
                     1200,
-                    post.featureImageAlt,
-                    post.featureImageCaption
+                    675,
+                    80,
+                    "",
+                    ""
                 );
             }
 
@@ -853,21 +868,29 @@ export class PostsPublicService {
             post.authors = (authorsData) ? authorsData.data : [];
 
             for(let key in post.authors){
-                post.authors[key].image = await this.mediasService.getImageUrl(
-                    post.authors[key].image,
-                    "webp",
-                    128,
-                    post.authors[key].name,
-                    post.authors[key].name
-                );
+                if(post.authors[key].image){
+                    post.authors[key].image = await this.processImageIfNeeded(
+                        post.authors[key].image,
+                        "webp",
+                        128,
+                        128,
+                        80,
+                        "",
+                        ""
+                    );
+                }
 
-                post.authors[key].coverImage = await this.mediasService.getImageUrl(
-                    post.authors[key].coverImage,
-                    "webp",
-                    1024,
-                    post.authors[key].name,
-                    post.authors[key].name
-                );
+                if(post.authors[key].coverImage){
+                    post.authors[key].coverImage = await this.processImageIfNeeded(
+                        post.authors[key].coverImage,
+                        "webp",
+                        1024,
+                        300,
+                        80,
+                        "",
+                        ""
+                    );
+                }
             }
 
             if(categoryIn.length > 0){
@@ -920,12 +943,14 @@ export class PostsPublicService {
 
         if(page){
             if(page.featureImage){
-                page.featureImage = await this.mediasService.getImageUrl(
+                page.featureImage = await this.processImageIfNeeded(
                     page.featureImage,
                     "webp",
                     1200,
-                    page.featureImageAlt,
-                    page.featureImageCaption
+                    675,
+                    80,
+                    "",
+                    ""
                 );
             }
 
@@ -957,20 +982,24 @@ export class PostsPublicService {
             page.authors = (authorsData) ? authorsData.data : [];
 
             for(let key in page.authors){
-                page.authors[key].image = await this.mediasService.getImageUrl(
+                page.authors[key].image = await this.processImageIfNeeded(
                     page.authors[key].image,
                     "webp",
                     128,
-                    page.authors[key].name,
-                    page.authors[key].name
+                    128,
+                    80,
+                    "",
+                    ""
                 );
 
-                page.authors[key].coverImage = await this.mediasService.getImageUrl(
+                page.authors[key].coverImage = await this.processImageIfNeeded(
                     page.authors[key].coverImage,
                     "webp",
                     1024,
-                    page.authors[key].name,
-                    page.authors[key].name
+                    300,
+                    80,
+                    "",
+                    ""
                 );
             }
         }
@@ -1014,11 +1043,15 @@ export class PostsPublicService {
 
         if(posts){
             for(const post of posts.data){
-                post.featureImage = await this.mediasService.getImageUrl(
+                post.featureImage = await this.processImageIfNeeded(
                     post.featureImage,
                     "webp",
                     1200,
-                )
+                    675,
+                    80,
+                    "",
+                    ""
+                );
 
                 //Tags
                 const tagsData = await Repository.findAll(TagsEntity, {
@@ -1088,11 +1121,15 @@ export class PostsPublicService {
 
         if(posts){
             for(const post of posts.data){
-                post.featureImage = await this.mediasService.getImageUrl(
+                post.featureImage = await this.processImageIfNeeded(
                     post.featureImage,
                     "webp",
                     1200,
-                )
+                    675,
+                    80,
+                    "",
+                    ""
+                );
 
                 //Tags
                 const tagsData = await Repository.findAll(TagsEntity, {
@@ -1218,8 +1255,10 @@ export class PostsPublicService {
             deletedAt: new Date()
         });
 
-        if(resultDelete)
+        if(resultDelete){
             await this.recalculateTags();
+            await this.recalculateCategories();
+        }
 
         return { result: resultDelete };
     }
@@ -1249,10 +1288,14 @@ export class PostsPublicService {
             return [];
 
         for(const post of posts.data){
-            post.featureImage = await this.mediasService.getImageUrl(
+            post.featureImage = await this.processImageIfNeeded(
                 post.featureImage,
                 "webp",
                 1200,
+                675,
+                80,
+                "",
+                ""
             );
         }
 
@@ -1649,12 +1692,14 @@ export class PostsPublicService {
             const PostsEntity = Repository.getEntity("PostsEntity");
             const currentTimestamp = new Date().getTime();
 
+            // Buscar todos os posts agendados
             const posts = await Repository.findAll(PostsEntity, {
                 status: "cron",
-                limit: 1000
+                limit: 1000 // Garantir que todos os posts sejam retornados
             });
 
             if (posts && posts.data.length > 0) {
+
                 for (const post of posts.data) {
                     if (post.autoPublishAt && post.autoPublishAt <= currentTimestamp) {
                         await this.publishPost(post.id);
@@ -1676,11 +1721,14 @@ export class PostsPublicService {
             const PostsEntity = Repository.getEntity("PostsEntity");
             const post = await Repository.findOne(PostsEntity, { id });
 
-            if (!post)
+            if (!post) {
+                console.error(`Post with ID ${id} not found for publishing`);
                 throw new Error(`Post with ID ${id} not found`);
+            }
 
-            if (post.status !== 'cron')
+            if (post.status !== 'cron') {
                 return { result: false, message: "Post is not scheduled for publication" };
+            }
 
             const updateData = {
                 status: 'published',
@@ -1689,8 +1737,9 @@ export class PostsPublicService {
 
             await Repository.updateOne(PostsEntity, { id }, updateData);
 
-            if (post.pushNotification === true)
+            if (post.pushNotification === true) {
                 await this.eventsService.emit("posts.published", post);
+            }
 
             const siteUrl = Config.get("blog.url") || "";
 
@@ -1709,5 +1758,41 @@ export class PostsPublicService {
             console.error(`Error publishing post with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
+    }
+
+    /**
+     * Processa uma imagem apenas se ela não for uma URL
+     * @param imageData - A imagem a ser processada
+     * @param format - Formato desejado
+     * @param width - Largura desejada
+     * @param height - Altura desejada
+     * @param quality - Qualidade da imagem
+     * @param alt - Texto alternativo
+     * @param caption - Legenda
+     * @returns URL da imagem processada ou a original se já for uma URL
+     */
+    private async processImageIfNeeded(
+        imageData: string | null | undefined, 
+        format: string = "webp", 
+        width: number, 
+        height: number, 
+        quality: number = 80,
+        alt: string = "",
+        caption: string = ""
+    ): Promise<string | null | undefined> {
+        if (!imageData) return imageData;
+        
+        // Se a imagem já for uma URL, não reprocessa
+        if (imageData.startsWith('http')) return imageData;
+        
+        return await this.mediasService.getImageUrl(
+            imageData,
+            format,
+            width,
+            height,
+            quality,
+            alt,
+            caption
+        );
     }
 }

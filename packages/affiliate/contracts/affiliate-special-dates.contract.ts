@@ -46,6 +46,17 @@ export class AffiliateSpecialDatesContract extends AbstractContract {
     image?: string;
 
     @ContractField({
+        protoType: 'array',
+        objectType: 'string',
+        entityType: 'string',
+        array: true,
+        nullable: true,
+        protoRepeated: true,
+        index: true
+    })
+    campaigns?: string[];
+
+    @ContractField({
         protoType: 'boolean',
         nullable: false,
         defaultValue: true,

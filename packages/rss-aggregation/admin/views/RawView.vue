@@ -462,7 +462,13 @@
                             <!-- Cover Image Section -->
                             <div class="mb-6">
                                 <div v-if="coverImage" class="relative bg-gray-100 rounded-lg overflow-hidden">
-                                    <img :src="coverImage" alt="Cover Image" class="w-full h-auto" />
+                                    <img 
+                                        :src="coverImage" 
+                                        alt="Cover Image" 
+                                        class="w-full h-auto" 
+                                        @error="handleImageError"
+                                        onerror="if(!this.src.includes('/feed/raw/imageProxy') && this.src.startsWith('http')) { this.src = '/feed/raw/imageProxy?url=' + encodeURIComponent(this.src); console.log('Aplicando proxy à imagem:', this.src); }"
+                                    />
                                 </div>
                                 <div v-else class="w-full py-12 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 flex flex-col items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1336,8 +1342,9 @@ const loadChannels = async (): Promise<void> => {
             sort: 'asc'
         });
 
-        if (response && response.data)
+        if (response && response.data) {
             channels.value = response.data || [];
+        }
     } catch (err: unknown) {
         console.error('Failed to load channels:', err);
     }
@@ -1352,11 +1359,12 @@ const loadCategories = async (): Promise<void> => {
             sort: 'asc'
         });
 
-        if (response && response.data)
+        if (response && response.data) {
             categories.value = response.data || [];
-
+        }
         loadingCategories.value = false;
     } catch (err: unknown) {
+        console.error('Failed to load categories:', err);
         loadingCategories.value = false;
     }
 };
@@ -1459,8 +1467,9 @@ const generateAIContent = async (): Promise<void> => {
                             suggestedCategories: response.suggestedCategories || []
                         };
 
-                        if (response.suggestedTags && response.suggestedTags.length > 0)
+                        if (response.suggestedTags && response.suggestedTags.length > 0) {
                             selectedTags.value = [...response.suggestedTags];
+                        }
 
                         if (response.suggestedCategories && response.suggestedCategories.length > 0 && categories.value.length > 0) {
                             const suggestedCategoryNames = response.suggestedCategories.map((cat: string) => cat.toLowerCase());
@@ -1468,13 +1477,14 @@ const generateAIContent = async (): Promise<void> => {
                                 .filter(category => {
                                     const systemCategoryNameLower = removeAccents(category.name.toLowerCase());
                                     const normalizedSuggestedCategories = suggestedCategoryNames.map((sc: string) => removeAccents(sc));
+
                                     let isMatch = normalizedSuggestedCategories.some((aiSuggest: string) => aiSuggest.includes(systemCategoryNameLower));
 
                                     if (!isMatch) {
                                         const systemWords = systemCategoryNameLower.split(/\s+/);
                                         isMatch = normalizedSuggestedCategories.some((aiSuggest: string) => {
                                             const aiWords = aiSuggest.split(/\s+/);
-                                            return systemWords.some(sysWord =>
+                                            return systemWords.some(sysWord => 
                                                 aiWords.some(aiWord => {
                                                     let partMatch = false;
                                                     if (sysWord.length < 3 || aiWord.length < 3) {
@@ -1482,15 +1492,16 @@ const generateAIContent = async (): Promise<void> => {
                                                     } else {
                                                         partMatch = sysWord.includes(aiWord) || aiWord.includes(sysWord);
                                                     }
-
+                                                    
                                                     return partMatch;
                                                 })
                                             );
                                         });
                                     }
-
-                                    if (!isMatch)
+                                    
+                                    if (!isMatch) {
                                         isMatch = normalizedSuggestedCategories.some((aiSuggest: string) => systemCategoryNameLower.includes(aiSuggest));
+                                    }
 
                                     return isMatch;
                                 })
@@ -1501,24 +1512,15 @@ const generateAIContent = async (): Promise<void> => {
 
                         if (previewItem.value.featureImage) {
                             try {
-                                showNotification('info', 'Processing image from original content...');
-                                const imageResponse = await adminClient.medias.processImage({
-                                    image: previewItem.value.featureImage,
-                                    format: 'webp',
-                                    maxWidth: 1060,
-                                    alt: response.title || 'Feature image',
-                                    caption: ''
-                                });
-
-                                if (imageResponse && imageResponse.url) {
-                                    coverImage.value = imageResponse.url;
-                                    showNotification('success', 'Image processed for use in AI content');
-                                }
+                                // Definir a imagem original diretamente
+                                coverImage.value = previewItem.value.featureImage;
+                                showNotification('info', 'Usando imagem original do conteúdo');
                             } catch (imgErr) {
-                                console.error('Error processing image for AI:', imgErr);
+                                console.error('Erro ao definir imagem:', imgErr);
                                 coverImage.value = null;
                             }
                         } else {
+                            console.log('Nenhuma imagem de capa disponível no item original');
                             coverImage.value = null;
                         }
 
@@ -1564,23 +1566,11 @@ const createPostFromAI = async (): Promise<void> => {
 
         if (sourceImage) {
             try {
-                showNotification('info', 'Processando imagem para o post...');
-
-                const response = await adminClient.medias.processImage({
-                    image: sourceImage,
-                    format: 'webp',
-                    maxWidth: 1060,
-                    alt: aiContent.value.title || 'Feature image',
-                    caption: ''
-                });
-
-                if (response && response.url) {
-                    processedImage = response.url;
-                    showNotification('success', 'Imagem processada com sucesso');
-                }
+                processedImage = sourceImage;
+                showNotification('info', 'Usando imagem original para o post');
             } catch (imgErr) {
-                console.error('Erro ao processar imagem:', imgErr);
-                showNotification('warning', 'Não foi possível processar a imagem, criando post sem imagem');
+                console.error('Erro ao definir imagem para o post:', imgErr);
+                processedImage = null;
             }
         }
 
@@ -1708,9 +1698,18 @@ const handleImageError = (event: Event): void => {
     const target = event.target as HTMLImageElement;
     const originalSrc = target.src;
 
+    // Verificar se é a imagem de capa do AI
+    const isCoverImage = target.alt === "Cover Image";
+    if (isCoverImage && aiContent.value && aiContent.value.featureImage) {
+        console.log('Tentando fallback para imagem de capa:', aiContent.value.featureImage);
+        // Tentar usar a imagem original do feed
+        target.src = aiContent.value.featureImage;
+        return;
+    }
+
     if (!originalSrc.includes('/feed/raw/imageProxy')) {
         const proxyUrl = `/feed/raw/imageProxy?url=${encodeURIComponent(originalSrc)}`;
-
+       
         target.onerror = () => {
             console.error('Falha ao carregar imagem mesmo usando proxy:', originalSrc);
             target.src = '';
@@ -2249,7 +2248,7 @@ const startBulkReprocess = async (): Promise<void> => {
 
 // Category creation functions
 const categoryExists = (categoryName: string): boolean => {
-    return categories.value.some(cat =>
+    return categories.value.some(cat => 
         cat.name.toLowerCase() === categoryName.toLowerCase()
     );
 };
@@ -2325,24 +2324,24 @@ const createCategory = async (): Promise<void> => {
         };
 
         await adminClient.categories.insert(categoryData);
-
+        
         showNotification('success', 'Category created successfully!');
         closeCreateCategoryDialog();
-
+        
         // Reload categories to update the list
         await loadCategories();
-
+        
         // Auto-select the newly created category
-        const newCategory = categories.value.find(cat =>
+        const newCategory = categories.value.find(cat => 
             cat.name.toLowerCase() === categoryData.name.toLowerCase()
         );
         if (newCategory && !selectedCategories.value.includes(newCategory.id)) {
             selectedCategories.value.push(newCategory.id);
         }
-
+        
     } catch (err: unknown) {
         createCategoryLoading.value = false;
-
+        
         if (err && typeof err === 'object' && 'response' in err) {
             const errorResponse = err as any;
             if (errorResponse.response?.data?.errors) {
@@ -2393,7 +2392,7 @@ watch(selectedItemsForDelete, (newVal) => {
 
 const confirmBulkDelete = async (): Promise<void> => {
     if (selectedItemsForDelete.value.length === 0) return;
-
+    
     // Mostrar diálogo de confirmação
     showBulkDeleteConfirmation.value = true;
 };
@@ -2421,7 +2420,7 @@ const startBulkDelete = async (): Promise<void> => {
             try {
                 // Chamar a API para excluir o item
                 await feedClient.raw.deleteRaw(itemId);
-
+                
                 bulkDeleteProgress.value.processedItems.push({
                     id: item.id,
                     title: item.title,
@@ -2472,6 +2471,7 @@ const toggleMoreActionsDropdown = (): void => {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
 }
 
@@ -2479,6 +2479,7 @@ const toggleMoreActionsDropdown = (): void => {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     -webkit-box-orient: vertical;
 }
 </style>

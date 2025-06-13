@@ -37,7 +37,7 @@ export async function setup(){
     const categories = await fetch(`${env.VITE_API_URL}/blog/categories`);
     const posts = await fetch(`${env.VITE_API_URL}/blog/posts?${urlQueries}`);
     const mostAccessedPosts = await fetch(`${env.VITE_API_URL}/blog/posts/most-accessed`);
-    const specialDates = await fetch(`${env.VITE_API_URL}/special-dates`);
+    const specialDates = await fetch(`${env.VITE_API_URL}/affiliate/special-dates`);
 
     if (!settings.ok)
         throw new Error('Failed to fetch settings');

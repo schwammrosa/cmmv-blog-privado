@@ -929,14 +929,11 @@ export class CouponsServiceTools {
 
             const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
 
-            // Primeiro tenta encontrar por ID
             let coupon = await Repository.findOne(AffiliateCouponsEntity, {
                 id: couponId
             });
 
-            // Se não encontrar por ID, tenta encontrar por código
             if (!coupon) {
-                this.logger.log(`Coupon not found by ID ${couponId}, trying by code`);
                 coupon = await Repository.findOne(AffiliateCouponsEntity, {
                     code: couponId
                 });
@@ -946,15 +943,10 @@ export class CouponsServiceTools {
                 throw new Error(`Coupon with ID or code ${couponId} not found`);
             }
 
-            this.logger.log(`Found coupon: ${JSON.stringify(coupon)}`);
-
-            // Increment the views count - garantir que convertemos para número mesmo que seja string
             const currentViews = parseInt(String(coupon.views), 10) || 0;
             const updatedViews = currentViews + 1;
 
-            this.logger.log(`Incrementing views from ${currentViews} to ${updatedViews}`);
 
-            // Update the coupon
             await Repository.update(AffiliateCouponsEntity, {
                 id: coupon.id
             }, {
