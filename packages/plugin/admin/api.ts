@@ -31,7 +31,6 @@ export function useApi() {
     const isWhitelabelMode = computed(() => !!currentWhitelabelId.value)
     const whitelabelUrls = ref<Record<string, string>>(JSON.parse(ssrLocalStorage.getItem('whitelabelUrls') || '{}'))
 
-    // Função para buscar URLs dos whitelabels
     const fetchWhitelabelUrls = async () => {
         try {
             const response = await fetch('/api/whitelabel/admin', {
@@ -67,12 +66,10 @@ export function useApi() {
 
     const getApiPath = (path: string) => {
         if (currentWhitelabelId.value && whitelabelUrls.value[currentWhitelabelId.value]) {
-            // Usar URL direta do whitelabel
             const baseUrl = whitelabelUrls.value[currentWhitelabelId.value];
-            return `${baseUrl}/api/${path}`;
+            return `${baseUrl}/${path}`;
         }
 
-        // Usar API principal
         return `/api/${path}`;
     }
 
