@@ -108,6 +108,7 @@ export function useApi() {
                     method == 'GET'
                         ? {
                             method: method,
+                            mode: "no-cors",
                             headers: {
                                 'Content-Type': 'application/json',
                                 Authorization: `Bearer ${token.value}`,
@@ -116,6 +117,7 @@ export function useApi() {
                         }
                         : {
                             method: method,
+                            mode: "no-cors",
                             headers: {
                                 'Content-Type': 'application/json',
                                 Authorization: `Bearer ${token.value}`,
