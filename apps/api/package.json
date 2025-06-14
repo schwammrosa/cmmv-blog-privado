@@ -1,6 +1,6 @@
 {
     "name": "cmmv-blog-api",
-    "version": "0.0.60",
+    "version": "0.0.62",
     "private": true,
     "description": "Blog API sample",
     "dev": {
