@@ -158,9 +158,9 @@
                         <div class="flex items-start">
                             <div class="text-neutral-400 text-sm w-24">Categories:</div>
                             <div class="flex flex-wrap gap-1">
-                                <span v-for="category in post.categories" :key="category.id"
+                                <span v-for="category in post.categories" :key="category"
                                     class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900 text-blue-200">
-                                    {{ category.name }}
+                                    {{ category?.name || category }}
                                 </span>
                             </div>
                         </div>
@@ -285,9 +285,9 @@
                                 </td>
                                 <td class="p-4">
                                     <div class="flex flex-wrap gap-1">
-                                        <span v-for="category in (post.categories || [])" :key="category.id"
+                                        <span v-for="category in (post.categories || [])" :key="category"
                                             class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900 text-blue-200">
-                                            {{ category.name }}
+                                            {{ category?.name || category }}
                                         </span>
                                     </div>
                                 </td>
