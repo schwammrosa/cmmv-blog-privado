@@ -11,7 +11,7 @@ Config.assign({
         port: process.env.PORT || 5000,
         cors: {
             enabled: false, // If user cloudflare, disable this
-            options: {
+            /*options: {
                 origin: '*',
                 methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
                 allowedHeaders: [
@@ -19,7 +19,7 @@ Config.assign({
                     'Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers'
                 ],
                 credentials: false,
-            },
+            },*/
         },
     },
 
