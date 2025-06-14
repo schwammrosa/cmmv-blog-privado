@@ -10,7 +10,7 @@ Config.assign({
         host: process.env.HOST || '0.0.0.0',
         port: process.env.PORT || 5000,
         cors: {
-            enabled: true,
+            enabled: false, // If user cloudflare, disable this
             options: {
                 origin: '*',
                 methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
