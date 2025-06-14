@@ -69,22 +69,6 @@ const lastVisitedStoresExpirationPlugin = new ExpirationPlugin({
     purgeOnQuotaError: true
 });
 
-// ⚡️ Cache JS/CSS com CacheFirst (exceto AdSense)
-registerRoute(
-    ({ request, url }) =>
-        (request.destination === 'script' || request.destination === 'style') &&
-        !url.hostname.includes('googlesyndication.com') &&
-        !url.hostname.includes('googleadservices.com') &&
-        !url.hostname.includes('doubleclick.net'),
-    new CacheFirst({
-        cacheName: CACHE_NAMES.ASSETS,
-        plugins: [
-            new CacheableResponsePlugin({ statuses: [200] }),
-            assetsExpirationPlugin
-        ]
-    })
-);
-
 // ⚡️ Cache imagens
 registerRoute(
     ({ request }) => request.destination === 'image' || ROUTE_REGEX.IMAGES.test(request.url),
