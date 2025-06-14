@@ -22,6 +22,7 @@ const ssrLocalStorage: any =
           };
 
 export function useApi() {
+    const env = getEnv('NODE_ENV');
     const router = useRouter()
     const user = ref<any>(null)
     const token = ref<string | null>(ssrLocalStorage.getItem('token') || null)
@@ -65,11 +66,14 @@ export function useApi() {
     };
 
     const getApiPath = (path: string) => {
-        if (currentWhitelabelId.value && whitelabelUrls.value[currentWhitelabelId.value]) {
+        /*if (currentWhitelabelId.value && whitelabelUrls.value[currentWhitelabelId.value]) {
             const baseUrl = whitelabelUrls.value[currentWhitelabelId.value];
-            return window.location.origin.includes('localhost') ?
+            return env === 'dev' ?
             `${baseUrl}/${path}` : `/proxy?url=${encodeURIComponent(`${baseUrl}/${path}`)}`;
-        }
+        }*/
+
+        if(currentWhitelabelId.value && whitelabelUrls.value[currentWhitelabelId.value])
+            return `/${currentWhitelabelId.value}/${path}`;
 
         return `/api/${path}`;
     }
