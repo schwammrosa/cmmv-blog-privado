@@ -688,7 +688,7 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
                 highlight: "DESC"
             },
             select: [
-                "id", "name", "logo", "highlight", "slug"
+                "id", "name", "logo", "highlight", "slug", "coupons"
             ]
         });
 
@@ -700,10 +700,10 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
 
         for (const campaign of campaignsResult.data) {
             try {
-                const couponCountResponse = await couponsService.getCouponsCountByCampaignId(campaign.id);
+                //const couponCountResponse = await couponsService.getCouponsCountByCampaignId(campaign.id);
                 campaignsWithCounts.push({
                     ...campaign,
-                    couponCount: couponCountResponse?.count || 0
+                    couponCount: campaign?.coupons || 0
                 });
             } catch (err) {
                 campaignsWithCounts.push({
