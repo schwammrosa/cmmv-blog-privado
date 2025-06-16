@@ -264,7 +264,7 @@
                                 <div class="md:w-48 flex-shrink-0 flex justify-center mt-4 md:mt-0">
                                     <a v-if="coupon.code"
                                         :href="coupon.shortUrl || '#'"
-                                        @click="openCouponModal(coupon)"
+                                        @click.prevent="openCouponModal(coupon)"
                                         class="coupon-button group relative w-full h-12 overflow-visible bg-white rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
                                         :class="[
                                             new Date(coupon.expiration) < new Date() ?
@@ -310,6 +310,7 @@
 
                                     <a v-else
                                         :href="coupon.shortUrl || '#'"
+                                        @click.prevent="openCouponModal(coupon)"
                                         target="_blank"
                                         :aria-label="coupon.title"
                                         :title="coupon.title"
@@ -514,7 +515,7 @@ const openCouponModal = (coupon: any) => {
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
 
     if (coupon && coupon.deeplink)
-        window.location.href = (coupon.shortUrl || coupon.deeplink);
+        window.location.href = coupon.deeplink;
 };
 
 const closeCouponModal = () => {

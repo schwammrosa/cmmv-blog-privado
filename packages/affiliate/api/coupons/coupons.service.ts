@@ -249,6 +249,7 @@ export class CouponsServiceTools {
             active: true,
             campaign: campaignId,
             deeplink: Not(IsNull()),
+            link: Not(IsNull()),
         }, [], {
             order: {
                 expiration: "DESC"
@@ -274,6 +275,7 @@ export class CouponsServiceTools {
             active: true,
             campaign: campaignId,
             deeplink: Not(IsNull()),
+            link: Not(IsNull()),
         });
 
         return { count: count || 0 };
@@ -294,6 +296,7 @@ export class CouponsServiceTools {
             campaign: Not(IsNull()),
             expiration: MoreThan(new Date()),
             deeplink: Not(IsNull()),
+            link: Not(IsNull()),
         }, [], {
             order: {
                 views: "DESC"
@@ -351,6 +354,7 @@ export class CouponsServiceTools {
             campaign: Not(IsNull()),
             expiration: MoreThan(new Date()),
             deeplink: Not(IsNull()),
+            link: Not(IsNull()),
             type: "Cupom",
             limit: 50
         },
@@ -472,6 +476,7 @@ export class CouponsServiceTools {
 
         const couponsResult = await Repository.findAll(AffiliateCouponsEntity, {
             deeplink: Not(IsNull()),
+            link: Not(IsNull()),
             campaign: campaignId,
             active: true,
             limit: 20
@@ -987,8 +992,8 @@ export class CouponsServiceTools {
             const AffiliateCouponsEntity = Repository.getEntity("AffiliateCouponsEntity");
 
             const couponsWithoutShortUrl = await Repository.findAll(AffiliateCouponsEntity, {
-                shortUrl: IsNull(),
                 deeplink: Not(IsNull()),
+                link: Not(IsNull()),
                 active: true,
                 limit: 10000
             }, [], {
@@ -1020,7 +1025,6 @@ export class CouponsServiceTools {
                 const batchPromises = batch.map(async (coupon: any) => {
                     try {
                         processed++;
-
                         const shortUrl = await this.shortUrlService.createShortUrl(coupon.deeplink);
 
                         await Repository.update(AffiliateCouponsEntity, {
@@ -1039,6 +1043,7 @@ export class CouponsServiceTools {
                         };
 
                     } catch (error: any) {
+                        console.log(coupon.deeplink);
                         const errorMessage = error.message || 'Unknown error';
                         this.logger.error(`Failed to generate short URL for coupon ${coupon.code} (${coupon.id}): ${errorMessage}`);
 
