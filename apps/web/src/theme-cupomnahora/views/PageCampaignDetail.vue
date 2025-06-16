@@ -456,6 +456,13 @@ const loadData = async () => {
         }
 
         loading.value = false;
+
+        // Check for display parameter after coupons are loaded
+        if (!isSSR) {
+            setTimeout(() => {
+                checkCouponInUrl();
+            }, 100);
+        }
     } catch (err: any) {
         error.value = err.message || 'Erro ao carregar a loja e seus cupons';
         loading.value = false;
@@ -521,6 +528,22 @@ const openCouponModal = (coupon: any) => {
 const closeCouponModal = () => {
     isScratchModalOpen.value = false;
     selectedCouponForScratch.value = null;
+};
+
+const checkCouponInUrl = () => {
+    const displayCode = route.query.display;
+
+    if (displayCode && typeof displayCode === 'string') {
+        const foundCoupon = coupons.value.find(c => c.code === displayCode);
+
+        selectedCouponForScratch.value = {
+            ...foundCoupon,
+            campaignName: campaign.value?.name || 'Loja',
+            campaignLogo: campaign.value?.logo || null
+        };
+
+        isScratchModalOpen.value = true;
+    }
 };
 
 const incrementCouponView = async (couponId: string, coupon: any) => {
