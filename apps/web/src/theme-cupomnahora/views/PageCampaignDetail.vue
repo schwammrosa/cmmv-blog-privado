@@ -251,18 +251,19 @@
                                             <span v-if="new Date(coupon.expiration) < new Date()" class="text-red-500 font-medium">Expirado em {{ formatDate(coupon.expiration) }}</span>
                                             <span v-else>Válido até {{ formatDate(coupon.expiration) }}</span>
                                         </div>
-                                        <div class="flex items-center">
+                                        <!--<div class="flex items-center">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                             </svg>
                                             <span>{{ (coupon.views || 0) }} total de visualizações</span>
-                                        </div>
+                                        </div>-->
                                     </div>
                                 </div>
 
                                 <div class="md:w-48 flex-shrink-0 flex justify-center mt-4 md:mt-0">
-                                    <button v-if="coupon.code"
+                                    <a v-if="coupon.code"
+                                        :href="coupon.shortUrl || '#'"
                                         @click="openCouponModal(coupon)"
                                         class="coupon-button group relative w-full h-12 overflow-visible bg-white rounded-lg transition-all duration-200 hover:shadow-lg cursor-pointer"
                                         :class="[
@@ -305,10 +306,10 @@
                                                 </div>
                                             </div>
                                         </template>
-                                    </button>
+                                    </a>
 
                                     <a v-else
-                                        :href="coupon.link || coupon.linkRef || '#'"
+                                        :href="coupon.shortUrl || '#'"
                                         target="_blank"
                                         :aria-label="coupon.title"
                                         :title="coupon.title"
@@ -513,7 +514,7 @@ const openCouponModal = (coupon: any) => {
         window.open(window.location.href + `?display=${coupon.code}`, '_blank');
 
     if (coupon && coupon.deeplink)
-        window.location.href = coupon.deeplink;
+        window.location.href = (coupon.shortUrl || coupon.deeplink);
 };
 
 const closeCouponModal = () => {

@@ -2,10 +2,14 @@ import {
     Service, Application, Config, Logger,
     Cron, CronExpression
 } from "@cmmv/core";
+
 import {
     Repository,
-    MoreThanOrEqual
+    MoreThanOrEqual,
+    Not,
+    IsNull
 } from "@cmmv/repository";
+
 //@ts-ignore
 import { MediasService } from "@cmmv/blog";
 //@ts-ignore
@@ -746,6 +750,7 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
 
         const coupons = await Repository.findAll(AffiliateCouponsEntity, {
             campaign: campaign.id,
+            deeplink: Not(IsNull()),
             active: true,
             expiration: MoreThanOrEqual(new Date(Date.now() - 60 * 60 * 24 * 60 * 1000)),
             limit: 100
@@ -755,7 +760,8 @@ Respond only with the HTML formatted text using Tailwind CSS classes, without JS
             },
             select: [
                 "type", "typeDiscount", "title", "description",
-                "code", "expiration", "deeplink", "views"
+                "code", "expiration", "deeplink", "views",
+                "shortUrl"
             ]
         });
 
