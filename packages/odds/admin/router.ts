@@ -5,6 +5,8 @@ import { useNavbar } from '@cmmv/blog/admin/composable/useNavbar';
 import AdminLayout from '@cmmv/blog/admin/layouts/AdminLayout.vue';
 import OddsCountriesView from './views/OddsCountriesView.vue';
 import OddsCategoriesView from './views/OddsCategoriesView.vue';
+import OddsSettingsView from './views/OddsSettingsView.vue';
+import OddsLeaguesView from './views/OddsLeaguesView.vue';
 
 export const oddsRoutes: RouteRecordRaw[] = [
     {
@@ -20,6 +22,16 @@ export const oddsRoutes: RouteRecordRaw[] = [
                 path: 'categories',
                 component: OddsCategoriesView,
                 name: 'odds-categories'
+            },
+            {
+                path: 'leagues',
+                component: OddsLeaguesView,
+                name: 'odds-leagues'
+            },
+            {
+                path: 'settings',
+                component: OddsSettingsView,
+                name: 'odds-settings'
             }
         ]
     },
@@ -48,6 +60,12 @@ useNavbar().addItems([
         label: 'Bets',
         icon: 'fas fa-dice',
         to: '/odds/bets',
+        group: 'Odds'
+    },
+    {
+        label: 'Settings',
+        icon: 'fas fa-cog',
+        to: '/odds/settings',
         group: 'Odds'
     },
 ])

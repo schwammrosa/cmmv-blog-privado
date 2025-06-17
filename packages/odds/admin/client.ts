@@ -36,11 +36,54 @@ export const useOddsClient = () => {
         },
         delete: async (id: string) => {
             return api.authRequest(`odds/countries/${id}`, "DELETE");
+        },
+        sync: async (settingId: string, endpoint: string) => {
+            return api.authRequest("odds/countries/sync", "POST", { settingId, endpoint });
+        }
+    }
+
+    const leagues = {
+        get: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`odds/leagues?${query}`, "GET");
+        },
+        insert: async (data: any) => {
+            // TODO: Implement API call
+            return api.authRequest("odds/leagues", "POST", data);
+        },
+        update: async (id: string, data: any) => {
+            // TODO: Implement API call
+            return api.authRequest(`odds/leagues/${id}`, "PUT", data);
+        },
+        delete: async (id: string) => {
+            // TODO: Implement API call
+            return api.authRequest(`odds/leagues/${id}`, "DELETE");
+        },
+        sync: async (settingId: string, endpoint: string) => {
+            return api.authRequest("odds/leagues/sync", "POST", { settingId, endpoint });
+        }
+    }
+
+    const settings = {
+        get: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`odds/settings?${query}`, "GET");
+        },
+        insert: async (data: any) => {
+            return api.authRequest("odds/settings", "POST", data);
+        },
+        update: async (id: string, data: any) => {
+            return api.authRequest(`odds/settings/${id}`, "PUT", data);
+        },
+        delete: async (id: string) => {
+            return api.authRequest(`odds/settings/${id}`, "DELETE");
         }
     }
 
     return {
         categories,
-        countries
+        countries,
+        leagues,
+        settings
     };
 };
