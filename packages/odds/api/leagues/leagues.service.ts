@@ -15,7 +15,7 @@ export class OddsSyncLeaguesService {
         const OddsCountriesEntity = Repository.getEntity("OddsCountriesEntity");
         const OddsLeaguesEntity = Repository.getEntity("OddsLeaguesEntity");
 
-        const setting = await Repository.findOne(OddsSettingsEntity, { where: { id: settingId } });
+        const setting = await Repository.findOne(OddsSettingsEntity, { id: settingId });
         if (!setting) {
             throw new Error("API Setting not found");
         }
@@ -59,7 +59,7 @@ export class OddsSyncLeaguesService {
             
             let countryEntity = null;
             if (country && country.code) {
-                countryEntity = await Repository.findOne(OddsCountriesEntity, { where: { code: country.code } });
+                countryEntity = await Repository.findOne(OddsCountriesEntity, { code: country.code });
             }
 
             const leaguePayload: Partial<OddsLeaguesContract> = {
@@ -75,7 +75,7 @@ export class OddsSyncLeaguesService {
                 country_id: countryEntity ? countryEntity.id : null,
             };
 
-            const existingLeague = await Repository.findOne(OddsLeaguesEntity, { where: { external_id: league.id } });
+            const existingLeague = await Repository.findOne(OddsLeaguesEntity, { external_id: league.id });
 
             if (existingLeague) {
                 await Repository.update(OddsLeaguesEntity, existingLeague.id, leaguePayload);
