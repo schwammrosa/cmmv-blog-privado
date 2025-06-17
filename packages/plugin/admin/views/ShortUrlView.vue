@@ -2,13 +2,13 @@
     <div class="space-y-6">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
-            <h1 class="text-2xl font-bold text-white">Tags</h1>
+            <h1 class="text-2xl font-bold text-white">Short URLs</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
                 <button @click="openAddDialog" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    Add Tag
+                    Add Short URL
                 </button>
                 <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,7 +16,7 @@
                     </svg>
                     Refresh
                 </button>
-                <!-- Add search button with dropdown -->
+                <!-- Search button with dropdown -->
                 <div class="relative">
                     <button @click="toggleSearchDropdown" data-search-toggle
                         class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
@@ -38,7 +38,7 @@
                                 <input
                                     v-model="filters.search"
                                     type="text"
-                                    placeholder="Search tags..."
+                                    placeholder="Search short URLs..."
                                     class="bg-neutral-700 h-9 border border-neutral-600 text-white pl-3 pr-8 py-2 rounded-md w-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                                     @keydown.esc="showSearchDropdown = false"
                                     ref="searchInput"
@@ -60,7 +60,8 @@
                                     v-model="filters.searchField"
                                     class="bg-neutral-700 w-full h-8 border border-neutral-600 text-white px-3 py-1 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
                                 >
-                                    <option value="name">Name</option>
+                                    <option value="originalUrl">Original URL</option>
+                                    <option value="slug">Slug</option>
                                 </select>
                             </div>
                         </div>
@@ -72,7 +73,7 @@
         <!-- Loading state -->
         <div v-if="loading" class="bg-neutral-800 rounded-lg p-12 flex justify-center items-center">
             <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
-            <span class="ml-3 text-neutral-400">Loading tags...</span>
+            <span class="ml-3 text-neutral-400">Loading short URLs...</span>
         </div>
 
         <!-- Error state -->
@@ -80,7 +81,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-red-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p class="text-neutral-300 mb-2">Failed to load tags</p>
+            <p class="text-neutral-300 mb-2">Failed to load short URLs</p>
             <p class="text-neutral-400 text-sm mb-4">{{ error }}</p>
             <button @click="refreshData" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors">
                 Try Again
@@ -88,18 +89,18 @@
         </div>
 
         <!-- Empty state -->
-        <div v-else-if="tags.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
+        <div v-else-if="shortUrls.length === 0" class="bg-neutral-800 rounded-lg p-12 text-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
             </svg>
-            <p class="text-neutral-300 mb-2">No tags found</p>
-            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first tag</p>
+            <p class="text-neutral-300 mb-2">No short URLs found</p>
+            <p class="text-neutral-400 text-sm mb-4">Get started by creating your first short URL</p>
             <button @click="openAddDialog" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors">
-                Add Tag
+                Add Short URL
             </button>
         </div>
 
-        <!-- Tags table -->
+        <!-- Short URLs table -->
         <div v-else class="bg-neutral-800 rounded-lg overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-neutral-700">
@@ -109,17 +110,27 @@
                                 ID
                             </th>
                             <th
-                                @click="toggleSort('name')"
+                                @click="toggleSort('slug')"
                                 scope="col"
                                 class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white"
                             >
-                                Name
-                                <span v-if="filters.sortBy === 'name'" class="ml-1">
+                                Slug
+                                <span v-if="filters.sortBy === 'slug'" class="ml-1">
                                     {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
                                 </span>
                             </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">
-                                Posts
+                                Original URL
+                            </th>
+                            <th
+                                @click="toggleSort('statusHTTP')"
+                                scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white"
+                            >
+                                Status
+                                <span v-if="filters.sortBy === 'statusHTTP'" class="ml-1">
+                                    {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
+                                </span>
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-300 uppercase tracking-wider w-24">
                                 Actions
@@ -127,20 +138,41 @@
                         </tr>
                     </thead>
                     <tbody class="bg-neutral-800 divide-y divide-neutral-700">
-                        <tr v-for="tag in tags" :key="tag.id" class="hover:bg-neutral-750">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="tag.id">
-                                {{ tag.id.substring(0, 6) }}...
+                        <tr v-for="shortUrl in shortUrls" :key="shortUrl.id" class="hover:bg-neutral-750">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400" :title="shortUrl.id">
+                                {{ shortUrl.id.substring(0, 6) }}...
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-white">
-                                {{ tag.name }}
+                                <span class="font-mono bg-neutral-700 px-2 py-1 rounded text-blue-400">
+                                    {{ shortUrl.slug }}
+                                </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-400">
-                                {{ tag.postCount || 0 }}
+                            <td class="px-6 py-4 text-sm text-neutral-300 max-w-xs">
+                                <div class="truncate" :title="shortUrl.originalUrl">
+                                    {{ shortUrl.originalUrl }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span
+                                    class="px-2 py-1 text-xs font-medium rounded-full"
+                                    :class="getStatusClass(shortUrl.statusHTTP)"
+                                >
+                                    {{ shortUrl.statusHTTP }}
+                                </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
                                     <button
-                                        @click="openEditDialog(tag)"
+                                        @click="copyShortUrl(shortUrl)"
+                                        title="Copy Short URL"
+                                        class="text-neutral-400 hover:text-blue-500 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        @click="openEditDialog(shortUrl)"
                                         title="Edit"
                                         class="text-neutral-400 hover:text-white transition-colors"
                                     >
@@ -148,19 +180,17 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </button>
-                                    <!-- Add view tag button -->
                                     <button
-                                        @click="viewTag(tag)"
-                                        title="View Tag"
-                                        class="text-neutral-400 hover:text-blue-500 transition-colors"
+                                        @click="openOriginalUrl(shortUrl.slug)"
+                                        title="Open Original URL"
+                                        class="text-neutral-400 hover:text-green-500 transition-colors"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                         </svg>
                                     </button>
                                     <button
-                                        @click="confirmDelete(tag)"
+                                        @click="confirmDelete(shortUrl)"
                                         title="Delete"
                                         class="text-neutral-400 hover:text-red-500 transition-colors"
                                     >
@@ -179,49 +209,80 @@
         <!-- Pagination -->
         <Pagination
             :pagination="pagination"
-            itemName="tags"
+            itemName="short URLs"
             @pageChange="handlePageChange"
         />
 
-        <!-- Add/Edit Tag Dialog -->
-        <div v-if="showDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+        <!-- Add/Edit Short URL Dialog -->
+        <div v-if="showDialog" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" style="backdrop-filter: blur(4px);">
             <div class="bg-neutral-800 rounded-lg shadow-lg w-full max-w-md mx-auto">
                 <div class="p-6 border-b border-neutral-700 flex justify-between items-center">
-                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Tag' : 'Add Tag' }}</h3>
+                    <h3 class="text-lg font-medium text-white">{{ isEditing ? 'Edit Short URL' : 'Add Short URL' }}</h3>
                     <button @click="closeDialog" class="text-neutral-400 hover:text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
-                <div class="p-6">
-                    <form @submit.prevent="saveTag">
-                        <div class="mb-4">
-                            <label for="tagName" class="block text-sm font-medium text-neutral-300 mb-1">Name</label>
-                            <input
-                                id="tagName"
-                                v-model="tagForm.name"
-                                @input="updateSlug"
-                                type="text"
-                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="Tag name"
-                                required
-                            />
-                            <p v-if="formErrors.name" class="mt-1 text-sm text-red-500">{{ formErrors.name }}</p>
-                        </div>
 
-                        <div class="mb-4">
-                            <label for="tagSlug" class="block text-sm font-medium text-neutral-300 mb-1">Slug</label>
-                            <input
-                                id="tagSlug"
-                                v-model="tagForm.slug"
-                                type="text"
-                                class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-                                placeholder="tag-slug"
-                                required
-                            />
-                            <p class="mt-1 text-sm text-neutral-500">URL: /tag/<span class="text-blue-400">{{ tagForm.slug || 'your-slug' }}</span></p>
-                            <p v-if="formErrors.slug" class="mt-1 text-sm text-red-500">{{ formErrors.slug }}</p>
+                <div class="p-6">
+                    <form @submit.prevent="saveShortUrl">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="originalUrl" class="block text-sm font-medium text-neutral-300 mb-1">Original URL</label>
+                                <input
+                                    id="originalUrl"
+                                    v-model="shortUrlForm.originalUrl"
+                                    type="url"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="https://example.com/very-long-url"
+                                    required
+                                />
+                                <p v-if="formErrors.originalUrl" class="mt-1 text-sm text-red-500">{{ formErrors.originalUrl }}</p>
+                            </div>
+
+                            <div>
+                                <label for="slug" class="block text-sm font-medium text-neutral-300 mb-1">Slug</label>
+                                <div class="flex space-x-2">
+                                    <input
+                                        id="slug"
+                                        v-model="shortUrlForm.slug"
+                                        type="text"
+                                        class="flex-1 px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                        placeholder="my-short-link"
+                                        required
+                                    />
+                                    <button
+                                        type="button"
+                                        @click="generateRandomSlug"
+                                        class="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors flex items-center"
+                                        title="Generate random slug"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                <p class="mt-1 text-sm text-neutral-500">Short URL: /s/<span class="text-blue-400">{{ shortUrlForm.slug || 'your-slug' }}</span></p>
+                                <p v-if="formErrors.slug" class="mt-1 text-sm text-red-500">{{ formErrors.slug }}</p>
+                            </div>
+
+                            <div>
+                                <label for="statusHTTP" class="block text-sm font-medium text-neutral-300 mb-1">HTTP Status Code</label>
+                                <select
+                                    id="statusHTTP"
+                                    v-model.number="shortUrlForm.statusHTTP"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    required
+                                >
+                                    <option value="301">301 - Permanent Redirect</option>
+                                    <option value="302">302 - Temporary Redirect</option>
+                                    <option value="307">307 - Temporary Redirect (Preserve Method)</option>
+                                    <option value="308">308 - Permanent Redirect (Preserve Method)</option>
+                                </select>
+                                <p class="mt-1 text-sm text-neutral-500">Choose the type of redirect for this short URL</p>
+                                <p v-if="formErrors.statusHTTP" class="mt-1 text-sm text-red-500">{{ formErrors.statusHTTP }}</p>
+                            </div>
                         </div>
 
                         <div class="flex justify-end space-x-3 mt-6">
@@ -257,12 +318,12 @@
         <!-- Delete Confirmation Dialog -->
         <DeleteDialog
             :show="showDeleteDialog"
-            :item-name="tagToDelete?.name"
+            :item-name="shortUrlToDelete?.slug"
             :loading="deleteLoading"
-            message="Are you sure you want to delete the tag"
-            warning-text="This action cannot be undone. All posts using this tag may be affected."
+            message="Are you sure you want to delete the short URL"
+            warning-text="This action cannot be undone. The short URL will no longer redirect to the original URL."
             loading-text="Deleting..."
-            @confirm="deleteTag"
+            @confirm="deleteShortUrl"
             @cancel="closeDeleteDialog"
         />
 
@@ -278,32 +339,31 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, nextTick } from 'vue'
 import { useAdminClient } from '@cmmv/blog/admin/client'
 import Pagination from '../components/Pagination.vue'
-import ToastNotification from '../components/ToastNotification.vue'
 import DeleteDialog from '../components/DeleteDialog.vue'
-import { useRouter, useRoute } from 'vue-router'
+import ToastNotification from '../components/ToastNotification.vue'
 
 const adminClient = useAdminClient()
-const router = useRouter()
-const route = useRoute()
 
-const tags = ref([])
+const shortUrls = ref([])
 const loading = ref(true)
 const error = ref(null)
+
 const showDialog = ref(false)
 const isEditing = ref(false)
-const tagForm = ref({
-    name: '',
-    slug: ''
+const shortUrlForm = ref({
+    originalUrl: '',
+    slug: '',
+    statusHTTP: 301
 })
-const tagToEdit = ref(null)
+const shortUrlToEdit = ref(null)
 const formErrors = ref({})
 const formLoading = ref(false)
 
 const showDeleteDialog = ref(false)
-const tagToDelete = ref(null)
+const shortUrlToDelete = ref(null)
 const deleteLoading = ref(false)
 
 const notification = ref({
@@ -319,27 +379,24 @@ const pagination = ref({
     perPage: 10,
     total: 0,
     from: 1,
-    to: 10
+    to: 50
 })
 
 const filters = ref({
     search: '',
-    searchField: 'name',
-    sortBy: 'name',
-    sortOrder: 'asc',
+    searchField: 'originalUrl',
+    sortBy: 'originalUrl',
+    sortOrder: 'desc',
     page: 1
 })
 
-const blogUrl = ref('');
-
-// Add search dropdown functionality
+const blogUrl = ref('')
 const showSearchDropdown = ref(false)
 const searchInput = ref(null)
 
 function toggleSearchDropdown() {
     showSearchDropdown.value = !showSearchDropdown.value
 
-    // Focus the search input when dropdown opens
     if (showSearchDropdown.value) {
         nextTick(() => {
             searchInput.value?.focus()
@@ -349,41 +406,25 @@ function toggleSearchDropdown() {
 
 function clearSearch() {
     filters.value.search = ''
-    filters.value.page = 1  // Reset to first page when clearing search
-    loadTags()
+    filters.value.page = 1
+    loadShortUrls()
     showSearchDropdown.value = false
 }
 
-const paginationPages = computed(() => {
-    const totalPages = pagination.value.lastPage
+const loadBlogUrl = async () => {
+    try {
+        const settings = await adminClient.settings.getRoot()
+        const urlSetting = settings.find(s => s.key === 'blog.url')
 
-    if (totalPages <= 5)
-        return Array.from({ length: totalPages }, (_, i) => i + 1)
+        if (urlSetting)
+            blogUrl.value = urlSetting.value.replace(/\/$/, '')
+    } catch (err) {
+        console.error('Failed to load blog URL:', err)
+        blogUrl.value = ''
+    }
+}
 
-    const current = pagination.value.current
-    const pages = []
-
-    pages.push(1)
-
-    if (current > 3)
-        pages.push('...')
-
-    const start = Math.max(2, current - 1)
-    const end = Math.min(totalPages - 1, current + 1)
-
-    for (let i = start; i <= end; i++)
-        pages.push(i)
-
-    if (current < totalPages - 2)
-        pages.push('...')
-
-    if (totalPages > 1)
-        pages.push(totalPages)
-
-    return pages
-})
-
-const loadTags = async () => {
+const loadShortUrls = async () => {
     try {
         loading.value = true
         error.value = null
@@ -400,16 +441,15 @@ const loadTags = async () => {
             apiFilters.searchField = filters.value.searchField
         }
 
-        const response = await adminClient.tags.get(apiFilters)
+        const response = await adminClient.shorturl.get(apiFilters)
 
         if (response && response.data) {
-            tags.value = response.data || []
+            shortUrls.value = response.data || []
 
             const paginationData = response.pagination || {}
             const totalCount = response.count || 0
             const currentOffset = paginationData.offset || 0
-            const currentLimit = paginationData.limit || 10
-
+            const currentLimit = paginationData.limit || 50
             const currentPage = Math.floor(currentOffset / currentLimit) + 1
             const lastPage = Math.ceil(totalCount / currentLimit)
 
@@ -422,8 +462,7 @@ const loadTags = async () => {
                 to: Math.min(currentOffset + currentLimit, totalCount)
             }
         } else {
-            tags.value = []
-
+            shortUrls.value = []
             pagination.value = {
                 current: 1,
                 lastPage: 1,
@@ -436,82 +475,43 @@ const loadTags = async () => {
 
         loading.value = false
     } catch (err) {
-        console.error('Failed to load tags:', err)
+        console.error('Failed to load short URLs:', err)
         loading.value = false
-        error.value = err.message || 'Failed to load tags'
-        showNotification('error', 'Failed to load tags')
+        error.value = err.message || 'Failed to load short URLs'
+        showNotification('error', 'Failed to load short URLs')
     }
 }
 
-const refreshData = () => {
-    loadTags()
+const refreshData = async () => {
+    await loadShortUrls()
 }
 
 const handlePageChange = (newPage) => {
     filters.value.page = newPage
-    updateUrlParams()
-}
-
-const updateUrlParams = () => {
-    const query = {}
-    if (filters.value.page !== 1) query.page = filters.value.page.toString()
-    if (filters.value.search) query.search = filters.value.search
-    if (filters.value.sortBy !== 'name') query.sortBy = filters.value.sortBy
-    if (filters.value.sortOrder !== 'asc') query.sortOrder = filters.value.sortOrder
-
-    router.replace({ query })
-}
-
-const initializeFromUrl = () => {
-    const { query } = route
-
-    if (query.page) filters.value.page = parseInt(query.page) || 1
-    if (query.search) filters.value.search = query.search
-    if (query.sortBy) filters.value.sortBy = query.sortBy
-    if (query.sortOrder) filters.value.sortOrder = query.sortOrder
 }
 
 watch(filters, () => {
-    loadTags()
-    updateUrlParams()
-}, { deep: true })
-
-watch(() => [filters.value.search, filters.value.searchField], () => {
-    filters.value.page = 1
-})
-
-watch(() => [filters.value.sortBy, filters.value.sortOrder], () => {
-    filters.value.page = 1
-})
-
-watch(() => route.query, (newQuery) => {
-    const currentPage = filters.value.page
-    const urlPage = newQuery.page ? parseInt(newQuery.page) : 1
-
-    if (
-        currentPage !== urlPage ||
-        filters.value.search !== (newQuery.search || '') ||
-        filters.value.sortBy !== (newQuery.sortBy || 'name') ||
-        filters.value.sortOrder !== (newQuery.sortOrder || 'asc')
-    ) {
-        initializeFromUrl()
-        loadTags()
-    }
+    loadShortUrls()
 }, { deep: true })
 
 const openAddDialog = () => {
     isEditing.value = false
-    tagForm.value = { name: '', slug: '' }
+    shortUrlForm.value = {
+        originalUrl: '',
+        slug: '',
+        statusHTTP: 301
+    }
     formErrors.value = {}
     showDialog.value = true
 }
 
-const openEditDialog = (tag) => {
+const openEditDialog = (shortUrl) => {
     isEditing.value = true
-    tagToEdit.value = tag
-    tagForm.value = {
-        name: tag.name,
-        slug: tag.slug || ''
+    shortUrlToEdit.value = shortUrl
+    shortUrlForm.value = {
+        originalUrl: shortUrl.originalUrl,
+        slug: shortUrl.slug,
+        statusHTTP: shortUrl.statusHTTP
     }
     formErrors.value = {}
     showDialog.value = true
@@ -519,39 +519,52 @@ const openEditDialog = (tag) => {
 
 const closeDialog = () => {
     showDialog.value = false
-    tagForm.value = { name: '', slug: '' }
+    shortUrlForm.value = {
+        originalUrl: '',
+        slug: '',
+        statusHTTP: 301
+    }
     formErrors.value = {}
-    tagToEdit.value = null
+    shortUrlToEdit.value = null
 }
 
-const saveTag = async () => {
+const saveShortUrl = async () => {
     try {
         formLoading.value = true
         formErrors.value = {}
 
-        if (!tagForm.value.name.trim()) {
-            formErrors.value.name = 'Tag name is required'
+        if (!shortUrlForm.value.originalUrl.trim()) {
+            formErrors.value.originalUrl = 'Original URL is required'
             formLoading.value = false
             return
         }
 
-        if (!tagForm.value.slug.trim()) {
-            formErrors.value.slug = 'Tag slug is required'
+        if (!shortUrlForm.value.slug.trim()) {
+            formErrors.value.slug = 'Slug is required'
             formLoading.value = false
             return
         }
 
-        const tagData = {
-            name: tagForm.value.name.trim(),
-            slug: tagForm.value.slug.trim()
+        try {
+            new URL(shortUrlForm.value.originalUrl)
+        } catch {
+            formErrors.value.originalUrl = 'Please enter a valid URL'
+            formLoading.value = false
+            return
+        }
+
+        const shortUrlData = {
+            originalUrl: shortUrlForm.value.originalUrl.trim(),
+            slug: shortUrlForm.value.slug.trim(),
+            statusHTTP: shortUrlForm.value.statusHTTP
         }
 
         if (isEditing.value) {
-            await adminClient.tags.update(tagToEdit.value.id, tagData)
-            showNotification('success', 'Tag updated successfully')
+            await adminClient.shorturl.update(shortUrlToEdit.value.id, shortUrlData)
+            showNotification('success', 'Short URL updated successfully')
         } else {
-            await adminClient.tags.create(tagData)
-            showNotification('success', 'Tag created successfully')
+            await adminClient.shorturl.create(shortUrlData)
+            showNotification('success', 'Short URL created successfully')
         }
 
         formLoading.value = false
@@ -563,51 +576,34 @@ const saveTag = async () => {
         if (err.response?.data?.errors)
             formErrors.value = err.response.data.errors
         else
-            showNotification('error', err.message || 'Failed to save tag')
+            showNotification('error', err.message || 'Failed to save short URL')
     }
 }
 
-const updateSlug = () => {
-    tagForm.value.slug = generateSlug(tagForm.value.name)
-}
-
-const generateSlug = (text) => {
-    return text
-        .toString()
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, '-')        // Replace spaces with -
-        .replace(/&/g, '-and-')      // Replace & with 'and'
-        .replace(/[^\w\-]+/g, '')    // Remove all non-word characters
-        .replace(/\-\-+/g, '-')      // Replace multiple - with single -
-        .replace(/^-+/, '')          // Trim - from start of text
-        .replace(/-+$/, '');         // Trim - from end of text
-}
-
-const confirmDelete = (tag) => {
-    tagToDelete.value = tag
+const confirmDelete = (shortUrl) => {
+    shortUrlToDelete.value = shortUrl
     showDeleteDialog.value = true
 }
 
 const closeDeleteDialog = () => {
     showDeleteDialog.value = false
-    tagToDelete.value = null
+    shortUrlToDelete.value = null
 }
 
-const deleteTag = async () => {
-    if (!tagToDelete.value) return
+const deleteShortUrl = async () => {
+    if (!shortUrlToDelete.value) return
 
     try {
         deleteLoading.value = true
-        await adminClient.deleteTag(tagToDelete.value.id)
+        await adminClient.shorturl.delete(shortUrlToDelete.value.id)
         deleteLoading.value = false
         closeDeleteDialog()
-        showNotification('success', 'Tag deleted successfully')
+        showNotification('success', 'Short URL deleted successfully')
         refreshData()
     } catch (err) {
         deleteLoading.value = false
-        console.error('Failed to delete tag:', err)
-        showNotification('error', err.message || 'Failed to delete tag')
+        console.error('Failed to delete short URL:', err)
+        showNotification('error', err.message || 'Failed to delete short URL')
     }
 }
 
@@ -633,32 +629,49 @@ const toggleSort = (column) => {
     }
 }
 
-const loadBlogUrl = async () => {
+const getStatusClass = (status) => {
+    switch (status) {
+        case 301:
+            return 'bg-green-900 text-green-200'
+        case 302:
+            return 'bg-yellow-900 text-yellow-200'
+        case 307:
+            return 'bg-blue-900 text-blue-200'
+        case 308:
+            return 'bg-purple-900 text-purple-200'
+        default:
+            return 'bg-neutral-900 text-neutral-200'
+    }
+}
+
+const copyShortUrl = async (shortUrl) => {
     try {
-        const settings = await adminClient.settings.getRoot();
-        const urlSetting = settings.find(s => s.key === 'blog.url');
-        if (urlSetting) {
-            blogUrl.value = urlSetting.value.replace(/\/$/, '');
-        }
+        const fullUrl = blogUrl.value ? `${blogUrl.value}/s/${shortUrl.slug}` : `/s/${shortUrl.slug}`
+        await navigator.clipboard.writeText(fullUrl)
+        showNotification('success', 'Short URL copied to clipboard')
     } catch (err) {
-        console.error('Failed to load blog URL:', err);
-        blogUrl.value = '';
+        console.error('Failed to copy URL:', err)
+        showNotification('error', 'Failed to copy URL to clipboard')
     }
-};
+}
 
-const viewTag = (tag) => {
-    if (!blogUrl.value) {
-        showNotification('error', 'Blog URL is not available');
-        return;
+const openOriginalUrl = (originalUrl) => {
+    window.open(blogUrl.value + '/s/' + originalUrl, '_blank')
+}
+
+const generateRandomSlug = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    let result = ''
+
+    for (let i = 0; i < 8; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length))
     }
 
-    const url = `${blogUrl.value}/tag/${tag.slug}`;
-    window.open(url, '_blank');
+    shortUrlForm.value.slug = result
 }
 
 onMounted(() => {
-    initializeFromUrl()
-    loadTags()
+    loadShortUrls()
     loadBlogUrl()
 
     // Close search dropdown when clicking outside

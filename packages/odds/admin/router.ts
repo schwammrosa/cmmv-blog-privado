@@ -28,25 +28,25 @@ export const oddsRoutes: RouteRecordRaw[] = [
 useNavbar().addItems([
     {
         label: 'Countries',
-        icon: 'fas fa-globe',
+        icon: 'fas fa-flag',
         to: '/odds/countries',
         group: 'Odds'
     },
     {
         label: 'Leagues',
-        icon: 'fas fa-globe',
+        icon: 'fas fa-trophy',
         to: '/odds/leagues',
         group: 'Odds'
     },
     {
         label: 'Categories',
-        icon: 'fas fa-globe',
+        icon: 'fas fa-tags',
         to: '/odds/categories',
         group: 'Odds'
     },
     {
         label: 'Bets',
-        icon: 'fas fa-network-wired',
+        icon: 'fas fa-dice',
         to: '/odds/bets',
         group: 'Odds'
     },
