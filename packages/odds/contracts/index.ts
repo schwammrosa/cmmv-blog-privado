@@ -10,14 +10,20 @@ import {
     OddsLeaguesContract
 } from "./odds-leagues.contract";
 
+import {
+    OddsVenuesContract
+} from "./odds-venues.contract";
+
 export * from './odds-bets.contract';
 export * from './odds-countries.contract';
 export * from './odds-leagues.contract';
 export * from './odds-categories.contract';
 export * from './odds-settings.contract';
+export * from './odds-venues.contract';
 
 export default [
     OddsSettingsContract,
     OddsCountriesContract,
-    OddsLeaguesContract
+    OddsLeaguesContract,
+    OddsVenuesContract
 ];

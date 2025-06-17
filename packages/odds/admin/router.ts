@@ -7,6 +7,7 @@ import OddsCountriesView from './views/OddsCountriesView.vue';
 import OddsCategoriesView from './views/OddsCategoriesView.vue';
 import OddsSettingsView from './views/OddsSettingsView.vue';
 import OddsLeaguesView from './views/OddsLeaguesView.vue';
+import OddsVenuesView from './views/OddsVenuesView.vue';
 
 export const oddsRoutes: RouteRecordRaw[] = [
     {
@@ -29,6 +30,11 @@ export const oddsRoutes: RouteRecordRaw[] = [
                 name: 'odds-leagues'
             },
             {
+                path: 'venues',
+                component: OddsVenuesView,
+                name: 'odds-venues'
+            },
+            {
                 path: 'settings',
                 component: OddsSettingsView,
                 name: 'odds-settings'
@@ -48,6 +54,12 @@ useNavbar().addItems([
         label: 'Leagues',
         icon: 'fas fa-trophy',
         to: '/odds/leagues',
+        group: 'Odds'
+    },
+    {
+        label: 'Venues',
+        icon: 'fas fa-map-marker-alt',
+        to: '/odds/venues',
         group: 'Odds'
     },
     {

@@ -44,6 +44,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="relative">
+                    <button @click="toggleYearFilterDropdown" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Year
+                        <span v-if="filters.year" class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-blue-500 rounded-full" title="Year filter active"></span>
+                    </button>
+                    <div v-if="showYearFilterDropdown" class="absolute right-0 mt-2 w-48 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10">
+                        <div class="p-3 space-y-2">
+                            <input v-model.number="filters.year" type="number" placeholder="Enter year..." @keydown.enter="toggleYearFilterDropdown" ref="yearInput" class="bg-neutral-700 h-9 border border-neutral-600 text-white pl-3 pr-2 py-2 rounded-md w-full text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" />
+                            <button @click="clearYearFilter" class="w-full text-center px-2 py-1.5 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors">
+                                Clear Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 <button @click="openAddDialog" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -84,15 +101,25 @@
                     <thead class="bg-neutral-700">
                         <tr>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Logo</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Name</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">External ID</th>
+                            <th @click="toggleSort('name')" scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white">
+                                Name
+                                <span v-if="filters.sortBy === 'name'" class="ml-1">
+                                    {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleSort('external_id')" scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider cursor-pointer hover:text-white">
+                                External ID
+                                <span v-if="filters.sortBy === 'external_id'" class="ml-1">
+                                    {{ filters.sortOrder === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Type</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Odds</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Year</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Start Date</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">End Date</th>
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Current</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Country ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-300 uppercase tracking-wider">Country</th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-300 uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
@@ -118,7 +145,14 @@
                                     {{ league.current ? 'Yes' : 'No' }}
                                 </span>
                             </td>
-                             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-300" :title="league.country_id">{{ league.country_id ? league.country_id.substring(0, 6) + '...' : 'N/A' }}</td>
+                             <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-300">
+                                <div v-if="league.country_id && countriesMap[league.country_id]" class="flex items-center">
+                                    <img :src="countriesMap[league.country_id].flag" :alt="countriesMap[league.country_id].name" class="w-6 h-4 mr-2 rounded-sm border border-neutral-600 object-cover">
+                                    <span>{{ countriesMap[league.country_id].name }}</span>
+                                </div>
+                                <span v-else-if="league.country_id" :title="league.country_id">{{ league.country_id.substring(0, 6) }}...</span>
+                                <span v-else>N/A</span>
+                            </td>
                              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
                                     <button @click="openEditDialog(league)" title="Edit" class="text-neutral-400 hover:text-white transition-colors">
@@ -267,7 +301,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, nextTick, computed } from 'vue'
 import { useOddsClient } from '../client'
 import Pagination from '@cmmv/blog/admin/components/Pagination.vue'
 import ToastNotification from '@cmmv/blog/admin/components/ToastNotification.vue'
@@ -300,14 +334,39 @@ const syncForm = ref({
 
 const notification = ref({ show: false, type: 'success', message: '', duration: 3000 });
 const pagination = ref({ current: 1, lastPage: 1, perPage: 50, total: 0, from: 1, to: 50 });
-const filters = ref({ search: '', searchField: 'name', sortBy: 'name', sortOrder: 'asc', page: 1 });
+const filters = ref({ search: '', searchField: 'name', sortBy: 'name', sortOrder: 'asc', page: 1, year: null });
 const showSearchDropdown = ref(false);
 const searchInput = ref(null);
+
+const showYearFilterDropdown = ref(false);
+const yearInput = ref(null);
+
+const countries = ref([]);
+const countriesMap = computed(() => Object.fromEntries(countries.value.map(c => [c.id, c])));
+
+const fetchCountries = async () => {
+    try {
+        const response = await oddsClient.countries.get({ limit: 10000, offset: 0 });
+        if (response && response.data) {
+            countries.value = response.data;
+        }
+    } catch (err) {
+        console.error("Failed to load countries for flags", err);
+        showNotification('error', 'Could not load country flags.');
+    }
+};
 
 function toggleSearchDropdown() {
     showSearchDropdown.value = !showSearchDropdown.value
     if (showSearchDropdown.value) {
         nextTick(() => searchInput.value?.focus());
+    }
+}
+
+function toggleYearFilterDropdown() {
+    showYearFilterDropdown.value = !showYearFilterDropdown.value;
+    if (showYearFilterDropdown.value) {
+        nextTick(() => yearInput.value?.focus());
     }
 }
 
@@ -317,6 +376,22 @@ function clearSearch() {
     loadLeagues();
     showSearchDropdown.value = false;
 }
+
+function clearYearFilter() {
+    filters.value.year = null;
+    filters.value.page = 1;
+    showYearFilterDropdown.value = false;
+}
+
+const toggleSort = (column) => {
+    if (filters.value.sortBy === column) {
+        filters.value.sortOrder = filters.value.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        filters.value.sortBy = column;
+        filters.value.sortOrder = 'asc';
+    }
+    filters.value.page = 1;
+};
 
 const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -351,6 +426,9 @@ const loadLeagues = async () => {
         if (filters.value.search) {
             apiFilters.search = filters.value.search;
             apiFilters.searchField = filters.value.searchField;
+        }
+        if (filters.value.year) {
+            apiFilters.year = filters.value.year.toString();
         }
         const response = await oddsClient.leagues.get(apiFilters);
         if (response && response.data) {
@@ -511,5 +589,8 @@ const runSync = async () => {
     }
 };
 
-onMounted(loadLeagues);
+onMounted(() => {
+    loadLeagues();
+    fetchCountries();
+});
 </script> 

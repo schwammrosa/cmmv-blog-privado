@@ -5,7 +5,8 @@ import {
     OddsCountriesContract,
     OddsLeaguesContract,
     OddsCategoriesContract,
-    OddsSettingsContract
+    OddsSettingsContract,
+    OddsVenuesContract
 } from '../contracts';
 
 import {
@@ -21,6 +22,7 @@ import {
 } from './settings/settings.module';
 
 import { OddsLeaguesModule } from './leagues/leagues.module';
+import { OddsVenuesModule } from './venues/venues.module';
 
 export const OddsModule = new Module('odds', {
     contracts: [
@@ -28,12 +30,14 @@ export const OddsModule = new Module('odds', {
         OddsCountriesContract,
         OddsLeaguesContract,
         OddsCategoriesContract,
-        OddsSettingsContract
+        OddsSettingsContract,
+        OddsVenuesContract
     ],
     submodules: [
         OddsCountriesModule,
         OddsCategoriesModule,
         OddsSettingsModule,
-        OddsLeaguesModule
+        OddsLeaguesModule,
+        OddsVenuesModule
     ]
 });

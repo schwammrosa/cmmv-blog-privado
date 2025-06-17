@@ -80,10 +80,41 @@ export const useOddsClient = () => {
         }
     }
 
+    const venues = {
+        get: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`odds/venues?${query}`, "GET");
+        },
+        insert: async (data: any) => {
+            return api.authRequest("odds/venues", "POST", data);
+        },
+        update: async (id: string, data: any) => {
+            return api.authRequest(`odds/venues/${id}`, "PUT", data);
+        },
+        delete: async (id: string) => {
+            return api.authRequest(`odds/venues/${id}`, "DELETE");
+        },
+        sync: async (settingId: string, endpoint: string, country?: string, search?: string, id?: number, name?: string, city?: string) => {
+            return api.authRequest("odds/venues/sync", "POST", { settingId, endpoint, country, search, id, name, city });
+        },
+        syncAllCountries: async (settingId: string) => {
+            return api.authRequest("odds/venues/sync-all-countries", "POST", { settingId });
+        },
+        getSyncProgress: async (syncId: string) => {
+            return api.authRequest(`odds/venues/sync-progress/${syncId}`, "GET");
+        },
+        getSyncProgressStream: (syncId: string) => {
+            const baseUrl = api.getBaseUrl();
+            const token = api.getToken();
+            return new EventSource(`${baseUrl}/odds/venues/sync-progress-stream/${syncId}?token=${token}`);
+        }
+    }
+
     return {
         categories,
         countries,
         leagues,
-        settings
+        settings,
+        venues
     };
 };
