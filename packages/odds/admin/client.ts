@@ -110,11 +110,43 @@ export const useOddsClient = () => {
         }
     }
 
+    const teams = {
+        get: async (filters: Record<string, string>) => {
+            const query = new URLSearchParams(filters).toString();
+            return api.authRequest(`odds/teams?${query}`, "GET");
+        },
+        insert: async (data: any) => {
+            return api.authRequest("odds/teams", "POST", data);
+        },
+        update: async (id: string, data: any) => {
+            return api.authRequest(`odds/teams/${id}`, "PUT", data);
+        },
+        delete: async (id: string) => {
+            return api.authRequest(`odds/teams/${id}`, "DELETE");
+        },
+        sync: async (settingId: string, params: {
+            id?: string;
+            name?: string;
+            country?: string;
+            code?: string;
+            venue?: string;
+            league?: string;
+            season?: string;
+            search?: string;
+        }) => {
+            return api.authRequest("odds/teams/sync", "POST", { settingId, ...params });
+        },
+        getSyncProgress: async (syncId: string) => {
+            return api.authRequest(`odds/teams/sync-progress/${syncId}`, "GET");
+        }
+    }
+
     return {
         categories,
         countries,
         leagues,
         settings,
-        venues
+        venues,
+        teams
     };
 };
