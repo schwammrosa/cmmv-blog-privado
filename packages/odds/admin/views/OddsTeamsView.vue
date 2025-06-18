@@ -4,6 +4,10 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
             <h1 class="text-2xl font-bold text-white">Teams</h1>
             <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+                <button @click="openAddDialog" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    Add Team
+                </button>
                 <button @click="refreshData" class="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -23,10 +27,6 @@
                         </div>
                     </div>
                 </div>
-                <button @click="openAddDialog" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                    Add Team
-                </button>
                 <button @click="openSyncDialog" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
                     Sync from API
@@ -79,7 +79,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Loading/Error/Empty/Table states -->
         <div v-if="loading" class="bg-neutral-800 rounded-lg p-12 flex justify-center items-center">
             <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
@@ -258,7 +258,7 @@ let imageProgressPollInterval = null;
 const notification = ref({ show: false, message: '', type: 'success' });
 
 const pagination = ref({ current: 1, lastPage: 1, perPage: 10, total: 0, from: 0, to: 0 });
-const filters = ref({ search: '', page: 1 });
+const filters = ref({ search: '', searchField: 'name', sortBy: 'name', sortOrder: 'asc', page: 1 });
 const showSearchDropdown = ref(false);
 const searchInput = ref(null);
 
@@ -269,14 +269,15 @@ const loadTeams = async () => {
         const apiFilters = {
             limit: pagination.value.perPage.toString(),
             offset: ((filters.value.page - 1) * pagination.value.perPage).toString(),
-            search: filters.value.search
+            search: filters.value.search,
+            searchField: filters.value.searchField
         };
 
         const response = await oddsClient.teams.get(apiFilters);
-        
+
         if (response && response.data) {
             teams.value = response.data;
-            
+
             const paginationData = response.pagination || {};
             const totalCount = response.count || 0;
             const currentOffset = paginationData.offset || 0;
