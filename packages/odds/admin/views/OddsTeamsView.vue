@@ -31,6 +31,29 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
                     Sync from API
                 </button>
+                <button
+                    @click="processAllImages"
+                    class="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium rounded-md transition-colors flex items-center"
+                    :disabled="processingAllImages"
+                >
+                    <svg v-if="!processingAllImages" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <svg v-else class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    {{ processingAllImages ? 'Processing...' : 'Process All Images' }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Image Processing Progress Bar -->
+        <div v-if="processingAllImages && imageProgress.total > 0" class="bg-neutral-800 rounded-lg p-4 space-y-2">
+            <div class="flex justify-between text-sm font-medium text-neutral-300">
+                <span>Processing Team Logos...</span>
+                <span>{{ imageProgress.processed }} / {{ imageProgress.total }}</span>
+            </div>
+            <div class="w-full bg-neutral-700 rounded-full h-2.5">
+                <div class="bg-teal-600 h-2.5 rounded-full" :style="{ width: `${(imageProgress.processed / imageProgress.total) * 100}%` }"></div>
+            </div>
+            <div v-if="imageProgress.failed > 0" class="text-xs text-red-400">
+                {{ imageProgress.failed }} images failed to process.
             </div>
         </div>
 
@@ -85,7 +108,20 @@
                     </thead>
                     <tbody class="bg-neutral-800 divide-y divide-neutral-700">
                         <tr v-for="team in teams" :key="team.id">
-                            <td class="px-6 py-4"><img v-if="team.logo" :src="team.logo" class="w-8 h-8 object-contain rounded border border-neutral-600"></td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center space-x-2">
+                                    <img v-if="team.processedImageUrl || team.logo" :src="team.processedImageUrl || team.logo" class="w-8 h-8 object-contain rounded border border-neutral-600">
+                                    <div v-else class="w-8 h-8 bg-neutral-700 rounded"></div>
+                                    <button
+                                        v-if="team.logo && !team.imageProcessed"
+                                        @click="processImage(team)"
+                                        title="Process image"
+                                        class="text-teal-400 hover:text-teal-300 transition-colors"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                    </button>
+                                </div>
+                            </td>
                             <td class="px-6 py-4 text-white">{{ team.name }}</td>
                             <td class="px-6 py-4 text-neutral-300">{{ team.code }}</td>
                             <td class="px-6 py-4 text-neutral-300">{{ countriesMap[team.country_id]?.name || 'N/A' }}</td>
@@ -126,6 +162,15 @@
                         <input v-model.number="teamForm.founded" type="number" placeholder="Founded Year" class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white">
                         <input v-model="teamForm.logo" placeholder="Logo URL" class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white">
                         <div class="flex items-center"><input v-model="teamForm.national" type="checkbox" class="h-4 w-4"><label class="ml-2 text-white">National Team</label></div>
+                        <div v-if="teamForm.processedImageUrl" class="mt-2">
+                            <label class="block text-sm font-medium text-neutral-400 mb-1">Processed Image URL</label>
+                            <input
+                                :value="teamForm.processedImageUrl"
+                                type="text"
+                                class="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-md text-neutral-400 cursor-not-allowed"
+                                readonly
+                            />
+                        </div>
                         <div class="flex justify-end space-x-3">
                             <button type="button" @click="closeDialog" class="px-4 py-2 bg-neutral-700 text-white rounded-md">Cancel</button>
                             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md" :disabled="formLoading">{{ formLoading ? 'Saving...' : 'Save' }}</button>
@@ -171,7 +216,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, nextTick } from 'vue';
+import { ref, onMounted, computed, watch, nextTick, onBeforeUnmount } from 'vue';
 import { useOddsClient } from '../client';
 import Pagination from '@cmmv/blog/admin/components/Pagination.vue';
 import DeleteDialog from '@cmmv/blog/admin/components/DeleteDialog.vue';
@@ -205,6 +250,10 @@ const syncForm = ref({
 });
 const syncProgress = ref(null);
 let progressInterval = null;
+
+const processingAllImages = ref(false);
+const imageProgress = ref({ total: 0, processed: 0, failed: 0, status: 'idle' });
+let imageProgressPollInterval = null;
 
 const notification = ref({ show: false, message: '', type: 'success' });
 
@@ -278,7 +327,7 @@ watch(filters, loadTeams, { deep: true });
 
 const openAddDialog = () => {
     isEditing.value = false;
-    teamForm.value = { name: '', code: '', country_id: '', founded: null, national: false, logo: '', venue_id: '' };
+    teamForm.value = { name: '', code: '', country_id: '', founded: null, national: false, logo: '', venue_id: '', imageProcessed: false, processedImageUrl: '' };
     showDialog.value = true;
 };
 
@@ -375,6 +424,56 @@ const trackSyncProgress = (syncId) => {
     }, 2000);
 };
 
+const processImage = async (team) => {
+    try {
+        const result = await oddsClient.teams.processImage(team.id);
+        if (result && result.success) {
+            showNotification('success', `Image processed for ${team.name}`);
+            refreshData();
+        } else {
+            showNotification('error', result.message || 'Failed to process image');
+        }
+    } catch (err) {
+        showNotification('error', err.message || 'An unexpected error occurred');
+    }
+};
+
+const processAllImages = async () => {
+    processingAllImages.value = true;
+    imageProgress.value = { total: 0, processed: 0, failed: 0, status: 'starting' };
+    showNotification('info', 'Starting batch processing of all team logos...', 5000);
+
+    try {
+        const { jobId } = await oddsClient.teams.startProcessAllImages();
+        if (!jobId) throw new Error("Failed to start processing job.");
+
+        imageProgressPollInterval = setInterval(async () => {
+            try {
+                const status = await oddsClient.teams.getProcessAllImagesStatus(jobId);
+                if (status) {
+                    imageProgress.value = { ...status };
+                    if (status.status === 'completed' || status.status === 'error') {
+                        clearInterval(imageProgressPollInterval);
+                        processingAllImages.value = false;
+                        const message = status.status === 'completed'
+                            ? `Processing complete! ${status.processed} images processed, ${status.failed} failed.`
+                            : 'An error occurred during image processing.';
+                        showNotification(status.status === 'completed' ? 'success' : 'error', message, 5000);
+                        refreshData();
+                    }
+                }
+            } catch (err) {
+                clearInterval(imageProgressPollInterval);
+                processingAllImages.value = false;
+                showNotification('error', 'Failed to get image processing status.');
+            }
+        }, 2000);
+    } catch (err) {
+        showNotification('error', err.message || 'Failed to start image processing job');
+        processingAllImages.value = false;
+    }
+};
+
 const showNotification = (type, message) => {
     notification.value = { show: true, type, message };
     setTimeout(() => notification.value.show = false, 3000);
@@ -384,6 +483,11 @@ const toggleSearchDropdown = () => {
     showSearchDropdown.value = !showSearchDropdown.value;
     if (showSearchDropdown.value) nextTick(() => searchInput.value?.focus());
 };
+
+onBeforeUnmount(() => {
+    if (progressInterval) clearInterval(progressInterval);
+    if(imageProgressPollInterval) clearInterval(imageProgressPollInterval);
+});
 
 onMounted(loadInitialData);
 </script>

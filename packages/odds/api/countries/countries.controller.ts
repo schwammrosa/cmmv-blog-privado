@@ -15,12 +15,27 @@ import {
 
 @Controller("odds/countries")
 export class OddsCountriesController {
-    constructor(private oddsCountriesService: OddsSyncCountriesService){}
+    constructor(private readonly syncService: OddsSyncCountriesService) {}
+
+    @Get()
+    @Auth("oddscountries:get")
+    async getCountries(@Queries() queries: any) {
+        return this.syncService.getCountries(queries);
+    }
 
     @Post("sync")
     @Auth("oddscountries:update")
-    async syncCountries(@Body() body: { settingId: string; endpoint: string }) {
-        const { settingId, endpoint } = body;
-        return await this.oddsCountriesService.syncCountriesFromAPI(settingId, endpoint);
+    async syncFromAPI(@Body() body: { settingId: string; endpoint: string }) {
+        return this.syncService.syncCountriesFromAPI(body.settingId, body.endpoint);
+    }
+
+    @Post(":id/process-flag")
+    async processFlag(@Param("id") id: string) {
+        return this.syncService.processCountryFlag(id);
+    }
+
+    @Post("process-all-flags")
+    async processAllFlags() {
+        return this.syncService.processAllFlags();
     }
 }

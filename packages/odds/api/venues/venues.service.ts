@@ -1,8 +1,12 @@
 import { Service } from "@cmmv/core";
-import { Repository } from "@cmmv/repository";
+import { Repository, Not, IsNull } from "@cmmv/repository";
 import { Buffer } from 'buffer';
 import { OddsVenuesContract } from "../../contracts/odds-venues.contract";
 import { Logger } from "@cmmv/core";
+//@ts-ignore
+import { MediasService } from "@cmmv/blog";
+import { randomUUID } from "crypto";
+const sharp = require('sharp');
 
 // Interface para o progresso da sincronização
 export interface SyncProgress {
@@ -16,13 +20,25 @@ export interface SyncProgress {
     percentage: number;
 }
 
+// Interface para o progresso do processamento de imagens
+export interface ImageJobStatus {
+    total: number;
+    processed: number;
+    failed: number;
+    status: 'running' | 'completed' | 'error';
+    errors: Array<{ id: string, error: string }>;
+}
+
 @Service()
 export class OddsSyncVenuesService {
     private readonly logger = new Logger("OddsSyncVenuesService");
     
     // Armazenamento do progresso da sincronização
     private syncProgressStore: Record<string, SyncProgress> = {};
+    private imageJobs = new Map<string, ImageJobStatus>();
     
+    constructor(private readonly mediasService: MediasService) {}
+
     /**
      * Inicia a sincronização de venues de todos os países e retorna um ID para acompanhar o progresso
      * @param settingId ID da configuração da API
@@ -351,7 +367,9 @@ export class OddsSyncVenuesService {
                         capacity: venueData.capacity,
                         surface: venueData.surface,
                         image: venueData.image,
-                        country_id: countryId
+                        country_id: countryId,
+                        imageProcessed: false,
+                        processedImageUrl: undefined
                     };
 
                     // Verificar se o venue já existe
@@ -359,6 +377,10 @@ export class OddsSyncVenuesService {
                     
                     if (existingVenue) {
                         this.logger.log(`Atualizando venue existente: ${existingVenue.id}`);
+                        if(existingVenue.image === venueData.image) {
+                            venuePayload.imageProcessed = existingVenue.imageProcessed;
+                            venuePayload.processedImageUrl = existingVenue.processedImageUrl;
+                        }
                         await Repository.update(OddsVenuesEntity, existingVenue.id, venuePayload);
                         updatedCount++;
                     } else {
@@ -382,6 +404,107 @@ export class OddsSyncVenuesService {
         } catch (error) {
             this.logger.error(`Erro geral na sincronização: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
+        }
+    }
+
+    async processVenueImage(venueId: string) {
+        try {
+            const OddsVenuesEntity = Repository.getEntity("OddsVenuesEntity");
+            const venue = await Repository.findOne(OddsVenuesEntity, { id: venueId });
+
+            if (!venue) throw new Error("Venue not found");
+            if (!venue.image) throw new Error("Venue has no image URL to process");
+            
+            const response = await fetch(venue.image);
+            if (!response.ok) throw new Error(`Failed to download image from ${venue.image}. Status: ${response.status}`);
+
+            let imageBuffer = Buffer.from(await response.arrayBuffer());
+            const isSvg = (response.headers.get('content-type') || '').includes('svg') || venue.image.endsWith('.svg');
+            
+            if (isSvg) {
+                imageBuffer = await sharp(imageBuffer).webp().toBuffer();
+            }
+
+            const dataUrl = `data:image/webp;base64,${imageBuffer.toString('base64')}`;
+
+            const processedUrl = await this.mediasService.getImageUrl(dataUrl, "webp", 400, 300, 80, venue.name);
+
+            if (!processedUrl) throw new Error("Failed to process image with MediasService");
+
+            await Repository.updateOne(OddsVenuesEntity, { id: venueId }, {
+                imageProcessed: true,
+                processedImageUrl: processedUrl,
+            });
+
+            return { success: true, message: "Image processed and updated successfully", url: processedUrl };
+
+        } catch (error: any) {
+            this.logger.error(`Error processing venue image for ID ${venueId}:`, error.message);
+            return { success: false, message: error.message };
+        }
+    }
+
+    async startProcessAllImages(): Promise<{ jobId: string }> {
+        const OddsVenuesEntity = Repository.getEntity("OddsVenuesEntity");
+        const allUnprocessed = await Repository.findAll(OddsVenuesEntity, {
+            image: Not(IsNull()),
+            imageProcessed: false,
+            limit: 100000
+        });
+        
+        const total = allUnprocessed?.data?.length || 0;
+
+        const jobId = randomUUID();
+        this.imageJobs.set(jobId, {
+            total,
+            processed: 0,
+            failed: 0,
+            status: 'running',
+            errors: []
+        });
+
+        this._executeImageProcessingJob(jobId);
+
+        return { jobId };
+    }
+
+    getProcessAllImagesStatus(jobId: string): ImageJobStatus | { status: 'not_found' } {
+        const job = this.imageJobs.get(jobId);
+        return job || { status: 'not_found' };
+    }
+
+    private async _executeImageProcessingJob(jobId: string) {
+        const BATCH_SIZE = 20;
+        const OddsVenuesEntity = Repository.getEntity("OddsVenuesEntity");
+        const jobState = this.imageJobs.get(jobId);
+
+        if (!jobState) return;
+
+        try {
+            while (jobState.processed + jobState.failed < jobState.total) {
+                const venuesToProcess = await Repository.findAll(OddsVenuesEntity, {
+                    image: Not(IsNull()),
+                    imageProcessed: false,
+                    limit: BATCH_SIZE
+                });
+
+                if (!venuesToProcess?.data || venuesToProcess.data.length === 0) {
+                    break;
+                }
+
+                for (const venue of venuesToProcess.data) {
+                    try {
+                        await this.processVenueImage(venue.id);
+                        jobState.processed++;
+                    } catch (error: any) {
+                        jobState.failed++;
+                        jobState.errors.push({ id: venue.id, error: error.message });
+                    }
+                }
+            }
+            jobState.status = 'completed';
+        } catch (error: any) {
+            jobState.status = 'error';
         }
     }
 } 
