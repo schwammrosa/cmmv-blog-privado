@@ -1,4 +1,5 @@
 import * as urlParser from "node:url";
+import { Worker } from "node:worker_threads";
 
 import {
     Service, Logger
@@ -224,7 +225,7 @@ ${truncatedHtml}
             const textResponse = await this.aiContentService.generateContent(promptString);
 
             if (!textResponse) throw new Error("AI response is empty");
-            const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+            const jsonMatch = await this.runRegexWithTimeout(textResponse, "\\{[\\s\\S]*\\}");
 
             if (!jsonMatch)
                 throw new Error("No JSON found in AI response");
@@ -461,11 +462,12 @@ ${truncatedHtml}
             if (parser.title) {
                 try {
                     this.logger.log(`[ParserService] Executando regex de título para parser ${parser.id}`);
-                    const titleRegex = new RegExp(parser.title, 'i');
-                    const titleMatch = html.match(titleRegex);
+                    const titleMatch = await this.runRegexWithTimeout(html, parser.title);
 
-                    if (titleMatch && titleMatch[1]) {
-                        result.title = titleMatch[1].trim();
+                    if (titleMatch) {
+                        // Extract first capture group if it exists, otherwise use full match
+                        const extractedTitle = titleMatch[1] ? titleMatch[1].trim() : titleMatch[0].trim();
+                        result.title = extractedTitle;
                         confidenceScore += 25;
                     }
                 } catch (error) {
@@ -477,10 +479,9 @@ ${truncatedHtml}
             if (parser.content) {
                 try {
                     this.logger.log(`[ParserService] Executando regex de conteúdo para parser ${parser.id}`);
-                    const contentRegex = new RegExp(parser.content, 'igs');
-                    const contentMatch = html.match(contentRegex);
-                    
-                    if (contentMatch && contentMatch[0]) {
+                    const contentMatch = await this.runRegexWithTimeout(html, parser.content);
+
+                    if (contentMatch) {
                         result.content = contentMatch[0].trim();
                         confidenceScore += 25;
                     }
@@ -493,11 +494,12 @@ ${truncatedHtml}
             if (parser.category) {
                 try {
                     this.logger.log(`[ParserService] Executando regex de categoria para parser ${parser.id}`);
-                    const categoryRegex = new RegExp(parser.category, 'i');
-                    const categoryMatch = html.match(categoryRegex);
+                    const categoryMatch = await this.runRegexWithTimeout(html, parser.category);
 
-                    if (categoryMatch && categoryMatch[1]) {
-                        result.category = categoryMatch[1].trim();
+                    if (categoryMatch) {
+                        // Extract first capture group if it exists, otherwise use full match
+                        const extractedCategory = categoryMatch[1] ? categoryMatch[1].trim() : categoryMatch[0].trim();
+                        result.category = extractedCategory;
                         confidenceScore += 20;
                     }
                 } catch (error) {
@@ -509,11 +511,12 @@ ${truncatedHtml}
             if (parser.featureImage) {
                 try {
                     this.logger.log(`[ParserService] Executando regex de imagem destacada para parser ${parser.id}`);
-                    const featureImageRegex = new RegExp(parser.featureImage, 'i');
-                    const featureImageMatch = html.match(featureImageRegex);
-                    
-                    if (featureImageMatch && featureImageMatch[1]) {
-                        result.featureImage = this.resolveUrl(featureImageMatch[1], url);
+                    const featureImageMatch = await this.runRegexWithTimeout(html, parser.featureImage);
+
+                    if (featureImageMatch) {
+                        // Extract first capture group if it exists, otherwise use full match
+                        const extractedImage = featureImageMatch[1] ? featureImageMatch[1] : featureImageMatch[0];
+                        result.featureImage = this.resolveUrl(extractedImage, url);
                         confidenceScore += 20;
                     }
                 } catch (error) {
@@ -525,11 +528,12 @@ ${truncatedHtml}
             if (parser.tags) {
                 try {
                     this.logger.log(`[ParserService] Executando regex de tags para parser ${parser.id}`);
-                    const tagsRegex = new RegExp(parser.tags, 'i');
-                    const tagsMatch = html.match(tagsRegex);
+                    const tagsMatch = await this.runRegexWithTimeout(html, parser.tags);
 
-                    if (tagsMatch && tagsMatch[1]) {
-                        result.tags = tagsMatch[1].trim();
+                    if (tagsMatch) {
+                        // Extract first capture group if it exists, otherwise use full match
+                        const extractedTags = tagsMatch[1] ? tagsMatch[1].trim() : tagsMatch[0].trim();
+                        result.tags = extractedTags;
                         confidenceScore += 10;
                     }
                 } catch (error) {
@@ -538,11 +542,11 @@ ${truncatedHtml}
             }
 
             // Data de publicação (padrão)
-            const pubDateRegex = /<meta\s+property=["']article:published_time["']\s+content=["']([^"']+)["']/i;
-            const pubDateMatch = html.match(pubDateRegex);
-            if (pubDateMatch && pubDateMatch[1]) {
+            const pubDateMatch = await this.runRegexWithTimeout(html, '<meta\\s+property=["\\\'"]article:published_time["\\\'"]\\s+content=["\\\'"]([^"\\\']+)["\\\'"]');
+            if (pubDateMatch) {
                 try {
-                    result.pubDate = new Date(pubDateMatch[1]);
+                    const dateString = pubDateMatch[1] ? pubDateMatch[1] : pubDateMatch[0];
+                    result.pubDate = new Date(dateString);
                     confidenceScore += 10;
                 } catch (e) {
                     result.pubDate = new Date();
@@ -625,7 +629,7 @@ ${truncatedHtml}
     private buildRefinePrompt(html: string, parser: any): { prompt: string, unlockedFields: string[] } {
         const truncatedHtml = html.length > 30000 ? html.substring(0, 30000) + "..." : html;
         const unlockedFields = Object.keys(parser).filter(key => parser[key] && !parser[key].locked);
-        
+
         let prompt = `
 You are an expert in HTML parsing and creating precise regular expressions.
 Your task is to refine an existing set of regex patterns to better extract structured content from a web page.
@@ -671,7 +675,7 @@ ${truncatedHtml}
         const textResponse = await this.aiContentService.generateContent(prompt);
 
         if (!textResponse) throw new Error("AI response is empty");
-        const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+        const jsonMatch = await this.runRegexWithTimeout(textResponse, "\\{[\\s\\S]*\\}");
 
         if (!jsonMatch) {
             throw new Error("No JSON found in AI response");
@@ -808,4 +812,130 @@ ${truncatedHtml}
         const FeedParserEntity = Repository.getEntity("FeedParserEntity");
         return Repository.update(FeedParserEntity, { id }, data);
     }
+
+        runRegexWithTimeout(html: string, regexStr: string, timeout = 2000): Promise<RegExpMatchArray | null> {
+        return new Promise((resolve) => {
+            // Pré-validações para evitar worker desnecessário
+            if (html.length > 1000000) { // 1MB
+                this.logger.log(`HTML too large (${html.length} chars), skipping regex execution`);
+                resolve(null);
+                return;
+            }
+
+            if (regexStr.length > 1000) {
+                this.logger.log(`Regex too complex (${regexStr.length} chars), skipping execution`);
+                resolve(null);
+                return;
+            }
+
+            // Código do worker como string
+            const workerCode = `
+                const { parentPort } = require('worker_threads');
+
+                parentPort.on('message', ({ html, regexStr, flags }) => {
+                    try {
+                        const regex = new RegExp(regexStr, flags);
+                        const match = html.match(regex);
+                        parentPort.postMessage({ success: true, result: match });
+                    } catch (error) {
+                        parentPort.postMessage({ success: false, error: error.message });
+                    }
+                });
+            `;
+
+            let worker;
+            let isResolved = false;
+
+            try {
+                // Criar worker com código inline
+                worker = new Worker(workerCode, { eval: true });
+            } catch (error) {
+                this.logger.error(`Failed to create worker: ${error instanceof Error ? error.message : String(error)}`);
+                resolve(null);
+                return;
+            }
+
+            // Timeout handler
+            const timeoutId = setTimeout(() => {
+                if (!isResolved) {
+                    isResolved = true;
+                    try {
+                        worker?.terminate();
+                    } catch (e) {
+                        // Ignore termination errors
+                    }
+                    this.logger.log(`Regex execution timed out after ${timeout}ms`);
+                    resolve(null);
+                }
+            }, timeout);
+
+            // Worker message handler
+            worker.on('message', (data) => {
+                if (!isResolved) {
+                    isResolved = true;
+                    clearTimeout(timeoutId);
+                    try {
+                        worker.terminate();
+                    } catch (e) {
+                        // Ignore termination errors
+                    }
+
+                    if (data.success) {
+                        resolve(data.result);
+                    } else {
+                        this.logger.error(`Regex execution error: ${data.error}`);
+                        resolve(null);
+                    }
+                }
+            });
+
+            // Worker error handler
+            worker.on('error', (error) => {
+                if (!isResolved) {
+                    isResolved = true;
+                    clearTimeout(timeoutId);
+                    try {
+                        worker.terminate();
+                    } catch (e) {
+                        // Ignore termination errors
+                    }
+                    this.logger.error(`Worker error: ${error.message}`);
+                    resolve(null);
+                }
+            });
+
+            // Worker exit handler (caso o worker termine inesperadamente)
+            worker.on('exit', (code) => {
+                if (!isResolved && code !== 0) {
+                    isResolved = true;
+                    clearTimeout(timeoutId);
+                    this.logger.error(`Worker exited with code: ${code}`);
+                    resolve(null);
+                }
+            });
+
+            // Send task to worker
+            try {
+                worker.postMessage({
+                    html,
+                    regexStr,
+                    flags: 'igs'
+                });
+            } catch (error) {
+                if (!isResolved) {
+                    isResolved = true;
+                    clearTimeout(timeoutId);
+                    try {
+                        worker.terminate();
+                    } catch (e) {
+                        // Ignore termination errors
+                    }
+                    this.logger.error(`Failed to send message to worker: ${error instanceof Error ? error.message : String(error)}`);
+                    resolve(null);
+                }
+            }
+        });
+    }
+
+
 }
