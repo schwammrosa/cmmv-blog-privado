@@ -336,7 +336,7 @@
                             </div>
                             <div>
                                 <label for="apiEndpoint" class="block text-sm font-medium text-neutral-300 mb-1">API Endpoint</label>
-                                <input id="apiEndpoint" v-model="syncForm.endpoint" type="text" class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="/leagues" required />
+                                <input id="apiEndpoint" v-model="syncForm.endpoint" type="text" class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white font-mono focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="/leagues?current=true" required />
                             </div>
                         </div>
                         <div class="flex justify-end space-x-3 mt-6">
@@ -387,7 +387,7 @@ const syncLoading = ref(false);
 const apiSettings = ref([]);
 const syncForm = ref({
     settingId: '',
-    endpoint: '/leagues'
+    endpoint: '/leagues?current=true'
 });
 
 const notification = ref({ show: false, type: 'success', message: '', duration: 3000 });
@@ -557,7 +557,7 @@ const openAddDialog = () => {
 const openEditDialog = (league) => {
     isEditing.value = true;
     leagueToEdit.value = league;
-    leagueForm.value = { 
+    leagueForm.value = {
         ...league,
         start_date: formatDateForInput(league.start_date),
         end_date: formatDateForInput(league.end_date),
@@ -677,7 +677,7 @@ const processAllLogos = async () => {
 
     try {
         const { jobId } = await oddsClient.leagues.startProcessAllLogos();
-        
+
         if (!jobId) {
             throw new Error("Failed to start processing job.");
         }
@@ -729,4 +729,4 @@ onUnmounted(() => {
         clearInterval(progressPollInterval);
     }
 });
-</script> 
+</script>
