@@ -25,6 +25,12 @@ export class OddsSyncLeaguesService {
     private jobs = new Map<string, JobStatus>();
     constructor(private readonly mediasService: MediasService) {}
 
+    /**
+     * Sync leagues from API
+     * @param settingId The ID of the setting
+     * @param endpoint The endpoint to sync leagues from
+     * @returns The synchronization result
+     */
     async syncLeaguesFromAPI(settingId: string, endpoint: string) {
         const OddsSettingsEntity = Repository.getEntity("OddsSettingsEntity");
         const OddsCountriesEntity = Repository.getEntity("OddsCountriesEntity");
@@ -47,7 +53,7 @@ export class OddsSyncLeaguesService {
             const token = Buffer.from(`${setting.username}:${setting.password}`).toString('base64');
             headers['Authorization'] = `Basic ${token}`;
         }
-        
+
         const response = await fetch(url, { headers });
         if (!response.ok) {
             const errorBody = await response.text();
@@ -71,7 +77,7 @@ export class OddsSyncLeaguesService {
             }
 
             const season = seasons[0];
-            
+
             let countryEntity = null;
             if (country && country.code) {
                 countryEntity = await Repository.findOne(OddsCountriesEntity, { code: country.code });
@@ -116,6 +122,11 @@ export class OddsSyncLeaguesService {
         };
     }
 
+    /**
+     * Process a league logo
+     * @param leagueId The ID of the league
+     * @returns The processing result
+     */
     async processLeagueLogo(leagueId: string) {
         try {
             const OddsLeaguesEntity = Repository.getEntity("OddsLeaguesEntity");
@@ -135,7 +146,7 @@ export class OddsSyncLeaguesService {
             }
 
             let imageBuffer = Buffer.from(await response.arrayBuffer());
-            let contentType = 'image/webp'; 
+            let contentType = 'image/webp';
 
             const isSvg = (response.headers.get('content-type') || '').includes('svg') || league.logo.endsWith('.svg');
             if (isSvg) {
@@ -178,6 +189,10 @@ export class OddsSyncLeaguesService {
         }
     }
 
+    /**
+     * Start the process of all logos
+     * @returns The job ID
+     */
     async startProcessAllLogos(): Promise<{ jobId: string }> {
         const OddsLeaguesEntity = Repository.getEntity("OddsLeaguesEntity");
         const allUnprocessed = await Repository.findAll(OddsLeaguesEntity, {
@@ -185,7 +200,7 @@ export class OddsSyncLeaguesService {
             logoProcessed: false,
             limit: 10000
         });
-        
+
         const total = allUnprocessed?.data?.length || 0;
 
         const jobId = randomUUID();
@@ -203,6 +218,11 @@ export class OddsSyncLeaguesService {
         return { jobId };
     }
 
+    /**
+     * Get the status of the process of all logos
+     * @param jobId The ID of the job
+     * @returns The job status
+     */
     getProcessAllLogosStatus(jobId: string): JobStatus | { status: 'not_found' } {
         const job = this.jobs.get(jobId);
         if (!job) {
@@ -211,6 +231,10 @@ export class OddsSyncLeaguesService {
         return job;
     }
 
+    /**
+     * Execute the logo processing job
+     * @param jobId The ID of the job
+     */
     private async _executeLogoProcessingJob(jobId: string) {
         const BATCH_SIZE = 20;
         const OddsLeaguesEntity = Repository.getEntity("OddsLeaguesEntity");
@@ -247,9 +271,14 @@ export class OddsSyncLeaguesService {
         }
     }
 
+    /**
+     * Get leagues
+     * @param queries The queries to filter the leagues
+     * @returns The leagues
+     */
     async getLeagues(queries: any) {
         const OddsLeaguesEntity = Repository.getEntity("OddsLeaguesEntity");
         const leagues = await Repository.findAll(OddsLeaguesEntity, queries);
         return leagues;
     }
-} 
+}

@@ -32,7 +32,6 @@ export class BackupService {
         await this.clearOldBackups.call(this);
         await this.clearOldSQLiteBackups.call(this);
     }
-    /** */
 
     /**
      * Backup the database

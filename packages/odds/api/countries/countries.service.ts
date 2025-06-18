@@ -42,7 +42,6 @@ export class OddsSyncCountriesService {
         const url = `${setting.baseUrl.replace(/\/$/, '')}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
         const headers: Record<string, string> = {};
 
-        // Build authentication and custom headers
         if (setting.authType === 'API Key' || setting.authType === 'Bearer Token') {
             const customHeaders = JSON.parse(setting.headers || '{}');
             for (const key in customHeaders) {
@@ -79,9 +78,8 @@ export class OddsSyncCountriesService {
         let updatedCount = 0;
 
         for (const country of countriesFromAPI) {
-            if (!country.name || !country.code) {
-                continue; // Skip entries without name or code
-            }
+            if (!country.name || !country.code)
+                continue;
 
             let localFlagUrl = null;
             if (country.flag && country.flag.startsWith('http')) {
@@ -99,7 +97,6 @@ export class OddsSyncCountriesService {
             };
 
             if (existingCountry) {
-                // Only update flag if it changed
                 if (existingCountry.flag !== localFlagUrl) {
                     countryData.flagProcessed = false;
                     countryData.processedFlagUrl = null;
@@ -107,7 +104,7 @@ export class OddsSyncCountriesService {
                     countryData.flagProcessed = existingCountry.flagProcessed;
                     countryData.processedFlagUrl = existingCountry.processedFlagUrl;
                 }
-                
+
                 await Repository.update(OddsCountriesEntity, existingCountry.id, countryData);
                 updatedCount++;
             } else {
@@ -134,35 +131,30 @@ export class OddsSyncCountriesService {
             const OddsCountriesEntity = Repository.getEntity("OddsCountriesEntity");
             const country = await Repository.findOne(OddsCountriesEntity, { id: countryId });
 
-            if (!country) {
+            if (!country)
                 throw new Error("Country not found");
-            }
 
-            if (!country.flag) {
+
+            if (!country.flag)
                 throw new Error("Country has no flag URL to process");
-            }
 
-            // Etapa 1: Fazer o download da imagem
             const response = await fetch(country.flag);
             if (!response.ok) {
                 throw new Error(`Failed to download image from ${country.flag}. Status: ${response.status}`);
             }
 
             let imageBuffer = Buffer.from(await response.arrayBuffer());
-            let contentType = 'image/webp'; // O formato de destino será sempre webp
-
-            // Etapa 2: Se a imagem for SVG, converte para WEBP antes de continuar
+            let contentType = 'image/webp';
             const isSvg = (response.headers.get('content-type') || '').includes('svg') || country.flag.endsWith('.svg');
+
             if (isSvg) {
                 const webpBuffer = await sharp(imageBuffer).webp().toBuffer();
                 imageBuffer = Buffer.from(webpBuffer);
             }
 
-            // Etapa 3: Criar a Data URL com o buffer (potencialmente convertido)
             const base64 = imageBuffer.toString('base64');
             const dataUrl = `data:${contentType};base64,${base64}`;
 
-            // Etapa 4: Enviar para o MediasService, que agora recebe um formato padrão
             const processedUrl = await this.mediasService.getImageUrl(
                 dataUrl,
                 "webp",
@@ -172,11 +164,9 @@ export class OddsSyncCountriesService {
                 country.name
             );
 
-            if (!processedUrl) {
+            if (!processedUrl)
                 throw new Error("Failed to process image with MediasService");
-            }
 
-            // Etapa 5: Atualizar o registro do país com a URL da imagem processada
             console.log(`[DEBUG] Attempting to update country. ID: ${countryId}`);
             console.log(`[DEBUG] New processedFlagUrl: ${processedUrl}`);
 
@@ -222,7 +212,7 @@ export class OddsSyncCountriesService {
      */
     async processAllFlags() {
         const OddsCountriesEntity = Repository.getEntity("OddsCountriesEntity");
-        
+
         const query = {
             flag: Not(IsNull()),
             flagProcessed: false,
@@ -266,6 +256,11 @@ export class OddsSyncCountriesService {
         };
     }
 
+    /**
+     * Get countries
+     * @param queries The queries to filter the countries
+     * @returns The countries
+     */
     async getCountries(queries: any) {
         const OddsCountriesEntity = Repository.getEntity("OddsCountriesEntity");
         const countries = await Repository.findAll(OddsCountriesEntity, queries);
