@@ -31,6 +31,19 @@ export class OddsLeaguesContract extends AbstractContract {
     @ContractField({ protoType: 'string', nullable: true })
     logo?: string;
 
+    @ContractField({
+        protoType: 'boolean',
+        nullable: false,
+        defaultValue: false
+    })
+    logoProcessed!: boolean;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true,
+    })
+    processedLogoUrl?: string;
+
     @ContractField({ protoType: 'boolean', defaultValue: false })
     odds!: boolean;
 

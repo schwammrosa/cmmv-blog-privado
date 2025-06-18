@@ -70,6 +70,15 @@ export const useOddsClient = () => {
         },
         sync: async (settingId: string, endpoint: string) => {
             return api.authRequest("odds/leagues/sync", "POST", { settingId, endpoint });
+        },
+        processLogo: async (id: string) => {
+            return api.authRequest(`odds/leagues/${id}/process-logo`, "POST");
+        },
+        startProcessAllLogos: async () => {
+            return api.authRequest("odds/leagues/process-all-logos/start", "POST");
+        },
+        getProcessAllLogosStatus: async (jobId: string) => {
+            return api.authRequest(`odds/leagues/process-all-logos/progress/${jobId}`, "GET");
         }
     }
 
