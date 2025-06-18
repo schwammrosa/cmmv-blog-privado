@@ -1,8 +1,12 @@
 import { Service } from "@cmmv/core";
-import { Repository } from "@cmmv/repository";
+import { Repository, Not, IsNull } from "@cmmv/repository";
 import { Buffer } from 'buffer';
 import { OddsTeamsContract } from "../../contracts/odds-teams.contract";
 import { Logger } from "@cmmv/core";
+//@ts-ignore
+import { MediasService } from "@cmmv/blog";
+import { randomUUID } from "crypto";
+const sharp = require('sharp');
 
 // Interface para o progresso da sincronização
 export interface SyncProgress {
@@ -16,13 +20,25 @@ export interface SyncProgress {
     percentage: number;
 }
 
+// Interface para o progresso do processamento de imagens
+export interface ImageJobStatus {
+    total: number;
+    processed: number;
+    failed: number;
+    status: 'running' | 'completed' | 'error';
+    errors: Array<{ id: string, error: string }>;
+}
+
 @Service()
 export class OddsSyncTeamsService {
     private readonly logger = new Logger("OddsSyncTeamsService");
     
     // Armazenamento do progresso da sincronização
     private syncProgressStore: Record<string, SyncProgress> = {};
+    private imageJobs = new Map<string, ImageJobStatus>();
     
+    constructor(private readonly mediasService: MediasService) {}
+
     /**
      * Inicia a sincronização de times e retorna um ID para acompanhar o progresso
      * @param settingId ID da configuração da API
@@ -272,6 +288,13 @@ export class OddsSyncTeamsService {
                     
                     if (existingTeam) {
                         this.logger.log(`Atualizando time existente: ${existingTeam.id}`);
+                        if(existingTeam.logo === team.logo) {
+                            teamPayload.imageProcessed = existingTeam.imageProcessed;
+                            teamPayload.processedImageUrl = existingTeam.processedImageUrl;
+                        } else {
+                            teamPayload.imageProcessed = false;
+                            teamPayload.processedImageUrl = undefined;
+                        }
                         await Repository.update(OddsTeamsEntity, existingTeam.id, teamPayload);
                         updatedCount++;
                         
@@ -281,6 +304,8 @@ export class OddsSyncTeamsService {
                         }
                     } else {
                         this.logger.log(`Criando novo time: ${team.name}`);
+                        teamPayload.imageProcessed = false;
+                        teamPayload.processedImageUrl = undefined;
                         await Repository.insert(OddsTeamsEntity, teamPayload);
                         createdCount++;
                         
@@ -305,6 +330,107 @@ export class OddsSyncTeamsService {
         } catch (error) {
             this.logger.error(`Erro geral na sincronização: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
+        }
+    }
+
+    async processTeamImage(teamId: string) {
+        try {
+            const OddsTeamsEntity = Repository.getEntity("OddsTeamsEntity");
+            const team = await Repository.findOne(OddsTeamsEntity, { id: teamId });
+
+            if (!team) throw new Error("Team not found");
+            if (!team.logo) throw new Error("Team has no logo URL to process");
+            
+            const response = await fetch(team.logo);
+            if (!response.ok) throw new Error(`Failed to download image from ${team.logo}. Status: ${response.status}`);
+
+            let imageBuffer = Buffer.from(await response.arrayBuffer());
+            const isSvg = (response.headers.get('content-type') || '').includes('svg') || team.logo.endsWith('.svg');
+            
+            if (isSvg) {
+                imageBuffer = await sharp(imageBuffer).webp().toBuffer();
+            }
+
+            const dataUrl = `data:image/webp;base64,${imageBuffer.toString('base64')}`;
+
+            const processedUrl = await this.mediasService.getImageUrl(dataUrl, "webp", 100, 100, 80, team.name);
+
+            if (!processedUrl) throw new Error("Failed to process image with MediasService");
+
+            await Repository.updateOne(OddsTeamsEntity, { id: teamId }, {
+                imageProcessed: true,
+                processedImageUrl: processedUrl,
+            });
+
+            return { success: true, message: "Image processed and updated successfully", url: processedUrl };
+
+        } catch (error: any) {
+            this.logger.error(`Error processing team image for ID ${teamId}:`, error.message);
+            return { success: false, message: error.message };
+        }
+    }
+
+    async startProcessAllImages(): Promise<{ jobId: string }> {
+        const OddsTeamsEntity = Repository.getEntity("OddsTeamsEntity");
+        const allUnprocessed = await Repository.findAll(OddsTeamsEntity, {
+            logo: Not(IsNull()),
+            imageProcessed: false,
+            limit: 100000
+        });
+        
+        const total = allUnprocessed?.data?.length || 0;
+
+        const jobId = randomUUID();
+        this.imageJobs.set(jobId, {
+            total,
+            processed: 0,
+            failed: 0,
+            status: 'running',
+            errors: []
+        });
+
+        this._executeImageProcessingJob(jobId);
+
+        return { jobId };
+    }
+
+    getProcessAllImagesStatus(jobId: string): ImageJobStatus | { status: 'not_found' } {
+        const job = this.imageJobs.get(jobId);
+        return job || { status: 'not_found' };
+    }
+
+    private async _executeImageProcessingJob(jobId: string) {
+        const BATCH_SIZE = 20;
+        const OddsTeamsEntity = Repository.getEntity("OddsTeamsEntity");
+        const jobState = this.imageJobs.get(jobId);
+
+        if (!jobState) return;
+
+        try {
+            while (jobState.processed + jobState.failed < jobState.total) {
+                const teamsToProcess = await Repository.findAll(OddsTeamsEntity, {
+                    logo: Not(IsNull()),
+                    imageProcessed: false,
+                    limit: BATCH_SIZE
+                });
+
+                if (!teamsToProcess?.data || teamsToProcess.data.length === 0) {
+                    break;
+                }
+
+                for (const team of teamsToProcess.data) {
+                    try {
+                        await this.processTeamImage(team.id);
+                        jobState.processed++;
+                    } catch (error: any) {
+                        jobState.failed++;
+                        jobState.errors.push({ id: team.id, error: error.message });
+                    }
+                }
+            }
+            jobState.status = 'completed';
+        } catch (error: any) {
+            jobState.status = 'error';
         }
     }
 } 

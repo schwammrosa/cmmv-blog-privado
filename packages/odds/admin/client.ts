@@ -168,6 +168,15 @@ export const useOddsClient = () => {
         },
         getSyncProgress: async (syncId: string) => {
             return api.authRequest(`odds/teams/sync-progress/${syncId}`, "GET");
+        },
+        processImage: async (id: string) => {
+            return api.authRequest(`odds/teams/${id}/process-image`, "POST");
+        },
+        startProcessAllImages: async () => {
+            return api.authRequest("odds/teams/process-all-images/start", "POST");
+        },
+        getProcessAllImagesStatus: async (jobId: string) => {
+            return api.authRequest(`odds/teams/process-all-images/progress/${jobId}`, "GET");
         }
     }
 
