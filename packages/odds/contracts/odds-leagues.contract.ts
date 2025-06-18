@@ -22,7 +22,10 @@ export class OddsLeaguesContract extends AbstractContract {
     @ContractField({ protoType: 'number', unique: true, index: true })
     external_id!: number;
 
-    @ContractField({ protoType: 'string', index: true })
+    @ContractField({
+        protoType: 'string',
+        index: true
+    })
     name!: string;
 
     @ContractField({ protoType: 'string' })
@@ -30,6 +33,19 @@ export class OddsLeaguesContract extends AbstractContract {
 
     @ContractField({ protoType: 'string', nullable: true })
     logo?: string;
+
+    @ContractField({
+        protoType: 'boolean',
+        nullable: false,
+        defaultValue: false
+    })
+    logoProcessed!: boolean;
+
+    @ContractField({
+        protoType: 'string',
+        nullable: true,
+    })
+    processedLogoUrl?: string;
 
     @ContractField({ protoType: 'boolean', defaultValue: false })
     odds!: boolean;

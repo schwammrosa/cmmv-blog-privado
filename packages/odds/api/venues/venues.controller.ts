@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query } from "@cmmv/http";
+import { Controller, Post, Body, Get, Query, Param } from "@cmmv/http";
 import { Auth } from "@cmmv/auth";
 import { OddsSyncVenuesService } from './venues.service';
 
@@ -24,5 +24,23 @@ export class OddsVenuesController {
     @Auth("oddsvenues:read")
     getSyncProgress(@Query('syncId') syncId: string) {
         return this.oddsSyncVenuesService.getSyncProgress(syncId);
+    }
+
+    @Post(":id/process-image")
+    @Auth("oddsvenues:update")
+    async processImage(@Param("id") id: string) {
+        return this.oddsSyncVenuesService.processVenueImage(id);
+    }
+
+    @Post("process-all-images/start")
+    @Auth("oddsvenues:update")
+    async startProcessAllImages() {
+        return this.oddsSyncVenuesService.startProcessAllImages();
+    }
+
+    @Get("process-all-images/progress/:jobId")
+    @Auth("oddsvenues:get")
+    async getProcessAllImagesStatus(@Param("jobId") jobId: string) {
+        return this.oddsSyncVenuesService.getProcessAllImagesStatus(jobId);
     }
 } 
