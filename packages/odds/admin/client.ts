@@ -128,6 +128,15 @@ export const useOddsClient = () => {
             const baseUrl = api.getBaseUrl();
             const token = api.getToken();
             return new EventSource(`${baseUrl}/odds/venues/sync-progress-stream/${syncId}?token=${token}`);
+        },
+        processImage: async (id: string) => {
+            return api.authRequest(`odds/venues/${id}/process-image`, "POST");
+        },
+        startProcessAllImages: async () => {
+            return api.authRequest("odds/venues/process-all-images/start", "POST");
+        },
+        getProcessAllImagesStatus: async (jobId: string) => {
+            return api.authRequest(`odds/venues/process-all-images/progress/${jobId}`, "GET");
         }
     }
 
