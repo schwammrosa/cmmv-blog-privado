@@ -24,9 +24,12 @@ export const useOddsClient = () => {
     }
 
     const countries = {
-        get: async (filters: Record<string, string>) => {
+        get: async (filters: Record<string, any>) => {
             const query = new URLSearchParams(filters).toString();
             return api.authRequest(`odds/countries?${query}`, "GET");
+        },
+        getById: async (id: string) => {
+            return api.authRequest(`odds/countries/${id}`, "GET");
         },
         insert: async (data: any) => {
             return api.authRequest("odds/countries", "POST", data);
@@ -39,6 +42,12 @@ export const useOddsClient = () => {
         },
         sync: async (settingId: string, endpoint: string) => {
             return api.authRequest("odds/countries/sync", "POST", { settingId, endpoint });
+        },
+        processFlag: async (id: string) => {
+            return api.authRequest(`odds/countries/${id}/process-flag`, "POST");
+        },
+        processAllFlags: async () => {
+            return api.authRequest("odds/countries/process-all-flags", "POST");
         }
     }
 
@@ -65,9 +74,12 @@ export const useOddsClient = () => {
     }
 
     const settings = {
-        get: async (filters: Record<string, string>) => {
+        get: async (filters: Record<string, any>) => {
             const query = new URLSearchParams(filters).toString();
             return api.authRequest(`odds/settings?${query}`, "GET");
+        },
+        getById: async (id: string) => {
+            return api.authRequest(`odds/settings/${id}`, "GET");
         },
         insert: async (data: any) => {
             return api.authRequest("odds/settings", "POST", data);
