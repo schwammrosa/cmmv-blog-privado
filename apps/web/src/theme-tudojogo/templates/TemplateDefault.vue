@@ -46,11 +46,11 @@ useHead({
      link: computed(() => [
         {
             rel: 'stylesheet',
-            href: '/src/theme-tudojogos/style.css'
+            href: '/src/theme-tudojogo/style.css'
         },
         {
             rel: 'stylesheet',
-            href: '/src/theme-tudojogos/gamer-style.css'
+            href: '/src/theme-tudojogo/gamer-style.css'
         },
         {
             rel: 'stylesheet',
@@ -59,7 +59,7 @@ useHead({
         {
             rel: 'icon',
             type: 'image/ico',
-            href: '/src/theme-tudojogos/assets/favicon.ico?v=2'
+            href: '/src/theme-tudojogo/assets/favicon.ico?v=2'
         },
         { rel: 'preconnect', href: 'https://www.googletagmanager.com/' },
         { rel: 'preconnect', href: 'https://www.google-analytics.com/' },
@@ -68,10 +68,10 @@ useHead({
         { rel: 'preconnect', href: 'https://securepubads.g.doubleclick.net/' },
         { rel: 'preconnect', href: 'https://tpc.googlesyndication.com/' },
         { rel: 'preconnect', href: 'https://www.googletag.com/' },
-        { rel: 'preconnect', href: 'https://static.tudojogos.com.br/' },
+        { rel: 'preconnect', href: 'https://static.tudojogo.com.br/' },
         { rel: 'dns-prefetch', href: 'https://www.googletagmanager.com/' },
         { rel: 'dns-prefetch', href: 'https://securepubads.g.doubleclick.net' },
-        { rel: 'dns-prefetch', href: 'https://static.tudojogos.com.br/' },
+        { rel: 'dns-prefetch', href: 'https://static.tudojogo.com.br/' },
          { rel: 'alternate', href: `${settings.value?.['blog.url']}/feed`, type: 'application/rss+xml', title: settings.value?.['blog.title'] }
      ]),
 

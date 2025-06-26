@@ -5,7 +5,7 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center h-32">
                     <a href="/" class="text-white flex items-center h-full py-2">
-                        <img src="/src/theme-tudojogos/assets/Logo.webp" alt="TudoJogos Logo" class="h-32 max-h-full object-contain">
+                        <img src="/src/theme-tudojogo/assets/Logo.webp" alt="TudoJogo Logo" class="h-32 max-h-full object-contain">
                     </a>
                 </div>
 

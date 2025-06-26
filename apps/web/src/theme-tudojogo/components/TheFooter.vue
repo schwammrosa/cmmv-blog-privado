@@ -4,7 +4,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
                     <h3 class="text-lg font-bold mb-4 relative pb-3">
-                        Sobre o TudoJogos
+                        Sobre o TudoJogo
                         <span class="absolute bottom-0 left-0 w-10 h-1 bg-gradient-to-r from-[#6600cc] to-[#00ccff]"></span>
                     </h3>
                     <p class="text-gray-300 text-sm mb-8">
@@ -93,7 +93,7 @@
                 </div>
             </div>
             <div class="mt-12 pt-8 border-t gamer-footer-border text-center text-gray-400 text-sm">
-                <p>&copy; {{ new Date().getFullYear() }} tudojogos.com.br. Todos os direitos reservados.</p>
+                <p>&copy; {{ new Date().getFullYear() }} tudojogo.com.br. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>

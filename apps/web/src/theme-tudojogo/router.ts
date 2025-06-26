@@ -25,7 +25,7 @@ const legalRoutes = [
 ];
 
 /**
- * Cria e configura o router para o tema TudoJogos
+ * Cria e configura o router para o tema TudoJogo
  * @returns Instância configurada do Vue Router
  */
 export function createRouter() {
