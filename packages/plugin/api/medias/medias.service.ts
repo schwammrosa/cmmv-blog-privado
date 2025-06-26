@@ -119,11 +119,18 @@ export class MediasService extends AbstractService {
         if(image.startsWith("http"))
             return image;
 
-        const mediasPath = path.join(cwd(), "medias", "images");
+        // Usar o diretório correto da aplicação
+        const mediasPath = path.resolve(process.cwd(), "medias", "images");
         const blogStorageService = Application.resolveProvider(BlogStorageService);
 
-        if(!fs.existsSync(mediasPath))
-            fs.mkdirSync(mediasPath, { recursive: true });
+        try {
+            if(!fs.existsSync(mediasPath)) {
+                fs.mkdirSync(mediasPath, { recursive: true });
+            }
+        } catch (error: any) {
+            console.error('Error creating medias directory:', error);
+            throw new Error(`Failed to create medias directory: ${error.message}`);
+        }
 
         const originalFormatMatch = image.match(/^data:image\/(\w+);base64,/);
         const originalFormat = originalFormatMatch ? originalFormatMatch[1] : 'unknown';
@@ -135,7 +142,7 @@ export class MediasService extends AbstractService {
 
         const paramString = `${image}_${format}_${width}_${height}_${quality}`;
         const imageHash = crypto.createHash('sha1').update(paramString).digest('hex');
-        const imageFullpath = path.join(mediasPath, `${imageHash}.${format}`).toLowerCase();
+        const imageFullpath = path.join(mediasPath, `${imageHash}.${format}`);
         const imageUrl = `${apiUrl}/images/${imageHash}.${format}`;
 
         if(fs.existsSync(imageFullpath)) {
@@ -168,19 +175,23 @@ export class MediasService extends AbstractService {
 
                 if (width || height) {
                     imageProcessor = imageProcessor.resize(resizeOptions);
-                } else if (metadata.width > 1920) {
-                    imageProcessor = imageProcessor.resize({ width: 1920 });
+                } else {
+                    // Obter configuração padrão de largura máxima
+                    const maxWidth = Config.get<number>("blog.featureImage.width", 1920);
+                    if (metadata.width > maxWidth) {
+                        imageProcessor = imageProcessor.resize({ width: maxWidth });
+                    }
                 }
 
                 const safeQuality = Math.max(10, Math.min(100, quality || 80));
 
-                imageProcessor = imageProcessor.toFormat(format, { quality: safeQuality });
+                imageProcessor = imageProcessor.toFormat(format as any, { quality: safeQuality });
             }
 
             finalImageBuffer = await imageProcessor.toBuffer();
             // @ts-ignore
             const finalMetadata = await sharp(finalImageBuffer).metadata();
-
+            
             const uploadedFile = await blogStorageService.uploadFile({
                 buffer: Buffer.from(finalImageBuffer),
                 originalname: `${imageHash}.${format}`,
@@ -210,7 +221,12 @@ export class MediasService extends AbstractService {
             }
 
             if (!uploadedFile) {
-                await fs.promises.writeFile(imageFullpath, finalImageBuffer);
+                try {
+                    await fs.promises.writeFile(imageFullpath, finalImageBuffer);
+                } catch (writeError: any) {
+                    console.error('Error writing file locally:', writeError);
+                    throw new Error(`Failed to save image locally: ${writeError.message}`);
+                }
             }
 
             return finalUrl.toLowerCase();
@@ -248,7 +264,7 @@ export class MediasService extends AbstractService {
      * @returns Optimized image buffer or null if not found
      */
     async getImage(hash: string) {
-        const mediasPath = path.join(cwd(), "medias", "images");
+        const mediasPath = path.resolve(process.cwd(), "medias", "images");
         const imageFullpath = path.join(mediasPath, hash);
 
         if (!fs.existsSync(imageFullpath))
@@ -272,10 +288,13 @@ export class MediasService extends AbstractService {
             if (metadata.size && metadata.size < 10 * 1024)
                 return imageBuffer;
 
+            // Obter configuração padrão de qualidade
+            const defaultQuality = Config.get<number>("blog.featureImage.quality", 60);
+
             switch (format) {
                 case 'webp':
                     processor = processor.webp({
-                        quality: 60,
+                        quality: defaultQuality,
                         lossless: false,
                         effort: 4
                     });
@@ -283,14 +302,14 @@ export class MediasService extends AbstractService {
                 case 'jpeg':
                 case 'jpg':
                     processor = processor.jpeg({
-                        quality: 60,
+                        quality: defaultQuality,
                         progressive: true,
                         mozjpeg: true
                     });
                     break;
                 case 'png':
                     processor = processor.png({
-                        quality: 60,
+                        quality: defaultQuality,
                         compressionLevel: 9,
                         progressive: false,
                         adaptiveFiltering: true,
@@ -299,7 +318,7 @@ export class MediasService extends AbstractService {
                     break;
                 case 'avif':
                     processor = processor.avif({
-                        quality: 60,
+                        quality: defaultQuality,
                         lossless: false,
                         effort: 7
                     });
@@ -346,7 +365,7 @@ export class MediasService extends AbstractService {
 
         const medias = await Repository.findAll(MediasEntity, queries);
         const apiUrl = Config.get<string>("blog.url", process.env.API_URL);
-        const mediasPath = path.join(cwd(), "medias", "images");
+        const mediasPath = path.resolve(process.cwd(), "medias", "images");
 
         for(const media of medias?.data){
             if (media.sha1 && media.format && !media.filepath.startsWith("https://")) {
@@ -433,7 +452,7 @@ export class MediasService extends AbstractService {
 
         // Remove local thumbnail
         if(media.thumbnail && !media.thumbnail.startsWith('http')) {
-            const thumbnailPath = media.thumbnail.replace(/.*\/images\//, path.join(cwd(), "medias", "images") + "/");
+            const thumbnailPath = media.thumbnail.replace(/.*\/images\//, path.resolve(process.cwd(), "medias", "images") + "/");
             if (fs.existsSync(thumbnailPath)) {
                 await fs.unlinkSync(thumbnailPath);
             }
@@ -456,7 +475,7 @@ export class MediasService extends AbstractService {
         MediasService.reprocessProgress.message = 'Scanning for orphaned database records...';
         MediasService.reprocessProgress.details.removed = 0;
 
-        const mediasPath = path.join(cwd(), "medias", "images");
+        const mediasPath = path.resolve(process.cwd(), "medias", "images");
 
         if (!fs.existsSync(mediasPath)) {
             await fs.promises.mkdir(mediasPath, { recursive: true });
@@ -649,7 +668,7 @@ export class MediasService extends AbstractService {
         MediasService.reprocessProgress.status = 'processing';
         MediasService.reprocessProgress.message = 'Scanning for duplicate images with numeric suffixes...';
 
-        const mediasPath = path.join(cwd(), "medias", "images");
+        const mediasPath = path.resolve(process.cwd(), "medias", "images");
         const MediasEntity = Repository.getEntity("MediasEntity");
 
         if (!fs.existsSync(mediasPath)) {
@@ -787,7 +806,7 @@ export class MediasService extends AbstractService {
         MediasService.reprocessProgress.status = 'processing';
         MediasService.reprocessProgress.message = 'Starting image reprocessing...';
 
-        const mediasPath = path.join(cwd(), "medias", "images");
+        const mediasPath = path.resolve(process.cwd(), "medias", "images");
 
         if (!fs.existsSync(mediasPath)) {
             await fs.promises.mkdir(mediasPath, { recursive: true });
@@ -861,7 +880,7 @@ export class MediasService extends AbstractService {
 
         MediasService.reprocessProgress.details = stats;
 
-        for (const [hash, filename] of fileHashMap.entries()) {
+        for (const [hash, filename] of Array.from(fileHashMap.entries())) {
             try {
                 MediasService.reprocessProgress.message = `Processing image: ${filename}`;
                 const fullPath = path.join(mediasPath, filename);
@@ -927,7 +946,7 @@ export class MediasService extends AbstractService {
 
         const processedPaths = new Set();
 
-        for (const [filepath, filename] of filePathMap.entries()) {
+        for (const [filepath, filename] of Array.from(filePathMap.entries())) {
             const fileParts = path.parse(filename);
 
             if (/^[a-f0-9]{40}$/i.test(fileParts.name)) {
@@ -1060,10 +1079,13 @@ export class MediasService extends AbstractService {
             let processor = sharp(imageBuffer);
             const metadata = await processor.metadata();
 
+            // Obter configuração padrão de qualidade
+            const defaultQuality = Config.get<number>("blog.featureImage.quality", 60);
+
             switch (ext) {
                 case 'webp':
                     processor = processor.webp({
-                        quality: 60,
+                        quality: defaultQuality,
                         lossless: false,
                         effort: 4
                     });
@@ -1071,14 +1093,14 @@ export class MediasService extends AbstractService {
                 case 'jpeg':
                 case 'jpg':
                     processor = processor.jpeg({
-                        quality: 60,
+                        quality: defaultQuality,
                         progressive: true,
                         mozjpeg: true
                     });
                     break;
                 case 'png':
                     processor = processor.png({
-                        quality: 60,
+                        quality: defaultQuality,
                         compressionLevel: 9,
                         progressive: false,
                         adaptiveFiltering: true,
@@ -1087,7 +1109,7 @@ export class MediasService extends AbstractService {
                     break;
                 case 'avif':
                     processor = processor.avif({
-                        quality: 60,
+                        quality: defaultQuality,
                         lossless: false,
                         effort: 7
                     });
@@ -1246,10 +1268,16 @@ export class MediasService extends AbstractService {
                     };
                 }
 
+                // Obter configurações padrão do sistema
+                const defaultWidth = Config.get<number>("blog.featureImage.width", 1920);
+                const defaultHeight = Config.get<number>("blog.featureImage.height", 1080);
+                const defaultFormat = Config.get<string>("blog.featureImage.format", "webp");
+                const defaultQuality = Config.get<number>("blog.featureImage.quality", 80);
+
                 // Convert to base64
                 const base64 = imageBuffer.toString('base64');
                 const imageUrl = `data:image/${ext};base64,${base64}`;
-                const imageUrlResponse = await this.getImageUrl(imageUrl, ext, 1024, 720, 80, alt, caption);
+                const imageUrlResponse = await this.getImageUrl(imageUrl, defaultFormat, defaultWidth, defaultHeight, defaultQuality, alt, caption);
 
                 if (!imageUrlResponse) {
                     return {
@@ -1381,7 +1409,7 @@ export class MediasService extends AbstractService {
                         await fs.promises.unlink(media.filepath);
 
                     if (media.thumbnail && !media.thumbnail.startsWith('http')) {
-                        const thumbnailPath = media.thumbnail.replace(/.*\/images\//, path.join(cwd(), "medias", "images") + "/");
+                        const thumbnailPath = media.thumbnail.replace(/.*\/images\//, path.resolve(process.cwd(), "medias", "images") + "/");
 
                         if (fs.existsSync(thumbnailPath))
                             await fs.promises.unlink(thumbnailPath);
@@ -1673,7 +1701,7 @@ export class MediasService extends AbstractService {
 
         const MediasEntity = Repository.getEntity("MediasEntity");
         const blogStorageService = Application.resolveProvider(BlogStorageService);
-        const mediasPath = path.join(cwd(), "medias", "images");
+        const mediasPath = path.resolve(process.cwd(), "medias", "images");
 
         if (!fs.existsSync(mediasPath)) {
             await fs.promises.mkdir(mediasPath, { recursive: true });

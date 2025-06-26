@@ -449,8 +449,14 @@ export class PostsPublicService {
                 for(const author of authors){
                     if(typeof author === "string")
                         data.post.authors.push(author);
-                    else //@ts-ignore
-                        data.post.authors.push(author.user);
+                    else if (author && typeof author === "object") {
+                        // Extrair o ID do autor, seja ele 'id', 'user' ou outro campo
+                        const authorObj = author as any;
+                        const authorId = authorObj.id || authorObj.user || authorObj.userId;
+                        if (authorId) {
+                            data.post.authors.push(authorId);
+                        }
+                    }
                 }
             }
 
@@ -709,12 +715,13 @@ export class PostsPublicService {
 
         if(post){
             if(post.featureImage){
+                const imageSettings = this.getDefaultImageSettings();
                 post.featureImage = await this.processImageIfNeeded(
                     post.featureImage,
-                    "webp",
-                    1200,
-                    675,
-                    80,
+                    imageSettings.format,
+                    imageSettings.width,
+                    imageSettings.height,
+                    imageSettings.quality,
                     "",
                     ""
                 );
@@ -831,12 +838,13 @@ export class PostsPublicService {
 
         if(page){
             if(page.featureImage){
+                const imageSettings = this.getDefaultImageSettings();
                 page.featureImage = await this.processImageIfNeeded(
                     page.featureImage,
-                    "webp",
-                    1200,
-                    675,
-                    80,
+                    imageSettings.format,
+                    imageSettings.width,
+                    imageSettings.height,
+                    imageSettings.quality,
                     "",
                     ""
                 );
@@ -931,12 +939,13 @@ export class PostsPublicService {
 
         if(posts){
             for(const post of posts.data){
+                const imageSettings = this.getDefaultImageSettings();
                 post.featureImage = await this.processImageIfNeeded(
                     post.featureImage,
-                    "webp",
-                    1200,
-                    675,
-                    80,
+                    imageSettings.format,
+                    imageSettings.width,
+                    imageSettings.height,
+                    imageSettings.quality,
                     "",
                     ""
                 );
@@ -1009,12 +1018,13 @@ export class PostsPublicService {
 
         if(posts){
             for(const post of posts.data){
+                const imageSettings = this.getDefaultImageSettings();
                 post.featureImage = await this.processImageIfNeeded(
                     post.featureImage,
-                    "webp",
-                    1200,
-                    675,
-                    80,
+                    imageSettings.format,
+                    imageSettings.width,
+                    imageSettings.height,
+                    imageSettings.quality,
                     "",
                     ""
                 );
@@ -1176,12 +1186,13 @@ export class PostsPublicService {
             return [];
 
         for(const post of posts.data){
+            const imageSettings = this.getDefaultImageSettings();
             post.featureImage = await this.processImageIfNeeded(
                 post.featureImage,
-                "webp",
-                1200,
-                675,
-                80,
+                imageSettings.format,
+                imageSettings.width,
+                imageSettings.height,
+                imageSettings.quality,
                 "",
                 ""
             );
@@ -1646,6 +1657,19 @@ export class PostsPublicService {
             console.error(`Error publishing post with ID ${id}: ${error instanceof Error ? error.message : String(error)}`);
             throw error;
         }
+    }
+
+    /**
+     * Get default image settings from configuration
+     * @returns Object with default width, height, format and quality
+     */
+    private getDefaultImageSettings() {
+        return {
+            width: Config.get<number>("blog.featureImage.width", 1920),
+            height: Config.get<number>("blog.featureImage.height", 1080),
+            format: Config.get<string>("blog.featureImage.format", "webp"),
+            quality: Config.get<number>("blog.featureImage.quality", 80)
+        };
     }
 
     /**

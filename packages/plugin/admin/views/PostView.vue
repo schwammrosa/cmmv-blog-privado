@@ -2064,6 +2064,77 @@ function handleFeatureWheel(e) {
     adjustFeatureZoom(delta)
 }
 
+// Configuração para escolher método de processamento
+const useAPIImageProcessing = ref(false)
+
+// Função alternativa que usa a API do backend para melhor processamento
+async function cropFeatureImageWithAPI() {
+    if (!featureCropCanvas.value || !selectedFeatureImage.value || !featureCropContext.value) return
+
+    try {
+        // Criar um arquivo temporário da imagem atual
+        const canvas = featureCropCanvas.value
+        const tempCanvas = document.createElement('canvas')
+        const tempCtx = tempCanvas.getContext('2d')
+
+        // Obter configurações do sistema
+        const imageSettings = settings.value['blog.featureImage'] || {}
+        const outputWidth = imageSettings.width || 1920
+        const outputHeight = imageSettings.height || 1080
+
+        tempCanvas.width = outputWidth
+        tempCanvas.height = outputHeight
+
+        const scale = Math.max(canvas.width / selectedFeatureImage.value.width, canvas.height / selectedFeatureImage.value.height) * featureZoomLevel.value
+        const scaledWidth = selectedFeatureImage.value.width * scale
+        const scaledHeight = selectedFeatureImage.value.height * scale
+        const x = featureImagePosition.value.x + (canvas.width - scaledWidth) / 2
+        const y = featureImagePosition.value.y + (canvas.height - scaledHeight) / 2
+
+        tempCtx.drawImage(
+            selectedFeatureImage.value,
+            -x / scale,
+            -y / scale,
+            canvas.width / scale,
+            canvas.height / scale,
+            0, 0,
+            outputWidth, outputHeight
+        )
+
+        // Converter canvas para blob
+        const blob = await new Promise(resolve => {
+            tempCanvas.toBlob(resolve, 'image/webp', 1.0)
+        })
+
+        if (!blob) {
+            throw new Error('Falha ao processar imagem')
+        }
+
+        // Criar arquivo para upload
+        const file = new File([blob], 'feature-image.webp', { type: 'image/webp' })
+
+        // Usar a API do backend para processamento
+        const result = await adminClient.images.resize(file, {
+            width: outputWidth,
+            height: outputHeight,
+            fit: 'cover'
+        })
+
+        if (result && result.success && result.processedImage) {
+            post.value.featureImage = result.processedImage
+            featureCropModalOpen.value = false
+            showNotification('success', `Feature image processed via API (${outputWidth}x${outputHeight})`)
+        } else {
+            throw new Error('Falha no processamento via API')
+        }
+
+    } catch (error) {
+        console.error('Erro no processamento via API:', error)
+        // Fallback para o método local
+        cropFeatureImage()
+    }
+}
+
 function cropFeatureImage() {
     if (!featureCropCanvas.value || !selectedFeatureImage.value || !featureCropContext.value) return
 
@@ -2071,8 +2142,12 @@ function cropFeatureImage() {
     const tempCanvas = document.createElement('canvas')
     const tempCtx = tempCanvas.getContext('2d')
 
-    const outputWidth = 1200
-    const outputHeight = 675 // 16:9 aspect ratio
+    // Obter configurações do sistema ou usar padrões
+    const imageSettings = settings.value['blog.featureImage'] || {}
+    const outputWidth = imageSettings.width || 1920
+    const outputHeight = imageSettings.height || 1080
+    const outputFormat = imageSettings.format || 'webp' // webp é melhor que jpeg
+    const outputQuality = imageSettings.quality || 0.9
 
     tempCanvas.width = outputWidth
     tempCanvas.height = outputHeight
@@ -2093,10 +2168,15 @@ function cropFeatureImage() {
         outputWidth, outputHeight
     )
 
-    const base64Image = tempCanvas.toDataURL('image/jpeg', 0.85)
+    // Usar formato dinâmico baseado na configuração
+    const mimeType = outputFormat === 'webp' ? 'image/webp' : 
+                    outputFormat === 'png' ? 'image/png' : 
+                    outputFormat === 'avif' ? 'image/avif' : 'image/jpeg'
+    
+    const base64Image = tempCanvas.toDataURL(mimeType, outputQuality)
     post.value.featureImage = base64Image
     featureCropModalOpen.value = false
-    showNotification('success', 'Feature image updated')
+    showNotification('success', `Feature image updated (${outputWidth}x${outputHeight}, ${outputFormat.toUpperCase()})`)
 }
 
 const showAddButton = ref(false)
@@ -2373,11 +2453,25 @@ async function loadPost(postId) {
                 formattedTags = []
             }
 
+            // Processar autores para garantir que sejam apenas IDs
+            let formattedAuthors = response.authors || [];
+
+            if (Array.isArray(formattedAuthors)) {
+                if (formattedAuthors.length > 0 && typeof formattedAuthors[0] === 'object') {
+                    formattedAuthors = formattedAuthors.map(author => author.user || author.id || author)
+                }
+            } else if (typeof formattedAuthors === 'string') {
+                formattedAuthors = [formattedAuthors]
+            } else {
+                formattedAuthors = []
+            }
+
             post.value = {
                 ...post.value,
                 ...response,
                 tags: formattedTags,
-                categories: formattedCategories
+                categories: formattedCategories,
+                authors: formattedAuthors
             }
 
             if (response.meta) {
@@ -2983,51 +3077,6 @@ function isFeatureImageUnprocessed() {
     return false;
 }
 
-async function processFeatureImage() {
-    imageProcessingLoading.value = true;
-
-    try {
-        if (post.value.featureImage.startsWith('data:')) {
-            const formData = new FormData();
-
-            const blob = await fetch(post.value.featureImage).then(r => r.blob());
-            formData.append('file', blob, 'feature-image.jpg');
-
-            const response = await adminClient.medias.upload(formData);
-
-            if (response && response.url) {
-                post.value.featureImage = response.url;
-                showNotification('success', 'Imagem processada com sucesso');
-                showImageProcessingDialog.value = false;
-                showPublishDialog.value = true;
-            } else {
-                throw new Error('Falha ao fazer upload da imagem');
-            }
-        }
-        else if (post.value.featureImage.includes('://')) {
-            const response = await adminClient.medias.importFromUrl({
-                url: post.value.featureImage,
-                alt: post.value.featureImageAlt || '',
-                caption: post.value.featureImageCaption || ''
-            });
-
-            if (response && response.url) {
-                post.value.featureImage = response.url;
-                showNotification('success', 'Imagem processada com sucesso');
-                showImageProcessingDialog.value = false;
-                saveDraft();
-            } else {
-                throw new Error('Falha ao processar a imagem');
-            }
-        }
-    } catch (error) {
-        console.error('Erro ao processar imagem:', error);
-        showNotification('error', error.message || 'Falha ao processar a imagem');
-    } finally {
-        imageProcessingLoading.value = false;
-    }
-}
-
 function proceedWithPublish() {
     showImageProcessingDialog.value = false;
     showPublishDialog.value = true;
@@ -3433,6 +3482,57 @@ async function checkDraftPostsAvailability() {
         hasDraftPosts.value = true; // Em caso de erro, assumir que há drafts por segurança
     }
 }
+
+// Função para processar imagem de feature antes de publicar
+async function processFeatureImage() {
+    imageProcessingLoading.value = true;
+
+    try {
+        if (post.value.featureImage.startsWith('data:')) {
+            const formData = new FormData();
+
+            const blob = await fetch(post.value.featureImage).then(r => r.blob());
+            formData.append('file', blob, 'feature-image.jpg');
+
+            const response = await adminClient.medias.upload(formData);
+
+            if (response && response.url) {
+                post.value.featureImage = response.url;
+                showNotification('success', 'Imagem processada com sucesso');
+                showImageProcessingDialog.value = false;
+                showPublishDialog.value = true;
+            } else {
+                throw new Error('Falha ao processar imagem');
+            }
+        } else if (post.value.featureImage.includes('://')) {
+            // Para imagens externas, usar importFromUrl
+            const response = await adminClient.medias.importFromUrl({
+                url: post.value.featureImage,
+                alt: post.value.featureImageAlt || '',
+                caption: post.value.featureImageCaption || ''
+            });
+
+            if (response && response.url) {
+                post.value.featureImage = response.url;
+                showNotification('success', 'Imagem importada e processada com sucesso');
+                showImageProcessingDialog.value = false;
+                showPublishDialog.value = true;
+            } else {
+                throw new Error('Falha ao importar imagem');
+            }
+        } else {
+            // Para outros casos, apenas prosseguir
+            showImageProcessingDialog.value = false;
+            showPublishDialog.value = true;
+        }
+    } catch (error) {
+        console.error('Erro ao processar imagem:', error);
+        showNotification('error', 'Erro ao processar imagem: ' + error.message);
+    } finally {
+        imageProcessingLoading.value = false;
+    }
+}
+
 </script>
 
 <style>

@@ -843,6 +843,17 @@ const description = computed(() =>
         .substring(0, 150) + '...'
 )
 
+// Configurações dinâmicas de imagem
+const imageSettings = computed(() => {
+    const rawSettings = settings.value || {};
+    return {
+        width: parseInt(rawSettings['blog.featureImage.width']) || 1920,
+        height: parseInt(rawSettings['blog.featureImage.height']) || 1080,
+        format: rawSettings['blog.featureImage.format'] || 'webp',
+        quality: parseInt(rawSettings['blog.featureImage.quality']) || 80
+    };
+});
+
 const metadata = computed(() => keywords.value
     .split(', ')
     .map((k: string) => ({ property: 'article:tag', content: k })))
@@ -857,12 +868,11 @@ const headData = computed(() => ({
         { property: 'og:description', content: description.value },
         { property: 'og:image', content: post.value?.featureImage || settings.value?.['blog.image'] },
         { property: 'og:url', content: pageUrl.value },
-        { property: 'og:image:type', content: 'image/webp' },
+        { property: 'og:image:type', content: `image/${imageSettings.value.format}` },
         { property: 'og:image:alt', content: post.value?.title || 'Imagem' },
         { property: 'og:image:secure_url', content: post.value?.featureImage || settings.value?.['blog.image'] },
-        { property: 'og:image:width', content: '1200' },
-        { property: 'og:image:height', content: '675' },
-        { property: 'og:image:type', content: 'image/webp' },
+        { property: 'og:image:width', content: imageSettings.value.width.toString() },
+        { property: 'og:image:height', content: imageSettings.value.height.toString() },
         { property: 'og:updated_time', content: post.value?.updatedAt ? new Date(post.value.updatedAt).toISOString() : new Date().toISOString() },
         { property: 'article:published_time', content: post.value?.status === 'published' && post.value?.publishedAt ? new Date(post.value.publishedAt).toISOString() : post.value?.createdAt ? new Date(post.value.createdAt).toISOString() : new Date().toISOString() },
         { property: 'article:modified_time', content: post.value?.updatedAt ? new Date(post.value.updatedAt).toISOString() : new Date().toISOString() },
