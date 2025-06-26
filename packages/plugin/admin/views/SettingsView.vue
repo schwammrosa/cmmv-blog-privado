@@ -2332,6 +2332,7 @@
                                     </option>
                                     <option value="grok">Grok</option>
                                     <option value="deepseek">DeepSeek</option>
+                                    <option value="groq">Groq</option>
                                 </select>
                                 <p class="text-xs text-neutral-500">
                                     Select which AI service will be used for
@@ -2436,6 +2437,22 @@
                                 />
                                 <p class="text-xs text-neutral-500">
                                     Used for DeepSeek AI services.
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label
+                                    class="block text-sm font-medium text-neutral-300"
+                                    >Groq API Key</label
+                                >
+                                <input
+                                    v-model="settings.groqApiKey"
+                                    type="password"
+                                    class="w-full px-3 py-2 bg-neutral-700 border border-neutral-600 rounded-md text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Enter your Groq API key"
+                                />
+                                <p class="text-xs text-neutral-500">
+                                    Used for Groq AI services.
                                 </p>
                             </div>
 
@@ -4294,6 +4311,7 @@ const settings = ref({
     openaiApiKey: "",
     grokApiKey: "",
     deepseekApiKey: "",
+    groqApiKey: "",
     classifyPrompt: "",
     promptsOverride: false,
 
@@ -4625,6 +4643,7 @@ const tabFieldMap = {
         "openaiApiKey",
         "grokApiKey",
         "deepseekApiKey",
+        "groqApiKey",
         "classifyPrompt",
         "promptsOverride",
     ],
