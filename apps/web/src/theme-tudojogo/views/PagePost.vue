@@ -369,9 +369,6 @@ const isSSR = import.meta.env.SSR
 if(!isSSR) {
     if (window.__CMMV_DATA__ && window.__CMMV_DATA__["post"]) {
         post.value = window.__CMMV_DATA__["post"];
-        console.log('[DEBUG] Post carregado do __CMMV_DATA__');
-    } else {
-        console.log('[DEBUG] __CMMV_DATA__ não disponível ou não contém post');
     }
 }
 
@@ -740,7 +737,6 @@ onMounted(() => {
     // Isso garante que funcionará tanto na navegação quanto no refresh
     setTimeout(() => {
         if (!relatedPostsLoaded.value && post.value) {
-            console.log('[DEBUG] Forçando carregamento dos posts relacionados após timeout');
             loadRelatedPosts();
         }
     }, 1500);
@@ -766,14 +762,10 @@ onUnmounted(() => {
 });
 
 const setupLazyLoading = () => {
-    // Log para depuração
-    console.log('[DEBUG] Configurando lazy loading para posts relacionados e comentários');
-    
     if (relatedPostsObserver.value) {
         relatedPostsObserverInstance.value = new IntersectionObserver(
             (entries) => {
                 if (entries[0].isIntersecting && !relatedPostsLoaded.value) {
-                    console.log('[DEBUG] Seção "Mais Conteúdo" visível no viewport, carregando posts...');
                     if (document.body.contains(relatedPostsObserver.value)) {
                         loadRelatedPosts();
                     }
@@ -786,9 +778,6 @@ const setupLazyLoading = () => {
         );
 
         relatedPostsObserverInstance.value.observe(relatedPostsObserver.value);
-        console.log('[DEBUG] Observer configurado para a seção "Mais Conteúdo"');
-    } else {
-        console.log('[DEBUG] Elemento relatedPostsObserver não encontrado no DOM');
     }
 
     if (commentsObserver.value) {
@@ -811,56 +800,42 @@ const setupLazyLoading = () => {
     }
 };
 
-// Log para debug da seção "Mais Conteúdo"
-const logPostsDebug = (message, data = {}) => {
-    console.log(`[DEBUG][Mais Conteúdo] ${message}`, data);
-}
-
 const loadRelatedPosts = async () => {
     if (!document.body.contains(relatedPostsObserver.value)) {
-        logPostsDebug('Elemento removido do DOM antes do carregamento');
         return;
     }
 
     try {
-        logPostsDebug('Iniciando carregamento de posts relacionados', { postId: post.value?.id });
         if (post.value && post.value.id) {
             let storePosts = postsStore.getPosts || [];
-            logPostsDebug('Posts no store', { count: storePosts.length });
 
             // Se não há posts no store ou são muito poucos, buscamos da API
             if (storePosts.length < 4) {
-                logPostsDebug('Posts insuficientes no store, buscando da API');
                 try {
                     const apiPosts = await blogAPI.posts.list({ limit: 6 });
                     if (apiPosts && apiPosts.length > 0) {
-                        logPostsDebug('Posts obtidos da API', { count: apiPosts.length });
                         storePosts = apiPosts;
                     }
                 } catch (apiError) {
-                    logPostsDebug('Erro ao buscar posts da API', { error: apiError.message });
+                    console.error('Erro ao buscar posts da API', { error: apiError.message });
                 }
             }
 
             if (storePosts.length > 0) {
                 const filteredPosts = storePosts.filter(p => p.id !== post.value.id);
-                logPostsDebug('Posts filtrados', { count: filteredPosts.length });
 
                 if (filteredPosts.length > 0) {
                     if (document.body.contains(relatedPostsObserver.value)) {
                         relatedPosts.value = shuffleArray(filteredPosts).slice(0, 3);
-                        logPostsDebug('Posts relacionados carregados', { count: relatedPosts.value.length });
                     }
                 }
             }
 
             if (document.body.contains(relatedPostsObserver.value)) {
                 relatedPostsLoaded.value = true;
-                logPostsDebug('Carregamento finalizado com sucesso');
             }
         }
     } catch (error) {
-        logPostsDebug('Erro ao carregar posts relacionados', { error: error.message });
         console.error('Error loading related posts:', error);
     }
 };
@@ -1001,6 +976,7 @@ const sidebarLeftAdContainer = ref(null);
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }

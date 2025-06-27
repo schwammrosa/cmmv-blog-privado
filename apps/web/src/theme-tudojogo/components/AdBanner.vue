@@ -8,42 +8,36 @@
         class="ad-placeholder bg-gray-200 flex items-center justify-center text-gray-400 text-sm"
         :style="{ height: adConfig.height, width: adConfig.width }"
       >
-        <span>Anúncio</span>
+        <span>Anúncio - {{ placement }}</span>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, toRefs } from 'vue';
-import { useAds } from '../../composables/useAds.js';
+import { computed } from 'vue';
+import { useAdManager } from '../composables/useAdManager.js';
 
 const props = defineProps({
-  settings: {
-    type: Object,
-    required: true,
-  },
   placement: {
     type: String,
     required: true,
   },
 });
 
-const { settings, placement } = toRefs(props);
-
-const { adSettings, getAdHtml } = useAds(settings, 'home');
+const { adSettings, getAdHtml } = useAdManager();
 
 const adPlacementMapping: Record<string, { key: string; height: string; width: string }> = {
-  header: { key: 'homePageHeader', height: '90px', width: '728px' },
-  inContent: { key: 'homePageInContent', height: '90px', width: '728px' },
-  belowContent: { key: 'homePageAfterPosts', height: '90px', width: '728px' },
+  header: { key: 'homePageHeader', height: '70px', width: '728px' },
+  inContent: { key: 'homePageInContent', height: '60px', width: '728px' },
+  belowContent: { key: 'homePageAfterPosts', height: '70px', width: '728px' },
   sidebarTop: { key: 'homePageSidebarTop', height: '250px', width: '300px' },
   sidebarMid: { key: 'homePageSidebarMid', height: '250px', width: '300px' },
   sidebarBottom: { key: 'homePageSidebarBottom', height: '250px', width: '300px' },
 };
 
 const adConfig = computed(() => {
-    const mapping = adPlacementMapping[placement.value];
+    const mapping = adPlacementMapping[props.placement];
     if (!mapping) {
         return { enabled: false, height: '0px', width: '0px' };
     }
@@ -54,7 +48,7 @@ const adConfig = computed(() => {
     }
 });
 
-const adHtml = computed(() => getAdHtml(placement.value));
+const adHtml = computed(() => getAdHtml(props.placement));
 
 </script>
 

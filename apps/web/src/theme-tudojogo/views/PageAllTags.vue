@@ -45,7 +45,7 @@
                                     <div v-for="tag in getTagsStartingWith(letter)" :key="tag.id" class="tag-card">
                                         <a :href="`/tag/${tag.slug}`" class="block bg-[#191a30] border border-[#303443] rounded-lg p-4 hover:shadow-glow transition-all hover:border-[#6600cc]">
                                             <h3 class="text-lg font-medium text-white mb-1">{{ tag.name }}</h3>
-                                            <div class="text-sm text-gray-400">{{ tag.postCount === 1 ? '1 post' : (tag.realPostCount ? `${tag.realPostCount} posts` : 'Ver posts') }}</div>
+                                            <div class="text-sm text-gray-400">{{ tag.postCount === 1 ? '1 post' : (tag.realPostCount !== null && tag.realPostCount !== undefined ? `${tag.realPostCount} posts` : 'Ver posts') }}</div>
                                         </a>
                                     </div>
                                 </div>
@@ -77,12 +77,13 @@ const tags = ref<Array<{
     slug: string;
     description?: string;
     postCount: number;
+    realPostCount?: number | null;
 }>>([]);
 
 const loading = ref(true);
 const settingsStore = useSettingsStore();
 const blogAPI = cmmv.vue3.useBlog();
-const { adSettings, getAdHtml } = useAds();
+const { adSettings, getAdHtml } = useAds(settingsStore.getSettings, 'tags');
 
 // Alfabeto para navegação e agrupamento
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -114,26 +115,10 @@ const loadTags = async () => {
         loading.value = true;
         // Iniciando busca de tags
         
-        let tagsData = [];
+        let tagsData: any[] = [];
         
-        // Tenta método 1: tag.findAll
-        if (blogAPI.tag && typeof blogAPI.tag.findAll === 'function') {
-            const response = await blogAPI.tag.findAll();
-            if (response && Array.isArray(response)) {
-                tagsData = response;
-            }
-        }
-        
-        // Se não funcionou, tenta método 2: tag.getAll
-        if (tagsData.length === 0 && blogAPI.tag && typeof blogAPI.tag.getAll === 'function') {
-            const response = await blogAPI.tag.getAll();
-            if (response && Array.isArray(response)) {
-                tagsData = response;
-            }
-        }
-        
-        // Tenta método 3: tags.getAll
-        if (tagsData.length === 0 && blogAPI.tags && typeof blogAPI.tags.getAll === 'function') {
+        // Tenta método 1: tags.getAll
+        if (blogAPI.tags && typeof blogAPI.tags.getAll === 'function') {
             const response = await blogAPI.tags.getAll();
             if (response && Array.isArray(response)) {
                 tagsData = response;
@@ -158,13 +143,20 @@ const loadTags = async () => {
         // Processar os dados obtidos
         if (tagsData.length > 0) {
             // Primeiro vamos obter contagens reais de posts para cada tag usando o método correto da API
-            const processedTags = tagsData.map(tag => ({
+            const processedTags: Array<{
+                id: string;
+                name: string;
+                slug: string;
+                description?: string;
+                postCount: number;
+                realPostCount: number | null;
+            }> = tagsData.map(tag => ({
                 id: tag.id || '',
                 name: tag.name || '',
                 slug: tag.slug || '',
                 description: tag.description || '',
                 postCount: tag.count || tag.postCount || 0,
-                realPostCount: null // Será preenchido com a contagem real
+                realPostCount: null
             }));
 
             // Agora vamos tentar obter a contagem real para algumas tags
@@ -178,7 +170,7 @@ const loadTags = async () => {
                     try {
                         // Tentamos obter a primeira página de posts para a tag para ver a contagem real
                         if (blogAPI.tags && typeof blogAPI.tags.getPostsBySlug === 'function') {
-                            const response = await blogAPI.tags.getPostsBySlug(tag.slug, 0, 1);
+                            const response = await blogAPI.tags.getPostsBySlug(tag.slug, 0);
                             if (response && typeof response.total === 'number') {
                                 // Encontramos a contagem real!
                                 const realCount = response.total;
@@ -193,7 +185,7 @@ const loadTags = async () => {
                                             // Aplicar fator de correção em todas as tags
                                             processedTags.forEach(t => {
                                                 if (t.slug !== tag.slug) {
-                                                    t.realPostCount = Math.round(t.postCount * correctionFactor);
+                                                    t.realPostCount = typeof t.postCount === 'number' ? Math.round(t.postCount * correctionFactor) : null;
                                                 }
                                             });
                                         }
@@ -254,45 +246,45 @@ const headData = ref({
 
 // Função para atualizar os metadados da página para SEO
 const updateHeadData = () => {
-    if (settingsStore) {
-        headData.value = {
-            title: 'Todas as Tags - ' + settingsStore.blogName,
-            meta: [
-                {
-                    name: 'description',
-                    content: `Lista completa de todas as tags do ${settingsStore.blogName} em ordem alfabética.`
-                },
-                {
-                    property: 'og:title',
-                    content: `Todas as Tags - ${settingsStore.blogName}`
-                },
-                {
-                    property: 'og:description',
-                    content: `Lista completa de todas as tags do ${settingsStore.blogName} em ordem alfabética.`
-                },
-                {
-                    property: 'og:type',
-                    content: 'website'
-                },
-                {
-                    property: 'og:url',
-                    content: `${settingsStore.blogUrl}/tags`
-                },
-                {
-                    name: 'twitter:card',
-                    content: 'summary'
-                },
-                {
-                    name: 'twitter:title',
-                    content: `Todas as Tags - ${settingsStore.blogName}`
-                },
-                {
-                    name: 'twitter:description',
-                    content: `Lista completa de todas as tags do ${settingsStore.blogName} em ordem alfabética.`
-                }
-            ]
-        };
-    }
+    const blogName = settingsStore.getSettings?.['blog.name'] || '';
+    const blogUrl = settingsStore.getSettings?.['blog.url'] || '';
+    headData.value = {
+        title: 'Todas as Tags' + (blogName ? ' - ' + blogName : ''),
+        meta: [
+            {
+                name: 'description',
+                content: `Lista completa de todas as tags do ${blogName} em ordem alfabética.`
+            },
+            {
+                property: 'og:title',
+                content: `Todas as Tags${blogName ? ' - ' + blogName : ''}`
+            },
+            {
+                property: 'og:description',
+                content: `Lista completa de todas as tags do ${blogName} em ordem alfabética.`
+            },
+            {
+                property: 'og:type',
+                content: 'website'
+            },
+            {
+                property: 'og:url',
+                content: `${blogUrl}/tags`
+            },
+            {
+                name: 'twitter:card',
+                content: 'summary'
+            },
+            {
+                name: 'twitter:title',
+                content: `Todas as Tags${blogName ? ' - ' + blogName : ''}`
+            },
+            {
+                name: 'twitter:description',
+                content: `Lista completa de todas as tags do ${blogName} em ordem alfabética.`
+            }
+        ]
+    };
 };
 
 // Configuração do Head para SEO

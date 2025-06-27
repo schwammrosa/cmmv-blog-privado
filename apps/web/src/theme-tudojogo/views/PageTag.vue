@@ -129,11 +129,6 @@ const currentPage = ref(0);
 const observerTarget = ref<HTMLElement | null>(null);
 const observer = ref<IntersectionObserver | null>(null);
 
-const stripHtml = (html) => {
-    if (!html) return '';
-    return html.replace(/<\/?[^>]+(>|$)/g, '');
-};
-
 const getAuthor = (post) => {
     if (!post) return null;
     if (post.author) return post.author;

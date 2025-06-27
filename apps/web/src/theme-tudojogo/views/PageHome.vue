@@ -22,19 +22,40 @@
         <div v-else>
             <CoverSection :posts="preparedPosts" :settings="settings" />
             
-            <AdBanner :settings="adPluginSettings" placement="header" />
+            <AdBanner placement="header" />
 
             <div class="flex flex-col lg:flex-row gap-8">
                 <div class="flex-grow">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2">
-                            <PostList 
-                                title="Últimas Notícias"
-                                :posts="latestPosts" 
-                                :horizontal="true"
-                            />
-
-                            <AdBanner :settings="adPluginSettings" placement="inContent" />
+                            <div>
+                                <template v-for="(post, idx) in latestPosts" :key="post.id">
+                                    <PostList
+                                        v-if="idx === 0"
+                                        title="Últimas Notícias"
+                                        :posts="[post]"
+                                        :horizontal="true"
+                                    />
+                                    <PostList
+                                        v-else-if="idx === 1"
+                                        title=""
+                                        :posts="[post]"
+                                        :horizontal="true"
+                                    />
+                                    <template v-if="idx === 1">
+                                        <AdBanner placement="inContent" />
+                                    </template>
+                                    <PostList
+                                        v-else-if="idx > 1"
+                                        title=""
+                                        :posts="[post]"
+                                        :horizontal="true"
+                                    />
+                                </template>
+                            </div>
+                            <div class="my-2">
+                                <AdBanner placement="belowContent" />
+                            </div>
 
                             <div ref="maisConteudoObserver" class="h-24"></div>
                             
@@ -44,8 +65,6 @@
                                     :posts="paginatedMoreContent" 
                                 />
                             </div>
-
-                            <AdBanner :settings="adPluginSettings" placement="belowContent" />
 
                             <div v-if="showMoreContent && maisConteudoTotalPages > 1" class="mt-8 flex justify-center">
                                 <div class="flex items-center space-x-2">
@@ -79,10 +98,10 @@
                         </div>
 
                         <div class="lg:col-span-1 min-w-[300px]">
-                            <AdBanner :settings="adPluginSettings" placement="sidebarTop" />
+                            <AdBanner placement="sidebarTop" />
                             <PopularPostsWidget :posts="popularPosts" />
-                            <AdBanner :settings="adPluginSettings" placement="sidebarMid" />
-                            <AdBanner :settings="adPluginSettings" placement="sidebarBottom" />
+                            <AdBanner placement="sidebarMid" />
+                            <AdBanner placement="sidebarBottom" />
                         </div>
                     </div>
                 </div>
@@ -162,20 +181,6 @@ const hydrated = ref(false);
 
 const { adSettings, loadAdScripts } = useAdManager();
 
-const adPluginSettings = computed(() => {
-    const rawSettings = settingsStore.getSettings || {};
-    const blogSettings: Record<string, any> = {};
-    Object.keys(rawSettings).forEach(key => {
-        if (key.startsWith('blog.')) {
-            const shortKey = key.replace('blog.', '');
-            blogSettings[shortKey] = rawSettings[key];
-        } else {
-            blogSettings[key] = rawSettings[key];
-        }
-    });
-    return blogSettings;
-});
-
 const featuredPost = computed(() => {
     return preparedPosts.value.length > 0 ? preparedPosts.value[0] : null;
 });
@@ -226,7 +231,7 @@ const loadPosts = async () => {
         loading.value = true;
         error.value = null;
 
-        const response: any = await blogAPI.posts.getAll(0, 50);
+        const response: any = await blogAPI.posts.getAll(0);
 
         if (response) {
             posts.value = response.posts;
@@ -304,6 +309,7 @@ watch(() => posts.value, (newPosts) => {
 .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
