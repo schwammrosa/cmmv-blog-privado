@@ -15,7 +15,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <h2 class="text-xl font-medium mb-2">Selecione uma imagem para começar</h2>
-                        <p class="text-neutral-400 mb-6">Suporta JPG, PNG, WebP e GIF.</p>
+                        <p class="text-neutral-400 mb-6">Suporta JPG, PNG, WebP, AVIF e GIF.</p>
 
                         <div class="flex justify-center">
                             <label class="flex items-center justify-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md cursor-pointer transition-colors">
@@ -23,7 +23,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                 </svg>
                                 Escolher imagem
-                                <input type="file" class="hidden" accept="image/*" @change="handleImageUpload" />
+                                <input type="file" class="hidden" accept="image/jpeg, image/png, image/webp, image/avif, image/gif" @change="handleImageUpload" />
                             </label>
                         </div>
                     </div>

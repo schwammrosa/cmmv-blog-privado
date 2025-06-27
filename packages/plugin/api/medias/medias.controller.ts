@@ -57,15 +57,31 @@ export class MediasController {
     @ContentType("application/json")
     @Raw()
     async processImage(@Body() body: ProcessImageInterface) {
-        return this.mediasService.getImageUrl(
-            body.image,
-            body.format,
-            body.width,
-            body.height,
-            body.quality,
-            body.alt,
-            body.caption
-        );
+        try {
+
+            const result = await this.mediasService.getImageUrl(
+                body.image,
+                body.format,
+                body.width,
+                body.height,
+                body.quality,
+                body.alt,
+                body.caption
+            );
+    
+            if (!result) {
+                throw new Error('Failed to process image');
+            }
+
+            return {
+                success: true,
+                url: result,
+                processedImage: result
+            };
+        } catch (error: any) {
+            console.error('Error in processImage:', error);
+            throw new Error(`Image processing failed: ${error.message}`);
+        }
     }
 
     @Put("medias/:id", { exclude: true })

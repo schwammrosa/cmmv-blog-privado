@@ -37,7 +37,6 @@ export class HealthService {
     private async getSystemHealthInfo() {
         const packageJsonPath = path.resolve(process.cwd(), 'package.json');
         const nodeModulesPath = path.resolve(process.cwd(), "../../", 'node_modules');
-        console.log(nodeModulesPath);
 
         let packageInfo = {};
         let cmmvPackages = {};

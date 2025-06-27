@@ -586,7 +586,9 @@ export class BackupService {
                                     if (response.ok) {
                                         const arrayBuffer = await response.arrayBuffer();
                                         thumbnailBuffer = Buffer.from(arrayBuffer);
-                                        thumbnailFilename = `${media.sha1}_thumb.webp`;
+                                        // Detectar extensão do thumbnail pela URL
+                                        const urlExt = media.thumbnail.split('.').pop()?.split('?')[0] || 'webp';
+                                        thumbnailFilename = `${media.sha1}_thumb.${urlExt}`;
                                     }
                                 } catch (error) {
                                     console.error(`Failed to download thumbnail ${media.thumbnail}:`, error);
@@ -595,7 +597,9 @@ export class BackupService {
                                 const localThumbnailPath = media.thumbnail.replace(/.*\/images\//, path.join(cwd(), "medias", "images") + "/");
                                 if (fs.existsSync(localThumbnailPath)) {
                                     thumbnailBuffer = fs.readFileSync(localThumbnailPath);
-                                    thumbnailFilename = path.basename(localThumbnailPath);
+                                    // Detectar extensão do arquivo local
+                                    const ext = path.extname(localThumbnailPath).replace('.', '') || 'webp';
+                                    thumbnailFilename = `${media.sha1}_thumb.${ext}`;
                                 }
                             }
 
@@ -758,34 +762,36 @@ export class BackupService {
 
                             restoredFiles++;
 
+                            // Buscar thumbnail dinamicamente
+                            const thumbPattern = new RegExp(`^${mediaRecord.sha1}_thumb\\.([a-zA-Z0-9]+)$`);
+                            const thumbFile = fs.readdirSync(tempDir).find(f => thumbPattern.test(f));
                             let thumbnailUrl: string | null = null;
-                            const thumbnailFilename = `${mediaRecord.sha1}_thumb.webp`;
-                            const backupThumbnailPath = path.join(tempDir, thumbnailFilename);
-
-                            if (fs.existsSync(backupThumbnailPath)) {
+                            if (thumbFile) {
+                                const backupThumbnailPath = path.join(tempDir, thumbFile);
                                 const thumbnailBuffer = fs.readFileSync(backupThumbnailPath);
+                                const ext = path.extname(backupThumbnailPath).replace('.', '') || 'webp';
+                                const mime = `image/${ext === 'jpg' ? 'jpeg' : ext}`;
 
                                 if (storageType && (storageType === 'spaces' || storageType === 's3')) {
                                     try {
                                         const uploadResult = await blogStorageService.uploadFile({
                                             buffer: Buffer.from(thumbnailBuffer),
-                                            originalname: thumbnailFilename,
-                                            mimetype: 'image/webp'
+                                            originalname: thumbFile,
+                                            mimetype: mime
                                         });
-
                                         if (uploadResult && uploadResult.url) {
                                             thumbnailUrl = uploadResult.url;
                                         }
                                     } catch (uploadError) {
-                                        console.error(`Failed to upload thumbnail ${thumbnailFilename} to cloud, saving locally:`, uploadError);
-                                        const localThumbnailPath = path.join(imagesPath, thumbnailFilename);
+                                        console.error(`Failed to upload thumbnail ${thumbFile} to cloud, saving locally:`, uploadError);
+                                        const localThumbnailPath = path.join(imagesPath, thumbFile);
                                         fs.writeFileSync(localThumbnailPath, thumbnailBuffer);
-                                        thumbnailUrl = `${apiUrl}/images/${thumbnailFilename}`.toLowerCase();
+                                        thumbnailUrl = `${apiUrl}/images/${thumbFile}`.toLowerCase();
                                     }
                                 } else {
-                                    const localThumbnailPath = path.join(imagesPath, thumbnailFilename);
+                                    const localThumbnailPath = path.join(imagesPath, thumbFile);
                                     fs.writeFileSync(localThumbnailPath, thumbnailBuffer);
-                                    thumbnailUrl = `${apiUrl}/images/${thumbnailFilename}`.toLowerCase();
+                                    thumbnailUrl = `${apiUrl}/images/${thumbFile}`.toLowerCase();
                                 }
                             }
 

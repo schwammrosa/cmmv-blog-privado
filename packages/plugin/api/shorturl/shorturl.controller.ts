@@ -26,7 +26,6 @@ export class ShortUrlController {
         exclude: true
     })
     async createShortUrl(@Body() body: any) {
-        console.log(this.shortUrlService);
         return this.shortUrlService.createShortUrl(body.originalUrl, body.customSlug, body.statusHTTP);
     }
 }

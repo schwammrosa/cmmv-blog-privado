@@ -74,7 +74,9 @@ export const useAdminClient = () => {
         processImage: (data: {
             image: string;
             format: string;
-            maxWidth: number;
+            width?: number;
+            height?: number;
+            quality?: number;
             alt: string;
             caption: string;
         }) => api.authRequest('images', 'POST', data),

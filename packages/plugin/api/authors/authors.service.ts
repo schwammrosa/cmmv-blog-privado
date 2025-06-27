@@ -12,6 +12,60 @@ import {
     MediasService
 } from "../medias/medias.service";
 
+export interface Author {
+    id: string;
+    user: string;
+    name: string;
+    slug: string;
+    image?: string | null;
+    coverImage?: string | null;
+    bio?: string;
+    website?: string;
+    location?: string;
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+    github?: string;
+    locale?: string;
+    visibility: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    lastSeen?: string;
+    commentNotifications?: boolean;
+    mentionNotifications?: boolean;
+    recommendationNotifications?: boolean;
+    emailDisabled?: boolean;
+}
+
+export interface User {
+    id: string;
+    blocked?: boolean;
+    email: string;
+    groups?: string[];
+    root?: boolean;
+    validated?: boolean;
+}
+
+export interface AuthorData {
+    email: string;
+    name: string;
+    slug: string;
+    bio?: string;
+    website?: string;
+    location?: string;
+    facebook?: string;
+    twitter?: string;
+    locale?: string;
+    visibility?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    commentNotifications?: boolean;
+    mentionNotifications?: boolean;
+    recommendationNotifications?: boolean;
+    emailDisabled?: boolean;
+}
+
 @Service('blog_authors')
 export class AuthorsService {
     constructor(
@@ -35,12 +89,12 @@ export class AuthorsService {
             ]
         });
 
-        let authorsData = [];
+        let authorsData: (Author & User)[] = [];
 
         if(authors){
-            let userIdsIn = [];
+            let userIdsIn: string[] = [];
 
-            for(let author of authors.data){
+            for(let author of authors.data as Author[]){
                 if(author.user)
                     userIdsIn.push(author.user);
             }
@@ -53,8 +107,8 @@ export class AuthorsService {
             });
 
             if(users){
-                for(let author of authors.data){
-                    const user = users.data.find((user: any) => user.id === author.user);
+                for(let author of authors.data as Author[]){
+                    const user = (users.data as User[]).find((user: User) => user.id === author.user);
 
                     if(user)
                         authorsData.push({...author, ...user});
@@ -81,26 +135,34 @@ export class AuthorsService {
                 'bio', 'website', 'location', 'facebook', 'twitter', 'instagram',
                 'linkedin', 'github', 'locale', 'visibility', 'metaTitle', 'metaDescription'
             ]
-        });
+        }) as Author;
 
         if(author.visibility !== 'public')
             return null;
 
-        author.image = await this.mediasService.getImageUrl(
-            author.image,
-            "webp",
-            128,
-            author.name,
-            author.name
-        );
+        if (author.image) {
+            author.image = await this.mediasService.getImageUrl(
+                author.image,
+                "webp",
+                128,
+                undefined,
+                80,
+                author.name,
+                author.name
+            );
+        }
 
-        author.coverImage = await this.mediasService.getImageUrl(
-            author.coverImage,
-            "webp",
-            1024,
-            author.name,
-            author.name
-        );
+        if (author.coverImage) {
+            author.coverImage = await this.mediasService.getImageUrl(
+                author.coverImage,
+                "webp",
+                1024,
+                undefined,
+                80,
+                author.name,
+                author.name
+            );
+        }
 
         return author;
     }
@@ -119,26 +181,34 @@ export class AuthorsService {
                 'bio', 'website', 'location', 'facebook', 'twitter', 'instagram',
                 'linkedin', 'github', 'locale', 'visibility', 'metaTitle', 'metaDescription'
             ]
-        });
+        }) as Author;
 
         if(author.visibility !== 'public')
             return null;
 
-        author.image = await this.mediasService.getImageUrl(
-            author.image,
-            "webp",
-            128,
-            author.name,
-            author.name
-        );
+        if (author.image) {
+            author.image = await this.mediasService.getImageUrl(
+                author.image,
+                "webp",
+                128,
+                undefined,
+                80,
+                author.name,
+                author.name
+            );
+        }
 
-        author.coverImage = await this.mediasService.getImageUrl(
-            author.coverImage,
-            "webp",
-            1024,
-            author.name,
-            author.name
-        );
+        if (author.coverImage) {
+            author.coverImage = await this.mediasService.getImageUrl(
+                author.coverImage,
+                "webp",
+                1024,
+                undefined,
+                80,
+                author.name,
+                author.name
+            );
+        }
 
         return author;
     }
@@ -148,7 +218,7 @@ export class AuthorsService {
      * @param data - Author data
      * @returns - Author
      */
-    async createAuthor(data: any) {
+    async createAuthor(data: AuthorData) {
         const ProfilesEntity = Repository.getEntity("ProfilesEntity");
         const UserEntity = Repository.getEntity("UserEntity");
 
