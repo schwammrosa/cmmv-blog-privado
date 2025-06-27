@@ -10,6 +10,20 @@
                 :key="post.id"
                 class="flex gap-3 pb-3 border-b border-gray-100 last:border-0 last:pb-0 post-popular-item hover:transform hover:-translate-y-1 transition-all duration-300"
             >
+                <div class="w-20 h-16 flex-shrink-0 overflow-hidden rounded-md">
+                    <a :href="`/post/${post.slug}`">
+                        <OptimizedImage
+                            v-if="post.image"
+                            :src="post.image"
+                            :alt="post.title"
+                            width="80"
+                            height="64"
+                            loading="lazy"
+                            icon-size="sm"
+                            class="w-full h-full object-cover"
+                        />
+                    </a>
+                </div>
                 <div class="flex-grow">
                     <a :href="`/post/${post.slug}`" class="block">
                         <h3 class="text-sm font-semibold text-white hover:text-[#00ccff] transition-colors line-clamp-2">
@@ -41,4 +55,11 @@ const props = defineProps({
 });
 
 const { posts } = toRefs(props);
-</script> 
+</script>
+
+<style scoped>
+.optimized-image-debug {
+  border: 2px dashed red;
+  background: #eee;
+}
+</style> 

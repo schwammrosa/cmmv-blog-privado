@@ -56,7 +56,7 @@
                                     </div>
 
                                     <!-- After Title Ad -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterTitle" class="w-full bg-gray-100 rounded-lg my-6 overflow-hidden flex justify-center">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterTitle" class="w-full bg-[#0a0a1a] rounded-lg my-6 overflow-hidden flex justify-center">
                                         <div class="ad-container ad-after-title py-2 px-4" v-if="getAdHtml('afterTitle')">
                                             <div v-html="getAdHtml('afterTitle')"></div>
                                         </div>
@@ -300,12 +300,12 @@
                                     </div>
 
                                     <!-- Bottom AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full bg-gray-100 rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full bg-[#0a0a1a] rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
                                         <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
                                             <div v-html="getAdHtml('belowContent')"></div>
                                         </div>
                                         <div class="ad-container ad-banner-bottom py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm">
                                                 <span>Anúncio</span>
                                             </div>
                                         </div>
@@ -719,14 +719,17 @@ onMounted(() => {
     isMounted.value = true;
     isDesktop.value = window.innerWidth > 768;
 
-    window.addEventListener('resize', () => {
-        if (isMounted.value)
-            isDesktop.value = window.innerWidth > 768;
-    });
-
-    window.addEventListener('scroll', handleScroll);
+    // Remover o console.log de debug das configurações de anúncios
+    // window.addEventListener('resize', ...)
     setupLazyLoading();
     loadAdScripts();
+    
+    // Recarregar anúncios após um delay para garantir que funcionem
+    setTimeout(() => {
+        if (isMounted.value) {
+            loadAdScripts();
+        }
+    }, 1000);
     
     // Tentar aplicar estilos aos comentários após o carregamento inicial
     setTimeout(() => {

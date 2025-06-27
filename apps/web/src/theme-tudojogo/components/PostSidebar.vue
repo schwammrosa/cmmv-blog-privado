@@ -89,7 +89,7 @@
 
         <!-- Popular Posts Widget -->
         <div v-if="popularPosts && popularPosts.length > 0"
-            class="bg-[#0d1117] rounded-lg shadow-md p-5 mb-6 hidden md:block border border-[#303443] gamer-popular-posts">
+            class="bg-[#0a0a1a] rounded-lg shadow-md p-5 mb-6 hidden md:block border border-[#303443] gamer-popular-posts">
             <h2
                 class="text-xl font-bold mb-4 pb-2 text-white border-b-2 border-[#ffcc00] titulo-gamer bg-[#6600cc]/20 pl-2 py-1 rounded-t-md">
                 Mais Populares
@@ -128,13 +128,13 @@
 
         <!-- AdSense Rectangle (Bottom) -->
         <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom"
-            class="bg-gray-100 rounded-lg p-2 mb-6 flex justify-center h-[400px]">
+            class="bg-[#0a0a1a] rounded-lg p-2 mb-6 flex justify-center h-[400px]">
             <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
                 <div v-html="getAdHtml('sidebarBottom')"></div>
             </div>
             <div class="ad-container ad-sidebar-bottom" v-else>
                 <div
-                    class="ad-placeholder h-[250px] w-[300px] bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                    class="ad-placeholder h-[250px] w-[300px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm">
                     <span>Anúncio</span>
                 </div>
             </div>

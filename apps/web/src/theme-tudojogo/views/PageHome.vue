@@ -53,17 +53,57 @@
                                     />
                                 </template>
                             </div>
-                            <div class="my-2">
-                                <AdBanner placement="belowContent" />
-                            </div>
+                            <AdBanner placement="belowContent" />
 
-                            <div ref="maisConteudoObserver" class="h-24"></div>
+                            <div ref="maisConteudoObserver"></div>
                             
                             <div v-if="showMoreContent" class="mais-conteudo-section">
-                                <PostList 
-                                    title="Mais Conteúdo"
-                                    :posts="paginatedMoreContent" 
-                                />
+                                <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00] titulo-gamer">
+                                    <span>Mais Conteúdo</span>
+                                </h2>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <template v-for="(post, idx) in paginatedMoreContent" :key="post.id">
+                                        <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col">
+                                            <a :href="`/post/${post.slug}`" class="block w-full overflow-hidden relative">
+                                                <OptimizedImage
+                                                    :src="post.featureImage"
+                                                    :alt="post.title"
+                                                    width="400"
+                                                    height="220"
+                                                    loading="lazy"
+                                                    :hover="true"
+                                                    icon-size="md"
+                                                    class="w-full h-56 min-h-56 max-h-56 object-cover object-center"
+                                                />
+                                                <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2 z-10">
+                                                    <span class="bg-[#5046e5] text-white px-3 py-1 rounded-full text-xs font-medium">
+                                                        {{ post.categories[0].name }}
+                                                    </span>
+                                                </div>
+                                            </a>
+                                            <div class="p-4 flex flex-col flex-1">
+                                                <a :href="`/post/${post.slug}`" class="block">
+                                                    <h3 class="text-base sm:text-lg font-bold text-gray-800 mb-1 hover:text-[#0a5d28] transition-colors line-clamp-2">
+                                                        {{ post.title }}
+                                                    </h3>
+                                                </a>
+                                                <p class="text-gray-600 text-xs sm:text-sm mb-2 line-clamp-2">
+                                                    {{ post.excerpt }}
+                                                </p>
+                                                <div class="flex justify-between items-center text-xs text-gray-500 mb-2">
+                                                    <span v-if="post.authors && post.authors.length > 0">Por {{ post.authors[0].name }}</span>
+                                                    <span>{{ post.publishedAt }}</span>
+                                                </div>
+                                                <div class="mt-auto text-center">
+                                                    <a :href="`/post/${post.slug}`" class="gamer-button inline-block px-3 py-1 text-xs font-medium rounded-md transition-all hover:shadow-lg text-white" style="color: white !important;">
+                                                        Continuar lendo
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </article>
+                                        <AdBanner v-if="idx === 3" placement="inContent" />
+                                    </template>
+                                </div>
                             </div>
 
                             <div v-if="showMoreContent && maisConteudoTotalPages > 1" class="mt-8 flex justify-center">
@@ -95,6 +135,7 @@
                                     </button>
                                 </div>
                             </div>
+                            <AdBanner placement="belowContent" />
                         </div>
 
                         <div class="lg:col-span-1 min-w-[300px]">
@@ -126,6 +167,7 @@ import CoverSection from '../components/CoverSection.vue';
 import PostList from '../components/PostList.vue';
 import PopularPostsWidget from '../components/PopularPostsWidget.vue';
 import AdBanner from '../components/AdBanner.vue';
+import OptimizedImage from '../../components/OptimizedImage.vue';
 
 declare global {
     interface Window {
@@ -174,7 +216,7 @@ const popularPosts = ref<any[]>(mostAccessedStore.getMostAccessedPosts || []);
 const loading = ref(true);
 const error = ref(null);
 const maisConteudoPage = ref(1);
-const maisConteudoPerPage = ref(6);
+const maisConteudoPerPage = ref(5);
 const showMoreContent = ref(false);
 const maisConteudoObserver = ref<HTMLElement | null>(null);
 const hydrated = ref(false);

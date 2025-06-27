@@ -42,10 +42,10 @@ export function useAdManager() {
             articlePageHeader: rawSettings['blog.articlePageHeader'] === undefined ? true : isTruthy(rawSettings['blog.articlePageHeader']),
             articlePageSidebarTop: rawSettings['blog.articlePageSidebarTop'] === undefined ? true : isTruthy(rawSettings['blog.articlePageSidebarTop']),
             articlePageSidebarBottom: rawSettings['blog.articlePageSidebarBottom'] === undefined ? true : isTruthy(rawSettings['blog.articlePageSidebarBottom']),
-            articlePageAfterTitle: isTruthy(rawSettings['blog.articlePageAfterTitle']),
+            articlePageAfterTitle: rawSettings['blog.articlePageAfterTitle'] === undefined ? true : isTruthy(rawSettings['blog.articlePageAfterTitle']),
             articlePageInContent: rawSettings['blog.articlePageInContent'] === undefined ? true : isTruthy(rawSettings['blog.articlePageInContent']),
             articlePageAfterContent: rawSettings['blog.articlePageAfterContent'] === undefined ? true : isTruthy(rawSettings['blog.articlePageAfterContent']),
-            articlePageFooter: isTruthy(rawSettings['blog.articlePageFooter']),
+            articlePageFooter: rawSettings['blog.articlePageFooter'] === undefined ? false : isTruthy(rawSettings['blog.articlePageFooter']),
             
             // AdSense settings
             enableAdSense: isTruthy(rawSettings['blog.enableAdSense']),
@@ -90,11 +90,21 @@ export function useAdManager() {
     });
 
     const getAdHtml = (position: string) => {
-        if (!adSettings.value.enableAds) return '';
+        if (!adSettings.value.enableAds) {
+            return '';
+        }
 
         // Check if position is enabled for the current page type
-        const positionKey = `homePage${position.charAt(0).toUpperCase() + position.slice(1)}`;
-        if (adSettings.value[positionKey] === false) {
+        // Try both home page and article page configurations
+        const homePageKey = `homePage${position.charAt(0).toUpperCase() + position.slice(1)}`;
+        const articlePageKey = `articlePage${position.charAt(0).toUpperCase() + position.slice(1)}`;
+        
+        // Check if the position is enabled for either page type
+        const isHomePageEnabled = adSettings.value[homePageKey] !== false; // Default to true if undefined
+        const isArticlePageEnabled = adSettings.value[articlePageKey] !== false; // Default to true if undefined
+        
+        // If both are explicitly disabled, return empty
+        if (adSettings.value[homePageKey] === false && adSettings.value[articlePageKey] === false) {
             return '';
         }
 
