@@ -63,6 +63,18 @@
                         </div>
                     </div>
                 </article>
+                <!-- Card de anúncio se faltar para completar a linha -->
+                <article
+                  v-if="posts.length % 3 !== 0"
+                  class="bg-[#0a0a1a] rounded-lg overflow-hidden shadow-md flex flex-col items-center justify-center border border-[#303443] text-gray-100 min-h-[320px]"
+                >
+                  <div class="w-full h-full flex flex-col items-center justify-center p-4">
+                    <div v-html="getAdHtml && getAdHtml('relatedPosts')"></div>
+                    <div v-if="!getAdHtml || !getAdHtml('relatedPosts')" class="ad-placeholder h-[90px] w-full max-w-[300px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443] mt-4">
+                      <span>Anúncio</span>
+                    </div>
+                  </div>
+                </article>
             </div>
 
             <div v-else class="text-center py-4 text-gray-600">
@@ -73,9 +85,10 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs } from 'vue';
+import { toRefs, inject } from 'vue';
 import OptimizedImage from '../../components/OptimizedImage.vue';
 import { formatDate } from '../../composables/useUtils.js';
+import { useAdManager } from '../composables/useAdManager';
 
 const props = defineProps({
   posts: {
@@ -85,6 +98,7 @@ const props = defineProps({
 });
 
 const { posts } = toRefs(props);
+const { getAdHtml } = useAdManager();
 
 const getAuthor = (post: any) => {
     if (!post.authors || !post.authors.length) return null;

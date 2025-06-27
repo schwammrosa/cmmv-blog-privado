@@ -41,6 +41,7 @@ const adPlacementMapping: Record<string, { key: string; height: string; width: s
   articleAfterTitle: { key: 'articlePageAfterTitle', height: '90px', width: '728px' },
   articleInContent: { key: 'articlePageInContent', height: '90px', width: '728px' },
   articleAfterContent: { key: 'articlePageAfterContent', height: '90px', width: '728px' },
+  articleRelatedPosts: { key: 'articlePageRelatedPosts', height: '90px', width: '728px' },
   articleSidebarTop: { key: 'articlePageSidebarTop', height: '250px', width: '300px' },
   articleSidebarBottom: { key: 'articlePageSidebarBottom', height: '250px', width: '300px' },
 };

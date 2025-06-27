@@ -230,6 +230,18 @@
                                             Mais Conteúdo
                                         </h2>
 
+                                        <!-- Related Posts Ad Banner -->
+                                        <div v-if="adSettings.enableAds && adSettings.articlePageRelatedPosts" class="w-full bg-[#0a0a1a] rounded-lg mb-6 overflow-hidden flex justify-center border border-[#303443]">
+                                            <div class="ad-container ad-banner-related-posts py-2 px-4" v-if="getAdHtml('relatedPosts')">
+                                                <div v-html="getAdHtml('relatedPosts')"></div>
+                                            </div>
+                                            <div class="ad-container ad-banner-related-posts py-2 px-4" v-else>
+                                                <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
+                                                    <span>Anúncio - Mais Conteúdo</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div ref="relatedPostsObserver" class="min-h-[200px]">
                                             <div v-if="!relatedPostsLoaded" class="flex justify-center items-center py-6">
                                                 <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0a5d28]"></div>

@@ -45,6 +45,7 @@ export function useAdManager() {
             articlePageAfterTitle: rawSettings['blog.articlePageAfterTitle'] === undefined ? true : isTruthy(rawSettings['blog.articlePageAfterTitle']),
             articlePageInContent: rawSettings['blog.articlePageInContent'] === undefined ? true : isTruthy(rawSettings['blog.articlePageInContent']),
             articlePageAfterContent: rawSettings['blog.articlePageAfterContent'] === undefined ? true : isTruthy(rawSettings['blog.articlePageAfterContent']),
+            articlePageRelatedPosts: rawSettings['blog.articlePageRelatedPosts'] === undefined ? true : isTruthy(rawSettings['blog.articlePageRelatedPosts']),
             articlePageFooter: rawSettings['blog.articlePageFooter'] === undefined ? false : isTruthy(rawSettings['blog.articlePageFooter']),
             
             // AdSense settings
@@ -61,6 +62,7 @@ export function useAdManager() {
             adSenseAfterTitle: rawSettings['blog.adSenseAfterTitle'] || '',
             adSenseInArticle: rawSettings['blog.adSenseInArticle'] || '',
             adSenseBelowContent: rawSettings['blog.adSenseBelowContent'] || '',
+            adSenseRelatedPosts: rawSettings['blog.adSenseRelatedPosts'] || '',
             
             // Custom Ads
             enableCustomAds: isTruthy(rawSettings['blog.enableCustomAds']),
@@ -69,6 +71,7 @@ export function useAdManager() {
             customSidebarBottom: rawSettings['blog.customSidebarBottom'] || '',
             customInArticle: rawSettings['blog.customInArticle'] || '',
             customBelowContent: rawSettings['blog.customBelowContent'] || '',
+            customRelatedPosts: rawSettings['blog.customRelatedPosts'] || '',
             
             // Amazon Affiliate
             enableAmazonAds: isTruthy(rawSettings['blog.enableAmazonAds']),
@@ -76,6 +79,7 @@ export function useAdManager() {
             amazonSidebarAd: rawSettings['blog.amazonSidebarAd'] || '',
             amazonInContentAd: rawSettings['blog.amazonInContentAd'] || '',
             amazonBelowContentAd: rawSettings['blog.amazonBelowContentAd'] || '',
+            amazonRelatedPostsAd: rawSettings['blog.amazonRelatedPostsAd'] || '',
             
             // Taboola Ads
             enableTaboolaAds: isTruthy(rawSettings['blog.enableTaboolaAds']),
@@ -121,6 +125,7 @@ export function useAdManager() {
                     sidebarLeft: 'SidebarLeft',
                     inContent: 'InArticle',
                     belowContent: 'BelowContent',
+                    relatedPosts: 'RelatedPosts',
                 }
             },
             {
@@ -132,6 +137,7 @@ export function useAdManager() {
                     sidebarBottom: 'SidebarBottom',
                     inContent: 'InArticle',
                     belowContent: 'BelowContent',
+                    relatedPosts: 'RelatedPosts',
                 }
             },
             {
@@ -141,6 +147,7 @@ export function useAdManager() {
                     sidebarTop: 'SidebarAd',
                     inContent: 'InContentAd',
                     belowContent: 'BelowContentAd',
+                    relatedPosts: 'RelatedPostsAd',
                 }
             },
             {
