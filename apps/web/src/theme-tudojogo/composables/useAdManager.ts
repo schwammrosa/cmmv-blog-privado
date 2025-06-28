@@ -112,7 +112,8 @@ export function useAdManager() {
             adSenseSidebarLeft: rawSettings['blog.adSenseSidebarLeft'] || '',
             adSenseAfterCover: rawSettings['blog.adSenseAfterCover'] || '',
             adSenseAfterTitle: rawSettings['blog.adSenseAfterTitle'] || '',
-            adSenseInArticle: rawSettings['blog.adSenseInArticle'] || `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5992656172984196" crossorigin="anonymous"></script>\n<!-- categoria e tag -->\n<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5992656172984196" data-ad-slot="8068331708" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`,
+            adSenseInArticle: rawSettings['blog.adSenseInArticle'] || '',
+            adSenseInContent: rawSettings['blog.adSenseInContent'] || `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5992656172984196" crossorigin="anonymous"></script>\n<!-- categoria e tag -->\n<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5992656172984196" data-ad-slot="8068331708" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`,
             adSenseBelowContent: rawSettings['blog.adSenseBelowContent'] || '',
             adSenseRelatedPosts: rawSettings['blog.adSenseRelatedPosts'] || `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5992656172984196" crossorigin="anonymous"></script>\n<!-- Pagia de poste, mais conteudo -->\n<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-5992656172984196" data-ad-slot="2968064177"></ins>\n<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`,
             
@@ -122,6 +123,7 @@ export function useAdManager() {
             customSidebarTop: rawSettings['blog.customSidebarTop'] || '',
             customSidebarBottom: rawSettings['blog.customSidebarBottom'] || '',
             customInArticle: rawSettings['blog.customInArticle'] || '',
+            customInContent: rawSettings['blog.customInContent'] || '',
             customBelowContent: rawSettings['blog.customBelowContent'] || '',
             customRelatedPosts: rawSettings['blog.customRelatedPosts'] || '',
             
@@ -175,7 +177,7 @@ export function useAdManager() {
                     sidebarMid: 'SidebarMid',
                     sidebarBottom: 'SidebarBottom',
                     sidebarLeft: 'SidebarLeft',
-                    inContent: 'InArticle',
+                    inContent: 'InContent',
                     belowContent: 'BelowContent',
                     relatedPosts: 'RelatedPosts',
                 }
@@ -187,7 +189,7 @@ export function useAdManager() {
                     header: 'HeaderBanner',
                     sidebarTop: 'SidebarTop',
                     sidebarBottom: 'SidebarBottom',
-                    inContent: 'InArticle',
+                    inContent: 'InContent',
                     belowContent: 'BelowContent',
                     relatedPosts: 'RelatedPosts',
                 }
