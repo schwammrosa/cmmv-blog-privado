@@ -29,9 +29,49 @@ const isDevelopment = (): boolean => {
     return process.env.NODE_ENV === 'development';
 };
 
+// Error handler for vignette/interstitial API errors
+const setupErrorHandling = () => {
+    if (typeof window !== 'undefined') {
+        // Override console.error to filter out vignette errors
+        const originalConsoleError = console.error;
+        console.error = (...args) => {
+            const errorMessage = args.join(' ');
+            if (errorMessage.includes('vignette: no interstitial API') || 
+                errorMessage.includes('express_html_inpage_rendering_lib')) {
+                // Suppress this specific error
+                return;
+            }
+            originalConsoleError.apply(console, args);
+        };
+
+        // Add global error handler for uncaught errors
+        window.addEventListener('error', (event) => {
+            if (event.error && event.error.message && 
+                (event.error.message.includes('vignette: no interstitial API') ||
+                 event.error.message.includes('express_html_inpage_rendering_lib'))) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
+        // Add unhandled promise rejection handler
+        window.addEventListener('unhandledrejection', (event) => {
+            if (event.reason && event.reason.message && 
+                (event.reason.message.includes('vignette: no interstitial API') ||
+                 event.reason.message.includes('express_html_inpage_rendering_lib'))) {
+                event.preventDefault();
+                return false;
+            }
+        });
+    }
+};
+
 export function useAdManager() {
     const settingsStore = useSettingsStore();
     const settings = computed(() => settingsStore.getSettings || {});
+
+    // Setup error handling when the composable is first used
+    setupErrorHandling();
 
     const adSettings = computed(() => {
         const rawSettings = settings.value;
@@ -72,9 +112,9 @@ export function useAdManager() {
             adSenseSidebarLeft: rawSettings['blog.adSenseSidebarLeft'] || '',
             adSenseAfterCover: rawSettings['blog.adSenseAfterCover'] || '',
             adSenseAfterTitle: rawSettings['blog.adSenseAfterTitle'] || '',
-            adSenseInArticle: rawSettings['blog.adSenseInArticle'] || '',
+            adSenseInArticle: rawSettings['blog.adSenseInArticle'] || `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5992656172984196" crossorigin="anonymous"></script>\n<!-- categoria e tag -->\n<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-5992656172984196" data-ad-slot="8068331708" data-ad-format="auto" data-full-width-responsive="true"></ins>\n<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`,
             adSenseBelowContent: rawSettings['blog.adSenseBelowContent'] || '',
-            adSenseRelatedPosts: rawSettings['blog.adSenseRelatedPosts'] || '',
+            adSenseRelatedPosts: rawSettings['blog.adSenseRelatedPosts'] || `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5992656172984196" crossorigin="anonymous"></script>\n<!-- Pagia de poste, mais conteudo -->\n<ins class="adsbygoogle" style="display:inline-block;width:728px;height:90px" data-ad-client="ca-pub-5992656172984196" data-ad-slot="2968064177"></ins>\n<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>`,
             
             // Custom Ads
             enableCustomAds: isTruthy(rawSettings['blog.enableCustomAds']),
@@ -206,10 +246,16 @@ export function useAdManager() {
                             script.async = true;
                             script.src = scriptSrc;
                             script.crossOrigin = "anonymous";
+                            
+                            // Add error handling for script loading
+                            script.onerror = (event) => {
+                                console.warn('AdSense script failed to load, but continuing...');
+                            };
+                            
                             head.appendChild(script);
                         }
                     } catch (e) {
-                        console.error("Error loading AdSense auto-ads script:", e);
+                        console.warn("Error loading AdSense auto-ads script:", e);
                     }
                 }
             }
@@ -224,7 +270,7 @@ export function useAdManager() {
                             }
                         });
                     } catch (e) {
-                        console.error("Error loading AdSense manual ads:", e);
+                        console.warn("Error loading AdSense manual ads:", e);
                     }
                 }, 300);
             }
@@ -239,11 +285,17 @@ export function useAdManager() {
                         const scriptElement = tempDiv.querySelector('script');
                         if (scriptElement) {
                             scriptElement.id = 'taboola-script';
+                            
+                            // Add error handling for Taboola script
+                            scriptElement.onerror = (event) => {
+                                console.warn('Taboola script failed to load, but continuing...');
+                            };
+                            
                             document.head.appendChild(scriptElement);
                         }
                     }
                 } catch (e) {
-                    console.error("Error loading Taboola script:", e);
+                    console.warn("Error loading Taboola script:", e);
                 }
             }
         }

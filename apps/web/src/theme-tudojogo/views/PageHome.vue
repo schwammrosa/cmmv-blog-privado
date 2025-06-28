@@ -106,10 +106,12 @@
                                                 </div>
                                             </div>
                                         </article>
+                                        
+                                        <!-- Ad banner after every 3rd post -->
+                                        <article v-if="(idx + 1) % 3 === 0" class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col">
+                                            <AdBanner placement="inContent" class="w-full h-full" />
+                                        </article>
                                     </template>
-                                    <article v-if="idx === 3" class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col">
-                                        <AdBanner placement="inContent" class="w-full h-full" />
-                                    </article>
                                 </div>
                             </div>
 
@@ -171,6 +173,8 @@ import { usePostsStore } from '../../store/posts';
 import { useMostAccessedPostsStore } from '../../store/mostaccessed';
 import { useAdManager } from '../composables/useAdManager.js';
 import { usePreparedPosts } from '../composables/usePreparedPosts.js';
+import { useErrorHandling } from '../composables/useErrorHandling.js';
+import { useNetworkErrorHandling } from '../composables/useNetworkErrorHandling.js';
 
 import CoverSection from '../components/CoverSection.vue';
 import PostList from '../components/PostList.vue';
@@ -193,6 +197,8 @@ const mostAccessedStore = useMostAccessedPostsStore();
 const blogAPI = vue3.useBlog();
 
 const { preparePosts } = usePreparedPosts();
+const { setupGlobalErrorHandling } = useErrorHandling();
+const { setupNetworkErrorHandling } = useNetworkErrorHandling();
 
 const isMobile = ref(false);
 const checkMobileView = () => { isMobile.value = window.innerWidth < 768; };
@@ -200,6 +206,8 @@ const checkMobileView = () => { isMobile.value = window.innerWidth < 768; };
 onMounted(() => {
     checkMobileView();
     window.addEventListener('resize', checkMobileView);
+    setupGlobalErrorHandling();
+    setupNetworkErrorHandling();
 });
 
 onUnmounted(() => {
