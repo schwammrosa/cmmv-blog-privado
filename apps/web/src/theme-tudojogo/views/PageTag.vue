@@ -24,60 +24,59 @@
 
                 <!-- Posts List Grid -->
                 <div v-else-if="posts.length > 0" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-8">
-                    <article
-                        v-for="post in posts"
-                        :key="post.id"
-                        class="bg-[#0a0a1a] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-[#303443] hover:border-[#6600cc] text-gray-100 h-full flex flex-col"
-                    >
-                        <a :href="`/post/${post.slug}`" class="block">
-                            <div class="h-48 overflow-hidden relative group">
-                                <OptimizedImage
-                                    v-if="post.featureImage"
-                                    :src="post.featureImage"
-                                    :alt="post.featureImageAlt || post.title"
-                                    class="w-full h-full object-cover imgix-lazy transition-transform duration-500 group-hover:scale-110"
-                                    width="300"
-                                    height="180"
-                                    loading="lazy"
-                                    priority="low"
-                                    icon-size="sm"
-                                />
-                                <div v-else class="w-full h-full bg-[#0a0a1a] border border-[#303443] flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
+                    <template v-for="(post, idx) in posts" :key="post.id">
+                        <article
+                            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col min-h-[120px] post-card"
+                        >
+                            <a :href="`/post/${post.slug}`" class="block">
+                                <div class="h-48 overflow-hidden relative group">
+                                    <OptimizedImage
+                                        v-if="post.featureImage"
+                                        :src="post.featureImage"
+                                        :alt="post.featureImageAlt || post.title"
+                                        class="w-full h-full object-cover imgix-lazy transition-transform duration-500 group-hover:scale-110"
+                                        width="300"
+                                        height="180"
+                                        loading="lazy"
+                                        priority="low"
+                                        icon-size="sm"
+                                    />
+                                    <div v-else class="w-full h-full border border-[#303443] flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <div class="absolute top-2 left-2">
+                                        <span class="bg-[#5046e5] text-white px-3 py-1 rounded-full text-xs font-medium">
+                                            {{ data.tag.name }}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <!-- Aqui mostramos sempre a tag atual -->
-                                <div class="absolute top-2 left-2">
-                                    <span class="bg-[#5046e5] text-white px-3 py-1 rounded-full text-xs font-medium">
-                                        {{ data.tag.name }}
-                                    </span>
-                                </div>
-                            </div>
-                        </a>
-                        <div class="p-4 flex-grow flex flex-col">
-                            <a :href="`/post/${post.slug}`" class="block mb-auto">
-                                <h3 class="text-lg font-bold text-white mb-2 hover:text-[#00ccff] transition-colors line-clamp-2 border-l-2 border-[#6600cc] pl-2">
-                                    {{ post.title }}
-                                </h3>
                             </a>
-                            <p class="text-gray-300 text-sm mb-3 line-clamp-2">
-                                {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
-                            </p>
-                            <div class="flex justify-between items-center text-xs text-gray-400 mb-3">
-                                <span v-if="post.author && getAuthor(post)">Por {{ getAuthor(post).name }}</span>
-                                <span>{{ formatDate(post.publishedAt || post.updatedAt) }}</span>
-                            </div>
-                            
-                            <!-- Botão Continuar Lendo -->
-                            <div class="text-center mt-auto">
-                                <a :href="`/post/${post.slug}`" class="gamer-button inline-block px-4 py-2 text-sm font-medium rounded-md transition-all hover:shadow-lg text-white" style="color: white !important;">
-                                    Continuar lendo
+                            <div class="p-4 flex flex-col flex-1">
+                                <a :href="`/post/${post.slug}`" class="block mb-auto">
+                                    <h3 class="text-lg font-bold text-gray-900 mb-2 hover:text-[#00ccff] transition-colors line-clamp-2 border-l-2 border-[#6600cc] pl-2">
+                                        {{ post.title }}
+                                    </h3>
                                 </a>
+                                <p class="text-gray-700 text-sm mb-3 line-clamp-2">
+                                    {{ post.excerpt || stripHtml(post.content).substring(0, 120) + '...' }}
+                                </p>
+                                <div class="flex justify-between items-center text-xs text-gray-500 mb-3">
+                                    <span v-if="post.author && getAuthor(post)">Por {{ getAuthor(post).name }}</span>
+                                    <span>{{ formatDate(post.publishedAt || post.updatedAt) }}</span>
+                                </div>
+                                <!-- Botão Continuar Lendo -->
+                                <div class="text-center mt-auto">
+                                    <a :href="`/post/${post.slug}`" class="gamer-button inline-block px-4 py-2 text-sm font-medium rounded-md transition-all hover:shadow-lg text-white" style="color: white !important;">
+                                        Continuar lendo
+                                    </a>
+                                </div>
                             </div>
-                        </div>
-                    </article>
+                        </article>
+                        <AdBanner v-if="(idx + 1) % 3 === 0" placement="inContent" />
+                    </template>
                 </div>
 
                 <!-- No posts state -->
@@ -110,6 +109,7 @@ import { useHead } from '@unhead/vue';
 import { vue3 } from '@cmmv/blog/client';
 import OptimizedImage from '../../components/OptimizedImage.vue';
 import { useSettingsStore } from '../../store/settings';
+import AdBanner from '../components/AdBanner.vue';
 
 import {
     formatDate, stripHtml

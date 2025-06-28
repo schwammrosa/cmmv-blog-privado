@@ -23,7 +23,7 @@
                             icon-size="md"
                             class="w-full h-full object-cover"
                         />
-                        <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2 z-10">
+                        <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2 z-10 hidden md:block">
                             <span class="bg-[#5046e5] text-white px-3 py-1 rounded-full text-xs font-medium">
                                 {{ post.categories[0].name }}
                             </span>
@@ -62,7 +62,7 @@
                         icon-size="md"
                         class="w-full h-56 min-h-56 max-h-56 object-cover object-center"
                     />
-                    <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2 z-10">
+                    <div v-if="post.categories && post.categories.length > 0" class="absolute top-2 left-2 z-10 hidden md:block">
                         <span class="bg-[#5046e5] text-white px-3 py-1 rounded-full text-xs font-medium">
                             {{ post.categories[0].name }}
                         </span>

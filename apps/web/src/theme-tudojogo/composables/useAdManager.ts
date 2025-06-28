@@ -19,14 +19,26 @@ const isTruthy = (value: any): boolean => {
     return false;
 };
 
+// Helper function to check if we're in development environment
+const isDevelopment = (): boolean => {
+    if (typeof window !== 'undefined') {
+        return window.location.hostname === 'localhost' || 
+               window.location.hostname === '127.0.0.1' ||
+               window.location.hostname.includes('localhost');
+    }
+    return process.env.NODE_ENV === 'development';
+};
+
 export function useAdManager() {
     const settingsStore = useSettingsStore();
     const settings = computed(() => settingsStore.getSettings || {});
 
     const adSettings = computed(() => {
         const rawSettings = settings.value;
+        const isDev = isDevelopment();
+        
         const result = {
-            enableAds: isTruthy(rawSettings['blog.enableAds']),
+            enableAds: isTruthy(rawSettings['blog.enableAds']), // Permite anúncios em desenvolvimento
             showAdsLoggedIn: isTruthy(rawSettings['blog.showAdsLoggedIn']),
             
             // Home page ad positions
@@ -49,10 +61,10 @@ export function useAdManager() {
             articlePageFooter: rawSettings['blog.articlePageFooter'] === undefined ? false : isTruthy(rawSettings['blog.articlePageFooter']),
             
             // AdSense settings
-            enableAdSense: isTruthy(rawSettings['blog.enableAdSense']),
+            enableAdSense: isDev ? false : isTruthy(rawSettings['blog.enableAdSense']), // Desabilita AdSense em desenvolvimento
             adSensePublisherId: rawSettings['blog.adSensePublisherId'] || '',
             adSenseAutoAdsCode: rawSettings['blog.adSenseAutoAdsCode'] || '',
-            enableAdSenseAutoAds: isTruthy(rawSettings['blog.enableAdSenseAutoAds']),
+            enableAdSenseAutoAds: isDev ? false : isTruthy(rawSettings['blog.enableAdSenseAutoAds']), // Desabilita Auto Ads em desenvolvimento
             adSenseHeaderBanner: rawSettings['blog.adSenseHeaderBanner'] || '',
             adSenseSidebarTop: rawSettings['blog.adSenseSidebarTop'] || '',
             adSenseSidebarMid: rawSettings['blog.adSenseSidebarMid'] || '',

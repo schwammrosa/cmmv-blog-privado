@@ -57,7 +57,12 @@
 
                             <div ref="maisConteudoObserver"></div>
                             
-                            <div v-if="showMoreContent" class="mais-conteudo-section">
+                            <div v-if="isMobile && !showMoreContentMobile" class="flex justify-center my-6">
+                                <button @click="showMoreContentMobile = true" class="gamer-button px-6 py-2 rounded-md text-white font-bold text-lg shadow-md hover:shadow-lg transition-all">
+                                    Carregar mais conteúdo
+                                </button>
+                            </div>
+                            <div v-if="(isMobile ? showMoreContentMobile : showMoreContent)" class="mais-conteudo-section">
                                 <h2 class="text-xl font-bold mb-6 pb-2 text-[#0a5d28] border-b-2 border-[#ffcc00] titulo-gamer">
                                     <span>Mais Conteúdo</span>
                                 </h2>
@@ -101,8 +106,10 @@
                                                 </div>
                                             </div>
                                         </article>
-                                        <AdBanner v-if="idx === 3" placement="inContent" />
                                     </template>
+                                    <article v-if="idx === 3" class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col">
+                                        <AdBanner placement="inContent" class="w-full h-full" />
+                                    </article>
                                 </div>
                             </div>
 
@@ -140,7 +147,9 @@
 
                         <div class="lg:col-span-1 min-w-[300px]">
                             <AdBanner placement="sidebarTop" />
-                            <PopularPostsWidget :posts="popularPosts" />
+                            <div class="hidden md:block">
+                                <PopularPostsWidget :posts="popularPosts" />
+                            </div>
                             <AdBanner placement="sidebarMid" />
                             <AdBanner placement="sidebarBottom" />
                         </div>
@@ -216,8 +225,9 @@ const popularPosts = ref<any[]>(mostAccessedStore.getMostAccessedPosts || []);
 const loading = ref(true);
 const error = ref(null);
 const maisConteudoPage = ref(1);
-const maisConteudoPerPage = ref(5);
+const maisConteudoPerPage = ref(6);
 const showMoreContent = ref(false);
+const showMoreContentMobile = ref(false);
 const maisConteudoObserver = ref<HTMLElement | null>(null);
 const hydrated = ref(false);
 

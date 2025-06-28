@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full relative bg-[#0a0a1a]">
+    <div class="w-full relative">
         <div class="w-full max-w-[1200px] mx-auto px-4">
             <div v-if="!post" class="bg-[#191a30] text-gray-100 rounded-lg p-6 border border-[#303443]">
                 <div class="text-center">
@@ -10,29 +10,34 @@
 
             <div v-else>
                 <!-- Top AdSense Banner -->
-                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full bg-[#0a0a1a] rounded-lg mb-8 overflow-hidden flex justify-center border border-[#303443]">
-                    <div class="ad-container ad-banner-top py-2 px-4" v-if="getAdHtml('header')">
-                        <div v-html="getAdHtml('header')"></div>
-                    </div>
-                    <div class="ad-container ad-banner-top py-2 px-4" v-else>
-                        <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0d1117] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
-                            <span>Anúncio</span>
+                <div v-if="adSettings.enableAds && adSettings.articlePageHeader" class="w-full mb-8">
+                    <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px]">
+                        <div class="ad-container ad-banner-top py-2 px-4 w-full">
+                            <div v-if="getAdHtml('header')">
+                                <div v-html="getAdHtml('header')"></div>
+                            </div>
+                            <div v-else class="ad-placeholder w-full h-full flex items-center justify-center text-yellow-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
+                                <div class="text-center">
+                                    <div class="text-xs mb-1">🚫 Anúncios Desabilitados</div>
+                                    <div class="text-xs">(Desenvolvimento)</div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    </article>
                 </div>
 
                 <!-- Main Content Layout -->
-                <div class="flex flex-col lg:flex-row gap-8 bg-[#0a0a1a] p-4 rounded-lg">
+                <div class="flex flex-col lg:flex-row gap-8 p-4 rounded-lg">
                     <!-- Main Content Area -->
                     <div class="flex-grow">
                         <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
                             <!-- Main Post Content (2 columns width) -->
-                            <div class="lg:col-span-3 bg-[#0a0a1a] rounded-lg p-4 relative shadow-md border border-[#303443] text-gray-100">
+                            <div class="lg:col-span-3 rounded-lg p-4 relative shadow-md text-gray-100 border-0 md:border border-[#303443]">
                                 <div class="w-full mx-auto overflow-hidden">
                                     <h1 class="post-title text-3xl md:text-4xl font-bold break-words mb-4 text-shadow-gamer" style="color: #ffffff !important;">{{ post.title }}</h1>
 
                                     <div v-if="post.featureImage" class="post-featured-image relative overflow-hidden rounded-lg max-h-[400px]">
-                                        <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
+                                        <div class="absolute top-4 left-4 z-10 flex flex-wrap gap-2 hidden md:flex">
                                             <a v-for="category in post.categories" :key="category.id" :href="`/category/${category.slug}`"
                                                 class="px-3 py-1 gamer-button text-sm font-medium rounded-full shadow-sm transition-all">
                                                 {{ category.name }}
@@ -56,15 +61,20 @@
                                     </div>
 
                                     <!-- After Title Ad -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterTitle" class="w-full bg-[#0a0a1a] rounded-lg my-6 overflow-hidden flex justify-center">
-                                        <div class="ad-container ad-after-title py-2 px-4" v-if="getAdHtml('afterTitle')">
-                                            <div v-html="getAdHtml('afterTitle')"></div>
-                                        </div>
-                                        <div class="ad-container ad-after-title py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
-                                                <span>Anúncio</span>
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterTitle" class="w-full my-6">
+                                        <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px]">
+                                            <div class="ad-container ad-after-title py-2 px-4 w-full">
+                                                <div v-if="getAdHtml('afterTitle')">
+                                                    <div v-html="getAdHtml('afterTitle')"></div>
+                                                </div>
+                                                <div v-else class="ad-placeholder w-full h-full flex items-center justify-center text-yellow-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
+                                                    <div class="text-center">
+                                                        <div class="text-xs mb-1">🚫 Anúncios Desabilitados</div>
+                                                        <div class="text-xs">(Desenvolvimento)</div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </article>
                                     </div>
 
                                     <!-- Post Header -->
@@ -90,7 +100,7 @@
 
                                     <!-- Tags & Categories -->
                                     <div class="post-taxonomy mt-2">
-                                        <div v-if="post.tags && post.tags.length > 0" class="post-tags">
+                                        <div v-if="post.tags && post.tags.length > 0" class="post-tags hidden md:flex">
                                             <div class="tags-list flex flex-wrap gap-2">
                                                 <a v-for="tag in post.tags" :key="tag" :href="`/tag/${tag.slug}`"
                                                     class="tag bg-[#0d1117] text-gray-200 hover:border-[#6600cc] border border-[#303443] px-3 py-1 rounded-full text-sm transition-colors">
@@ -213,15 +223,20 @@
                                     </div>
 
                                     <!-- Mid-content AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full bg-[#0a0a1a] rounded-lg my-8 overflow-hidden flex justify-center border border-[#303443]">
-                                        <div class="ad-container ad-banner-mid py-2 px-4" v-if="getAdHtml('inContent')">
-                                            <div v-html="getAdHtml('inContent')"></div>
-                                        </div>
-                                        <div class="ad-container ad-banner-mid py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
-                                                <span>Anúncio</span>
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageInContent" class="w-full my-8">
+                                        <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px]">
+                                            <div class="ad-container ad-banner-mid py-2 px-4 w-full">
+                                                <div v-if="getAdHtml('inContent')">
+                                                    <div v-html="getAdHtml('inContent')"></div>
+                                                </div>
+                                                <div v-else class="ad-placeholder w-full h-full flex items-center justify-center text-yellow-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
+                                                    <div class="text-center">
+                                                        <div class="text-xs mb-1">🚫 Anúncios Desabilitados</div>
+                                                        <div class="text-xs">(Desenvolvimento)</div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </article>
                                     </div>
 
                                     <!-- Mais Conteúdo Section -->
@@ -231,15 +246,20 @@
                                         </h2>
 
                                         <!-- Related Posts Ad Banner -->
-                                        <div v-if="adSettings.enableAds && adSettings.articlePageRelatedPosts" class="w-full bg-[#0a0a1a] rounded-lg mb-6 overflow-hidden flex justify-center border border-[#303443]">
-                                            <div class="ad-container ad-banner-related-posts py-2 px-4" v-if="getAdHtml('relatedPosts')">
-                                                <div v-html="getAdHtml('relatedPosts')"></div>
-                                            </div>
-                                            <div class="ad-container ad-banner-related-posts py-2 px-4" v-else>
-                                                <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
-                                                    <span>Anúncio - Mais Conteúdo</span>
+                                        <div v-if="adSettings.enableAds && adSettings.articlePageRelatedPosts" class="w-full mb-6">
+                                            <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px]">
+                                                <div class="ad-container ad-banner-related-posts py-2 px-4 w-full">
+                                                    <div v-if="getAdHtml('relatedPosts')">
+                                                        <div v-html="getAdHtml('relatedPosts')"></div>
+                                                    </div>
+                                                    <div v-else class="ad-placeholder w-full h-full flex items-center justify-center text-yellow-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
+                                                        <div class="text-center">
+                                                            <div class="text-xs mb-1">🚫 Anúncios Desabilitados</div>
+                                                            <div class="text-xs">(Desenvolvimento)</div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </article>
                                         </div>
 
                                         <div ref="relatedPostsObserver" class="min-h-[200px]">
@@ -252,28 +272,28 @@
                                                 <article
                                                     v-for="relatedPost in relatedPosts"
                                                     :key="relatedPost.id"
-                                                    class="bg-[#0a0a1a] rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all transform hover:-translate-y-1 duration-300 border border-[#303443] hover:border-[#6600cc] text-gray-100"
+                                                    class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col min-h-[120px] post-card"
                                                     data-v-f8103284
                                                 >
                                                     <a :href="`/post/${relatedPost.slug}`" class="block group">
                                                         <div class="overflow-hidden relative" style="height: 180px; width: 100%; aspect-ratio: 16/9;">
-                                                             <OptimizedImage
-                                                                 v-if="relatedPost.featureImage"
-                                                                 :src="relatedPost.featureImage"
-                                                                 :alt="relatedPost.title"
-                                                                 class="w-full h-full object-cover imgix-lazy transition-transform duration-500 group-hover:scale-110"
-                                                                 width="300"
-                                                                 height="180"
-                                                                 loading="lazy"
-                                                                 priority="low"
-                                                                 icon-size="sm"
-                                                             />
-                                                             <div v-else class="w-full h-full bg-[#0a0a1a] border border-[#303443] flex items-center justify-center">
-                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                                 </svg>
-                                                             </div>
-                                                             <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                            <OptimizedImage
+                                                                v-if="relatedPost.featureImage"
+                                                                :src="relatedPost.featureImage"
+                                                                :alt="relatedPost.title"
+                                                                class="w-full h-full object-cover imgix-lazy transition-transform duration-500 group-hover:scale-110"
+                                                                width="300"
+                                                                height="180"
+                                                                loading="lazy"
+                                                                priority="low"
+                                                                icon-size="sm"
+                                                            />
+                                                            <div v-else class="w-full h-full border border-[#303443] flex items-center justify-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                </svg>
+                                                            </div>
+                                                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                             <div v-if="relatedPost.categories && relatedPost.categories.length > 0" class="absolute top-2 left-2">
                                                                 <span class="bg-[#5046e5] text-white px-3 py-1 rounded-full text-xs font-medium">
                                                                     {{ relatedPost.categories[0].name }}
@@ -281,20 +301,19 @@
                                                             </div>
                                                         </div>
                                                     </a>
-                                                    <div class="p-4">
+                                                    <div class="p-4 flex flex-col flex-1">
                                                         <a :href="`/post/${relatedPost.slug}`" class="block">
-                                                            <h3 class="text-lg font-bold text-white mb-2 hover:text-[#00ccff] transition-colors line-clamp-2 border-l-2 border-[#6600cc] pl-2">
+                                                            <h3 class="text-lg font-bold text-gray-900 mb-2 hover:text-[#00ccff] transition-colors line-clamp-2 border-l-2 border-[#6600cc] pl-2">
                                                                 {{ relatedPost.title }}
                                                             </h3>
                                                         </a>
-                                                        <p class="text-gray-300 text-sm mb-3 line-clamp-2">
+                                                        <p class="text-gray-700 text-sm mb-3 line-clamp-2">
                                                             {{ relatedPost.excerpt || stripHtml(relatedPost.content).substring(0, 120) + '...' }}
                                                         </p>
-                                                        <div class="flex justify-between items-center text-xs text-gray-400 mb-3">
+                                                        <div class="flex justify-between items-center text-xs text-gray-500 mb-3">
                                                             <span v-if="getAuthor(relatedPost)">Por {{ getAuthor(relatedPost).name }}</span>
                                                             <span>{{ formatDate(relatedPost.publishedAt || relatedPost.updatedAt) }}</span>
                                                         </div>
-                                                        
                                                         <!-- Botão Continuar Lendo -->
                                                         <div class="text-center mt-auto">
                                                             <a :href="`/post/${relatedPost.slug}`" class="gamer-button inline-block px-4 py-2 text-sm font-medium rounded-md transition-all hover:shadow-lg text-white" style="color: white !important;">
@@ -312,15 +331,20 @@
                                     </div>
 
                                     <!-- Bottom AdSense Banner -->
-                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full bg-[#0a0a1a] rounded-lg mt-8 mb-4 overflow-hidden flex justify-center">
-                                        <div class="ad-container ad-banner-bottom py-2 px-4" v-if="getAdHtml('belowContent')">
-                                            <div v-html="getAdHtml('belowContent')"></div>
-                                        </div>
-                                        <div class="ad-container ad-banner-bottom py-2 px-4" v-else>
-                                            <div class="ad-placeholder h-[90px] w-full max-w-[728px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm">
-                                                <span>Anúncio</span>
+                                    <div v-if="adSettings.enableAds && adSettings.articlePageAfterContent" class="w-full mt-8 mb-4">
+                                        <article class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px]">
+                                            <div class="ad-container ad-banner-bottom py-2 px-4 w-full">
+                                                <div v-if="getAdHtml('belowContent')">
+                                                    <div v-html="getAdHtml('belowContent')"></div>
+                                                </div>
+                                                <div v-else class="ad-placeholder w-full h-full flex items-center justify-center text-yellow-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
+                                                    <div class="text-center">
+                                                        <div class="text-xs mb-1">🚫 Anúncios Desabilitados</div>
+                                                        <div class="text-xs">(Desenvolvimento)</div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </article>
                                     </div>
                                 </div>
                             </div>

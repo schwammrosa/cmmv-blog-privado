@@ -14,10 +14,21 @@ const isTruthy = (value: any): boolean => {
     return false;
 };
 
+// Helper function to check if we're in development environment
+const isDevelopment = (): boolean => {
+    if (typeof window !== 'undefined') {
+        return window.location.hostname === 'localhost' || 
+               window.location.hostname === '127.0.0.1' ||
+               window.location.hostname.includes('localhost');
+    }
+    return process.env.NODE_ENV === 'development';
+};
+
 export const useAds = (settings: any, page = 'generic') => {
     const adSettings = computed(() => {
         const rawSettings = settings || {};
         const processedSettings: Record<string, any> = {};
+        const isDev = isDevelopment();
 
         Object.keys(rawSettings).forEach(key => {
             if (key.startsWith('blog.')) {
@@ -41,10 +52,10 @@ export const useAds = (settings: any, page = 'generic') => {
             [`${page}PageAfterTitle`]: processedSettings[`${page}PageAfterTitle`] === undefined ? false : isTruthy(processedSettings[`${page}PageAfterTitle`]),
             [`${page}PageAfterCover`]: processedSettings[`${page}PageAfterCover`] === undefined ? false : isTruthy(processedSettings[`${page}PageAfterCover`]),
 
-            enableAdSense: isTruthy(processedSettings['enableAdSense']),
+            enableAdSense: isDev ? false : isTruthy(processedSettings['enableAdSense']),
             adSensePublisherId: processedSettings['adSensePublisherId'] || '',
             adSenseAutoAdsCode: processedSettings['adSenseAutoAdsCode'] || '',
-            enableAdSenseAutoAds: isTruthy(processedSettings['enableAdSenseAutoAds']),
+            enableAdSenseAutoAds: isDev ? false : isTruthy(processedSettings['enableAdSenseAutoAds']),
             adSenseHeaderBanner: processedSettings['adSenseHeaderBanner'] || '',
             adSenseSidebarTop: processedSettings['adSenseSidebarTop'] || '',
             adSenseSidebarMid: processedSettings['adSenseSidebarMid'] || '',

@@ -1,18 +1,17 @@
 <template>
     <div class="lg:col-span-1 min-w-[300px]">
         <!-- AdSense Rectangle (Top) -->
-        <div v-if="adSettings.enableAds && adSettings.articlePageSidebarTop"
-            class="bg-[#0a0a1a] rounded-lg p-2 mb-6 flex justify-center overflow-hidden h-[400px] border-t-2 border-[#6600cc]">
-            <div class="ad-container ad-sidebar-top" v-if="getAdHtml('sidebarTop')">
-                <div v-html="getAdHtml('sidebarTop')"></div>
+        <article v-if="adSettings.enableAds && adSettings.articlePageSidebarTop"
+            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px] post-card mb-6">
+            <div class="ad-container ad-sidebar-top py-2 px-4 w-full flex items-center justify-center h-full" v-if="getAdHtml('sidebarTop')">
+                <div v-html="getAdHtml('sidebarTop')" class="w-full flex items-center justify-center h-full"></div>
             </div>
-            <div class="ad-container ad-sidebar-top" v-else>
-                <div
-                    class="ad-placeholder h-[250px] w-[300px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm border border-[#303443]">
+            <div class="ad-container ad-sidebar-top py-2 px-4 w-full flex items-center justify-center h-full" v-else>
+                <div class="ad-placeholder w-full h-full flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
                     <span>Anúncio</span>
                 </div>
             </div>
-        </div>
+        </article>
 
         <!-- Share Widget -->
         <div class="bg-[#0a0a1a] rounded-lg shadow-md p-5 mb-6 border border-[#303443] border-l-4 border-l-[#6600cc] text-gray-100 sticky top-24 z-30">
@@ -127,18 +126,17 @@
         </div>
 
         <!-- AdSense Rectangle (Bottom) -->
-        <div v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom"
-            class="bg-[#0a0a1a] rounded-lg p-2 mb-6 flex justify-center h-[400px]">
-            <div class="ad-container ad-sidebar-bottom" v-if="getAdHtml('sidebarBottom')">
-                <div v-html="getAdHtml('sidebarBottom')"></div>
+        <article v-if="adSettings.enableAds && adSettings.articlePageSidebarBottom"
+            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px] post-card mb-6">
+            <div class="ad-container ad-sidebar-bottom py-2 px-4 w-full flex items-center justify-center h-full" v-if="getAdHtml('sidebarBottom')">
+                <div v-html="getAdHtml('sidebarBottom')" class="w-full flex items-center justify-center h-full"></div>
             </div>
-            <div class="ad-container ad-sidebar-bottom" v-else>
-                <div
-                    class="ad-placeholder h-[250px] w-[300px] bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm">
+            <div class="ad-container ad-sidebar-bottom py-2 px-4 w-full flex items-center justify-center h-full" v-else>
+                <div class="ad-placeholder w-full h-full flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
                     <span>Anúncio</span>
                 </div>
             </div>
-        </div>
+        </article>
     </div>
 </template>
 

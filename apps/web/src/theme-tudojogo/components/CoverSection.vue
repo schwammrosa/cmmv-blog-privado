@@ -10,7 +10,7 @@
                         class="absolute inset-0 w-full h-full object-cover"
                     />
                     <div class="absolute inset-0 flex flex-col justify-end p-2 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
-                        <div v-if="coverPosts.full && coverPosts.full.categories && coverPosts.full.categories.length > 0" class="mb-1">
+                        <div v-if="coverPosts.full && coverPosts.full.categories && coverPosts.full.categories.length > 0" class="mb-1 hidden md:block">
                             <span class="bg-[#5046e5] text-white px-2 py-0.5 rounded-full text-xs font-medium category-tag gamer-tag truncate">
                                 {{ coverPosts.full.categories[0].name }}
                             </span>
@@ -40,7 +40,7 @@
                             class="absolute inset-0 w-full h-full object-cover"
                         />
                         <div class="absolute inset-0 flex flex-col justify-end p-2 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
-                            <div v-if="post.categories && post.categories.length > 0" class="mb-1">
+                            <div v-if="post.categories && post.categories.length > 0" class="mb-1 hidden md:block">
                                 <span class="bg-[#5046e5] text-white px-2 py-0.5 rounded-full text-xs font-medium truncate">
                                     {{ post.categories[0].name }}
                                 </span>
@@ -92,7 +92,7 @@
                             class="absolute inset-0 w-full h-full object-cover"
                         />
                         <div class="absolute inset-0 flex flex-col justify-end p-4 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
-                            <div v-if="coverPosts.splitMain && coverPosts.splitMain.categories && coverPosts.splitMain.categories.length > 0" class="mb-1">
+                            <div v-if="coverPosts.splitMain && coverPosts.splitMain.categories && coverPosts.splitMain.categories.length > 0" class="mb-1 hidden md:block">
                                 <span class="bg-[#5046e5] text-white px-2 py-0.5 rounded-full text-xs font-medium truncate">
                                     {{ coverPosts.splitMain.categories[0].name }}
                                 </span>
@@ -114,7 +114,7 @@
                                 class="absolute inset-0 w-full h-full object-cover"
                             />
                             <div class="absolute inset-0 flex flex-col justify-end p-2 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
-                                <div v-if="post.categories && post.categories.length > 0" class="mb-1">
+                                <div v-if="post.categories && post.categories.length > 0" class="mb-1 hidden md:block">
                                     <span class="bg-[#5046e5] text-white px-2 py-0.5 rounded-full text-xs font-medium truncate">
                                         {{ post.categories[0].name }}
                                     </span>
@@ -139,7 +139,7 @@
                             class="absolute inset-0 w-full h-full object-cover"
                         />
                         <div class="absolute inset-0 flex flex-col justify-end p-2 bg-gradient-to-t from-black/90 via-black/70 to-transparent text-white">
-                            <div v-if="post.categories && post.categories.length > 0" class="mb-1">
+                            <div v-if="post.categories && post.categories.length > 0" class="mb-1 hidden md:block">
                                 <span class="bg-[#5046e5] text-white px-2 py-0.5 rounded-full text-xs font-medium truncate">
                                     {{ post.categories[0].name }}
                                 </span>

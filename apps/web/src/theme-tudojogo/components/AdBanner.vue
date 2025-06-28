@@ -1,17 +1,25 @@
 <template>
-  <div v-if="adSettings.enableAds && adConfig.enabled" class="w-full bg-[#0a0a1a] rounded-lg my-4 overflow-hidden flex justify-center">
-    <div class="ad-container py-2 px-4" v-if="adHtml">
-      <div v-html="adHtml"></div>
-    </div>
-    <div class="ad-container py-2 px-4" v-else>
-      <div 
-        class="ad-placeholder bg-[#0a0a1a] flex items-center justify-center text-gray-400 text-sm"
-        :style="{ height: adConfig.height, width: adConfig.width }"
-      >
+  <article v-if="adSettings.enableAds && adConfig.enabled" class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px] post-card my-4">
+    <div class="ad-container py-2 px-4 w-full flex items-center justify-center h-full">
+      <div v-if="adHtml">
+        <div v-html="adHtml" class="w-full flex items-center justify-center h-full"></div>
+      </div>
+      <div v-else class="ad-placeholder w-full h-full flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
         <span>Anúncio - {{ placement }}</span>
       </div>
     </div>
-  </div>
+  </article>
+  <!-- Mostra placeholder informativo em desenvolvimento -->
+  <article v-else-if="isDevelopment() && adConfig.enabled" class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow transform hover:-translate-y-1 duration-300 flex flex-col items-center justify-center min-h-[120px] post-card my-4">
+    <div class="ad-container py-2 px-4 w-full flex items-center justify-center h-full">
+      <div class="ad-placeholder w-full h-full flex items-center justify-center text-yellow-400 text-sm border-2 border-dashed border-yellow-400 min-h-[90px]">
+        <div class="text-center">
+          <div class="text-xs mb-1">🚫 Anúncios Desabilitados</div>
+          <div class="text-xs">(Desenvolvimento)</div>
+        </div>
+      </div>
+    </div>
+  </article>
 </template>
 
 <script setup lang="ts">
@@ -26,6 +34,16 @@ const props = defineProps({
 });
 
 const { adSettings, getAdHtml } = useAdManager();
+
+// Helper function to check if we're in development environment
+const isDevelopment = (): boolean => {
+    if (typeof window !== 'undefined') {
+        return window.location.hostname === 'localhost' || 
+               window.location.hostname === '127.0.0.1' ||
+               window.location.hostname.includes('localhost');
+    }
+    return process.env.NODE_ENV === 'development';
+};
 
 const adPlacementMapping: Record<string, { key: string; height: string; width: string }> = {
   // Home page positions
@@ -64,7 +82,6 @@ const adHtml = computed(() => getAdHtml(props.placement));
 
 <style scoped>
 .ad-placeholder {
-  border: 1px dashed #ccc;
   border-radius: 4px;
 }
 </style> 
