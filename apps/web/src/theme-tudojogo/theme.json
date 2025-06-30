@@ -1,0 +1,16 @@
+{
+    "name": "TudoJogo",
+    "description": "Site especializado em jogos",
+    "author": "Robson Schwamm Rosa",
+    "version": "0.2.0",
+    "preview": "/src/theme-tudojogo/assets/preview.png",
+    "url": "https://tudojogo.com.br",
+    "tags": ["games", "noticias", "reviews"],
+    "features": [
+        "Design com estilo gamer",
+        "Alta performance",
+        "Totalmente responsivo",
+        "Otimizado para SEO"
+    ],
+    "lastUpdated": "2025-06-11"
+}
