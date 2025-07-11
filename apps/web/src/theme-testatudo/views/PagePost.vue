@@ -1506,7 +1506,7 @@ const sidebarLeftAdContainer = ref(null);
 /* Lazy loading styles */
 .lazy-image {
     transition: opacity 0.3s ease-in-out;
-    opacity: 0.8;
+    opacity: 1;
 }
 
 .lazy-image.loaded {
