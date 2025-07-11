@@ -54,7 +54,7 @@
                                         </div>
 
                                         <img
-                                            :src="getThumbnailUrl(post.featureImage)"
+                                            :src="post.featureImage"
                                             :data-src="post.featureImage"
                                             :alt="post.featureImageAlt || post.title"
                                             class="featured-img lazy-image md:block hidden"
@@ -255,7 +255,7 @@
                                                         <div class="h-48 overflow-hidden relative">
                                                             <img
                                                                 v-if="relatedPost.featureImage"
-                                                                :src="getThumbnailUrl(relatedPost.featureImage)"
+                                                                :src="relatedPost.featureImage"
                                                                 :data-src="relatedPost.featureImage"
                                                                 :alt="relatedPost.title"
                                                                 class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
@@ -430,7 +430,7 @@
                                                 <a :href="`/post/${popularPost.slug}`">
                                                     <img
                                                         v-if="popularPost.image || popularPost.featureImage"
-                                                        :src="getThumbnailUrl(popularPost.image || popularPost.featureImage)"
+                                                        :src="popularPost.image || popularPost.featureImage"
                                                         :data-src="popularPost.image || popularPost.featureImage"
                                                         :alt="popularPost.title"
                                                         class="w-full h-full object-cover lazy-image"
