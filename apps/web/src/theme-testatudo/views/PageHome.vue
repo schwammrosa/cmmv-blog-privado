@@ -29,7 +29,7 @@
                         <div class="relative h-[400px]">
                             <img
                                 v-if="coverPosts.full && coverPosts.full.featureImage"
-                                :src="getThumbnailUrl(coverPosts.full.featureImage)"
+                                :src="coverPosts.full.featureImage"
                                 :data-src="coverPosts.full.featureImage"
                                 :alt="coverPosts.full.title"
                                 class="w-full h-full object-cover lazy-image"
@@ -72,7 +72,7 @@
                             <a :href="`/post/${post.slug}`" class="block h-full">
                                 <img
                                     v-if="post.featureImage"
-                                    :src="getThumbnailUrl(post.featureImage)"
+                                    :src="post.featureImage"
                                     :data-src="post.featureImage"
                                     :alt="post.title"
                                     class="w-full h-full object-cover lazy-image"
@@ -141,7 +141,7 @@
                             <div class="relative h-full">
                                 <img
                                     v-if="coverPosts.splitMain && coverPosts.splitMain.featureImage"
-                                    :src="getThumbnailUrl(coverPosts.splitMain.featureImage)"
+                                    :src="coverPosts.splitMain.featureImage"
                                     :data-src="coverPosts.splitMain.featureImage"
                                     :alt="coverPosts.splitMain.title"
                                     class="w-full h-full object-cover lazy-image"
@@ -180,7 +180,7 @@
                                 <div class="relative h-full">
                                     <img
                                         v-if="post.featureImage"
-                                        :src="getThumbnailUrl(post.featureImage)"
+                                        :src="post.featureImage"
                                         :data-src="post.featureImage"
                                         :alt="post.title"
                                         class="w-full h-full object-cover lazy-image"
@@ -214,7 +214,7 @@
                             <div class="relative h-[350px]">
                                 <img
                                     v-if="post.featureImage"
-                                    :src="getThumbnailUrl(post.featureImage)"
+                                    :src="post.featureImage"
                                     :data-src="post.featureImage"
                                     :alt="post.title"
                                     class="w-full h-full object-cover lazy-image"
@@ -284,7 +284,7 @@
                                         <div class="h-48 overflow-hidden relative">
                                             <img
                                                 v-if="post.featureImage"
-                                                :src="getThumbnailUrl(post.featureImage)"
+                                                :src="post.featureImage"
                                                 :data-src="post.featureImage"
                                                 :alt="post.title"
                                                 class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
@@ -346,7 +346,7 @@
                                             <div class="h-48 overflow-hidden relative">
                                                 <img
                                                     v-if="post.featureImage"
-                                                    :src="getThumbnailUrl(post.featureImage)"
+                                                    :src="post.featureImage"
                                                     :data-src="post.featureImage"
                                                     :alt="post.title"
                                                     class="w-full h-full object-cover transition-transform hover:scale-105 duration-300 lazy-image"
@@ -433,7 +433,7 @@
                                             <a :href="`/post/${post.slug}`">
                                                 <img
                                                     v-if="post.image"
-                                                    :src="getThumbnailUrl(post.image)"
+                                                    :src="post.image"
                                                     :data-src="post.image"
                                                     :alt="post.title"
                                                     class="w-full h-full object-cover lazy-image"
