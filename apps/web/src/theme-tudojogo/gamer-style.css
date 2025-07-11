@@ -1,0 +1,675 @@
+/* Estilos de tema gamer para TudoJogo */
+
+/* Variáveis de cores do tema gamer */
+:root {
+  /* Cores principais */
+  --gamer-primary: #6600cc;       /* Roxo vibrante */
+  --gamer-secondary: #00ccff;     /* Azul neon */
+  --gamer-accent: #ff3366;        /* Rosa neon */
+  --gamer-highlight: #ffcc00;     /* Amarelo vibrante */
+  
+  /* Cores de fundo e texto */
+  --gamer-dark: #191a30;          /* Azul escuro */
+  --gamer-light: #f0f8ff;         /* Azul claro */
+  --gamer-background: #0d1117;    /* Fundo escuro */
+  --gamer-text: #ffffff;          /* Texto claro - mais brilhante */
+  --gamer-border: #303443;        /* Borda escura */
+  
+  /* Sombras e efeitos */
+  --gamer-shadow: 0 0 10px rgba(0, 204, 255, 0.5);
+  --gamer-gradient: linear-gradient(45deg, var(--gamer-primary), var(--gamer-secondary));
+}
+
+/* Efeitos visuais para elementos gamer */
+@keyframes neon-pulse {
+  0% { box-shadow: 0 0 5px var(--gamer-secondary), 0 0 10px var(--gamer-secondary); }
+  50% { box-shadow: 0 0 10px var(--gamer-secondary), 0 0 20px var(--gamer-secondary); }
+  100% { box-shadow: 0 0 5px var(--gamer-secondary), 0 0 10px var(--gamer-secondary); }
+}
+
+/* Animação otimizada para hover de botões */
+@keyframes button-hover {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.text-shadow-gamer {
+  text-shadow: 2px 2px 4px rgba(10, 93, 40, 0.7), 0 0 1px rgba(0, 0, 0, 0.5);
+  color: #111827;
+}
+
+/* Estilo para o corpo da página */
+body {
+  font-family: 'Rajdhani', 'Orbitron', sans-serif;
+  letter-spacing: 0.5px;
+}
+
+/* Header com estilo gamer */
+header.gamer-header {
+  background: var(--gamer-dark);
+  background: linear-gradient(to right, var(--gamer-dark), #261a45);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  border-bottom: 2px solid var(--gamer-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  width: 100%;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+header.gamer-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gamer-accent), var(--gamer-secondary), var(--gamer-accent));
+  background-size: 200% 200%;
+  animation: button-hover 3s ease infinite;
+}
+
+/* Menu de navegação estilo gamer */
+.gamer-nav a, 
+.gamer-nav button {
+  color: var(--gamer-light) !important;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  position: relative;
+  padding: 0.5rem 0.75rem !important;
+  overflow: hidden;
+  border-radius: 4px;
+  border: 1px solid var(--gamer-secondary);
+  box-shadow: 0 0 5px rgba(0, 204, 255, 0.3);
+}
+
+.gamer-nav a:hover,
+.gamer-nav button:hover {
+  color: var(--gamer-secondary) !important;
+  background: rgba(0, 204, 255, 0.1) !important;
+  text-shadow: 0 0 5px var(--gamer-secondary);
+  border-color: var(--gamer-accent);
+  box-shadow: 0 0 8px rgba(0, 204, 255, 0.5);
+}
+
+/* Estilização de botões */
+.gamer-button {
+  background: linear-gradient(45deg, var(--gamer-primary), var(--gamer-secondary));
+  background-size: 200% 200%;
+  animation: button-hover 5s ease infinite;
+  color: white !important;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.gamer-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+}
+
+/* Cards com estilo gamer */
+/* Card com estilo gamer otimizado */
+.gamer-card {
+  background: var(--gamer-dark);
+  border: 1px solid var(--gamer-border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.gamer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 0 0 10px var(--gamer-secondary);
+}
+
+.gamer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--gamer-gradient);
+  background-size: 200% 200%;
+  animation: button-hover 3s ease infinite;
+}
+
+/* Estilização para os cards de posts */
+.post-card, article, .post, .post-item {
+  background: rgba(25, 26, 48, 0.8) !important;
+  border: 1px solid var(--gamer-border) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  color: var(--gamer-text) !important;
+}
+
+.post-card:hover, article:hover, .post:hover, .post-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 10px var(--gamer-secondary);
+}
+
+.post-card::before, article::before, .post::before, .post-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gamer-accent), var(--gamer-secondary), var(--gamer-primary));
+  background-size: 200% 200%;
+  animation: button-hover 3s ease infinite;
+  z-index: 1;
+}
+
+.post-card img, article img, .post img, .post-item img {
+  transition: transform 0.5s ease;
+}
+
+.post-card:hover img, article:hover img, .post:hover img, .post-item:hover img {
+  transform: scale(1.05);
+}
+
+.post-card h2, .post-card h3, .post-card h4,
+article h2, article h3, article h4,
+.post h2, .post h3, .post h4,
+.post-item h2, .post-item h3, .post-item h4 {
+  color: white !important;
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  text-shadow: 0 0 5px rgba(0, 204, 255, 0.5);
+}
+
+.post-card a, article a, .post a, .post-item a {
+  color: var(--gamer-secondary) !important;
+}
+
+.post-card .date, .post-card .category,
+article .date, article .category,
+.post .date, .post .category,
+.post-item .date, .post-item .category {
+  color: var(--gamer-accent) !important;
+  font-size: 0.85rem;
+}
+
+/* Tags e categorias de posts */
+.post-tag, .post-category, .tag, .category, .tags a, .categories a {
+  background: rgba(0, 204, 255, 0.1) !important;
+  border: 1px solid var(--gamer-secondary) !important;
+  color: var(--gamer-secondary) !important;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.post-tag:hover, .post-category:hover {
+  background: rgba(0, 204, 255, 0.2) !important;
+  box-shadow: 0 0 8px rgba(0, 204, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+/* Estilo para títulos de seções (estilo gamer sutil) */
+h2.titulo-gamer {
+  margin-bottom: 30px !important;
+  position: relative;
+  font-family: 'Orbitron', 'Russo One', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 3px rgba(0, 204, 255, 0.3), 0 0 5px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s ease;
+  padding-left: 15px;
+  font-weight: 800 !important;
+  border: none !important;
+}
+
+/* Linha decorativa abaixo dos títulos de seção */
+h2.titulo-gamer::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #10ff8d, #00ccff, transparent);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.8), 0 0 15px rgba(16, 255, 141, 0.6);
+  animation: pulseGlow 4s infinite alternate ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 204, 255, 0.7), 0 0 12px rgba(16, 255, 141, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(0, 204, 255, 0.9), 0 0 18px rgba(16, 255, 141, 0.8);
+  }
+}
+
+/* Antes do título da seção */
+h2.titulo-gamer::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  opacity: 0.9;
+  color: #00ccff; /* Azul neon mais puro */
+  font-weight: bold;
+  text-shadow: 0 0 6px rgba(0, 204, 255, 0.8), 0 0 10px rgba(0, 204, 255, 0.5);
+}
+
+/* Estilo especial para texto dentro dos títulos */
+h2.titulo-gamer span {
+  color: #10ff8d; /* Verde neon mais vibrante */
+  text-shadow: 0 0 5px rgba(16, 255, 141, 0.7), 0 0 8px rgba(16, 255, 141, 0.4);
+  -webkit-text-fill-color: initial;
+}
+
+/* Aumentando espaço APENAS para a seção "Mais Conteúdo" */
+.mais-conteudo-section {
+  margin-top: 10px !important;
+  padding-top: 40px !important;
+  position: relative;
+}
+
+/* Linha divisora antes da seção Mais Conteúdo */
+.mais-conteudo-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gamer-accent), var(--gamer-secondary), var(--gamer-accent));
+  opacity: 0.6;
+}
+
+/* Estilos para a seção de posts populares */
+.post-popular-item {
+  position: relative;
+  transition: all 0.3s ease;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.post-popular-item:hover {
+  background: rgba(25, 26, 48, 0.1);
+}
+
+.post-popular-item:hover h4 {
+  color: var(--gamer-secondary) !important;
+  text-shadow: 0 0 4px rgba(0, 204, 255, 0.3);
+}
+
+.post-popular-item img {
+  transition: transform 0.4s ease;
+}
+
+.post-popular-item:hover img {
+  transform: scale(1.08);
+}
+
+/* Contêiner dos posts populares */
+.gamer-popular-posts {
+  background: rgba(25, 26, 48, 0.03) !important;
+  border: 1px solid var(--gamer-border) !important;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), 0 0 5px rgba(0, 204, 255, 0.1) !important;
+}
+
+.gamer-popular-posts::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gamer-accent), var(--gamer-secondary));
+  opacity: 0.8;
+}
+
+/* Estilos para o conteúdo de destaque */
+.feature-content {
+  backdrop-filter: blur(2px);
+}
+
+.feature-title {
+  display: inline-block;
+  background: rgba(0, 0, 0, 0.5) !important;
+  border-left: 4px solid var(--gamer-accent);
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8), 0 0 5px var(--gamer-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gamer-accent), var(--gamer-secondary), transparent);
+}
+
+.feature-excerpt {
+  background: rgba(0, 0, 0, 0.6);
+  border-left: 2px solid var(--gamer-secondary);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+
+.category-tag.gamer-tag {
+  box-shadow: 0 0 8px rgba(255, 204, 0, 0.5);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(255, 204, 0, 0.7);
+}
+
+span.gamer-highlight {
+  position: relative;
+  color: #ffffff;
+  animation: textPulse 2s infinite;
+}
+
+@keyframes textPulse {
+  0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+  50% { text-shadow: 0 0 10px rgba(0, 204, 255, 0.5), 0 0 20px rgba(0, 204, 255, 0.2); }
+  100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+}
+
+/* Estilizando os botões de Continuar Lendo */
+.read-more-btn, a.more-link, a.read-more, button.more, .button, a:contains('Continuar') {
+  background: linear-gradient(45deg, var(--gamer-primary), var(--gamer-secondary)) !important;
+  background-size: 200% 200% !important;
+  animation: button-hover 5s ease infinite !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 4px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  font-size: 0.85rem !important;
+  transition: all 0.3s ease !important;
+  display: inline-block !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.read-more-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 204, 255, 0.5) !important;
+}
+
+/* Efeito de brilho estático ao invés de efeito deslizante */
+.read-more-btn:hover {
+  border-color: var(--gamer-accent) !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 204, 255, 0.5) !important;
+}
+
+/* Paginação com estilo gamer */
+.pagination-item {
+  background: rgba(25, 26, 48, 0.8) !important;
+  border: 1px solid var(--gamer-border) !important;
+  color: white !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.pagination-item.active {
+  background: linear-gradient(45deg, var(--gamer-primary), var(--gamer-secondary)) !important;
+  border-color: var(--gamer-secondary) !important;
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.5) !important;
+}
+
+.pagination-item:hover {
+  background: rgba(0, 204, 255, 0.2) !important;
+  border-color: var(--gamer-secondary) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.3) !important;
+}
+
+/* Ajuste para headers de seções */
+h2.section-title, h3.section-title {
+  color: white !important;
+  font-family: 'Orbitron', sans-serif !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  position: relative !important;
+  display: inline-block !important;
+  margin-bottom: 1.5rem !important;
+  padding-bottom: 0.5rem !important;
+}
+
+h2.section-title:after, h3.section-title:after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 60px !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, var(--gamer-accent), var(--gamer-secondary)) !important;
+  box-shadow: 0 0 10px rgba(0, 204, 255, 0.5) !important;
+}
+
+/* Footer com estilo gamer */
+footer.gamer-footer {
+  background: var(--gamer-dark);
+  background: linear-gradient(to right, var(--gamer-dark), #261a45);
+  border-top: 2px solid var(--gamer-secondary);
+  position: relative;
+}
+
+footer.gamer-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gamer-accent), var(--gamer-secondary), var(--gamer-accent));
+  background-size: 200% 200%;
+  animation: button-hover 3s ease infinite;
+}
+
+/* Decorações de pixel art para títulos */
+.pixel-border h3 {
+  position: relative;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+}
+
+.pixel-border h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: var(--gamer-secondary);
+  box-shadow: 0 0 10px var(--gamer-secondary);
+}
+
+/* Estilização de links */
+.gamer-link {
+  color: var(--gamer-secondary) !important;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.gamer-link:hover {
+  text-shadow: 0 0 8px var(--gamer-secondary);
+}
+
+.gamer-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gamer-secondary);
+  transition: width 0.3s ease;
+}
+
+.gamer-link:hover::after {
+  width: 100%;
+}
+
+/* Estilização da barra de pesquisa */
+.gamer-search input {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--gamer-border);
+  color: var(--gamer-light);
+}
+
+.gamer-search input:focus {
+  box-shadow: 0 0 0 2px var(--gamer-secondary);
+  border-color: var(--gamer-secondary);
+}
+
+/* Social icons com estilo gamer */
+.gamer-social a {
+  transition: all 0.3s ease;
+}
+
+.gamer-social a:hover {
+  transform: translateY(-3px);
+  color: var(--gamer-secondary) !important;
+}
+
+/* Background do conteúdo principal */
+.gamer-main-bg {
+  background-color: #0f0f1a;
+  background: linear-gradient(to bottom, #0d1117, #1a1b2e);
+  position: relative;
+}
+
+/* Melhorar legibilidade do texto nos posts */
+p, li, span, .post-summary, .post-excerpt, .post-content, 
+.post-card p, .post-card li, .post-card span, 
+.post-item p, .post-item span, 
+article p, article li, article span,
+.post p, .post li, .post span {
+  color: var(--gamer-text) !important;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Estilização especial para texto do conteúdo do post */
+.post-content, .entry-content, .content, .text-content, main, article {
+  color: var(--gamer-text) !important;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+}
+
+/* Aumentar contraste de links no conteúdo */
+a, .post-content a, article a, .entry-content a, .content a, main a {
+  color: var(--gamer-highlight) !important;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Aplicar destaque para textos importantes */
+strong, b, em, i,
+.post-card strong, .post-card b, 
+article strong, article b,
+.post strong, .post b,
+.post-item strong, .post-item b {
+  color: var(--gamer-highlight) !important;
+  font-weight: 700;
+}
+
+.gamer-main-bg::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 20% 30%, rgba(102, 0, 204, 0.05) 0%, transparent 30%), 
+                radial-gradient(circle at 80% 70%, rgba(0, 204, 255, 0.05) 0%, transparent 30%);
+  pointer-events: none;
+}
+
+/* Dropdown menu estilo gamer */
+.gamer-dropdown {
+  background: rgba(25, 26, 48, 0.95) !important;
+  border: 1px solid var(--gamer-border) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 204, 255, 0.3) !important;
+}
+
+.gamer-dropdown a:hover {
+  background: rgba(0, 204, 255, 0.1) !important;
+  color: var(--gamer-secondary) !important;
+}
+
+/* Tags estilo gamer */
+.gamer-tag {
+  background: rgba(0, 204, 255, 0.1);
+  border: 1px solid var(--gamer-secondary);
+  color: var(--gamer-secondary) !important;
+}
+
+/* Newsletter input */
+.gamer-newsletter input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--gamer-border);
+  color: var(--gamer-light);
+}
+
+.gamer-newsletter input:focus {
+  box-shadow: 0 0 0 2px var(--gamer-secondary);
+  border-color: var(--gamer-secondary);
+}
+
+.gamer-newsletter button {
+  background: linear-gradient(45deg, var(--gamer-primary), var(--gamer-secondary));
+  background-size: 200% 200%;
+  animation: button-hover 5s ease infinite;
+}
+
+.gamer-newsletter button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+}
+
+/* Rodapé com efeito de pixel */
+.gamer-footer-border {
+  border-color: var(--gamer-border) !important;
+}
+
+/* Estilização para mobile menu */
+.gamer-mobile-menu {
+  background-color: rgba(25, 26, 48, 0.95);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--gamer-border);
+}
+
+/* Estilização para o modal de pesquisa */
+.gamer-search-modal {
+  backdrop-filter: blur(10px);
+}
+
+.gamer-search-modal-content {
+  background-color: var(--gamer-dark);
+  border: 1px solid var(--gamer-border);
+}
+
+.gamer-search-result:hover {
+  background-color: rgba(0, 204, 255, 0.1);
+  border-color: var(--gamer-secondary);
+}

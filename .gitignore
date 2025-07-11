@@ -286,6 +286,11 @@ UpgradeLog*.htm
 *.bim.layout
 *.bim_*.settings
 
+# Ignore package.json files
+package.json
+**/package.json
+!package.json
+
 # Microsoft Fakes
 FakesAssemblies/
 
